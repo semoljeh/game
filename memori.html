@@ -176,6 +176,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   const board = document.getElementById('memory-board');
   
@@ -187,8 +192,18 @@
   let lockBoard = false;
   let firstCard, secondCard;
   let matchesFound = 0;
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
 
   function startGame() {
+    // Memutar musik saat permainan dimulai
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('win-screen').style.display = 'none';
     document.getElementById('game-container').style.display = 'flex';

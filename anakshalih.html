@@ -245,6 +245,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   // KUMPULAN 40 SOAL - Telah dibersihkan dari emoji wajah sesuai kebijakan
   const allQuizData = [
@@ -305,8 +310,18 @@
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
 
   function startGame() {
+    // Memutar musik saat kuis dimulai
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+  
     skorBenar = 0;
     skorSalah = 0;
     currentQuestionIndex = 0;

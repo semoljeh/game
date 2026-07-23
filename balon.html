@@ -406,6 +406,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   const hurufHijaiyah = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'و', 'ه', 'ي'];
   const balloonColors = ['#F44336', '#9C27B0', '#3F51B5', '#03A9F4', '#4CAF50', '#8BC34A', '#FFEB3B', '#FF9800', '#FF5722'];
@@ -422,6 +427,9 @@
   const targetLetterDisplay = document.getElementById('target-letter');
   const scoreDisplay = document.getElementById('score-display');
   const timeDisplay = document.getElementById('time-display');
+  
+  // Variabel untuk memanggil elemen audio latar
+  const bgMusic = document.getElementById('bg-music');
 
   function setNewTarget() {
     const randomIndex = Math.floor(Math.random() * hurufHijaiyah.length);
@@ -508,6 +516,13 @@
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('top-bar').style.display = 'flex';
+    
+    // Menjalankan musik latar jika sedang berhenti
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
     
     gameArea.innerHTML = '';
     

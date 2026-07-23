@@ -225,6 +225,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   // Koleksi gambar bebas dari emoji wajah manusia/malaikat sesuai dengan kebijakan MADASA
   const items = [
@@ -256,6 +261,9 @@
   const winTitleElem = document.getElementById('win-title');
   const winMessageElem = document.getElementById('win-message');
   let notifTimeout;
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
 
   const winVariations = [
     {
@@ -281,6 +289,13 @@
   ];
 
   function startGame() {
+    // Memutar musik saat kuis dimulai
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
     currentLevel = 0;
     updateProgress();
     

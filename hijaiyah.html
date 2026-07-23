@@ -243,6 +243,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   // Kumpulan Data Huruf Hijaiyah (Aman dan sesuai kaidah dasar)
   const hijaiyahData = [
@@ -277,6 +282,9 @@
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
 
   // Membuat 10 Soal Acak
   function generateQuestions() {
@@ -308,6 +316,13 @@
   }
 
   function startGame() {
+    // Memulai pemutaran musik saat tombol ditekan
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
     skorBenar = 0;
     skorSalah = 0;
     currentQuestionIndex = 0;

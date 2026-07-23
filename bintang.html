@@ -225,6 +225,11 @@
   </a>
 </div>
 
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   let score = 0;
   let timeLeft = 60; 
@@ -236,6 +241,9 @@
   const scoreDisplay = document.getElementById('scoreDisplay');
   const timeDisplay = document.getElementById('timeDisplay');
   const wrongNotif = document.getElementById('wrong-notif');
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
 
   const goodItem = '⭐';
   const badItems = ['☁️', '🎈', '🛸', '🚀']; 
@@ -263,6 +271,13 @@
   };
 
   function startGame() {
+    // Memutar musik saat permainan dimulai
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
     score = 0;
     timeLeft = 60; 
     scoreDisplay.innerText = score;
