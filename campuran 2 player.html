@@ -190,7 +190,7 @@
   }
   .btn-next:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-  /* --- LAYAR SAMBUTAN (WELCOME SCREEN - GAYA MADASA) --- */
+  /* --- LAYAR SAMBUTAN (WELCOME SCREEN) --- */
   .screen-overlay {
     display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -202,30 +202,36 @@
     background: rgba(255, 255, 255, 0.95);
     border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    max-width: 650px; width: 95%;
+    max-width: 650px; width: 95%; box-sizing: border-box;
   }
 
   .welcome-card h1 { font-size: 40px; color: #E91E63; margin: 0 0 5px 0; font-weight: 900; line-height: 1.2; }
   .welcome-card h2 { font-size: 22px; color: #03A9F4; margin: 0 0 15px 0; font-weight: 800; }
   .welcome-card p { font-size: 16px; color: #555; margin-bottom: 20px; font-weight: 700; line-height: 1.4; }
 
-  /* --- TOMBOL MODE PERMAINAN --- */
+  /* --- TOMBOL MODE PERMAINAN (DIPERBAIKI AGAR MUNGIL) --- */
   .mode-container {
-    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
   }
 
   .btn-mode {
-    padding: 12px 20px; font-size: 18px; font-weight: 900; color: white;
-    border: 4px solid #FFF; border-radius: 25px; cursor: pointer;
-    transition: 0.1s; font-family: inherit; flex-grow: 1;
+    padding: 10px 15px; font-size: 16px; font-weight: 900; color: white;
+    border: 3px solid #FFF; border-radius: 20px; cursor: pointer;
+    transition: 0.1s; font-family: inherit; 
+    flex: 1 1 40%; /* Mengatur tombol agar sejajar 2 kiri kanan */
+    max-width: 48%; /* Membatasi pelebaran maksimal */
+    box-sizing: border-box;
   }
-  .btn-mode:active { transform: translateY(6px); box-shadow: 0 0 0 !important; }
+  .btn-mode:active { transform: translateY(4px); box-shadow: 0 0 0 !important; }
 
-  .btn-campuran { background: #E91E63; box-shadow: 0 6px 0 #C2185B; width: 100%; font-size: 22px; padding: 15px; }
-  .btn-tambah { background: #4CAF50; box-shadow: 0 6px 0 #2E7D32; }
-  .btn-kurang { background: #FF9800; box-shadow: 0 6px 0 #E65100; }
-  .btn-kali { background: #9C27B0; box-shadow: 0 6px 0 #6A1B9A; }
-  .btn-bagi { background: #00BCD4; box-shadow: 0 6px 0 #00838F; }
+  .btn-campuran { 
+    flex: 1 1 100%; max-width: 100%; /* Tombol campuran tetap lebar penuh */
+    background: #E91E63; box-shadow: 0 5px 0 #C2185B; font-size: 20px; padding: 12px; 
+  }
+  .btn-tambah { background: #4CAF50; box-shadow: 0 5px 0 #2E7D32; }
+  .btn-kurang { background: #FF9800; box-shadow: 0 5px 0 #E65100; }
+  .btn-kali { background: #9C27B0; box-shadow: 0 5px 0 #6A1B9A; }
+  .btn-bagi { background: #00BCD4; box-shadow: 0 5px 0 #00838F; }
 
   .btn-play {
     padding: 12px 30px; font-size: 20px; font-weight: 900;
@@ -287,12 +293,15 @@
     
     .btn-next { font-size: 13px; padding: 8px 25px; margin-top: 25px; } 
     
-    .welcome-card h1 { font-size: 28px; }
-    .welcome-card h2 { font-size: 16px; }
-    .welcome-card p { font-size: 13px; margin-bottom: 15px; }
+    /* PENYESUAIAN KARTU SAMBUTAN AGAR LEBIH COMPACT DI HP */
+    .welcome-card { padding: 15px 15px; border-radius: 25px; max-width: 90%; }
+    .welcome-card h1 { font-size: 24px; margin-bottom: 2px; }
+    .welcome-card h2 { font-size: 14px; margin-bottom: 5px; }
+    .welcome-card p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
     
-    .btn-mode { font-size: 14px; padding: 8px 12px; }
-    .btn-campuran { font-size: 18px; padding: 10px; }
+    .mode-container { gap: 6px; }
+    .btn-mode { font-size: 12px; padding: 6px 8px; border-width: 2px; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+    .btn-campuran { font-size: 14px; padding: 8px; }
 
     .dev-link { bottom: 8px; padding: 6px 15px; font-size: 10px; }
     .result-card { width: 150px; padding: 10px; }
