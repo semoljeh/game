@@ -158,7 +158,7 @@
   .game-card h2 { font-size: 24px; font-weight: 900; margin: 0 0 10px 0; }
   .game-card p { font-size: 15px; font-weight: 700; color: #777; margin: 0; }
 
-  /* WARNA KHUSUS KARTU */
+  /* WARNA KHUSUS KARTU (Termasuk Warna Tambahan untuk Game Matematika) */
   .c-balon h2 { color: #4CAF50; } 
   .c-bayangan h2 { color: #03A9F4; } 
   .c-bintang h2 { color: #FF9800; }
@@ -179,6 +179,14 @@
   .c-susunkata h2 { color: #C0CA33; }
   .c-pola h2 { color: #C2185B; }
   .c-warna h2 { color: #673AB7; }
+
+  /* Warna Khusus Game Matematika Baru */
+  .c-tambah h2 { color: #4CAF50; }
+  .c-kurang h2 { color: #FF9800; }
+  .c-kali h2 { color: #9C27B0; }
+  .c-bagi h2 { color: #03A9F4; }
+  .c-campuran h2 { color: #E91E63; }
+  .c-2player h2 { color: #F44336; }
 
   /* TOMBOL MAIN */
   .play-btn {
@@ -207,6 +215,14 @@
   .c-susunkata .play-btn { background: linear-gradient(135deg, #DCE775, #AFB42B); box-shadow: 0 4px 10px rgba(205, 220, 57, 0.2); }
   .c-pola .play-btn { background: linear-gradient(135deg, #F06292, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
   .c-warna .play-btn { background: linear-gradient(135deg, #BA68C8, #7B1FA2); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
+
+  /* Tombol Main Game Matematika Baru */
+  .c-tambah .play-btn { background: linear-gradient(135deg, #66BB6A, #388E3C); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); }
+  .c-kurang .play-btn { background: linear-gradient(135deg, #FFA726, #F57C00); box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); }
+  .c-kali .play-btn { background: linear-gradient(135deg, #AB47BC, #7B1FA2); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
+  .c-bagi .play-btn { background: linear-gradient(135deg, #29B6F6, #0288D1); box-shadow: 0 4px 10px rgba(3, 169, 244, 0.2); }
+  .c-campuran .play-btn { background: linear-gradient(135deg, #EC407A, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
+  .c-2player .play-btn { background: linear-gradient(135deg, #EF5350, #D32F2F); box-shadow: 0 4px 10px rgba(244, 67, 54, 0.2); }
 
   .game-card:hover .play-btn { transform: translateY(-2px); }
 
@@ -283,7 +299,7 @@
   <p>Bermain & Belajar Islami dengan Ceria!</p>
 </div>
 
-<!-- GRID MENU PERMAINAN (Total 20 Game) -->
+<!-- GRID MENU PERMAINAN -->
 <div class="game-menu">
   
   <!-- === KATEGORI ISLAMI (URUTAN DEPAN) === -->
@@ -322,7 +338,6 @@
     <p>Hukum Bacaan Al-Qur'an</p>
     <div class="play-btn">Mainkan</div>
   </a>
-  
   
   <a href="sambung-ayat.html" class="game-card c-pola">
     <div class="icon-container">📖</div>
@@ -394,6 +409,9 @@
     <div class="play-btn">Mainkan</div>
   </a>
 
+
+  <!-- === KATEGORI MATEMATIKA DASAR === -->
+
   <a href="hitung.html" class="game-card c-hitung">
     <div class="icon-container">🖐️</div>
     <h2>Hitung Ceria</h2>
@@ -401,8 +419,50 @@
     <div class="play-btn">Mainkan</div>
   </a>
 
+  <a href="penjumlahan.html" class="game-card c-tambah">
+    <div class="icon-container">🍎</div>
+    <h2>Penjumlahan</h2>
+    <p>Belajar Menjumlah</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
 
-  <!-- === KATEGORI GENERAL / PENDIDIKAN UMUM (URUTAN BELAKANG) === -->
+  <a href="pengurangan.html" class="game-card c-kurang">
+    <div class="icon-container">🍓</div>
+    <h2>Pengurangan</h2>
+    <p>Belajar Sisa Berhitung</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="perkalian.html" class="game-card c-kali">
+    <div class="icon-container">📦</div>
+    <h2>Perkalian</h2>
+    <p>Penjumlahan Berulang</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="pembagian.html" class="game-card c-bagi">
+    <div class="icon-container">🍪</div>
+    <h2>Pembagian</h2>
+    <p>Berbagi Sama Rata</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="campuran.html" class="game-card c-campuran">
+    <div class="icon-container">🌟</div>
+    <h2>Ujian Campuran</h2>
+    <p>Tambah, Kurang, Kali, Bagi!</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="campuran%202%20player.html" class="game-card c-2player">
+    <div class="icon-container">⚔️</div>
+    <h2>Mode 2 Player</h2>
+    <p>Adu Cepat Matematika!</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+
+  <!-- === KATEGORI GENERAL / PENDIDIKAN UMUM === -->
   
   <a href="bintang.html" class="game-card c-bintang">
     <div class="icon-container">⭐</div>

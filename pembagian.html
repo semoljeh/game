@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+
+<title>MADASA - Pembagian Ceria</title>
+<meta name="description" content="Game edukasi Matematika untuk anak TK/RA. Belajar berhitung pembagian dasar dengan konsep berbagi sama rata!">
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #F48FB1 0%, #FCE4EC 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 95%; max-width: 500px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 30px 15px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #E91E63; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  /* --- AREA SOAL MATEMATIKA (DIPERBAIKI) --- */
+  #question-box {
+    background: rgba(255, 255, 255, 0.9); border: 4px dashed #D81B60; border-radius: 25px;
+    padding: 20px 10px; width: 100%; box-sizing: border-box; margin-bottom: 20px;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+    min-height: 150px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .math-block {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  .number-big {
+    font-size: 45px; font-weight: 900; color: #AD1457; line-height: 1; margin-bottom: 5px;
+  }
+
+  /* PERBAIKAN: Lebar ditambah, height diganti min-height agar bisa memanjang ke bawah jika emoji banyak */
+  .visual-aid {
+    font-size: 14px; letter-spacing: 1px; min-height: 25px;
+    display: flex; flex-wrap: wrap; justify-content: center; width: 100px;
+  }
+
+  /* PERBAIKAN: Posisi operator & tanda tanya diseimbangkan secara otomatis */
+  .operator {
+    font-size: 45px; font-weight: 900; color: #03A9F4; transform: translateY(-12px);
+  }
+
+  .question-mark {
+    font-size: 45px; font-weight: 900; color: #E91E63;
+    animation: pulse 1.5s infinite; transform: translateY(-12px);
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .question-instruction {
+    font-size: 16px; font-weight: 900; color: #C2185B; margin-bottom: 15px; line-height: 1.4;
+  }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: flex; justify-content: center; gap: 15px; width: 100%;
+  }
+
+  .option-btn {
+    background: #FFF; border: 4px solid #F48FB1; border-radius: 20px;
+    width: 80px; height: 80px; box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    outline: none; -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
+    font-size: 35px; font-weight: 900; color: #333;
+  }
+
+  .option-btn:active {
+    transform: translateY(4px) scale(0.95) !important; 
+    box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+  }
+
+  /* Animasi */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important; color: #D32F2F !important;}
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; background: #E8F5E9 !important; color: #2E7D32 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1.05); }
+  }
+  
+  .correct-highlight {
+    border-color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05) !important; color: #2E7D32 !important;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #E91E63 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 38px; color: #E91E63; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); line-height: 1.2; }
+  .screen p { font-size: 16px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 22px; font-weight: 900;
+    background-color: #E91E63; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #C2185B, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+    outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  .btn-green { background-color: #4CAF50; box-shadow: 0 8px 0 #2E7D32, 0 15px 20px rgba(0,0,0,0.3); }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #E91E63; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP (DIPERBAIKI) */
+  @media (max-width: 600px) {
+    #game-container { padding: 30px 15px; border-radius: 35px; width: 95%; }
+    .number-big { font-size: 38px; }
+    .operator { font-size: 38px; transform: translateY(-8px); }
+    .question-mark { font-size: 38px; transform: translateY(-8px); }
+    .visual-aid { font-size: 13px; width: 85px; }
+    
+    .option-btn { width: 70px; height: 70px; font-size: 30px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 14px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+  }
+</style>
+</head>
+
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1>🍪 Pembagian Ceria 🍪</h1>
+    <h2 style="color: #03A9F4; font-size: 20px; margin-bottom: 20px; font-weight: 800;">Ayo Berbagi Rata!</h2>
+    <p>Bagikan biskuitnya kepada teman-teman sama rata. Kamu pasti bisa, anak baik!</p>
+    <button type="button" class="btn btn-green" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Pintar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <!-- Kotak Soal Matematika -->
+  <div id="question-box">
+    <!-- Diisi oleh JavaScript -->
+  </div>
+  
+  <div class="question-instruction" id="q-text">Ada biskuit, dibagi ke anak. Tiap anak dapat?</div>
+  
+  <!-- Area Pilihan Ganda -->
+  <div id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Hebat Sekali! 🎉</h1>
+    <p>Masya Allah! Kamu sudah pintar berbagi dengan adil. Terus belajar ya!</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-green" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  
+  const gameContainer = document.getElementById('game-container');
+  const questionBox = document.getElementById('question-box');
+  const instructionText = document.getElementById('q-text');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+
+  // Visual untuk anak TK
+  const visualCookie = "🍪";
+  const visualKid = "👦";
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Fungsi menghasilkan data soal PEMBAGIAN DASAR dengan ANTI DUPLIKAT
+  function generateQuizData() {
+    let questions = [];
+    let prevQuestion = ""; // Variabel untuk mengingat soal sebelumnya
+    
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let num1, num2, correctAnswer, questionSignature;
+      
+      // Looping khusus: Acak angka sampai mendapatkan soal yang BEDA dari sebelumnya
+      do {
+        num2 = getRandomInt(1, 3); 
+        correctAnswer = getRandomInt(1, 4); 
+        num1 = num2 * correctAnswer; 
+        
+        // Buat tanda pengenal soal, contoh: "4÷2"
+        questionSignature = num1 + "÷" + num2;
+      } while (questionSignature === prevQuestion); 
+      
+      // Simpan soal yang berhasil lolos agar tidak terulang di nomor berikutnya
+      prevQuestion = questionSignature;
+      
+      // Lanjut membuat pilihan jawaban
+      let options = [{ val: correctAnswer, isCorrect: true }];
+      
+      while(options.length < 3) {
+        let randomWrong = getRandomInt(1, 6); 
+        let isExist = options.find(opt => opt.val === randomWrong);
+        
+        if (!isExist && randomWrong !== correctAnswer) {
+          options.push({ val: randomWrong, isCorrect: false });
+        }
+      }
+
+      options.sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        n1: num1,
+        n2: num2,
+        ans: correctAnswer,
+        opts: options
+      });
+    }
+    return questions;
+  }
+
+  function startGame() {
+    try {
+      if (bgMusic.paused) {
+        bgMusic.play().catch(e => console.log("Audio play prevented", e));
+      }
+    } catch(err) {
+      console.log(err);
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    activeQuiz = generateQuizData();
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    
+    // Teks instruksi: Konsep Berbagi
+    instructionText.innerHTML = `Ada <b>${currentQuiz.n1} biskuit</b> 🍪 dibagikan kepada <b>${currentQuiz.n2} anak</b> 👦.<br>Tiap anak dapat berapa biskuit?`;
+
+    questionBox.innerHTML = `
+      <div class="math-block">
+        <div class="number-big">${currentQuiz.n1}</div>
+        <div class="visual-aid">${visualCookie.repeat(currentQuiz.n1)}</div>
+      </div>
+      <div class="operator">÷</div>
+      <div class="math-block">
+        <div class="number-big">${currentQuiz.n2}</div>
+        <div class="visual-aid">${visualKid.repeat(currentQuiz.n2)}</div>
+      </div>
+      <div class="operator">=</div>
+      <div class="math-block">
+        <div class="question-mark">?</div>
+      </div>
+    `;
+
+    questionBox.style.animation = 'none';
+    questionBox.offsetHeight;
+    questionBox.style.animation = 'popIn 0.4s forwards';
+
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    optionsArea.innerHTML = '';
+    
+    currentQuiz.opts.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.type = 'button';
+      
+      btn.innerText = opt.val;
+      btn.dataset.correct = opt.isCorrect;
+      
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.15}s both`;
+      
+      btn.addEventListener('click', function() {
+        checkAnswer(this, opt.isCorrect, currentQuiz.ans);
+      });
+      
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, isCorrect, correctAnswer) {
+    if (isWaiting) return; 
+    isWaiting = true;
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    const qMark = document.querySelector('.question-mark');
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Pintar Sekali! 🌟", true);
+      qMark.innerText = correctAnswer;
+      qMark.style.color = "#4CAF50";
+      qMark.style.animation = "popAnim 0.5s";
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Ayo coba hitung lagi! 😉", false);
+      
+      allBtns.forEach(b => {
+        if(b.dataset.correct === "true") {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1600); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Hebat Sekali! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>
