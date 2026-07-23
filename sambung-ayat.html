@@ -2,13 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- Penambahan pengaturan viewport khusus agar tidak zooming saat di tap di HP -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 
-<!-- --- META TAGS DASAR --- -->
 <title>MADASA - Sambung Ayat</title>
 <meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar hafalan dan menyambung ayat suci Al-Qur'an bersama MADASA!">
 
-<!-- --- GOOGLE FONTS --- -->
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -19,7 +18,6 @@
     background: linear-gradient(to bottom, #A5D6A7 0%, #E8F5E9 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
-    /* Mencegah seleksi teks */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -27,7 +25,7 @@
     user-select: none;
   }
 
-  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  /* --- KOTAK GAME UTAMA --- */
   #game-container {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 95%; max-width: 500px; 
@@ -48,7 +46,7 @@
     border: 2px solid #FFF;
   }
 
-  /* --- AREA SOAL (AYAT SEBELUMNYA) --- */
+  /* --- AREA SOAL --- */
   .surah-badge {
     background: #FF9800; color: #FFF; padding: 4px 15px; border-radius: 15px;
     font-size: 14px; font-weight: 900; margin-bottom: 10px;
@@ -74,7 +72,7 @@
     font-size: 18px; font-weight: 900; color: #0288D1; margin-bottom: 15px;
   }
 
-  /* --- TOMBOL PILIHAN JAWABAN --- */
+  /* --- TOMBOL PILIHAN JAWABAN (DIPERBAIKI UNTUK HP) --- */
   #options-area {
     display: flex; flex-direction: column; gap: 12px; width: 100%;
   }
@@ -86,6 +84,13 @@
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
     -webkit-tap-highlight-color: transparent;
+    outline: none; /* Hilangkan garis biru default di Android */
+    font-family: inherit; /* Turunkan font dari body */
+  }
+
+  /* Mencegah klik tertahan pada teks (Bug umum di Safari/Chrome Mobile) */
+  .option-btn .arabic-text, .option-btn .latin-text {
+    pointer-events: none;
   }
 
   .option-btn .arabic-text { font-size: 26px; color: #333; margin-bottom: 2px; }
@@ -96,7 +101,7 @@
     box-shadow: 0 0 0 rgba(0,0,0,0) !important;
   }
 
-  /* Animasi Standar */
+  /* Animasi */
   .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important; }
   .shake .arabic-text, .shake .latin-text { color: #D32F2F !important; }
   @keyframes shakeAnim {
@@ -155,6 +160,7 @@
     background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
     cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
     transition: 0.1s; font-family: inherit; width: auto;
+    outline: none; -webkit-tap-highlight-color: transparent;
   }
   .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
 
@@ -216,7 +222,8 @@
     <h1 style="color: #4CAF50;">📖 Sambung Ayat 📖</h1>
     <h2 style="color: #FF9800; font-size: 20px; margin-bottom: 20px; font-weight: 800;">Murojaah Surah Pendek!</h2>
     <p>Ayo uji hafalanmu. Bacalah ayat yang muncul, lalu pilih ayat selanjutnya yang benar. Semangat anak shalih!</p>
-    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+    <!-- Tambahan type="button" agar tidak error submit form di HP -->
+    <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
   </div>
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
     Development <strong>Arom Kobama 😎</strong>
@@ -263,7 +270,8 @@
       </div>
     </div>
 
-    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+    <!-- Tambahan type="button" agar tidak error submit form di HP -->
+    <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
   </div>
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
     Development <strong>Arom Kobama 😎</strong>
@@ -343,8 +351,7 @@
   let isWaiting = false; 
   let skorBenar = 0;
   let skorSalah = 0;
-  let correctAnswer = null;
-
+  
   const gameContainer = document.getElementById('game-container');
   const surahNameDisplay = document.getElementById('surah-name');
   const qArabicDisplay = document.getElementById('q-arabic');
@@ -354,33 +361,27 @@
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
-  
   const bgMusic = document.getElementById('bg-music');
 
   function generateQuizData() {
     let questions = [];
-    // Acak seluruh bank soal
     let shuffledBank = [...quranDatabase].sort(() => 0.5 - Math.random());
     
-    // Ambil 10 soal
     for(let i = 0; i < JUMLAH_SOAL; i++) {
       let targetQ = shuffledBank[i];
       let correctOpt = { ar: targetQ.aAr, lt: targetQ.aLt, isCorrect: true };
       
-      // Cari 1 pengecoh acak dari jawaban lain di database
       let distractorOpt = null;
       let isDistractorFound = false;
       
       while(!isDistractorFound) {
         let randDist = quranDatabase[Math.floor(Math.random() * quranDatabase.length)];
-        // Pastikan pengecoh tidak sama dengan jawaban yang benar
         if (randDist.aAr !== targetQ.aAr) {
           distractorOpt = { ar: randDist.aAr, lt: randDist.aLt, isCorrect: false };
           isDistractorFound = true;
         }
       }
 
-      // Gabungkan menjadi 2 pilihan (1 benar, 1 salah) dan acak urutannya
       let options = [correctOpt, distractorOpt].sort(() => Math.random() - 0.5);
       
       questions.push({
@@ -394,8 +395,13 @@
   }
 
   function startGame() {
-    if (bgMusic.paused) {
-      bgMusic.play().catch(error => { console.log(error); });
+    // Try catch untuk blok musik agar tidak mematikan script jika diblokir browser HP
+    try {
+      if (bgMusic.paused) {
+        bgMusic.play().catch(e => console.log("Audio play prevented", e));
+      }
+    } catch(err) {
+      console.log(err);
     }
 
     skorBenar = 0;
@@ -419,12 +425,10 @@
     
     currentQDisplay.innerText = currentQuestionIndex + 1;
     
-    // Update Teks Soal
     surahNameDisplay.innerText = currentQuiz.surah;
     qArabicDisplay.innerText = currentQuiz.qAr;
     qLatinDisplay.innerText = currentQuiz.qLt;
 
-    // Animasi Ulang
     document.getElementById('question-box').style.animation = 'none';
     document.getElementById('question-box').offsetHeight;
     document.getElementById('question-box').style.animation = 'popIn 0.4s forwards';
@@ -432,25 +436,27 @@
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    // Render Tombol
     optionsArea.innerHTML = '';
+    
     currentQuiz.options.forEach((opt, index) => {
-      const btn = document.createElement('div');
+      // PERUBAHAN: Gunakan tag button untuk respons mobile yang sempurna
+      const btn = document.createElement('button');
       btn.className = 'option-btn';
+      btn.type = 'button';
       
-      // Isi Teks
       btn.innerHTML = `
         <div class="arabic-text" dir="rtl">${opt.ar}</div>
         <div class="latin-text">${opt.lt}</div>
       `;
       
-      // Tandai yang benar di attribute untuk pengecekan
       btn.dataset.correct = opt.isCorrect;
-
-      // Animasi Kemunculan
       btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.15}s both`;
       
-      btn.onclick = () => checkAnswer(btn, opt.isCorrect);
+      // Menggunakan EventListener Click murni agar stabil di iOS Safari / Android Chrome
+      btn.addEventListener('click', function() {
+        checkAnswer(this, opt.isCorrect);
+      });
+      
       optionsArea.appendChild(btn);
     });
   }
@@ -470,7 +476,6 @@
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan jawaban yang benar
       allBtns.forEach(b => {
         if(b.dataset.correct === "true") {
           b.classList.add('correct-highlight');
