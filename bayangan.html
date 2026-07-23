@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>MADASA - Tebak Bayangan</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Mari menebak bayangan benda bersama MADASA!">
+
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
+    background: linear-gradient(135deg, #FFF9C4 0%, #E1F5FE 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+  }
+
+  /* --- KONTAINER GAME --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 10; display: flex; flex-direction: column; align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 40px; border-radius: 40px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 6px solid #4FC3F7; box-sizing: border-box; max-width: 95vw;
+    width: 450px;
+  }
+
+  h2 { color: #0288D1; font-size: 28px; margin: 0 0 5px 0; text-align: center; }
+  p.instruksi { font-size: 16px; color: #555; margin: 0 0 20px 0; text-align: center; font-weight: bold; }
+
+  /* --- KOTAK AREA BAYANGAN --- */
+  #shadow-box {
+    background: #F5F5F5;
+    width: 180px; height: 180px;
+    border-radius: 30px;
+    border: 4px dashed #BDBDBD;
+    display: flex; justify-content: center; align-items: center;
+    margin-bottom: 30px;
+    font-size: 100px;
+    user-select: none;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  #shadow-item {
+    filter: brightness(0) drop-shadow(0 10px 8px rgba(0,0,0,0.2));
+  }
+
+  /* --- TOMBOL PILIHAN (JAWABAN) --- */
+  #options-area {
+    display: flex; gap: 15px; justify-content: center; width: 100%;
+  }
+
+  .option-btn {
+    background: #FFF;
+    border: 4px solid #FFD700;
+    border-radius: 20px;
+    width: 90px; height: 90px;
+    font-size: 50px;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #FFB300, 0 10px 15px rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+  }
+
+  .option-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #FFB300, 0 0 0 rgba(0,0,0,0);
+  }
+
+  .shake {
+    animation: shakeAnim 0.4s;
+    border-color: #F44336 !important;
+    box-shadow: 0 6px 0 #D32F2F !important;
+  }
+  @keyframes shakeAnim {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- PROGRESS BAR --- */
+  #progress-container {
+    width: 100%; background: #E0E0E0; border-radius: 10px;
+    height: 15px; margin-top: 25px; overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%; background: #4CAF50; width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* --- NOTIFIKASI SALAH --- */
+  #wrong-notif {
+    display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
+    background: #FF4081; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: 18px; font-weight: bold; text-align: center; border: 3px solid #FFF;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 100; pointer-events: none;
+  }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px); flex-direction: column; align-items: center;
+    justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: #fff; color: #333; padding: 40px; border-radius: 35px;
+    border: 8px solid #4FC3F7; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-width: 90%;
+  }
+
+  h1 { font-size: 45px; color: #0288D1; margin: 0 0 15px 0; }
+  .screen p { font-size: 22px; color: #555; line-height: 1.5; margin-bottom: 35px; font-weight: bold; }
+  
+  .btn {
+    padding: 15px 50px; font-size: 28px; font-weight: bold;
+    background-color: #4CAF50; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #388E3C, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* Lencana Developer */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 8px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #4FC3F7;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    white-space: nowrap; z-index: 60; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .dev-link strong { color: #0288D1; font-size: 16px; font-weight: 900; margin-left: 5px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 20px; width: 90vw; }
+    #shadow-box { width: 150px; height: 150px; font-size: 80px; }
+    .option-btn { width: 75px; height: 75px; font-size: 40px; }
+    h2 { font-size: 24px; }
+    p.instruksi { font-size: 14px; }
+    h1 { font-size: 35px; }
+    .screen p { font-size: 18px; }
+    .btn { font-size: 24px; padding: 12px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NOTIFIKASI SALAH -->
+<div id="wrong-notif">Bismillah, coba teliti lagi ya sayang 😉</div>
+
+<!-- LAYAR SAMBUTAN -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1>🌙 Tebak Bayangan Islami 🕌</h1>
+    <h2>Game MADASA</h2>
+    <p>Mari belajar mengenal ciptaan Allah dan atribut Islam dengan penuh ceria! Siap mencocokkan bayangannya?</p>
+    <button class="btn" onclick="startGame()">▶️ BISMILLAH, MAIN</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- KONTAINER GAME UTAMA -->
+<div id="game-container" style="display: none;">
+  <h2>Tebak Bayangan Ini!</h2>
+  <p class="instruksi">Pilih gambar berwarna yang bentuknya sama dengan bayangan di atas ya.</p>
+  
+  <div id="shadow-box">
+    <span id="shadow-item"></span>
+  </div>
+  
+  <div id="options-area">
+    <div class="option-btn" onclick="checkAnswer(0)"></div>
+    <div class="option-btn" onclick="checkAnswer(1)"></div>
+    <div class="option-btn" onclick="checkAnswer(2)"></div>
+  </div>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+</div>
+
+<!-- LAYAR KEMENANGAN -->
+<div id="win-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="win-title">Alhamdulillah! 🌟</h1>
+    <p id="win-message">Masya Allah, anak shalih dan shalihah! Semua bayangan berhasil ditebug dengan sangat teliti.</p>
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<script>
+  const items = ['🕌', '🕋', '🌙', '🐫', '📖', '📿', '👳‍♂️', '🧕', '🌴'];
+  
+  let currentLevel = 0;
+  const totalLevels = 5; 
+  let correctAnswer = '';
+  let options = [];
+
+  const shadowBox = document.getElementById('shadow-box');
+  const shadowItem = document.getElementById('shadow-item');
+  const optionBtns = document.querySelectorAll('.option-btn');
+  const progressBar = document.getElementById('progress-bar');
+  const wrongNotif = document.getElementById('wrong-notif');
+  
+  const winTitleElem = document.getElementById('win-title');
+  const winMessageElem = document.getElementById('win-message');
+  let notifTimeout;
+
+  // DAFTAR PILIHAN KATA-KATA KEMENANGAN BERNUANSA ISLAMI
+  const winVariations = [
+    {
+      title: "Alhamdulillah, Pintar Sekali! 🌟",
+      text: "Masya Allah, anak shalih/shalihah hebat banget! Kejelianmu luar biasa."
+    },
+    {
+      title: "Barakallahufiikum! 🎉",
+      text: "Subhanallah, semua tebakan bayangannya benar semua! Kamu anak yang cerdas."
+    },
+    {
+      title: "Allahu Akbar, Keren! 🚀",
+      text: "Luar biasa! Semangat belajarnya patut diacungi jempol. Terus rajin belajar ya!"
+    },
+    {
+      title: "Alhamdulillah, Teliti Sekali! 💡",
+      text: "Masya Allah! Kecerdasan dan ketelitianmu membuat semua tebakan jadi sangat mudah!"
+    },
+    {
+      title: "Hebat dan Sholih! 🏆",
+      text: "Alhamdulillah, barakallahu fiik! Kamu berhasil mencocokkan semua bentuk bayangannya dengan tepat."
+    }
+  ];
+
+  function startGame() {
+    currentLevel = 0;
+    updateProgress();
+    
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('win-screen').style.display = 'none';
+    document.getElementById('game-container').style.display = 'flex';
+    
+    loadNextLevel();
+  }
+
+  function loadNextLevel() {
+    correctAnswer = items[Math.floor(Math.random() * items.length)];
+    
+    let distractors = items.filter(item => item !== correctAnswer);
+    distractors.sort(() => 0.5 - Math.random());
+    let distractor1 = distractors[0];
+    let distractor2 = distractors[1];
+
+    options = [correctAnswer, distractor1, distractor2];
+    options.sort(() => 0.5 - Math.random());
+
+    shadowBox.style.animation = 'none';
+    shadowBox.offsetHeight; 
+    shadowBox.style.animation = null; 
+    
+    shadowItem.innerText = correctAnswer;
+
+    optionBtns.forEach((btn, index) => {
+      btn.innerText = options[index];
+      btn.classList.remove('shake'); 
+    });
+  }
+
+  function checkAnswer(selectedIndex) {
+    const selectedItem = options[selectedIndex];
+    const btnClicked = optionBtns[selectedIndex];
+
+    if (selectedItem === correctAnswer) {
+      currentLevel++;
+      updateProgress();
+
+      if (currentLevel >= totalLevels) {
+        const randomWin = winVariations[Math.floor(Math.random() * winVariations.length)];
+        winTitleElem.innerText = randomWin.title;
+        winMessageElem.innerText = randomWin.text;
+
+        setTimeout(() => {
+          document.getElementById('game-container').style.display = 'none';
+          document.getElementById('win-screen').style.display = 'flex';
+        }, 300);
+      } else {
+        loadNextLevel();
+      }
+    } else {
+      btnClicked.classList.add('shake');
+      showWrongNotification();
+      
+      setTimeout(() => {
+        btnClicked.classList.remove('shake');
+      }, 400);
+    }
+  }
+
+  function updateProgress() {
+    const percentage = (currentLevel / totalLevels) * 100;
+    progressBar.style.width = percentage + '%';
+  }
+
+  function showWrongNotification() {
+    wrongNotif.style.display = 'block';
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(() => {
+      wrongNotif.style.display = 'none';
+    }, 1200);
+  }
+</script>
+
+</body>
+</html>

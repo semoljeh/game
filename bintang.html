@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>MADASA - Tangkap Bintang Kebaikan</title>
+<meta name="description" content="Game ketangkasan edukasi Islam untuk anak TK/RA. Mari mengumpulkan bintang kebaikan bersama MADASA!">
+
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
+    background-color: #0b0726; /* Warna dasar jika gradien gagal */
+    color: #fff; overflow: hidden; touch-action: manipulation;
+  }
+
+  /* --- BACKGROUND ALAM AJAIB (ANIMASI) --- */
+  #scenery {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1; pointer-events: none; overflow: hidden;
+    /* Gradien langit malam yang magis (ungu ke biru gelap) */
+    background: linear-gradient(to bottom, #120e36 0%, #2b1f5c 50%, #4b3d87 100%);
+  }
+
+  /* Bulan Bercahaya */
+  .moon {
+    position: absolute; top: 40px; right: 50px;
+    width: 90px; height: 90px; background: #FFFDE7;
+    border-radius: 50%; 
+    box-shadow: 0 0 40px #FFF59D, 0 0 80px rgba(255, 245, 157, 0.5);
+  }
+
+  /* Awan Bergerak */
+  .cloud-night {
+    position: absolute; font-size: 70px; opacity: 0.2;
+    animation: floatCloud linear infinite;
+    filter: grayscale(100%) brightness(200%); /* Membuat emoji awan putih pucat */
+  }
+  .cn1 { top: 15%; left: -100px; animation-duration: 40s; }
+  .cn2 { top: 35%; left: -150px; animation-duration: 30s; font-size: 50px; animation-delay: 5s; }
+  .cn3 { top: 5%; left: -200px; animation-duration: 50s; font-size: 90px; animation-delay: 15s; }
+
+  @keyframes floatCloud {
+    from { transform: translateX(-10vw); }
+    to { transform: translateX(110vw); }
+  }
+
+  /* Bintang Kecil Kelap-kelip */
+  .tiny-star {
+    position: absolute; background: white; border-radius: 50%;
+    animation: twinkle infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.1; box-shadow: 0 0 0px #FFF; }
+    100% { opacity: 0.8; box-shadow: 0 0 8px #FFF; }
+  }
+
+  /* Siluet Bukit Latar Belakang */
+  .hill { position: absolute; border-radius: 50%; }
+  .hill-back { width: 160%; height: 35vh; left: -30%; bottom: -20vh; background: #2a1b54; }
+  .hill-front { width: 130%; height: 28vh; right: -15%; bottom: -15vh; background: #1a0e38; }
+
+  /* Siluet Masjid */
+  .mosque-sil {
+    position: absolute; bottom: 8vh; left: 50%; transform: translateX(-50%);
+    font-size: 120px; opacity: 0.7; 
+    /* Mengubah emoji masjid menjadi siluet gelap selaras bukit */
+    filter: brightness(0.2) sepia(1) hue-rotate(220deg) saturate(2); 
+  }
+
+  /* --- HEADER GAME (SKOR & WAKTU) --- */
+  #game-header {
+    position: absolute; top: 0; left: 0; width: 100%;
+    padding: 15px 20px; box-sizing: border-box;
+    display: flex; justify-content: space-between;
+    z-index: 20; font-size: 26px; font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  }
+  .info-box {
+    /* DIPERBAIKI: Background digelapkan dan lebih solid agar kontras dengan bulan */
+    background: rgba(15, 10, 40, 0.9);
+    padding: 10px 25px; border-radius: 25px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    color: #FFF;
+  }
+
+  /* --- AREA PERMAINAN --- */
+  #game-area {
+    position: absolute; top: 90px; bottom: 0; left: 0; right: 0;
+    overflow: hidden; z-index: 10;
+  }
+
+  /* --- ITEM (BINTANG & PENGECOH) --- */
+  .game-item {
+    position: absolute; font-size: 75px; cursor: pointer; user-select: none;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: transform 0.1s;
+  }
+  .game-item:active { transform: scale(0.8); }
+  .item-good { filter: drop-shadow(0 0 15px #FFD700) drop-shadow(0 0 35px #FF9800); }
+  .item-bad { filter: drop-shadow(0 4px 5px rgba(0,0,0,0.6)); }
+
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .game-item.fade-out { animation: popOut 0.3s forwards; }
+  @keyframes popOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+
+  /* --- NOTIFIKASI SALAH --- */
+  #wrong-notif {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #FF4081; color: white; padding: 15px 30px; border-radius: 30px;
+    font-size: 24px; font-weight: bold; text-align: center; border: 5px solid #FFF;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 100; pointer-events: none;
+    animation: notifPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); white-space: nowrap;
+  }
+  @keyframes notifPop { 0% { transform: translate(-50%, -50%) scale(0); } 100% { transform: translate(-50%, -50%) scale(1); } }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; background: rgba(11, 7, 38, 0.7);
+    backdrop-filter: blur(8px); flex-direction: column; align-items: center;
+    justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: linear-gradient(135deg, #ffffff, #e3f2fd); color: #333;
+    padding: 40px; border-radius: 35px; border: 8px solid #FFD700;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7); max-width: 90%;
+  }
+
+  h1 { font-size: 42px; color: #3949AB; margin: 0 0 15px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+  .screen p { font-size: 20px; color: #444; line-height: 1.5; margin-bottom: 35px; font-weight: bold; }
+  .score-highlight { font-size: 65px; color: #FF9800; display: block; margin: 15px 0; font-weight: 900; text-shadow: 2px 2px 0px #FFF; }
+
+  .btn {
+    padding: 18px 60px; font-size: 28px; font-weight: bold;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* Lencana Developer */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 8px 20px; font-size: 14px; color: #fff; text-decoration: none;
+    background: rgba(255, 255, 255, 0.15); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    white-space: nowrap; z-index: 60; backdrop-filter: blur(3px);
+  }
+  .dev-link strong { color: #FFD700; font-size: 16px; font-weight: 900; margin-left: 5px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    h1 { font-size: 30px; }
+    .screen p { font-size: 16px; }
+    .btn { font-size: 22px; padding: 15px 45px; }
+    #game-header { font-size: 18px; padding: 10px; }
+    .info-box { padding: 8px 15px; }
+    .game-item { font-size: 80px; } 
+    #wrong-notif { font-size: 16px; padding: 12px 20px; }
+    .moon { width: 60px; height: 60px; top: 20px; right: 20px;}
+    .mosque-sil { font-size: 90px; bottom: 10vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND ALAM (SCENERY) -->
+<div id="scenery">
+  <div class="moon"></div>
+  <div class="cloud-night cn1">☁️</div>
+  <div class="cloud-night cn2">☁️</div>
+  <div class="cloud-night cn3">☁️</div>
+  
+  <div class="hill hill-back"></div>
+  <div class="hill hill-front"></div>
+  <div class="mosque-sil">🕌</div>
+  
+  <!-- Bintang kelap-kelip akan di-generate oleh JS di sini -->
+</div>
+
+<!-- HEADER GAME -->
+<div id="game-header" style="display: none;">
+  <div class="info-box">⭐ Skor: <span id="scoreDisplay">0</span></div>
+  <!-- Durasi diubah ke 60 -->
+  <div class="info-box">⏱ Waktu: <span id="timeDisplay">60</span>s</div>
+</div>
+
+<!-- NOTIFIKASI SALAH TANGKAP -->
+<div id="wrong-notif">Ups! Itu bukan bintang 🤭</div>
+
+<!-- AREA GAME -->
+<div id="game-area" style="display: none;"></div>
+
+<!-- LAYAR SAMBUTAN -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1>🌟 Tangkap Bintang 🌟</h1>
+    <h2>Kumpulkan Kebaikan!</h2>
+    <!-- Teks instruksi diubah ke 60 detik -->
+    <p>Sentuh bintang (⭐) yang muncul! Awas terkecoh, jangan sentuh benda yang lain ya. Kamu punya 60 detik!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- LAYAR KEMENANGAN / HASIL -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1>Masya Allah! 🎉</h1>
+    <p>Waktu habis! Kamu berhasil mengumpulkan bintang sebanyak:</p>
+    <span class="score-highlight" id="finalScoreDisplay">0</span>
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<script>
+  let score = 0;
+  let timeLeft = 60; // DIPERBARUI: Waktu menjadi 60 detik
+  let gameInterval;
+  let timerInterval;
+  let notifTimeout;
+  
+  const gameArea = document.getElementById('game-area');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const wrongNotif = document.getElementById('wrong-notif');
+
+  const goodItem = '⭐';
+  const badItems = ['☁️', '🎈', '🛸', '🚀']; 
+  
+  const wrongMessages = [
+    "Ups! Itu bukan bintang, hihihi! 🤭",
+    "Hehehe, salah tangkap! 🙈",
+    "Wah, kurang tepat! Cari bintangnya ⭐",
+    "Teeet! Ayo fokus cari bintangnya 😆"
+  ];
+
+  window.onload = function() {
+    const scenery = document.getElementById('scenery');
+    for(let i = 0; i < 40; i++) {
+      let star = document.createElement('div');
+      star.className = 'tiny-star';
+      let size = Math.random() * 3 + 2; 
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 70 + '%';
+      star.style.animationDuration = (Math.random() * 2 + 0.5) + 's';
+      scenery.appendChild(star);
+    }
+  };
+
+  function startGame() {
+    score = 0;
+    timeLeft = 60; // DIPERBARUI: Reset waktu ke 60 detik
+    scoreDisplay.innerText = score;
+    timeDisplay.innerText = timeLeft;
+    gameArea.innerHTML = ''; 
+    wrongNotif.style.display = 'none';
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('game-header').style.display = 'flex';
+    document.getElementById('game-area').style.display = 'block';
+
+    timerInterval = setInterval(updateTime, 1000);
+    gameInterval = setInterval(spawnItem, 800);
+  }
+
+  function updateTime() {
+    timeLeft--;
+    timeDisplay.innerText = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }
+
+  function spawnItem() {
+    const item = document.createElement('div');
+    item.classList.add('game-item');
+    
+    const isGood = Math.random() > 0.25; 
+    
+    if (isGood) {
+      item.innerText = goodItem;
+      item.classList.add('item-good');
+      item.dataset.type = 'good';
+    } else {
+      const randomBad = badItems[Math.floor(Math.random() * badItems.length)];
+      item.innerText = randomBad;
+      item.classList.add('item-bad');
+      item.dataset.type = 'bad';
+    }
+
+    const maxX = gameArea.clientWidth - 90;
+    const maxY = gameArea.clientHeight - 90;
+    
+    const randomX = Math.max(0, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(0, Math.floor(Math.random() * maxY));
+
+    item.style.left = randomX + 'px';
+    item.style.top = randomY + 'px';
+
+    item.onpointerdown = function(e) {
+      e.preventDefault(); 
+      catchItem(item);
+    };
+
+    gameArea.appendChild(item);
+
+    setTimeout(() => {
+      if (gameArea.contains(item)) {
+        item.classList.add('fade-out');
+        setTimeout(() => {
+          if (gameArea.contains(item)) item.remove();
+        }, 300);
+      }
+    }, 1500);
+  }
+
+  function catchItem(itemElement) {
+    if(itemElement.classList.contains('fade-out')) return; 
+    
+    if (itemElement.dataset.type === 'good') {
+      score++;
+      scoreDisplay.innerText = score;
+      itemElement.style.transform = 'scale(1.5)';
+      itemElement.style.opacity = '0';
+      itemElement.style.transition = 'all 0.2s';
+      setTimeout(() => {
+        if (gameArea.contains(itemElement)) itemElement.remove();
+      }, 200);
+    } else {
+      showWrongNotification();
+      itemElement.style.transform = 'scale(0)';
+      itemElement.style.opacity = '0';
+      itemElement.style.transition = 'all 0.2s';
+      setTimeout(() => {
+        if (gameArea.contains(itemElement)) itemElement.remove();
+      }, 200);
+    }
+  }
+
+  function showWrongNotification() {
+    const randomMessage = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
+    wrongNotif.innerText = randomMessage;
+    wrongNotif.style.display = 'block';
+    
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(() => {
+      wrongNotif.style.display = 'none';
+    }, 1500);
+  }
+
+  function endGame() {
+    clearInterval(timerInterval);
+    clearInterval(gameInterval);
+    
+    document.getElementById('game-header').style.display = 'none';
+    document.getElementById('game-area').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'flex';
+    document.getElementById('finalScoreDisplay').innerText = score;
+    wrongNotif.style.display = 'none'; 
+  }
+</script>
+
+</body>
+</html>

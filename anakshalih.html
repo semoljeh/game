@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>MADASA - Kuis Anak Shalih</title>
+<meta name="description" content="Game Kuis Islami Edukatif untuk anak TK/RA dari MADASA.">
+
+<!-- Font Modern yang Ramah Anak -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.6);
+  }
+
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+  }
+
+  /* --- EFEK BACKGROUND --- */
+  .bg-shape {
+    position: absolute; border-radius: 50%; filter: blur(40px); z-index: -1; opacity: 0.6;
+  }
+  .shape1 { width: 300px; height: 300px; background: #ff9a9e; top: -50px; left: -50px; }
+  .shape2 { width: 400px; height: 400px; background: #fecfef; bottom: -100px; right: -50px; }
+
+  /* --- KOTAK KUIS --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 650px; z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: 3px solid var(--glass-border); border-radius: 40px;
+    padding: 35px 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  }
+
+  .level-badge {
+    background: #FF9800; color: white; padding: 5px 20px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+  }
+
+  .question-text {
+    font-size: 24px; font-weight: 800; color: #4A148C; margin: 0 0 30px 0;
+    line-height: 1.4; padding: 0 10px;
+  }
+
+  /* --- TOMBOL JAWABAN --- */
+  .options-container {
+    display: flex; gap: 20px; justify-content: center; width: 100%; flex-wrap: wrap;
+  }
+
+  .option-btn {
+    background: #FFF; border: 4px solid #E1BEE7; border-radius: 25px;
+    width: 135px; padding: 15px 10px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .emoji-icon {
+    font-size: 50px; margin-bottom: 10px;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+  }
+
+  .option-text {
+    font-size: 15px; font-weight: 900; color: #6A1B9A; line-height: 1.2;
+  }
+
+  .option-btn:hover, .option-btn:active {
+    transform: translateY(-8px) scale(1.03);
+    border-color: #AB47BC; box-shadow: 0 15px 25px rgba(171, 71, 188, 0.3);
+  }
+
+  .shake {
+    animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important;
+  }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+  }
+
+  .pop {
+    animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; background: #E8F5E9 !important;
+  }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1.05); }
+  }
+  
+  .correct-highlight {
+    border-color: #4CAF50 !important; background: #E8F5E9 !important;
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 3px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #FF4081 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: var(--glass-bg); padding: 40px 30px; border-radius: 40px;
+    border: 4px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-width: 500px;
+  }
+
+  .screen h1 { font-size: 36px; color: #6A1B9A; margin: 0 0 10px 0; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+  .screen p { font-size: 18px; color: #555; margin-bottom: 25px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 22px; font-weight: 900;
+    background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%); color: #004D40;
+    border: none; border-radius: 40px; cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0, 201, 255, 0.3); transition: 0.2s;
+  }
+  .btn:active { transform: translateY(5px); box-shadow: 0 2px 5px rgba(0, 201, 255, 0.3); }
+
+  /* --- KOTAK EVALUASI (HASIL AKHIR) --- */
+  .eval-box {
+    display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;
+  }
+  .eval-item {
+    padding: 15px 25px; border-radius: 25px; border: 3px solid; width: 120px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  }
+  .eval-benar { background: #E8F5E9; border-color: #4CAF50; }
+  .eval-salah { background: #FFEBEE; border-color: #F44336; }
+  .eval-item span { display: block; font-size: 40px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 18px; color: #333; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar {
+    width: 80%; height: 12px; background: #E1BEE7; border-radius: 10px; margin-top: 30px; overflow: hidden;
+  }
+  #progress-fill { height: 100%; background: #9C27B0; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 8px 25px; font-size: 14px; color: #fff; text-decoration: none;
+    background: rgba(106, 27, 154, 0.6); backdrop-filter: blur(5px);
+    border: 2px solid rgba(255,255,255,0.4); border-radius: 30px; z-index: 60; white-space: nowrap;
+  }
+  .dev-link strong { color: #FFD700; font-size: 16px; font-weight: 900; margin-left: 5px; }
+
+  @media (max-width: 600px) {
+    #game-container { padding: 25px 15px; border-radius: 30px; }
+    .question-text { font-size: 18px; margin-bottom: 25px; }
+    .option-btn { width: 100px; padding: 12px 6px; border-width: 3px; border-radius: 20px; }
+    .emoji-icon { font-size: 38px; margin-bottom: 8px; }
+    .option-text { font-size: 12px; }
+    .options-container { gap: 10px; }
+    .screen h1 { font-size: 28px; }
+    .screen p { font-size: 15px; }
+    .btn { font-size: 18px; padding: 12px 30px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 90px; padding: 10px 15px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-shape shape1"></div>
+<div class="bg-shape shape2"></div>
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <div style="font-size: 70px; margin-bottom: 10px;">💡</div>
+    <h1>Kuis Anak Shalih</h1>
+    <p>Ayo uji pengetahuanmu tentang Islam! Setiap kali main, pertanyaannya akan selalu baru dan diacak.</p>
+    <button class="btn" onclick="startGame()">▶️ MULAI KUIS</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Pertanyaan <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <div class="question-text" id="question-text">Memuat pertanyaan...</div>
+  
+  <div class="options-container" id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <div style="font-size: 65px; margin-bottom: 10px;">🏆</div>
+    <h1 id="result-title">Alhamdulillah!</h1>
+    <p>Permainan selesai. Ini adalah hasil tebakanmu:</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<script>
+  // KUMPULAN 40 SOAL (Tanpa Emotikon Wajah Manusia untuk Nabi/Malaikat)
+  const allQuizData = [
+    { question: "Di manakah tempat umat Islam melaksanakan shalat berjamaah?", options: [ { emoji: '🕌', text: 'Masjid', isCorrect: true }, { emoji: '🏥', text: 'Rumah Sakit', isCorrect: false }, { emoji: '🏫', text: 'Sekolah', isCorrect: false } ] },
+    { question: "Bangunan suci yang menjadi arah kiblat umat Islam saat shalat adalah...", options: [ { emoji: '⛺', text: 'Tenda', isCorrect: false }, { emoji: '🕋', text: "Ka'bah", isCorrect: true }, { emoji: '🏰', text: 'Istana', isCorrect: false } ] },
+    { question: "Kitab suci pedoman hidup umat Islam adalah...", options: [ { emoji: '📖', text: "Al-Qur'an", isCorrect: true }, { emoji: '📱', text: 'HP', isCorrect: false }, { emoji: '📰', text: 'Koran', isCorrect: false } ] },
+    { question: "Saat Hari Raya Idul Adha, hewan apakah yang biasanya disembelih untuk kurban?", options: [ { emoji: '🐈', text: 'Kucing', isCorrect: false }, { emoji: '🐰', text: 'Kelinci', isCorrect: false }, { emoji: '🐏', text: 'Domba', isCorrect: true } ] },
+    { question: "Waktu kita melaksanakan Shalat Subuh adalah pada saat...", options: [ { emoji: '🌅', text: 'Pagi Hari', isCorrect: true }, { emoji: '☀️', text: 'Siang Hari', isCorrect: false }, { emoji: '🌌', text: 'Malam Hari', isCorrect: false } ] },
+    { question: "Sebelum melaksanakan shalat, kita diwajibkan untuk bersuci dengan cara...", options: [ { emoji: '💧', text: 'Wudhu', isCorrect: true }, { emoji: '🍽️', text: 'Makan', isCorrect: false }, { emoji: '🛌', text: 'Tidur', isCorrect: false } ] },
+    { question: "Benda apakah yang biasanya digunakan untuk menghitung dzikir?", options: [ { emoji: '📿', text: 'Tasbih', isCorrect: true }, { emoji: '⌚', text: 'Jam Tangan', isCorrect: false }, { emoji: '💍', text: 'Cincin', isCorrect: false } ] },
+    { question: "Pakaian khusus yang digunakan perempuan untuk menutup aurat saat shalat disebut...", options: [ { emoji: '🧕', text: 'Mukena', isCorrect: true }, { emoji: '👗', text: 'Gaun', isCorrect: false }, { emoji: '🧢', text: 'Topi', isCorrect: false } ] },
+    { question: "Suara panggilan dari masjid yang menandakan telah masuk waktu shalat disebut...", options: [ { emoji: '📢', text: 'Adzan', isCorrect: true }, { emoji: '🔔', text: 'Lonceng', isCorrect: false }, { emoji: '🎺', text: 'Terompet', isCorrect: false } ] },
+    { question: "Rukun Islam yang pertama adalah mengucapkan dua kalimat...", options: [ { emoji: '☝️', text: 'Syahadat', isCorrect: true }, { emoji: '💰', text: 'Zakat', isCorrect: false }, { emoji: '🕋', text: 'Haji', isCorrect: false } ] },
+    { question: "Umat Islam diwajibkan berpuasa sebulan penuh pada bulan...", options: [ { emoji: '🌙', text: 'Ramadhan', isCorrect: true }, { emoji: '✨', text: 'Syawal', isCorrect: false }, { emoji: '🌧️', text: 'Muharram', isCorrect: false } ] },
+    { question: "Nabi dan manusia pertama yang diciptakan oleh Allah SWT ke bumi adalah...", options: [ { emoji: '🌍', text: 'Nabi Adam', isCorrect: true }, { emoji: '🚢', text: 'Nabi Nuh', isCorrect: false }, { emoji: '🦯', text: 'Nabi Musa', isCorrect: false } ] },
+    { question: "Alas yang biasa kita bentangkan di lantai untuk shalat disebut...", options: [ { emoji: '🕌', text: 'Sajadah', isCorrect: true }, { emoji: '🛏️', text: 'Kasur', isCorrect: false }, { emoji: '🛋️', text: 'Sofa', isCorrect: false } ] },
+    { question: "Air suci dan penuh berkah yang memancar di dekat Ka'bah bernama...", options: [ { emoji: '💧', text: 'Air Zamzam', isCorrect: true }, { emoji: '🧃', text: 'Jus Buah', isCorrect: false }, { emoji: '🥛', text: 'Susu', isCorrect: false } ] },
+    { question: "Malaikat yang bertugas menyampaikan wahyu Al-Qur'an adalah...", options: [ { emoji: '📜', text: 'Malaikat Jibril', isCorrect: true }, { emoji: '🌧️', text: 'Malaikat Mikail', isCorrect: false }, { emoji: '🎺', text: 'Malaikat Israfil', isCorrect: false } ] },
+    { question: "Nabi yang diperintahkan Allah membuat kapal besar untuk menyelamatkan umatnya adalah...", options: [ { emoji: '🚢', text: 'Nabi Nuh', isCorrect: true }, { emoji: '🌊', text: 'Nabi Musa', isCorrect: false }, { emoji: '🐪', text: 'Nabi Shalih', isCorrect: false } ] },
+    { question: "Setelah kita bersin, kalimat tayyibah apa yang harus kita ucapkan?", options: [ { emoji: '🤲', text: 'Alhamdulillah', isCorrect: true }, { emoji: '👋', text: 'Halo', isCorrect: false }, { emoji: '😭', text: 'Maaf', isCorrect: false } ] },
+    { question: "Shalat fardhu yang dikerjakan pada saat siang hari adalah shalat...", options: [ { emoji: '☀️', text: 'Dzuhur', isCorrect: true }, { emoji: '🌙', text: 'Isya', isCorrect: false }, { emoji: '🌅', text: 'Subuh', isCorrect: false } ] },
+    { question: "Kota suci tempat kelahiran Nabi Muhammad SAW adalah...", options: [ { emoji: '🕋', text: 'Makkah', isCorrect: true }, { emoji: '🕌', text: 'Madinah', isCorrect: false }, { emoji: '🏰', text: 'Palestina', isCorrect: false } ] },
+    { question: "Nabi yang memiliki mukjizat tongkat bisa membelah lautan adalah...", options: [ { emoji: '🦯', text: 'Nabi Musa', isCorrect: true }, { emoji: '🚢', text: 'Nabi Nuh', isCorrect: false }, { emoji: '🔥', text: 'Nabi Ibrahim', isCorrect: false } ] },
+    { question: "Nabi yang pernah bertahan hidup di dalam perut ikan paus besar adalah...", options: [ { emoji: '🐳', text: 'Nabi Yunus', isCorrect: true }, { emoji: '🐪', text: 'Nabi Shalih', isCorrect: false }, { emoji: '🦯', text: 'Nabi Musa', isCorrect: false } ] },
+    { question: "Bulan di mana umat Islam merayakan Hari Raya Idul Fitri adalah...", options: [ { emoji: '✨', text: 'Syawal', isCorrect: true }, { emoji: '🌙', text: 'Ramadhan', isCorrect: false }, { emoji: '🕋', text: 'Dzulhijjah', isCorrect: false } ] },
+    { question: "Shalat fardhu yang jumlah rakaatnya paling sedikit (2 rakaat) adalah...", options: [ { emoji: '🌅', text: 'Subuh', isCorrect: true }, { emoji: '☀️', text: 'Dzuhur', isCorrect: false }, { emoji: '🌌', text: 'Maghrib', isCorrect: false } ] },
+    { question: "Shalat fardhu yang dikerjakan saat matahari terbenam (sore menuju malam) adalah...", options: [ { emoji: '🌇', text: 'Maghrib', isCorrect: true }, { emoji: '🌌', text: 'Isya', isCorrect: false }, { emoji: '☀️', text: 'Ashar', isCorrect: false } ] },
+    { question: "Malaikat yang bertugas membagi rezeki dan menurunkan hujan adalah...", options: [ { emoji: '🌧️', text: 'Malaikat Mikail', isCorrect: true }, { emoji: '📜', text: 'Malaikat Jibril', isCorrect: false }, { emoji: '🎺', text: 'Malaikat Israfil', isCorrect: false } ] },
+    { question: "Tempat berkumpulnya jamaah haji saat melaksanakan wukuf adalah...", options: [ { emoji: '⛺', text: 'Padang Arafah', isCorrect: true }, { emoji: '🕋', text: "Ka'bah", isCorrect: false }, { emoji: '⛰️', text: 'Bukit Shafa', isCorrect: false } ] },
+    { question: "Rukun Islam yang keempat adalah menunaikan...", options: [ { emoji: '💰', text: 'Zakat', isCorrect: true }, { emoji: '🌙', text: 'Puasa', isCorrect: false }, { emoji: '🕋', text: 'Haji', isCorrect: false } ] },
+    { question: "Rukun Iman yang pertama adalah beriman kepada...", options: [ { emoji: '☝️', text: 'Allah SWT', isCorrect: true }, { emoji: '📜', text: 'Kitab', isCorrect: false }, { emoji: '🕌', text: 'Rasul', isCorrect: false } ] },
+    { question: "Air yang turun dari langit dan boleh digunakan untuk wudhu disebut...", options: [ { emoji: '🌧️', text: 'Air Hujan', isCorrect: true }, { emoji: '💧', text: 'Air Mata', isCorrect: false }, { emoji: '🧃', text: 'Sirup', isCorrect: false } ] },
+    { question: "Hari raya mingguan bagi umat Islam untuk melaksanakan shalat berjamaah besar adalah...", options: [ { emoji: '🕌', text: 'Hari Jumat', isCorrect: true }, { emoji: '☀️', text: 'Hari Ahad', isCorrect: false }, { emoji: '🌙', text: 'Hari Senin', isCorrect: false } ] },
+    { question: "Sebelum membaca ayat suci Al-Qur'an, kita dianjurkan untuk membaca...", options: [ { emoji: '🛡️', text: "Ta'awudz", isCorrect: true }, { emoji: '🗣️', text: 'Takbir', isCorrect: false }, { emoji: '🤲', text: 'Hamdalah', isCorrect: false } ] },
+    { question: "Nabi terakhir yang diutus oleh Allah SWT sebagai penutup para nabi adalah...", options: [ { emoji: '🕌', text: 'Nabi Muhammad', isCorrect: true }, { emoji: '🦯', text: 'Nabi Musa', isCorrect: false }, { emoji: '🌍', text: 'Nabi Adam', isCorrect: false } ] },
+    { question: "Pepatah Islami mengatakan bahwa Surga berada di bawah telapak kaki...", options: [ { emoji: '🤱', text: 'Ibu', isCorrect: true }, { emoji: '💼', text: 'Ayah', isCorrect: false }, { emoji: '👵', text: 'Nenek', isCorrect: false } ] },
+    { question: "Benda penunjuk arah yang bisa membantu umat Islam mencari arah kiblat adalah...", options: [ { emoji: '🧭', text: 'Kompas', isCorrect: true }, { emoji: '📱', text: 'HP Mainan', isCorrect: false }, { emoji: '🗺️', text: 'Peta Harta', isCorrect: false } ] },
+    { question: "Hewan dari surga yang menjadi tunggangan Nabi Muhammad saat Isra' Mi'raj bernama...", options: [ { emoji: '🐎', text: 'Buraq', isCorrect: true }, { emoji: '🐪', text: 'Unta', isCorrect: false }, { emoji: '🐘', text: 'Gajah', isCorrect: false } ] },
+    { question: "Apa kalimat yang harus kita ucapkan sebelum memulai belajar, makan, atau kebaikan lainnya?", options: [ { emoji: '🤲', text: 'Bismillah', isCorrect: true }, { emoji: '🗣️', text: 'Alhamdulillah', isCorrect: false }, { emoji: '🌟', text: 'Subhanallah', isCorrect: false } ] },
+    { question: "Perbuatan membuang sampah sembarangan dibenci Allah karena kebersihan adalah sebagian dari...", options: [ { emoji: '✨', text: 'Iman', isCorrect: true }, { emoji: '💰', text: 'Harta', isCorrect: false }, { emoji: '🏆', text: 'Lomba', isCorrect: false } ] },
+    { question: "Malaikat yang bertugas meniup sangkakala pada hari kiamat adalah...", options: [ { emoji: '🎺', text: 'Malaikat Israfil', isCorrect: true }, { emoji: '📜', text: 'Malaikat Jibril', isCorrect: false }, { emoji: '🌧️', text: 'Malaikat Mikail', isCorrect: false } ] },
+    { question: "Ibadah berjalan mengelilingi Ka'bah sebanyak 7 kali dalam ibadah Haji/Umrah disebut...", options: [ { emoji: '🔄', text: 'Thawaf', isCorrect: true }, { emoji: '🚶', text: "Sa'i", isCorrect: false }, { emoji: '✂️', text: 'Tahallul', isCorrect: false } ] },
+    { question: "Air suci yang diciptakan Allah untuk mensucikan diri dari najis disebut air yang...", options: [ { emoji: '💧', text: 'Mutlak/Suci', isCorrect: true }, { emoji: '☕', text: 'Kopi', isCorrect: false }, { emoji: '🍯', text: 'Madu', isCorrect: false } ] }
+  ];
+
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  
+  // Hanya menampilkan 10 soal dari 40 total soal per game
+  const JUMLAH_SOAL = 10; 
+
+  const gameContainer = document.getElementById('game-container');
+  const questionText = document.getElementById('question-text');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+
+  function startGame() {
+    // Reset Skor & Data
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    // Acak seluruh bank soal dan potong sebanyak 10 soal saja
+    let shuffledData = [...allQuizData].sort(() => Math.random() - 0.5);
+    activeQuiz = shuffledData.slice(0, JUMLAH_SOAL);
+    
+    totalQDisplay.innerText = activeQuiz.length;
+
+    // Tampilkan Area Permainan
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    questionText.innerText = currentQuiz.question;
+    optionsArea.innerHTML = '';
+
+    const progressPercent = (currentQuestionIndex / activeQuiz.length) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    // Acak Posisi Pilihan Jawaban (Kiri, Tengah, Kanan selalu berubah)
+    let shuffledOptions = [...currentQuiz.options].sort(() => Math.random() - 0.5);
+
+    shuffledOptions.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      
+      btn.innerHTML = `
+        <div class="emoji-icon">${opt.emoji}</div>
+        <div class="option-text">${opt.text}</div>
+      `;
+      
+      btn.onclick = () => checkAnswer(btn, opt.isCorrect, opt.text);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, isCorrect, jawabanDipilih) {
+    if (isWaiting) return; 
+    isWaiting = true; // Kunci tombol agar tidak bisa klik 2 kali beruntun
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Masya Allah, Benar! 🌟", true);
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      
+      // Jika salah, tunjukkan otomatis jawaban mana yang benar dengan warna hijau
+      allBtns.forEach(b => {
+        const textElement = b.querySelector('.option-text');
+        const trueOption = activeQuiz[currentQuestionIndex].options.find(o => o.isCorrect);
+        if(textElement.innerText === trueOption.text) {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    // Jeda 1.5 detik agar anak bisa melihat hasil benar/salah, lalu pindah soal
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < activeQuiz.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>
