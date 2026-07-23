@@ -4,22 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>MADASA - Hitung Ceria Islami</title>
-<meta name="description" content="Game Belajar Berhitung untuk anak TK/RA dari MADASA.">
+<title>MADASA - Kenal Hijaiyah</title>
+<meta name="description" content="Game Belajar Huruf Hijaiyah interaktif untuk anak TK/RA dari MADASA.">
 
-<!-- --- GOOGLE FONTS (PENTING AGAR FONT KONSISTEN DI HP) --- -->
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<!-- --- GOOGLE FONTS: Nunito (Latin) & Amiri (Arab yang Sangat Jelas) --- -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
   /* --- PENGATURAN DASAR --- */
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    /* Disamakan dengan tema utama MADASA */
     background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
-    /* Mencegah seleksi teks (copy paste) */
+    /* Mencegah seleksi teks */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -49,48 +48,44 @@
   }
 
   .question-text {
-    font-size: 22px; font-weight: 900; color: #0288D1; margin: 0 0 20px 0; line-height: 1.3;
+    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 10px 0;
   }
 
-  /* --- AREA BENDA (YANG DIHITUNG) --- */
-  #items-area {
-    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    gap: 10px; min-height: 120px; margin-bottom: 30px;
-    background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 25px;
-    border: 4px dashed #4fc3f7; width: 90%; box-sizing: border-box;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
-  }
-  
-  .item-emoji {
-    font-size: 50px;
+  #target-letter {
+    font-size: 45px; font-weight: 900; color: #E91E63; margin-bottom: 30px;
+    text-transform: uppercase; letter-spacing: 2px;
+    background: rgba(255, 255, 255, 0.9); padding: 10px 30px; border-radius: 20px;
+    border: 3px dashed #E91E63;
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
-  }
-  @keyframes popIn {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
   }
 
-  /* --- TOMBOL ANGKA --- */
+  /* --- TOMBOL JAWABAN (HURUF HIJAIYAH) --- */
   .options-container {
-    display: flex; gap: 15px; justify-content: center; width: 100%;
+    display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap;
   }
 
   .option-btn {
-    background: #FFF; border: 5px solid #FFCA28; border-radius: 25px;
+    background: #FFF; border: 4px solid #4FC3F7; border-radius: 25px;
     width: 90px; height: 90px; 
     display: flex; justify-content: center; align-items: center;
-    font-size: 45px; font-weight: 900; color: #FF8F00;
+    
+    /* Menggunakan Font Arab Khusus dan Ukuran Diperbesar */
+    font-family: 'Amiri', 'Times New Roman', serif;
+    font-size: 65px; 
+    font-weight: bold; color: #0288D1;
+    
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     -webkit-tap-highlight-color: transparent;
+    line-height: 1; padding-bottom: 15px; /* Penyesuaian agar posisi huruf di tengah */
   }
 
   .option-btn:hover, .option-btn:active {
     transform: translateY(-8px) scale(1.05);
-    border-color: #FF8F00; box-shadow: 0 15px 25px rgba(255, 143, 0, 0.3); color: #E65100;
+    border-color: #0288D1; box-shadow: 0 15px 25px rgba(2, 136, 209, 0.3);
   }
 
+  /* Animasi standar MADASA */
   .shake {
     animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important;
   }
@@ -114,6 +109,11 @@
     border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important;
   }
 
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+
   /* --- NOTIFIKASI --- */
   #feedback-msg {
     position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
@@ -125,7 +125,7 @@
   .feedback-show { top: -25px !important; opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL (KONSISTEN GLASSMORPHISM) --- */
+  /* --- LAYAR MENU & HASIL --- */
   .screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -140,7 +140,6 @@
   .screen h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
   .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
   
-  /* Tombol disamakan dengan modul lain */
   .btn {
     padding: 15px 40px; font-size: 24px; font-weight: 900;
     background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
@@ -174,10 +173,9 @@
 
   @media (max-width: 600px) {
     #game-container { padding: 40px 15px; border-radius: 35px; width: 90%; }
-    .question-text { font-size: 18px; margin-bottom: 15px; }
-    #items-area { width: 100%; padding: 15px 10px; min-height: 120px; gap: 8px; box-sizing: border-box; border-width: 3px; }
-    .item-emoji { font-size: 42px; }
-    .option-btn { width: 75px; height: 75px; font-size: 35px; border-width: 4px; border-radius: 20px; }
+    .question-text { font-size: 18px; }
+    #target-letter { font-size: 38px; padding: 10px 20px; margin-bottom: 25px; }
+    .option-btn { width: 80px; height: 80px; font-size: 55px; border-width: 3px; border-radius: 20px; }
     .options-container { gap: 12px; }
     .screen h1 { font-size: 32px; }
     .screen p { font-size: 15px; margin-bottom: 25px; }
@@ -187,21 +185,18 @@
     .eval-item span { font-size: 30px; }
     .eval-item h3 { font-size: 14px; }
     .eval-item p { font-size: 22px; }
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
   }
 </style>
 </head>
 
-<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <!-- LAYAR MENU AWAL -->
 <div id="welcome-screen" class="screen" style="display: flex;">
   <div class="screen-content">
-    <h1 style="color: #E91E63;">🖐️ Hitung Ceria 🖐️</h1>
-    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Belajar Berhitung!</h2>
-    <p>Hitung ada berapa jumlah benda yang muncul, lalu pilih angka yang tepat. Siap mencoba?</p>
+    <h1 style="color: #E91E63;">📖 Kenal Hijaiyah 📖</h1>
+    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Ayo Mengenal Huruf!</h2>
+    <p>Mari belajar mencari dan mencocokkan huruf-huruf Hijaiyah. Temukan huruf yang diminta ya!</p>
     <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
   </div>
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
@@ -214,15 +209,10 @@
   <div id="feedback-msg">Benar!</div>
   <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
   
-  <div class="question-text" id="question-text">Ada berapa benda di bawah ini?</div>
+  <div class="question-text">Carilah huruf:</div>
+  <div id="target-letter">ALIF</div>
   
-  <div id="items-area">
-    <!-- Benda yang dihitung akan muncul di sini -->
-  </div>
-  
-  <div class="options-container" id="options-area">
-    <!-- Tombol Angka (Pilihan Ganda) -->
-  </div>
+  <div class="options-container" id="options-area"></div>
 
   <div id="progress-bar"><div id="progress-fill"></div></div>
 </div>
@@ -231,7 +221,7 @@
 <div id="result-screen" class="screen">
   <div class="screen-content">
     <h1 id="result-title">Alhamdulillah! 🎉</h1>
-    <p>Kamu sudah pintar berhitung. Ini adalah hasilnya:</p>
+    <p>Kamu sudah pintar mengenal huruf Hijaiyah. Ini adalah hasil belajarmu:</p>
     
     <div class="eval-box">
       <div class="eval-item eval-benar">
@@ -254,34 +244,68 @@
 </div>
 
 <script>
-  // Daftar benda Islami & umum untuk dihitung (Bebas dari gambar wajah/manusia)
-  const objectsToCount = [
-    { emoji: '🕌', name: 'Masjid' },
-    { emoji: '🕋', name: "Ka'bah" },
-    { emoji: '📖', name: "Al-Qur'an" },
-    { emoji: '📿', name: 'Tasbih' },
-    { emoji: '🌙', name: 'Bulan' },
-    { emoji: '⭐', name: 'Bintang' },
-    { emoji: '🐪', name: 'Unta' },
-    { emoji: '🌴', name: 'Pohon Kurma' },
-    { emoji: '🍎', name: 'Apel' }
+  // Kumpulan Data Huruf Hijaiyah (Aman dan sesuai kaidah dasar)
+  const hijaiyahData = [
+    { letter: 'ا', name: 'Alif' }, { letter: 'ب', name: 'Ba' },
+    { letter: 'ت', name: 'Ta' }, { letter: 'ث', name: 'Tsa' },
+    { letter: 'ج', name: 'Jim' }, { letter: 'ح', name: 'Ha' },
+    { letter: 'خ', name: 'Kha' }, { letter: 'د', name: 'Dal' },
+    { letter: 'ذ', name: 'Dzal' }, { letter: 'ر', name: 'Ra' },
+    { letter: 'ز', name: 'Zai' }, { letter: 'س', name: 'Sin' },
+    { letter: 'ش', name: 'Syin' }, { letter: 'ص', name: 'Shad' },
+    { letter: 'ض', name: 'Dhad' }, { letter: 'ط', name: 'Tha' },
+    { letter: 'ظ', name: 'Zha' }, { letter: 'ع', name: "'Ain" },
+    { letter: 'غ', name: 'Ghain' }, { letter: 'ف', name: 'Fa' },
+    { letter: 'ق', name: 'Qaf' }, { letter: 'ك', name: 'Kaf' },
+    { letter: 'ل', name: 'Lam' }, { letter: 'م', name: 'Mim' },
+    { letter: 'ن', name: 'Nun' }, { letter: 'و', name: 'Wawu' },
+    { letter: 'ه', name: 'Ha' }, { letter: 'ي', name: 'Ya' }
   ];
 
   const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
   let currentQuestionIndex = 0;
   let isWaiting = false; 
   let skorBenar = 0;
   let skorSalah = 0;
-  let correctNumber = 0;
+  let correctLetter = "";
 
   const gameContainer = document.getElementById('game-container');
-  const itemsArea = document.getElementById('items-area');
+  const targetNameDisplay = document.getElementById('target-letter');
   const optionsArea = document.getElementById('options-area');
   const currentQDisplay = document.getElementById('current-q');
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
-  const questionText = document.getElementById('question-text');
+
+  // Membuat 10 Soal Acak
+  function generateQuestions() {
+    let questions = [];
+    let shuffledData = [...hijaiyahData].sort(() => Math.random() - 0.5);
+    
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let target = shuffledData[i];
+      
+      let qObj = {
+        questionName: target.name,
+        correctAnswer: target.letter,
+        options: [target.letter]
+      };
+
+      // Mencari 2 pengecoh yang tidak sama dengan jawaban benar
+      while(qObj.options.length < 3) {
+        let wrongTarget = hijaiyahData[Math.floor(Math.random() * hijaiyahData.length)];
+        if(!qObj.options.includes(wrongTarget.letter)) {
+          qObj.options.push(wrongTarget.letter);
+        }
+      }
+      
+      // Acak posisi pilihan ganda
+      qObj.options.sort(() => Math.random() - 0.5);
+      questions.push(qObj);
+    }
+    return questions;
+  }
 
   function startGame() {
     skorBenar = 0;
@@ -289,6 +313,7 @@
     currentQuestionIndex = 0;
     isWaiting = false;
     
+    activeQuiz = generateQuestions();
     totalQDisplay.innerText = JUMLAH_SOAL;
 
     document.getElementById('welcome-screen').style.display = 'none';
@@ -300,52 +325,37 @@
 
   function loadQuestion() {
     isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctLetter = currentQuiz.correctAnswer;
+    
     currentQDisplay.innerText = currentQuestionIndex + 1;
-    itemsArea.innerHTML = '';
+    
+    targetNameDisplay.style.animation = 'none';
+    targetNameDisplay.offsetHeight;
+    targetNameDisplay.style.animation = null; 
+    
+    targetNameDisplay.innerText = currentQuiz.questionName;
     optionsArea.innerHTML = '';
 
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    const randomObject = objectsToCount[Math.floor(Math.random() * objectsToCount.length)];
-    correctNumber = Math.floor(Math.random() * 10) + 1;
-
-    questionText.innerText = `Coba hitung, ada berapa ${randomObject.name}?`;
-
-    for (let i = 0; i < correctNumber; i++) {
-      const itemSpan = document.createElement('span');
-      itemSpan.className = 'item-emoji';
-      itemSpan.innerText = randomObject.emoji;
-      itemSpan.style.animationDelay = `${i * 0.05}s`;
-      itemsArea.appendChild(itemSpan);
-    }
-
-    let options = [correctNumber];
-    while(options.length < 3) {
-      let randomWrongAnswer = Math.floor(Math.random() * 10) + 1;
-      if(randomWrongAnswer !== correctNumber && !options.includes(randomWrongAnswer)) {
-        options.push(randomWrongAnswer);
-      }
-    }
-    
-    options.sort(() => Math.random() - 0.5);
-
-    options.forEach(num => {
+    currentQuiz.options.forEach(opt => {
       const btn = document.createElement('div');
       btn.className = 'option-btn';
-      btn.innerText = num;
+      btn.innerText = opt;
       
-      btn.onclick = () => checkAnswer(btn, num);
+      btn.onclick = () => checkAnswer(btn, opt);
       optionsArea.appendChild(btn);
     });
   }
 
-  function checkAnswer(btn, selectedNumber) {
+  function checkAnswer(btn, selectedOption) {
     if (isWaiting) return; 
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
-    const isCorrect = (selectedNumber === correctNumber);
+    const isCorrect = (selectedOption === correctLetter);
 
     if (isCorrect) {
       btn.classList.add('pop');
@@ -356,8 +366,9 @@
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
+      // Tunjukkan huruf yang benar
       allBtns.forEach(b => {
-        if(parseInt(b.innerText) === correctNumber) {
+        if(b.innerText === correctLetter) {
           b.classList.add('correct-highlight');
         }
       });

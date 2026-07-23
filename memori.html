@@ -7,42 +7,55 @@
 <title>MADASA - Game Memori Islami</title>
 <meta name="description" content="Game edukasi Islam untuk anak TK/RA. Mari melatih daya ingat bersama MADASA!">
 
+<!-- --- GOOGLE FONTS (PENTING AGAR FONT KONSISTEN DI HP) --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
 <style>
+  /* --- PENGATURAN DASAR --- */
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
-    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    /* Disamakan dengan tema utama MADASA */
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks (copy paste) */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
-  /* --- KONTAINER UTAMA GAME --- */
+  /* --- KONTAINER UTAMA GAME (GLASSMORPHISM) --- */
   #game-container {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     z-index: 10; display: flex; flex-direction: column; align-items: center;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
     padding: 20px 30px; border-radius: 30px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    border: 5px solid #FF4081; box-sizing: border-box; max-width: 95vw;
+    border: 5px solid #FFF; box-sizing: border-box; max-width: 95vw;
   }
 
-  h2 { color: #E91E63; font-size: 26px; margin: 0 0 10px 0; text-align: center; }
-  p.instruksi { font-size: 15px; color: #555; margin: 0 0 20px 0; text-align: center; font-weight: bold; }
+  h2 { color: #E91E63; font-size: 28px; margin: 0 0 10px 0; text-align: center; font-weight: 900; }
+  p.instruksi { font-size: 16px; color: #555; margin: 0 0 20px 0; text-align: center; font-weight: 800; }
 
   /* --- PAPAN KARTU (GRID 3x4) --- */
   #memory-board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 12px;
     perspective: 1000px; /* Untuk efek 3D flip */
   }
 
   /* --- DESAIN KARTU --- */
   .card {
-    width: 65px; height: 65px;
+    width: 70px; height: 70px;
     position: relative;
     cursor: pointer;
     transform-style: preserve-3d;
-    transition: transform 0.5s;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
 
   .card.flipped, .card.matched {
@@ -52,28 +65,28 @@
   .card-face {
     position: absolute; width: 100%; height: 100%;
     backface-visibility: hidden;
-    border-radius: 12px;
+    border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 35px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    font-size: 40px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   }
 
   .card-front {
     background: linear-gradient(135deg, #FFD54F, #FFCA28);
-    border: 3px solid #FFF;
+    border: 4px solid #FFF;
     color: #FFF;
-    font-size: 24px;
+    font-size: 30px;
   }
 
   .card-front::after {
     content: '?'; /* Tanda tanya di belakang kartu */
-    font-weight: bold;
+    font-weight: 900;
     color: #FFF;
   }
 
   .card-back {
     background: #FFF;
-    border: 3px solid #FF4081;
+    border: 4px solid #FF4081;
     transform: rotateY(180deg);
   }
 
@@ -85,19 +98,20 @@
   /* --- LAYAR MENU & HASIL --- */
   .screen {
     display: none; position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px); flex-direction: column; align-items: center;
+    width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px); flex-direction: column; align-items: center;
     justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
   }
 
-  h1 { font-size: 40px; color: #E91E63; margin: 0 0 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-  .screen p { font-size: 20px; max-width: 600px; color: #555; line-height: 1.5; margin-bottom: 30px; font-weight: bold; }
+  h1 { font-size: 40px; color: #4CAF50; margin: 0 0 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-weight: 900; }
+  .screen p { font-size: 18px; max-width: 600px; color: #555; line-height: 1.5; margin-bottom: 30px; font-weight: 700; }
 
+  /* Tombol disamakan gayanya dengan balon.html */
   .btn {
-    padding: 15px 50px; font-size: 25px; font-weight: bold;
-    background-color: #03A9F4; color: white;
-    border: 5px solid #FFF; border-radius: 30px;
-    cursor: pointer; box-shadow: 0 8px 0 #0288D1, 0 15px 20px rgba(0,0,0,0.3);
+    padding: 15px 40px; font-size: 24px; font-weight: 900;
+    background-color: #FF9800; color: white;
+    border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
     transition: 0.1s; font-family: inherit;
   }
   .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
@@ -105,31 +119,37 @@
   /* Lencana Developer */
   .dev-link {
     position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 6px 15px; font-size: 12px; color: #555; text-decoration: none;
-    background: rgba(255, 255, 255, 0.9); border: 2px solid #03A9F4;
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
     border-radius: 25px; transition: all 0.3s ease; text-align: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); white-space: nowrap; z-index: 60;
+    font-weight: 700;
   }
-  .dev-link strong { color: #03A9F4; font-size: 14px; font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
 
   /* Responsive HP */
   @media (max-width: 600px) {
-    #memory-board { gap: 8px; }
-    .card { width: 60px; height: 60px; }
-    .card-face { font-size: 30px; }
-    h2 { font-size: 22px; }
-    p.instruksi { font-size: 14px; }
-    h1 { font-size: 35px; }
-    .btn { font-size: 20px; padding: 12px 40px; }
+    #memory-board { gap: 10px; }
+    .card { width: 65px; height: 65px; }
+    .card-face { font-size: 35px; border-width: 3px; }
+    h2 { font-size: 24px; }
+    p.instruksi { font-size: 15px; }
+    h1 { font-size: 32px; }
+    .screen p { font-size: 15px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
   }
 </style>
 </head>
-<body>
+
+<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <!-- LAYAR SAMBUTAN -->
 <div id="welcome-screen" class="screen" style="display: flex;">
-  <h1>🃏 Memori MADASA 🃏</h1>
-  <h2>Latih Daya Ingatmu!</h2>
+  <h1 style="color: #E91E63;">🃏 Memori MADASA 🃏</h1>
+  <h2 style="color: #FF9800;">Latih Daya Ingatmu!</h2>
   <p>Ayo cari pasangan gambar yang sama dengan cara membalik kartu. Apakah kamu bisa menemukan semuanya?</p>
   <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
 
