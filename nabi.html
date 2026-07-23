@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Kisah Para Nabi</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar kisah dan mukjizat para Nabi bersama MADASA!">
+
+<!-- --- GOOGLE FONTS --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks (copy paste) */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 480px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 35px 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  /* --- AREA GAMBAR (EMOJI) --- */
+  #item-display {
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(255, 255, 255, 0.9); border: 5px dashed #4FC3F7; border-radius: 30px;
+    width: 110px; height: 110px; margin-bottom: 20px;
+    font-size: 65px; 
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
+  }
+
+  .question-text {
+    font-size: 18px; font-weight: 800; color: #333; margin: 0 0 20px 0; line-height: 1.4;
+    padding: 0 10px;
+  }
+  
+  .highlight-text {
+    color: #0288D1; font-weight: 900;
+  }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: flex; gap: 12px; justify-content: center; width: 100%; flex-direction: column; margin-bottom: 10px;
+  }
+
+  .option-btn {
+    background: #FFF; border: 4px solid #4CAF50; border-radius: 20px;
+    width: 100%; padding: 12px 15px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 18px; font-weight: 900; color: #4CAF50; text-align: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    -webkit-tap-highlight-color: transparent; box-sizing: border-box;
+  }
+
+  .option-btn:active {
+    transform: translateY(4px) scale(0.98); box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+
+  /* Animasi Standar */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important; }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #FF9800 !important; color: #FF9800 !important; background: #FFF3E0 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1.02); }
+  }
+  
+  .correct-highlight {
+    border-color: #FF9800 !important; color: #FF9800 !important; background: #FFF3E0 !important; transform: scale(1.02);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #FF4081 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 38px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 24px; font-weight: 900;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 35px 15px; border-radius: 35px; width: 95%; }
+    .question-text { font-size: 16px; margin-bottom: 15px; }
+    
+    #item-display { width: 90px; height: 90px; font-size: 50px; margin-bottom: 15px; border-width: 3px; }
+    .option-btn { width: 100%; padding: 10px 10px; font-size: 16px; border-width: 3px; border-radius: 15px; }
+    #options-area { gap: 10px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 15px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
+  }
+</style>
+</head>
+
+<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1 style="color: #E91E63;">📜 Kisah Para Nabi 📜</h1>
+    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Tebak Mukjizat & Sejarah!</h2>
+    <p>Ayo kita mengingat kembali kisah luar biasa dari 25 Nabi dan Rasul. Baca ceritanya dan tebak siapa Nabinya!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <!-- Area Gambar Emoji -->
+  <div id="item-display">🕋</div>
+  
+  <div class="question-text" id="question-text">Memuat pertanyaan...</div>
+  
+  <!-- Area Tombol Pilihan -->
+  <div id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Alhamdulillah! 🎉</h1>
+    <p>Masya Allah! Pengetahuanmu tentang sejarah Nabi dan Rasul sangat hebat. Ini hasil belajarmu:</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // DATABASE KISAH DAN MUKJIZAT NABI
+const nabiDatabase = [
+    // --- NABI ADAM, IDRIS, NUH, HUD, SHALIH ---
+    { emoji: '🌍', text: 'Nabi sekaligus manusia pertama yang diciptakan oleh Allah SWT di bumi adalah...', answer: 'Nabi Adam', options: ['Nabi Adam', 'Nabi Idris', 'Nabi Nuh'] },
+    { emoji: '🍎', text: 'Nabi yang awalnya tinggal di surga, namun diturunkan ke bumi karena digoda iblis memakan buah Khuldi adalah...', answer: 'Nabi Adam', options: ['Nabi Adam', 'Nabi Luth', 'Nabi Yahya'] },
+    { emoji: '✍️', text: 'Nabi yang pertama kali pandai menulis dengan pena, membaca, dan menjahit pakaian adalah...', answer: 'Nabi Idris', options: ['Nabi Idris', 'Nabi Adam', 'Nabi Syuaib'] },
+    { emoji: '🚢', text: 'Nabi yang diperintahkan membuat kapal besar untuk selamat dari banjir bandang adalah...', answer: 'Nabi Nuh', options: ['Nabi Nuh', 'Nabi Musa', 'Nabi Isa'] },
+    { emoji: '🌧️', text: 'Nabi yang berdakwah ratusan tahun tapi hanya sedikit umatnya yang ikut naik ke kapal saat banjir besar adalah...', answer: 'Nabi Nuh', options: ['Nabi Nuh', 'Nabi Ibrahim', 'Nabi Yunus'] },
+    { emoji: '🌪️', text: 'Nabi yang diutus kepada kaum \'Ad yang sombong dan dihancurkan dengan angin topan sangat kencang adalah...', answer: 'Nabi Hud', options: ['Nabi Hud', 'Nabi Shalih', 'Nabi Luth'] },
+    { emoji: '🐪', text: 'Nabi yang memiliki mukjizat seekor unta betina keluar dari dalam celah batu karang adalah...', answer: 'Nabi Shalih', options: ['Nabi Shalih', 'Nabi Hud', 'Nabi Nuh'] },
+
+    // --- NABI IBRAHIM, LUTH, ISMAIL, ISHAQ, YAQUB ---
+    { emoji: '🔥', text: 'Nabi yang tidak hangus ketika dibakar di dalam api oleh Raja Namrud adalah...', answer: 'Nabi Ibrahim', options: ['Nabi Ibrahim', 'Nabi Ismail', 'Nabi Luth'] },
+    { emoji: '🐑', text: 'Nabi yang ikhlas saat diperintah menyembelih putranya, yang kemudian Allah ganti dengan seekor domba adalah...', answer: 'Nabi Ibrahim', options: ['Nabi Ibrahim', 'Nabi Yaqub', 'Nabi Zakariya'] },
+    { emoji: '🏙️', text: 'Nabi yang diutus kepada kaum Sodom yang suka berbuat maksiat, hingga kotanya dibalikkan oleh Allah adalah...', answer: 'Nabi Luth', options: ['Nabi Luth', 'Nabi Syuaib', 'Nabi Hud'] },
+    { emoji: '💧', text: 'Saat masih bayi, dari pijakan kakinya memancar mata air suci Zamzam. Beliau adalah...', answer: 'Nabi Ismail', options: ['Nabi Ismail', 'Nabi Ishaq', 'Nabi Yaqub'] },
+    { emoji: '🕋', text: 'Nabi yang ikut membantu membangun Ka\'bah (Baitullah) bersama Ayahnya (Nabi Ibrahim) adalah...', answer: 'Nabi Ismail', options: ['Nabi Ismail', 'Nabi Ishaq', 'Nabi Luth'] },
+    { emoji: '👶', text: 'Nabi yang merupakan putra kedua Nabi Ibrahim (dari Siti Sarah), dan merupakan ayah dari Nabi Yaqub adalah...', answer: 'Nabi Ishaq', options: ['Nabi Ishaq', 'Nabi Ismail', 'Nabi Harun'] },
+    { emoji: '😭', text: 'Nabi yang sangat sedih hingga matanya buta karena terus menangisi putranya (Nabi Yusuf) yang hilang adalah...', answer: 'Nabi Yaqub', options: ['Nabi Yaqub', 'Nabi Ayub', 'Nabi Daud'] },
+
+    // --- NABI YUSUF, AYUB, SYUAIB, MUSA, HARUN ---
+    { emoji: '🌙', text: 'Nabi yang memiliki wajah sangat tampan dan pandai menafsirkan mimpi adalah...', answer: 'Nabi Yusuf', options: ['Nabi Yusuf', 'Nabi Ayub', 'Nabi Syuaib'] },
+    { emoji: '🕳️', text: 'Nabi yang pernah dibuang ke dalam sumur oleh saudara-saudaranya karena merasa iri kepadanya adalah...', answer: 'Nabi Yusuf', options: ['Nabi Yusuf', 'Nabi Yunus', 'Nabi Yahya'] },
+    { emoji: '🤒', text: 'Nabi yang sangat sabar meskipun diberi ujian penyakit kulit yang lama oleh Allah SWT adalah...', answer: 'Nabi Ayub', options: ['Nabi Ayub', 'Nabi Yunus', 'Nabi Yahya'] },
+    { emoji: '⚖️', text: 'Nabi yang diutus kepada kaum Madyan yang suka curang saat menimbang barang dagangan adalah...', answer: 'Nabi Syuaib', options: ['Nabi Syuaib', 'Nabi Dzulkifli', 'Nabi Ilyas'] },
+    { emoji: '🦯', text: 'Nabi yang memiliki mukjizat tongkat ajaib yang bisa membelah air lautan adalah...', answer: 'Nabi Musa', options: ['Nabi Musa', 'Nabi Harun', 'Nabi Isa'] },
+    { emoji: '🐍', text: 'Nabi yang tongkatnya bisa berubah menjadi ular besar untuk mengalahkan penyihir Fir\'aun adalah...', answer: 'Nabi Musa', options: ['Nabi Musa', 'Nabi Sulaiman', 'Nabi Ilyasa'] },
+    { emoji: '🗣️', text: 'Nabi yang sangat fasih berbicara dan setia menemani saudaranya (Nabi Musa) berdakwah kepada Fir\'aun adalah...', answer: 'Nabi Harun', options: ['Nabi Harun', 'Nabi Yahya', 'Nabi Idris'] },
+
+    // --- NABI DZULKIFLI, DAUD, SULAIMAN, ILYAS, ILYASA, YUNUS ---
+    { emoji: '🛡️', text: 'Nabi yang sangat sabar, selalu menepati janji, dan sanggup berpuasa di siang hari adalah...', answer: 'Nabi Dzulkifli', options: ['Nabi Dzulkifli', 'Nabi Daud', 'Nabi Ayub'] },
+    { emoji: '🎶', text: 'Nabi yang memiliki suara sangat merdu dan kitab Zabur diturunkan kepadanya adalah...', answer: 'Nabi Daud', options: ['Nabi Daud', 'Nabi Yahya', 'Nabi Zakariya'] },
+    { emoji: '🐜', text: 'Nabi kaya raya dan raja yang bisa berbicara dengan binatang seperti semut dan burung adalah...', answer: 'Nabi Sulaiman', options: ['Nabi Sulaiman', 'Nabi Daud', 'Nabi Ilyas'] },
+    { emoji: '🌬️', text: 'Nabi yang bisa memerintahkan angin untuk membawanya terbang kemana saja atas izin Allah adalah...', answer: 'Nabi Sulaiman', options: ['Nabi Sulaiman', 'Nabi Muhammad', 'Nabi Nuh'] },
+    { emoji: '🏜️', text: 'Nabi yang diutus kepada kaum Bani Israil yang menyembah berhala bernama Ba\'al adalah...', answer: 'Nabi Ilyas', options: ['Nabi Ilyas', 'Nabi Ilyasa', 'Nabi Syuaib'] },
+    { emoji: '🤝', text: 'Nabi yang merupakan anak angkat sekaligus penerus dakwah dari Nabi Ilyas adalah...', answer: 'Nabi Ilyasa', options: ['Nabi Ilyasa', 'Nabi Ishaq', 'Nabi Yahya'] },
+    { emoji: '🐳', text: 'Nabi yang pernah ditelan dan bertahan hidup di dalam perut ikan paus yang besar adalah...', answer: 'Nabi Yunus', options: ['Nabi Yunus', 'Nabi Sulaiman', 'Nabi Daud'] },
+
+    // --- NABI ZAKARIYA, YAHYA, ISA, MUHAMMAD ---
+    { emoji: '🕌', text: 'Nabi yang merawat Siti Maryam di Baitul Maqdis dan terus berdoa meminta anak meski di usia tua adalah...', answer: 'Nabi Zakariya', options: ['Nabi Zakariya', 'Nabi Ibrahim', 'Nabi Yaqub'] },
+    { emoji: '🦁', text: 'Nabi yang sangat penyayang kepada binatang dan merupakan putra dari Nabi Zakariya adalah...', answer: 'Nabi Yahya', options: ['Nabi Yahya', 'Nabi Ismail', 'Nabi Isa'] },
+    { emoji: '🏥', text: 'Nabi yang atas izin Allah bisa menyembuhkan orang sakit dan menerima kitab Injil adalah...', answer: 'Nabi Isa', options: ['Nabi Isa', 'Nabi Musa', 'Nabi Daud'] },
+    { emoji: '🦅', text: 'Nabi yang bisa menghidupkan burung yang terbuat dari tanah liat atas izin Allah adalah...', answer: 'Nabi Isa', options: ['Nabi Isa', 'Nabi Adam', 'Nabi Muhammad'] },
+    { emoji: '📖', text: 'Nabi terakhir penutup para nabi yang menerima wahyu suci kitab Al-Qur\'an adalah...', answer: 'Nabi Muhammad', options: ['Nabi Muhammad', 'Nabi Isa', 'Nabi Ibrahim'] },
+    { emoji: '🐎', text: 'Nabi yang melakukan perjalanan suci Isra Mi\'raj menuju langit menggunakan Buraq adalah...', answer: 'Nabi Muhammad', options: ['Nabi Muhammad', 'Nabi Musa', 'Nabi Sulaiman'] },
+    { emoji: '🌘', text: 'Nabi yang memiliki mukjizat bisa membelah bulan menjadi dua atas izin Allah adalah...', answer: 'Nabi Muhammad', options: ['Nabi Muhammad', 'Nabi Ibrahim', 'Nabi Yunus'] }
+  ];
+
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  let correctAnswer = "";
+
+  const gameContainer = document.getElementById('game-container');
+  const itemDisplay = document.getElementById('item-display');
+  const questionTextDisplay = document.getElementById('question-text');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+
+  function startGame() {
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    // Mengacak bank soal dan mengambil 10 soal
+    let shuffledBase = [...nabiDatabase].sort(() => Math.random() - 0.5);
+    activeQuiz = shuffledBase.slice(0, JUMLAH_SOAL);
+    
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctAnswer = currentQuiz.answer;
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    
+    // Memberi highlight pada kata "Nabi" atau kalimat di akhir
+    const splitText = currentQuiz.text.replace('adalah...', '<span class="highlight-text">adalah...</span>');
+    questionTextDisplay.innerHTML = splitText;
+    
+    // Render Emoji dengan Animasi Pop
+    itemDisplay.style.animation = 'none';
+    itemDisplay.offsetHeight;
+    itemDisplay.style.animation = 'popIn 0.3s forwards';
+    itemDisplay.innerText = currentQuiz.emoji;
+
+    // Update Progress Bar
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    // Acak dan Render Tombol Pilihan
+    optionsArea.innerHTML = '';
+    let shuffledOptions = [...currentQuiz.options].sort(() => Math.random() - 0.5);
+    
+    shuffledOptions.forEach((opt, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      btn.innerText = opt;
+      
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.1}s forwards`;
+      btn.style.transform = 'scale(0)';
+
+      btn.onclick = () => checkAnswer(btn, opt);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, selectedOption) {
+    if (isWaiting) return; 
+    isWaiting = true;
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    const isCorrect = (selectedOption === correctAnswer);
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Masya Allah, Tepat! 🌟", true);
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      
+      // Tunjukkan jawaban yang benar dengan efek highlight
+      allBtns.forEach(b => {
+        if(b.innerText === correctAnswer) {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1800); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

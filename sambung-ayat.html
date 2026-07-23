@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Sambung Ayat</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar hafalan dan menyambung ayat suci Al-Qur'an bersama MADASA!">
+
+<!-- --- GOOGLE FONTS --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #A5D6A7 0%, #E8F5E9 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 95%; max-width: 500px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 30px 15px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #4CAF50; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  /* --- AREA SOAL (AYAT SEBELUMNYA) --- */
+  .surah-badge {
+    background: #FF9800; color: #FFF; padding: 4px 15px; border-radius: 15px;
+    font-size: 14px; font-weight: 900; margin-bottom: 10px;
+  }
+
+  #question-box {
+    background: rgba(255, 255, 255, 0.9); border: 4px dashed #4CAF50; border-radius: 25px;
+    padding: 15px 20px; width: 100%; box-sizing: border-box; margin-bottom: 15px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 120px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .arabic-text {
+    font-family: 'Amiri', serif; font-size: 32px; color: #1B5E20; 
+    line-height: 1.6; margin-bottom: 5px; text-align: center;
+  }
+  
+  .latin-text {
+    font-size: 15px; font-weight: 700; color: #555; font-style: italic;
+  }
+
+  .question-instruction {
+    font-size: 18px; font-weight: 900; color: #0288D1; margin-bottom: 15px;
+  }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: flex; flex-direction: column; gap: 12px; width: 100%;
+  }
+
+  .option-btn {
+    background: #FFF; border: 4px solid #81C784; border-radius: 20px;
+    width: 100%; padding: 15px; box-sizing: border-box;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .option-btn .arabic-text { font-size: 26px; color: #333; margin-bottom: 2px; }
+  .option-btn .latin-text { font-size: 13px; color: #777; }
+
+  .option-btn:active {
+    transform: translateY(4px) scale(0.98) !important; 
+    box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+  }
+
+  /* Animasi Standar */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important; }
+  .shake .arabic-text, .shake .latin-text { color: #D32F2F !important; }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #FF9800 !important; background: #FFF3E0 !important; }
+  .pop .arabic-text { color: #E65100 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1.02); }
+  }
+  
+  .correct-highlight {
+    border-color: #FF9800 !important; background: #FFF3E0 !important; transform: scale(1.02) !important;
+  }
+  .correct-highlight .arabic-text { color: #E65100 !important; }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #FF9800; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #E91E63 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 38px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); line-height: 1.2; }
+  .screen p { font-size: 16px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 22px; font-weight: 900;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 30px 15px; border-radius: 35px; width: 95%; }
+    
+    .arabic-text { font-size: 26px; }
+    .latin-text { font-size: 13px; }
+    #question-box { padding: 15px 10px; min-height: 100px; }
+    .question-instruction { font-size: 16px; margin-bottom: 10px; }
+
+    .option-btn { padding: 12px; border-width: 3px; }
+    .option-btn .arabic-text { font-size: 22px; }
+    .option-btn .latin-text { font-size: 11px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 14px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
+  }
+</style>
+</head>
+
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1 style="color: #4CAF50;">📖 Sambung Ayat 📖</h1>
+    <h2 style="color: #FF9800; font-size: 20px; margin-bottom: 20px; font-weight: 800;">Murojaah Surah Pendek!</h2>
+    <p>Ayo uji hafalanmu. Bacalah ayat yang muncul, lalu pilih ayat selanjutnya yang benar. Semangat anak shalih!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <div class="surah-badge" id="surah-name">QS. Al-Fatihah</div>
+  
+  <!-- Kotak Soal -->
+  <div id="question-box">
+    <div class="arabic-text" dir="rtl" id="q-arabic">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <div class="latin-text" id="q-latin">Bismillahir-rahmanir-rahim</div>
+  </div>
+  
+  <div class="question-instruction">Lanjutan ayatnya adalah...</div>
+  
+  <!-- Area Pilihan Ganda -->
+  <div id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Alhamdulillah! 🎉</h1>
+    <p>Masya Allah! Hafalan Qur'an kamu sangat bagus. Teruslah rajin mengaji ya!</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // BANK SOAL (21 AYAT SURAH PENDEK TK/RA)
+  const quranDatabase = [
+    // Al-Fatihah
+// BANK SOAL SANGAT BANYAK (35 AYAT SURAH PENDEK JUZ 30)
+  const quranDatabase = [
+    // --- QS. AL-FATIHAH ---
+    { surah: "QS. Al-Fatihah", qAr: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", qLt: "Bismillahir-rahmanir-rahim", aAr: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", aLt: "Alhamdu lillahi rabbil-'alamin" },
+    { surah: "QS. Al-Fatihah", qAr: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", qLt: "Alhamdu lillahi rabbil-'alamin", aAr: "الرَّحْمَٰنِ الرَّحِيمِ", aLt: "Ar-rahmanir-rahim" },
+    { surah: "QS. Al-Fatihah", qAr: "الرَّحْمَٰنِ الرَّحِيمِ", qLt: "Ar-rahmanir-rahim", aAr: "مَالِكِ يَوْمِ الدِّينِ", aLt: "Maliki yaumid-din" },
+    { surah: "QS. Al-Fatihah", qAr: "مَالِكِ يَوْمِ الدِّينِ", qLt: "Maliki yaumid-din", aAr: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", aLt: "Iyyaka na'budu wa iyyaka nasta'in" },
+    { surah: "QS. Al-Fatihah", qAr: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", qLt: "Iyyaka na'budu wa iyyaka nasta'in", aAr: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", aLt: "Ihdinas-siratal-mustaqim" },
+
+    // --- QS. AL-IKHLAS ---
+    { surah: "QS. Al-Ikhlas", qAr: "قُلْ هُوَ اللَّهُ أَحَدٌ", qLt: "Qul huwallahu ahad", aAr: "اللَّهُ الصَّمَدُ", aLt: "Allahus-samad" },
+    { surah: "QS. Al-Ikhlas", qAr: "اللَّهُ الصَّمَدُ", qLt: "Allahus-samad", aAr: "لَمْ يَلِدْ وَلَمْ يُولَدْ", aLt: "Lam yalid wa lam yulad" },
+    { surah: "QS. Al-Ikhlas", qAr: "لَمْ يَلِدْ وَلَمْ يُولَدْ", qLt: "Lam yalid wa lam yulad", aAr: "وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ", aLt: "Wa lam yakul-lahu kufuwan ahad" },
+
+    // --- QS. AN-NAS ---
+    { surah: "QS. An-Nas", qAr: "قُلْ أَعُوذُ بِرَبِّ النَّاسِ", qLt: "Qul a'uzu birabbin-nas", aAr: "مَلِكِ النَّاسِ", aLt: "Malikin-nas" },
+    { surah: "QS. An-Nas", qAr: "مَلِكِ النَّاسِ", qLt: "Malikin-nas", aAr: "إِلَٰهِ النَّاسِ", aLt: "Ilahin-nas" },
+    { surah: "QS. An-Nas", qAr: "إِلَٰهِ النَّاسِ", qLt: "Ilahin-nas", aAr: "مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ", aLt: "Min syarril-waswasil-khannas" },
+    { surah: "QS. An-Nas", qAr: "مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ", qLt: "Min syarril-waswasil-khannas", aAr: "الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ", aLt: "Allazi yuwaswisu fi sudurin-nas" },
+
+    // --- QS. AL-FALAQ ---
+    { surah: "QS. Al-Falaq", qAr: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ", qLt: "Qul a'uzu birabbil-falaq", aAr: "مِنْ شَرِّ مَا خَلَقَ", aLt: "Min syarri ma khalaq" },
+    { surah: "QS. Al-Falaq", qAr: "مِنْ شَرِّ مَا خَلَقَ", qLt: "Min syarri ma khalaq", aAr: "وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ", aLt: "Wa min syarri gasiqin iza waqab" },
+    { surah: "QS. Al-Falaq", qAr: "وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ", qLt: "Wa min syarri gasiqin iza waqab", aAr: "وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ", aLt: "Wa min syarrin-naffasati fil-'uqad" },
+
+    // --- QS. AL-KAUTSAR ---
+    { surah: "QS. Al-Kautsar", qAr: "إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ", qLt: "Inna a'tainakal-kautsar", aAr: "فَصَلِّ لِرَبِّكَ وَانْحَرْ", aLt: "Fa salli lirabbika wan-har" },
+    { surah: "QS. Al-Kautsar", qAr: "فَصَلِّ لِرَبِّكَ وَانْحَرْ", qLt: "Fa salli lirabbika wan-har", aAr: "إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ", aLt: "Inna syani'aka huwal-abtar" },
+
+    // --- QS. AL-ASR ---
+    { surah: "QS. Al-Asr", qAr: "وَالْعَصْرِ", qLt: "Wal-'asr", aAr: "إِنَّ الْإِنْسَانَ لَفِي خُسْرٍ", aLt: "Innal-insana lafi khusr" },
+    { surah: "QS. Al-Asr", qAr: "إِنَّ الْإِنْسَانَ لَفِي خُسْرٍ", qLt: "Innal-insana lafi khusr", aAr: "إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ", aLt: "Illallazina amanu wa 'amilus-salihat" },
+
+    // --- QS. AL-KAFIRUN ---
+    { surah: "QS. Al-Kafirun", qAr: "قُلْ يَا أَيُّهَا الْكَافِرُونَ", qLt: "Qul ya ayyuhal-kafirun", aAr: "لَا أَعْبُدُ مَا تَعْبُدُونَ", aLt: "La a'budu ma ta'budun" },
+    { surah: "QS. Al-Kafirun", qAr: "لَا أَعْبُدُ مَا تَعْبُدُونَ", qLt: "La a'budu ma ta'budun", aAr: "وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ", aLt: "Wa la antum 'abiduna ma a'bud" },
+    { surah: "QS. Al-Kafirun", qAr: "لَكُمْ دِينُكُمْ", qLt: "Lakum dinukum", aAr: "وَلِيَ دِينِ", aLt: "Wa liya din" },
+
+    // --- QS. AL-LAHAB ---
+    { surah: "QS. Al-Lahab", qAr: "تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ", qLt: "Tabbat yada abi lahabiw wa tabb", aAr: "مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ", aLt: "Ma agna 'anhu maluhu wa ma kasab" },
+    { surah: "QS. Al-Lahab", qAr: "مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ", qLt: "Ma agna 'anhu maluhu wa ma kasab", aAr: "سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ", aLt: "Sayasla naran zata lahab" },
+
+    // --- QS. AN-NASR ---
+    { surah: "QS. An-Nasr", qAr: "إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ", qLt: "Iza ja'a nasrullahi wal-fath", aAr: "وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا", aLt: "Wa ra'aitan-nasa yadkhuluna fi dinillahi afwaja" },
+    { surah: "QS. An-Nasr", qAr: "وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا", qLt: "Wa ra'aitan-nasa yadkhuluna fi dinillahi afwaja", aAr: "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ", aLt: "Fasabbih bihamdi rabbika wastagfirh" },
+
+    // --- QS. QURAISY ---
+    { surah: "QS. Quraisy", qAr: "لِإِيلَافِ قُرَيْشٍ", qLt: "Li'ilafi quraising", aAr: "إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ", aLt: "Ilafihim rihlatasy-syita'i was-saif" },
+    { surah: "QS. Quraisy", qAr: "إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ", qLt: "Ilafihim rihlatasy-syita'i was-saif", aAr: "فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ", aLt: "Falya'budu rabba hazal-bait" },
+    { surah: "QS. Quraisy", qAr: "فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ", qLt: "Falya'budu rabba hazal-bait", aAr: "الَّذِي أَطْعَمَهُمْ مِنْ جُوعٍ وَآمَنَهُمْ مِنْ خَوْفٍ", aLt: "Allazi at'amahum min ju'iw wa amanahum min khauf" },
+
+    // --- QS. AL-MA'UN ---
+    { surah: "QS. Al-Ma'un", qAr: "أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ", qLt: "Ara'aitallazi yukazzibu bid-din", aAr: "فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ", aLt: "Fazalikal-lazi yadu' 'ul-yatim" },
+    { surah: "QS. Al-Ma'un", qAr: "فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ", qLt: "Fazalikal-lazi yadu' 'ul-yatim", aAr: "وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ", aLt: "Wa la yahuddu 'ala ta'amil-miskin" },
+    { surah: "QS. Al-Ma'un", qAr: "فَوَيْلٌ لِلْمُصَلِّينَ", qLt: "Fa wailul-lil-musallin", aAr: "الَّذِينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَ", aLt: "Allazina hum 'an salatihim sahun" },
+
+    // --- QS. AL-FIL ---
+    { surah: "QS. Al-Fil", qAr: "أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ", qLt: "Alam tara kaifa fa'ala rabbuka bi'as-habil-fil", aAr: "أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ", aLt: "Alam yaj'al kaidahum fi tadlil" },
+    { surah: "QS. Al-Fil", qAr: "أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ", qLt: "Alam yaj'al kaidahum fi tadlil", aAr: "وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ", aLt: "Wa arsala 'alaihim tairan ababil" }
+  ];
+
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  let correctAnswer = null;
+
+  const gameContainer = document.getElementById('game-container');
+  const surahNameDisplay = document.getElementById('surah-name');
+  const qArabicDisplay = document.getElementById('q-arabic');
+  const qLatinDisplay = document.getElementById('q-latin');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  
+  const bgMusic = document.getElementById('bg-music');
+
+  function generateQuizData() {
+    let questions = [];
+    // Acak seluruh bank soal
+    let shuffledBank = [...quranDatabase].sort(() => 0.5 - Math.random());
+    
+    // Ambil 10 soal
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let targetQ = shuffledBank[i];
+      let correctOpt = { ar: targetQ.aAr, lt: targetQ.aLt, isCorrect: true };
+      
+      // Cari 1 pengecoh acak dari jawaban lain di database
+      let distractorOpt = null;
+      let isDistractorFound = false;
+      
+      while(!isDistractorFound) {
+        let randDist = quranDatabase[Math.floor(Math.random() * quranDatabase.length)];
+        // Pastikan pengecoh tidak sama dengan jawaban yang benar
+        if (randDist.aAr !== targetQ.aAr) {
+          distractorOpt = { ar: randDist.aAr, lt: randDist.aLt, isCorrect: false };
+          isDistractorFound = true;
+        }
+      }
+
+      // Gabungkan menjadi 2 pilihan (1 benar, 1 salah) dan acak urutannya
+      let options = [correctOpt, distractorOpt].sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        surah: targetQ.surah,
+        qAr: targetQ.qAr,
+        qLt: targetQ.qLt,
+        options: options
+      });
+    }
+    return questions;
+  }
+
+  function startGame() {
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => { console.log(error); });
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    activeQuiz = generateQuizData();
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    
+    // Update Teks Soal
+    surahNameDisplay.innerText = currentQuiz.surah;
+    qArabicDisplay.innerText = currentQuiz.qAr;
+    qLatinDisplay.innerText = currentQuiz.qLt;
+
+    // Animasi Ulang
+    document.getElementById('question-box').style.animation = 'none';
+    document.getElementById('question-box').offsetHeight;
+    document.getElementById('question-box').style.animation = 'popIn 0.4s forwards';
+
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    // Render Tombol
+    optionsArea.innerHTML = '';
+    currentQuiz.options.forEach((opt, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      
+      // Isi Teks
+      btn.innerHTML = `
+        <div class="arabic-text" dir="rtl">${opt.ar}</div>
+        <div class="latin-text">${opt.lt}</div>
+      `;
+      
+      // Tandai yang benar di attribute untuk pengecekan
+      btn.dataset.correct = opt.isCorrect;
+
+      // Animasi Kemunculan
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.15}s both`;
+      
+      btn.onclick = () => checkAnswer(btn, opt.isCorrect);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, isCorrect) {
+    if (isWaiting) return; 
+    isWaiting = true;
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Masya Allah, Tepat! 🌟", true);
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      
+      // Tunjukkan jawaban yang benar
+      allBtns.forEach(b => {
+        if(b.dataset.correct === "true") {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1600); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

@@ -74,7 +74,7 @@
     padding: 60px 25px; 
     text-align: center; 
     width: 85%; max-width: 380px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Shadow dikurangi */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
     box-sizing: border-box;
     animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -94,7 +94,7 @@
     background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
     color: white; border: 3px solid #FFF; padding: 15px 20px; font-size: 20px;
     font-weight: 900; border-radius: 40px; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); transition: 0.2s; /* Shadow dikurangi */
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); transition: 0.2s; 
     width: 95%;
   }
   .btn-masuk:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2); }
@@ -103,7 +103,7 @@
     background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
     color: white; border: 3px solid #FFF; padding: 15px 20px; font-size: 18px;
     font-weight: 900; border-radius: 40px; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); transition: 0.2s; /* Shadow dikurangi */
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); transition: 0.2s; 
     width: 95%; display: none; 
   }
   .btn-install:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2); }
@@ -121,7 +121,7 @@
     font-size: 20px; font-weight: 800; margin-top: 15px; color: #0288D1;
     background: var(--glass-bg); backdrop-filter: blur(10px);
     display: inline-block; padding: 12px 35px; border-radius: 30px;
-    border: 2px solid var(--glass-border); box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Shadow dikurangi */
+    border: 2px solid var(--glass-border); box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
   }
 
   /* GRID MENU GAME (GRID x2) */
@@ -136,12 +136,11 @@
     background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     border: 3px solid var(--glass-border); border-radius: 40px; 
     padding: 35px 20px; text-align: center; text-decoration: none; color: #333; 
-    position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* Shadow dikurangi */
-    transition: all 0.25s ease-out; /* Efek dihaluskan */
+    position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+    transition: all 0.25s ease-out; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   
-  /* Efek Hover dihaluskan (tidak terlalu over) */
   .game-card:hover { 
     transform: translateY(-5px); 
     box-shadow: 0 10px 20px rgba(0,0,0,0.08); 
@@ -150,20 +149,36 @@
   
   .icon-container { 
     font-size: 70px; margin-bottom: 15px; 
-    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); /* Shadow ikon dikurangi */
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); 
     transition: transform 0.25s ease-out; 
   }
   
-  /* Rotasi dihilangkan, scale dikurangi agar halus */
   .game-card:hover .icon-container { transform: scale(1.05); }
   
   .game-card h2 { font-size: 24px; font-weight: 900; margin: 0 0 10px 0; }
   .game-card p { font-size: 15px; font-weight: 700; color: #777; margin: 0; }
 
   /* WARNA KHUSUS KARTU */
-  .c-balon h2 { color: #4CAF50; } .c-bayangan h2 { color: #03A9F4; } .c-bintang h2 { color: #FF9800; }
-  .c-memori h2 { color: #E91E63; } .c-kuis h2 { color: #6A1B9A; } .c-hitung h2 { color: #E65100; } 
-  .c-angka h2 { color: #0288D1; } .c-hijaiyah h2 { color: #FF4081; }
+  .c-balon h2 { color: #4CAF50; } 
+  .c-bayangan h2 { color: #03A9F4; } 
+  .c-bintang h2 { color: #FF9800; }
+  .c-memori h2 { color: #E91E63; } 
+  .c-kuis h2 { color: #6A1B9A; } 
+  .c-hitung h2 { color: #E65100; } 
+  .c-angka h2 { color: #0288D1; } 
+  .c-hijaiyah h2 { color: #FF4081; }
+  .c-harakat h2 { color: #009688; }
+  .c-tajwid h2 { color: #D32F2F; }
+  .c-fiqih h2 { color: #00796B; }
+  .c-nabi h2 { color: #5D4037; }
+  .c-akhlak h2 { color: #E91E63; }
+  .c-ciptaan h2 { color: #FBC02D; }
+  .c-kereta h2 { color: #E64A19; }
+  .c-caribeda h2 { color: #512DA8; }
+  .c-hurufawal h2 { color: #1976D2; }
+  .c-susunkata h2 { color: #C0CA33; }
+  .c-pola h2 { color: #C2185B; }
+  .c-warna h2 { color: #673AB7; }
 
   /* TOMBOL MAIN */
   .play-btn {
@@ -172,7 +187,6 @@
     text-transform: uppercase; letter-spacing: 1.5px; transition: transform 0.2s, box-shadow 0.2s;
   }
   
-  /* Shadow tombol dikurangi */
   .c-balon .play-btn { background: linear-gradient(135deg, #4CAF50, #2E7D32); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); }
   .c-bayangan .play-btn { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 10px rgba(3, 169, 244, 0.2); }
   .c-bintang .play-btn { background: linear-gradient(135deg, #FFB300, #F57C00); box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); }
@@ -181,8 +195,19 @@
   .c-hitung .play-btn { background: linear-gradient(135deg, #FFCA28, #FF8F00); box-shadow: 0 4px 10px rgba(255, 143, 0, 0.2); }
   .c-angka .play-btn { background: linear-gradient(135deg, #81D4FA, #01579B); box-shadow: 0 4px 10px rgba(2, 136, 209, 0.2); }
   .c-hijaiyah .play-btn { background: linear-gradient(135deg, #FF80AB, #C51162); box-shadow: 0 4px 10px rgba(255, 64, 129, 0.2); }
+  .c-harakat .play-btn { background: linear-gradient(135deg, #4DB6AC, #00796B); box-shadow: 0 4px 10px rgba(0, 150, 136, 0.2); }
+  .c-tajwid .play-btn { background: linear-gradient(135deg, #E57373, #D32F2F); box-shadow: 0 4px 10px rgba(244, 67, 54, 0.2); }
+  .c-fiqih .play-btn { background: linear-gradient(135deg, #4DB6AC, #00695C); box-shadow: 0 4px 10px rgba(0, 150, 136, 0.2); }
+  .c-nabi .play-btn { background: linear-gradient(135deg, #A1887F, #5D4037); box-shadow: 0 4px 10px rgba(121, 85, 72, 0.2); }
+  .c-akhlak .play-btn { background: linear-gradient(135deg, #F06292, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
+  .c-ciptaan .play-btn { background: linear-gradient(135deg, #FFF176, #FBC02D); box-shadow: 0 4px 10px rgba(255, 235, 59, 0.2); }
+  .c-kereta .play-btn { background: linear-gradient(135deg, #FF8A65, #E64A19); box-shadow: 0 4px 10px rgba(255, 87, 34, 0.2); }
+  .c-caribeda .play-btn { background: linear-gradient(135deg, #9575CD, #512DA8); box-shadow: 0 4px 10px rgba(103, 58, 183, 0.2); }
+  .c-hurufawal .play-btn { background: linear-gradient(135deg, #64B5F6, #1976D2); box-shadow: 0 4px 10px rgba(33, 150, 243, 0.2); }
+  .c-susunkata .play-btn { background: linear-gradient(135deg, #DCE775, #AFB42B); box-shadow: 0 4px 10px rgba(205, 220, 57, 0.2); }
+  .c-pola .play-btn { background: linear-gradient(135deg, #F06292, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
+  .c-warna .play-btn { background: linear-gradient(135deg, #BA68C8, #7B1FA2); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
 
-  /* Efek naiknya tombol dihaluskan */
   .game-card:hover .play-btn { transform: translateY(-2px); }
 
   /* FOOTER */
@@ -193,7 +218,6 @@
     box-shadow: 0 -4px 10px rgba(0,0,0,0.03); z-index: 10;
   }
 
-  /* LENCANA DEVELOPER DI DALAM FOOTER */
   .dev-link {
     display: inline-block; padding: 10px 25px; font-size: 15px; color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FF9A9E; border-radius: 30px; 
@@ -212,7 +236,7 @@
     .btn-install { font-size: 15px; padding: 12px 15px; }
 
     .header { margin-top: 40px; }
-    .salam { font-size: 26px; } /* Ukuran Arab dikecilkan agar rapi di HP */
+    .salam { font-size: 26px; } 
     .header h1 { font-size: 32px; }
     .header p { font-size: 14px; padding: 10px 20px; }
     
@@ -259,8 +283,11 @@
   <p>Bermain & Belajar Islami dengan Ceria!</p>
 </div>
 
-<!-- GRID x2 DIAPLIKASIKAN DI SINI -->
+<!-- GRID MENU PERMAINAN (Total 20 Game) -->
 <div class="game-menu">
+  
+  <!-- === KATEGORI ISLAMI (URUTAN DEPAN) === -->
+  
   <a href="balon.html" class="game-card c-balon">
     <div class="icon-container">🎈</div>
     <h2>Tangkap Balon</h2>
@@ -268,17 +295,88 @@
     <div class="play-btn">Mainkan</div>
   </a>
   
-    <a href="hijaiyah.html" class="game-card c-hijaiyah">
+  <a href="hijaiyah.html" class="game-card c-hijaiyah">
     <div class="icon-container">📖</div>
     <h2>Kenal Hijaiyah</h2>
     <p>Cari Huruf yang Tepat</p>
     <div class="play-btn">Mainkan</div>
   </a>
+
+  <a href="harakat.html" class="game-card c-harakat">
+    <div class="icon-container">✨</div>
+    <h2>Pintar Harakat</h2>
+    <p>Belajar Membaca Iqra</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="cari-beda.html" class="game-card c-caribeda">
+    <div class="icon-container">🦅</div>
+    <h2>Cari Huruf Beda</h2>
+    <p>Latih Fokus Hijaiyah</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="tajwid.html" class="game-card c-tajwid">
+    <div class="icon-container">🕋</div>
+    <h2>Pintar Tajwid</h2>
+    <p>Hukum Bacaan Al-Qur'an</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
   
-    <a href="angka.html" class="game-card c-angka">
+  
+  <a href="sambung-ayat.html" class="game-card c-pola">
+    <div class="icon-container">📖</div>
+    <h2>Sambung Ayat</h2>
+    <p>Murojaah Surah Pendek</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+  
+  <a href="angka.html" class="game-card c-angka">
     <div class="icon-container">١٢٣</div>
     <h2>Angka Arab</h2>
     <p>Cocokkan Angka 1-100</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="kereta.html" class="game-card c-kereta">
+    <div class="icon-container">🚂</div>
+    <h2>Kereta Angka</h2>
+    <p>Logika Urutan Arab</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="anakshalih.html" class="game-card c-kuis">
+    <div class="icon-container">💡</div>
+    <h2>Kuis Islami</h2>
+    <p>Uji Pengetahuanmu</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="fiqih.html" class="game-card c-fiqih">
+    <div class="icon-container">⚖️</div>
+    <h2>Cerdas Fiqih</h2>
+    <p>Hukum Islam Dasar</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="nabi.html" class="game-card c-nabi">
+    <div class="icon-container">📜</div>
+    <h2>Kisah Nabi</h2>
+    <p>Tebak Sejarah & Mukjizat</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="akhlak.html" class="game-card c-akhlak">
+    <div class="icon-container">💖</div>
+    <h2>Akhlak Mulia</h2>
+    <p>Tebak Baik & Buruk</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="ciptaan.html" class="game-card c-ciptaan">
+    <div class="icon-container">🌍</div>
+    <h2>Ciptaan Siapa?</h2>
+    <p>Belajar Bersyukur</p>
     <div class="play-btn">Mainkan</div>
   </a>
 
@@ -289,24 +387,10 @@
     <div class="play-btn">Mainkan</div>
   </a>
 
-  <a href="bintang.html" class="game-card c-bintang">
-    <div class="icon-container">⭐</div>
-    <h2>Tangkap Bintang</h2>
-    <p>Kumpulkan Kebaikan</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
   <a href="memori.html" class="game-card c-memori">
     <div class="icon-container">🃏</div>
     <h2>Memori Islami</h2>
     <p>Latih Daya Ingatmu</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="anakshalih.html" class="game-card c-kuis">
-    <div class="icon-container">💡</div>
-    <h2>Kuis Islami</h2>
-    <p>Uji Pengetahuanmu</p>
     <div class="play-btn">Mainkan</div>
   </a>
 
@@ -318,7 +402,35 @@
   </a>
 
 
+  <!-- === KATEGORI GENERAL / PENDIDIKAN UMUM (URUTAN BELAKANG) === -->
+  
+  <a href="bintang.html" class="game-card c-bintang">
+    <div class="icon-container">⭐</div>
+    <h2>Tangkap Bintang</h2>
+    <p>Kumpulkan Kebaikan</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
 
+  <a href="huruf-awal.html" class="game-card c-hurufawal">
+    <div class="icon-container">🔤</div>
+    <h2>Tebak Huruf Awal</h2>
+    <p>Mengenal Huruf Abjad</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="susun-kata.html" class="game-card c-susunkata">
+    <div class="icon-container">🔠</div>
+    <h2>Susun Kata</h2>
+    <p>Belajar Membaca</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
+
+  <a href="warna.html" class="game-card c-warna">
+    <div class="icon-container">🎨</div>
+    <h2>Tebak Warna</h2>
+    <p>Mengenal Macam Warna</p>
+    <div class="play-btn">Mainkan</div>
+  </a>
 
 </div>
 

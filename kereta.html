@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Kereta Angka Arab</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar urutan angka Arab 1-10 bersama MADASA!">
+
+<!-- --- GOOGLE FONTS (Nunito untuk Latin, Amiri untuk Arab) --- -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks (copy paste) */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 95%; max-width: 550px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 35px 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  .question-text {
+    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 25px 0; line-height: 1.4;
+  }
+
+  /* --- AREA KERETA API --- */
+  #train-area {
+    display: flex; align-items: flex-end; justify-content: center;
+    width: 100%; margin-bottom: 15px; position: relative;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .locomotive {
+    font-size: 65px; line-height: 1; margin-right: 5px;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+    z-index: 2;
+  }
+
+  .wagons-container {
+    display: flex; align-items: flex-end; gap: 8px; z-index: 2;
+  }
+
+  .wagon {
+    width: 55px; height: 50px;
+    background: #FF9800; border-radius: 8px 8px 4px 4px;
+    display: flex; justify-content: center; align-items: center;
+    color: white; font-family: 'Amiri', serif; font-size: 35px; font-weight: bold;
+    position: relative; border: 3px solid #E65100;
+    box-shadow: inset 0 5px 10px rgba(255,255,255,0.3);
+    padding-bottom: 8px; box-sizing: border-box;
+  }
+
+  /* Roda Gerbong */
+  .wagon::after {
+    content: ''; position: absolute; bottom: -10px; left: 6px;
+    width: 14px; height: 14px; background: #333; border-radius: 50%;
+    box-shadow: 25px 0 0 #333; border: 2px solid #FFF; box-sizing: border-box;
+  }
+
+  /* Sambungan Antar Gerbong */
+  .wagon::before {
+    content: ''; position: absolute; bottom: 10px; left: -10px;
+    width: 10px; height: 4px; background: #555;
+  }
+  .wagon:first-child::before { display: none; } /* Hilangkan sambungan di gerbong pertama */
+
+  /* Gerbong Kosong (Target) */
+  .wagon-missing {
+    background: #FFF3E0; color: #FF9800; border: 3px dashed #FF9800;
+    animation: pulseMissing 1.5s infinite;
+  }
+
+  .wagon-filled {
+    background: #4CAF50 !important; border-color: #2E7D32 !important; color: white !important;
+    animation: popAnim 0.4s forwards;
+  }
+
+  @keyframes pulseMissing {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  /* Rel Kereta */
+  .train-track {
+    width: 100%; height: 8px; background: #795548; border-radius: 4px;
+    margin-bottom: 30px; position: relative;
+    box-shadow: 0 4px 5px rgba(0,0,0,0.1);
+  }
+  .train-track::after {
+    content: ''; position: absolute; top: 2px; left: 0; width: 100%; height: 2px;
+    background: repeating-linear-gradient(90deg, transparent, transparent 15px, #D7CCC8 15px, #D7CCC8 25px);
+  }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap; margin-bottom: 10px;
+  }
+
+  .option-btn {
+    background: #FFF; border: 5px solid #4FC3F7; border-radius: 20px;
+    width: 80px; height: 80px; 
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Amiri', serif; font-size: 50px; font-weight: bold; color: #0288D1;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); padding-bottom: 10px; box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .option-btn:active {
+    transform: translateY(6px) scale(0.95); box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+
+  /* Animasi Standar */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important; }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.05); }
+  }
+  
+  .correct-highlight {
+    border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #FF4081 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 38px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 24px; font-weight: 900;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 35px 10px; border-radius: 35px; width: 95%; }
+    .question-text { font-size: 18px; margin-bottom: 20px; }
+    
+    .locomotive { font-size: 50px; }
+    .wagon { width: 45px; height: 42px; font-size: 28px; padding-bottom: 5px; border-width: 2px; }
+    .wagon::after { width: 12px; height: 12px; box-shadow: 20px 0 0 #333; left: 4px; }
+    .wagons-container { gap: 6px; }
+    
+    .option-btn { width: 65px; height: 65px; font-size: 40px; border-width: 4px; border-radius: 15px; }
+    #options-area { gap: 10px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 15px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
+  }
+</style>
+</head>
+
+<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1 style="color: #E91E63;">🚂 Kereta Angka 🚂</h1>
+    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Logika Angka Arab!</h2>
+    <p>Lihat urutan angkanya. Ada satu gerbong kereta yang angkanya hilang. Ayo tebak angka berapa itu!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <div class="question-text">Angka berapakah yang hilang?</div>
+  
+  <!-- Area Kereta Api -->
+  <div id="train-area">
+    <div class="locomotive">🚂</div>
+    <div class="wagons-container" id="wagons-area"></div>
+  </div>
+  <div class="train-track"></div>
+  
+  <!-- Area Tombol Pilihan -->
+  <div id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Alhamdulillah! 🎉</h1>
+    <p>Masya Allah! Logika berhitungmu sangat tajam. Kereta sekarang bisa melaju lagi. Ini hasilnya:</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // Angka Arab 0-10 (Index 1 = ١)
+  const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '١٠'];
+
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  let correctAnswerNum = 0;
+
+  const gameContainer = document.getElementById('game-container');
+  const wagonsArea = document.getElementById('wagons-area');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+  const trainArea = document.getElementById('train-area');
+
+  // Generator Soal Dinamis (Urutan berlanjut 4 angka)
+  function generateDynamicQuestions() {
+    let questions = [];
+    
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      // Tentukan angka awal (1 sampai 7 agar maksimal mentok di 10)
+      let startNum = Math.floor(Math.random() * 7) + 1;
+      let sequence = [startNum, startNum + 1, startNum + 2, startNum + 3];
+      
+      // Pilih satu gerbong acak (index 0, 1, 2, atau 3) yang angkanya dihilangkan
+      let missingIndex = Math.floor(Math.random() * 4);
+      let answerNum = sequence[missingIndex];
+      
+      // Buat pengecoh (jawaban salah)
+      let distractors = [];
+      while(distractors.length < 2) {
+        let randNum = Math.floor(Math.random() * 10) + 1;
+        // Pengecoh tidak boleh sama dengan jawaban & bukan bagian dari deret aslinya
+        if(randNum !== answerNum && !distractors.includes(randNum) && !sequence.includes(randNum)) {
+          distractors.push(randNum);
+        }
+      }
+
+      let options = [answerNum, ...distractors].sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        sequence: sequence,
+        missingIndex: missingIndex,
+        answerNum: answerNum,
+        options: options
+      });
+    }
+    return questions;
+  }
+
+  function startGame() {
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    activeQuiz = generateDynamicQuestions();
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctAnswerNum = currentQuiz.answerNum;
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+
+    // Trik memutar ulang animasi masuk kereta
+    trainArea.style.animation = 'none';
+    trainArea.offsetHeight;
+    trainArea.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+    // Update Progress Bar
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    // Render Gerbong Kereta
+    wagonsArea.innerHTML = '';
+    currentQuiz.sequence.forEach((num, index) => {
+      const wagon = document.createElement('div');
+      wagon.className = 'wagon';
+      wagon.id = `wagon-${index}`;
+      
+      if(index === currentQuiz.missingIndex) {
+        wagon.classList.add('wagon-missing');
+        wagon.innerText = '؟'; // Tanda tanya Arab
+      } else {
+        wagon.innerText = arabicNums[num];
+      }
+      
+      wagonsArea.appendChild(wagon);
+    });
+
+    // Render Tombol Pilihan
+    optionsArea.innerHTML = '';
+    currentQuiz.options.forEach((optNum, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      btn.innerText = arabicNums[optNum];
+      
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.1}s forwards`;
+      btn.style.transform = 'scale(0)';
+
+      btn.onclick = () => checkAnswer(btn, optNum, currentQuiz.missingIndex);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, selectedNum, missingIndex) {
+    if (isWaiting) return; 
+    isWaiting = true;
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    const targetWagon = document.getElementById(`wagon-${missingIndex}`);
+    const isCorrect = (selectedNum === correctAnswerNum);
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Masya Allah, Pintar! 🌟", true);
+      
+      // Isi gerbong yang kosong
+      targetWagon.innerText = arabicNums[selectedNum];
+      targetWagon.classList.remove('wagon-missing');
+      targetWagon.classList.add('wagon-filled');
+
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      
+      // Tunjukkan jawaban yang benar dengan efek highlight
+      allBtns.forEach(b => {
+        if(b.innerText === arabicNums[correctAnswerNum]) {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1800); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

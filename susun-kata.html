@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Susun Kata Bergambar</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar menyusun huruf dan membaca bersama MADASA!">
+
+<!-- --- GOOGLE FONTS --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks (copy paste) */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 480px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 35px 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  .question-text {
+    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 15px 0; line-height: 1.4;
+  }
+
+  /* --- AREA GAMBAR (EMOJI) --- */
+  #item-display {
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(255, 255, 255, 0.9); border: 5px dashed #4FC3F7; border-radius: 30px;
+    width: 120px; height: 120px; margin-bottom: 25px;
+    font-size: 70px; 
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
+  }
+  
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- SLOT JAWABAN (KOTAK KOSONG) --- */
+  #answer-slots {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 25px;
+    flex-wrap: wrap; width: 100%; min-height: 50px;
+  }
+
+  .slot-box {
+    width: 45px; height: 55px;
+    border: 3px dashed #B0BEC5; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: #E91E63;
+    background: #FAFAFA;
+    transition: all 0.2s ease;
+  }
+
+  .slot-filled {
+    border: 3px solid #E91E63; background: #FFF;
+    box-shadow: 0 4px 8px rgba(233, 30, 99, 0.2);
+    animation: popAnim 0.3s forwards;
+  }
+
+  /* --- TOMBOL HURUF ACAK --- */
+  #letters-area {
+    display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap;
+  }
+
+  .letter-btn {
+    background: #FFF; border: 4px solid #FF9800; border-radius: 15px;
+    width: 50px; height: 60px; 
+    display: flex; justify-content: center; align-items: center;
+    font-size: 28px; font-weight: 900; color: #FF9800;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .letter-btn:active {
+    transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+
+  /* Animasi Standar */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; color: #4CAF50 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #FF4081 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 24px; font-weight: 900;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 35px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 35px 10px; border-radius: 35px; width: 95%; }
+    .question-text { font-size: 18px; margin-bottom: 15px; }
+    #item-display { width: 100px; height: 100px; font-size: 55px; margin-bottom: 20px; border-width: 4px; }
+    
+    .slot-box { width: 35px; height: 45px; font-size: 22px; border-width: 2px; border-radius: 8px; }
+    #answer-slots { gap: 6px; margin-bottom: 20px; }
+    
+    .letter-btn { width: 42px; height: 50px; font-size: 22px; border-width: 3px; border-radius: 10px; }
+    #letters-area { gap: 8px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 15px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
+  }
+</style>
+</head>
+
+<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1 style="color: #E91E63;">🔠 Susun Kata 🔠</h1>
+    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Ayo Belajar Membaca!</h2>
+    <p>Lihat gambarnya, lalu susun huruf-huruf acak di bawahnya menjadi kata yang benar. Kamu pasti bisa!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <div class="question-text" id="question-text">Gambar apakah ini?</div>
+  
+  <div id="item-display">🕌</div>
+  
+  <!-- Area Kotak Kosong -->
+  <div id="answer-slots"></div>
+  
+  <!-- Area Huruf Acak -->
+  <div id="letters-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Alhamdulillah! 🎉</h1>
+    <p>Kamu sudah semakin pintar membaca dan menyusun kata! Ini adalah hasilnya:</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // Kumpulan Kosa Kata Telah Diperbanyak (Lebih dari 50 Kata)
+  const wordsData = [
+    // Islami
+    { emoji: '🕌', word: 'MASJID' }, { emoji: '🕋', word: 'KABAH' },
+    { emoji: '📖', word: 'QURAN' }, { emoji: '📿', word: 'TASBIH' },
+    { emoji: '☪️', word: 'ISLAM' }, { emoji: '💧', word: 'WUDHU' },
+    { emoji: '🕋', word: 'HAJI' }, { emoji: '👳', word: 'PECI' },
+    { emoji: '🤲', word: 'DOA' }, { emoji: '⛺', word: 'TENDA' },
+    // Alam & Benda Langit
+    { emoji: '🌙', word: 'BULAN' }, { emoji: '⭐', word: 'BINTANG' },
+    { emoji: '☀️', word: 'SIANG' }, { emoji: '🌌', word: 'MALAM' },
+    { emoji: '☁️', word: 'AWAN' }, { emoji: '🌧️', word: 'HUJAN' },
+    { emoji: '🌈', word: 'PELANGI' }, { emoji: '⚡', word: 'PETIR' },
+    { emoji: '🔥', word: 'API' }, { emoji: '🌊', word: 'LAUT' },
+    { emoji: '⛰️', word: 'GUNUNG' }, { emoji: '🪨', word: 'BATU' },
+    { emoji: '💧', word: 'AIR' }, { emoji: '🍃', word: 'DAUN' },
+    { emoji: '🌳', word: 'POHON' }, { emoji: '🌹', word: 'BUNGA' },
+    // Hewan (Tanpa Muka Manusia)
+    { emoji: '🐪', word: 'UNTA' }, { emoji: '🐑', word: 'DOMBA' },
+    { emoji: '🐄', word: 'SAPI' }, { emoji: '🐘', word: 'GAJAH' },
+    { emoji: '🐎', word: 'KUDA' }, { emoji: '🐐', word: 'KAMBING' },
+    { emoji: '🐟', word: 'IKAN' }, { emoji: '🐋', word: 'PAUS' },
+    { emoji: '🦅', word: 'ELANG' }, { emoji: '🦆', word: 'BEBEK' },
+    { emoji: '🐓', word: 'AYAM' }, { emoji: '🐢', word: 'PENYU' },
+    { emoji: '🐝', word: 'LEBAH' }, { emoji: '🐜', word: 'SEMUT' },
+    { emoji: '🦋', word: 'KUPU' }, { emoji: '🐌', word: 'SIPUT' },
+    // Buah & Makanan
+    { emoji: '🍎', word: 'APEL' }, { emoji: '🍌', word: 'PISANG' },
+    { emoji: '🍇', word: 'ANGGUR' }, { emoji: '🍉', word: 'MANGKA' },
+    { emoji: '🍊', word: 'JERUK' }, { emoji: '🥥', word: 'KELAPA' },
+    { emoji: '🌴', word: 'KURMA' }, { emoji: '🥛', word: 'SUSU' },
+    { emoji: '🍞', word: 'ROTI' }, { emoji: '🍯', word: 'MADU' },
+    // Benda Sehari-hari
+    { emoji: '👕', word: 'BAJU' }, { emoji: '👟', word: 'SEPATU' },
+    { emoji: '🎩', word: 'TOPI' }, { emoji: '🏠', word: 'RUMAH' },
+    { emoji: '🚪', word: 'PINTU' }, { emoji: '🪑', word: 'KURSI' },
+    { emoji: '🛏️', word: 'KASUR' }, { emoji: '🚗', word: 'MOBIL' },
+    { emoji: '🚲', word: 'SEPEDA' }, { emoji: '🚢', word: 'KAPAL' }
+  ];
+
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  
+  let currentWord = "";
+  let userGuess = []; 
+
+  const gameContainer = document.getElementById('game-container');
+  const itemDisplay = document.getElementById('item-display');
+  const answerSlots = document.getElementById('answer-slots');
+  const lettersArea = document.getElementById('letters-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  
+  // Memanggil elemen musik latar
+  const bgMusic = document.getElementById('bg-music');
+
+  function startGame() {
+    // Memutar musik saat tombol ditekan
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    // Sistem Acak Soal
+    let shuffledData = [...wordsData].sort(() => Math.random() - 0.5);
+    activeQuiz = shuffledData.slice(0, JUMLAH_SOAL);
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    userGuess = [];
+    
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    currentWord = currentQuiz.word;
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    
+    // Animasi Pop Gambar
+    itemDisplay.style.animation = 'none';
+    itemDisplay.offsetHeight; 
+    itemDisplay.style.animation = null; 
+    itemDisplay.innerText = currentQuiz.emoji;
+
+    // Progress Bar
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    renderSlots();
+    renderScrambledLetters();
+  }
+
+  function renderSlots() {
+    answerSlots.innerHTML = '';
+    // Buat kotak kosong sebanyak jumlah huruf
+    for (let i = 0; i < currentWord.length; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot-box';
+      
+      // Jika huruf sudah ditebak, tampilkan di kotak
+      if (userGuess[i]) {
+        slot.innerText = userGuess[i].letter;
+        slot.classList.add('slot-filled');
+      }
+      answerSlots.appendChild(slot);
+    }
+  }
+
+  function renderScrambledLetters() {
+    lettersArea.innerHTML = '';
+    
+    // Acak Huruf
+    let lettersArray = currentWord.split('');
+    lettersArray.sort(() => Math.random() - 0.5);
+
+    lettersArray.forEach((char, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'letter-btn';
+      btn.innerText = char;
+      btn.id = `letter-btn-${index}`;
+      
+      btn.onclick = () => handleLetterClick(char, index);
+      lettersArea.appendChild(btn);
+    });
+  }
+
+  function handleLetterClick(char, btnIndex) {
+    if (isWaiting) return;
+    
+    // Sembunyikan tombol yang ditekan
+    const btn = document.getElementById(`letter-btn-${btnIndex}`);
+    btn.style.visibility = 'hidden'; // pakai visibility agar layout tidak loncat
+    btn.style.pointerEvents = 'none';
+
+    // Tambahkan ke tebakan
+    userGuess.push({ letter: char, btnIndex: btnIndex });
+    renderSlots();
+
+    // Cek jika slot sudah penuh
+    if (userGuess.length === currentWord.length) {
+      checkAnswer();
+    }
+  }
+
+  function checkAnswer() {
+    isWaiting = true;
+    const guessedWord = userGuess.map(g => g.letter).join('');
+
+    if (guessedWord === currentWord) {
+      // JAWABAN BENAR
+      skorBenar++;
+      showFeedback("Masya Allah, Pintar! 🌟", true);
+      
+      // Beri efek pop ke semua slot
+      const slots = answerSlots.querySelectorAll('.slot-box');
+      slots.forEach(s => s.classList.add('pop'));
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < JUMLAH_SOAL) {
+          loadQuestion();
+        } else {
+          showResult();
+        }
+      }, 1500);
+
+    } else {
+      // JAWABAN SALAH
+      skorSalah++;
+      showFeedback("Kurang Tepat, Coba Lagi! 😉", false);
+      
+      // Beri efek shake ke semua slot
+      const slots = answerSlots.querySelectorAll('.slot-box');
+      slots.forEach(s => {
+        s.classList.remove('slot-filled');
+        s.classList.add('shake');
+      });
+
+      // Reset tebakan setelah animasi selesai (500ms)
+      setTimeout(() => {
+        // Tampilkan kembali tombol huruf yang tadi disembunyikan
+        userGuess.forEach(g => {
+          const btn = document.getElementById(`letter-btn-${g.btnIndex}`);
+          btn.style.visibility = 'visible';
+          btn.style.pointerEvents = 'auto';
+        });
+        
+        userGuess = [];
+        renderSlots();
+        isWaiting = false;
+      }, 600);
+    }
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

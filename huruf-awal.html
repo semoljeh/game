@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Tebak Huruf Awal</title>
+<meta name="description" content="Game edukasi Islam untuk anak TK/RA. Belajar mengenal huruf awal sebuah kata bersama MADASA!">
+
+<!-- --- GOOGLE FONTS --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    color: #333; overflow: hidden; touch-action: manipulation;
+    
+    /* Mencegah seleksi teks (copy paste) */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
+  #game-container {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 480px; 
+    z-index: 10;
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 5px solid #FFF; border-radius: 40px;
+    padding: 35px 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  .level-badge {
+    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
+    font-size: 18px; font-weight: 900; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    border: 2px solid #FFF;
+  }
+
+  .question-text {
+    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 10px 0; line-height: 1.4;
+  }
+
+  .word-hint {
+    font-size: 24px; font-weight: 900; color: #E91E63; margin-bottom: 20px;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* --- AREA GAMBAR (EMOJI) --- */
+  #item-display {
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(255, 255, 255, 0.9); border: 5px dashed #4FC3F7; border-radius: 30px;
+    width: 130px; height: 130px; margin-bottom: 25px;
+    font-size: 75px; 
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
+  }
+  
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- TOMBOL PILIHAN HURUF --- */
+  #options-area {
+    display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap; margin-bottom: 10px;
+  }
+
+  .option-btn {
+    background: #FFF; border: 5px solid #4FC3F7; border-radius: 25px;
+    width: 85px; height: 85px; 
+    display: flex; justify-content: center; align-items: center;
+    font-size: 50px; font-weight: 900; color: #0288D1;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .option-btn:active {
+    transform: translateY(6px) scale(0.95); box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+
+  /* Animasi Standar */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important; }
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+  }
+
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; }
+  @keyframes popAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.05); }
+  }
+  
+  .correct-highlight {
+    border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05);
+  }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
+    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #FF4081 !important; }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+  }
+
+  .screen-content {
+    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+  }
+
+  .screen h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  
+  .btn {
+    padding: 15px 40px; font-size: 24px; font-weight: 900;
+    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; width: auto;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* --- KOTAK EVALUASI --- */
+  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 35px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 25px; transition: all 0.3s ease; text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+
+  /* Responsive HP */
+  @media (max-width: 600px) {
+    #game-container { padding: 35px 15px; border-radius: 35px; width: 95%; }
+    .question-text { font-size: 18px; margin-bottom: 10px; }
+    .word-hint { font-size: 20px; margin-bottom: 15px; }
+    #item-display { width: 110px; height: 110px; font-size: 60px; margin-bottom: 20px; border-width: 4px; }
+    
+    .option-btn { width: 75px; height: 75px; font-size: 40px; border-width: 4px; border-radius: 20px; }
+    #options-area { gap: 12px; }
+    
+    .screen h1 { font-size: 32px; }
+    .screen p { font-size: 15px; margin-bottom: 25px; }
+    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
+    #feedback-msg { font-size: 16px; padding: 8px 20px; }
+    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
+    .eval-item span { font-size: 30px; }
+    .eval-item h3 { font-size: 14px; }
+    .eval-item p { font-size: 22px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
+    .dev-link strong { font-size: 13px; }
+  }
+</style>
+</head>
+
+<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- LAYAR MENU AWAL -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <div class="screen-content">
+    <h1 style="color: #E91E63;">🔤 Tebak Huruf Awal 🔤</h1>
+    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Ayo Mengenal Abjad!</h2>
+    <p>Perhatikan gambar dan nama bendanya. Huruf apa ya yang ada di paling depan? Ayo tebak!</p>
+    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- AREA GAME -->
+<div id="game-container">
+  <div id="feedback-msg">Benar!</div>
+  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+  
+  <div class="question-text">Huruf awalan dari gambar ini adalah?</div>
+  
+  <div id="item-display">🍎</div>
+  <div class="word-hint" id="word-hint">_ P E L</div>
+  
+  <!-- Area Pilihan Ganda -->
+  <div id="options-area"></div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- LAYAR HASIL & EVALUASI -->
+<div id="result-screen" class="screen">
+  <div class="screen-content">
+    <h1 id="result-title">Alhamdulillah! 🎉</h1>
+    <p>Masya Allah, kamu sudah hebat mengenal huruf pertama dari sebuah kata.</p>
+    
+    <div class="eval-box">
+      <div class="eval-item eval-benar">
+        <span>✅</span>
+        <h3>Benar</h3>
+        <p id="score-benar">0</p>
+      </div>
+      <div class="eval-item eval-salah">
+        <span>❌</span>
+        <h3>Salah</h3>
+        <p id="score-salah">0</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  </div>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/musik.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // BANK DATA SOAL (Lebih dari 40 Benda)
+  const itemDatabase = [
+    { emoji: '🍎', word: 'APEL', letter: 'A' }, { emoji: '☁️', word: 'AWAN', letter: 'A' }, { emoji: '💧', word: 'AIR', letter: 'A' },
+    { emoji: '🌙', word: 'BULAN', letter: 'B' }, { emoji: '⭐', word: 'BINTANG', letter: 'B' }, { emoji: '👕', word: 'BAJU', letter: 'B' },
+    { emoji: '🌶️', word: 'CABAI', letter: 'C' },
+    { emoji: '🐑', word: 'DOMBA', letter: 'D' }, { emoji: '🍃', word: 'DAUN', letter: 'D' },
+    { emoji: '🦅', word: 'ELANG', letter: 'E' },
+    { emoji: '📸', word: 'FOTO', letter: 'F' },
+    { emoji: '🐘', word: 'GAJAH', letter: 'G' }, { emoji: '⛰️', word: 'GUNUNG', letter: 'G' }, { emoji: '🦷', word: 'GIGI', letter: 'G' },
+    { emoji: '🌧️', word: 'HUJAN', letter: 'H' }, { emoji: '🐅', word: 'HARIMAU', letter: 'H' },
+    { emoji: '🐟', word: 'IKAN', letter: 'I' }, { emoji: '🦆', word: 'ITIK', letter: 'I' },
+    { emoji: '🍊', word: 'JERUK', letter: 'J' }, { emoji: '🕰️', word: 'JAM', letter: 'J' },
+    { emoji: '🕋', word: 'KABAH', letter: 'K' }, { emoji: '🚢', word: 'KAPAL', letter: 'K' }, { emoji: '🐎', word: 'KUDA', letter: 'K' },
+    { emoji: '🌊', word: 'LAUT', letter: 'L' }, { emoji: '🐝', word: 'LEBAH', letter: 'L' },
+    { emoji: '🕌', word: 'MASJID', letter: 'M' }, { emoji: '🚗', word: 'MOBIL', letter: 'M' }, { emoji: '🌹', word: 'MAWAR', letter: 'M' },
+    { emoji: '🍍', word: 'NANAS', letter: 'N' }, { emoji: '🍚', word: 'NASI', letter: 'N' },
+    { emoji: '💊', word: 'OBAT', letter: 'O' },
+    { emoji: '🍌', word: 'PISANG', letter: 'P' }, { emoji: '🌴', word: 'POHON', letter: 'P' }, { emoji: '🚪', word: 'PINTU', letter: 'P' },
+    { emoji: '📖', word: 'QURAN', letter: 'Q' },
+    { emoji: '🏠', word: 'RUMAH', letter: 'R' }, { emoji: '🍞', word: 'ROTI', letter: 'R' },
+    { emoji: '🐄', word: 'SAPI', letter: 'S' }, { emoji: '👟', word: 'SEPATU', letter: 'S' },
+    { emoji: '📿', word: 'TASBIH', letter: 'T' }, { emoji: '🎩', word: 'TOPI', letter: 'T' },
+    { emoji: '🐪', word: 'UNTA', letter: 'U' }, { emoji: '🍠', word: 'UBI', letter: 'U' },
+    { emoji: '🥕', word: 'WORTEL', letter: 'W' },
+    { emoji: '🦓', word: 'ZEBRA', letter: 'Z' }
+  ];
+
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  let correctLetter = "";
+
+  const gameContainer = document.getElementById('game-container');
+  const itemDisplay = document.getElementById('item-display');
+  const wordHintDisplay = document.getElementById('word-hint');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+
+  // Generator Soal Dinamis
+  function generateDynamicQuestions() {
+    let questions = [];
+    let shuffledItems = [...itemDatabase].sort(() => Math.random() - 0.5);
+
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let targetItem = shuffledItems[i];
+      let answer = targetItem.letter;
+
+      // Ambil 2 pengecoh (huruf salah)
+      let distractors = [];
+      while(distractors.length < 2) {
+        let randLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+        if(randLetter !== answer && !distractors.includes(randLetter)) {
+          distractors.push(randLetter);
+        }
+      }
+
+      // Gabungkan dan acak urutan tombol
+      let options = [answer, ...distractors].sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        item: targetItem,
+        answer: answer,
+        options: options
+      });
+    }
+    return questions;
+  }
+
+  function startGame() {
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    activeQuiz = generateDynamicQuestions();
+    totalQDisplay.innerText = JUMLAH_SOAL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctLetter = currentQuiz.answer;
+    
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+    
+    // Trik Animasi Ulang untuk Gambar
+    itemDisplay.style.animation = 'none';
+    itemDisplay.offsetHeight;
+    itemDisplay.style.animation = 'popIn 0.3s forwards';
+    itemDisplay.innerText = currentQuiz.item.emoji;
+
+    // Menampilkan hint kata dengan huruf pertama hilang (Misal: _ P E L)
+    let hintWord = currentQuiz.item.word.substring(1);
+    wordHintDisplay.innerText = "_ " + hintWord.split('').join(' ');
+
+    // Update Progress Bar
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    // Render Tombol
+    optionsArea.innerHTML = '';
+    currentQuiz.options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      btn.innerText = opt;
+      
+      btn.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+      btn.style.transform = 'scale(0)';
+
+      btn.onclick = () => checkAnswer(btn, opt);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, selectedOption) {
+    if (isWaiting) return; 
+    isWaiting = true;
+
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    const isCorrect = (selectedOption === correctLetter);
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Masya Allah, Pintar! 🌟", true);
+      
+      // Mengisi huruf pertama yang kosong
+      let fullWord = activeQuiz[currentQuestionIndex].item.word;
+      wordHintDisplay.innerText = fullWord.split('').join(' ');
+      wordHintDisplay.style.color = "#4CAF50";
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      
+      // Tunjukkan jawaban yang benar
+      allBtns.forEach(b => {
+        if(b.innerText === correctLetter) {
+          b.classList.add('correct-highlight');
+        }
+      });
+    }
+
+    setTimeout(() => {
+      wordHintDisplay.style.color = "#E91E63"; // Reset warna teks hint
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) {
+      feedbackMsg.classList.remove('feedback-wrong');
+    } else {
+      feedbackMsg.classList.add('feedback-wrong');
+    }
+    
+    feedbackMsg.classList.add('feedback-show');
+    
+    setTimeout(() => {
+      feedbackMsg.classList.remove('feedback-show');
+    }, 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    if (skorBenar === JUMLAH_SOAL) {
+      title.innerText = "Sempurna! 🌟";
+    } else if (skorBenar > skorSalah) {
+      title.innerText = "Alhamdulillah! 🎉";
+    } else {
+      title.innerText = "Tetap Semangat! 💪";
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>
