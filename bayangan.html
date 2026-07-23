@@ -8,36 +8,44 @@
 <meta name="description" content="Game edukasi Islam untuk anak TK/RA. Mari menebak bayangan benda bersama MADASA!">
 
 <style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.6);
+  }
+
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #FFF9C4 0%, #E1F5FE 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
   }
 
-  /* --- KONTAINER GAME --- */
+  /* --- KONTAINER GAME (Disesuaikan agar memanjang seperti layar HP) --- */
   #game-container {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 85%; /* Tidak mepet layar */
+    max-width: 420px; /* Lebar maksimal disesuaikan untuk HP */
     z-index: 10; display: flex; flex-direction: column; align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 30px 40px; border-radius: 40px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    border: 6px solid #4FC3F7; box-sizing: border-box; max-width: 95vw;
-    width: 450px;
+    background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    padding: 50px 25px; /* Diperbesar agar memanjang ke bawah */
+    border-radius: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border: 4px solid var(--glass-border);
+    box-sizing: border-box;
   }
 
-  h2 { color: #0288D1; font-size: 28px; margin: 0 0 5px 0; text-align: center; }
-  p.instruksi { font-size: 16px; color: #555; margin: 0 0 20px 0; text-align: center; font-weight: bold; }
+  h2 { color: #0288D1; font-size: 26px; margin: 0 0 10px 0; text-align: center; font-weight: 900; }
+  p.instruksi { font-size: 15px; color: #555; margin: 0 0 25px 0; text-align: center; font-weight: 700; }
 
   /* --- KOTAK AREA BAYANGAN --- */
   #shadow-box {
     background: #F5F5F5;
-    width: 180px; height: 180px;
+    width: 170px; height: 170px;
     border-radius: 30px;
     border: 4px dashed #BDBDBD;
     display: flex; justify-content: center; align-items: center;
     margin-bottom: 30px;
-    font-size: 100px;
+    font-size: 90px;
     user-select: none;
     animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -55,13 +63,14 @@
     background: #FFF;
     border: 4px solid #FFD700;
     border-radius: 20px;
-    width: 90px; height: 90px;
-    font-size: 50px;
+    width: 85px; height: 85px;
+    font-size: 45px;
     display: flex; justify-content: center; align-items: center;
     cursor: pointer;
     box-shadow: 0 6px 0 #FFB300, 0 10px 15px rgba(0,0,0,0.1);
     transition: transform 0.1s, box-shadow 0.1s;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .option-btn:active {
@@ -89,8 +98,8 @@
 
   /* --- PROGRESS BAR --- */
   #progress-container {
-    width: 100%; background: #E0E0E0; border-radius: 10px;
-    height: 15px; margin-top: 25px; overflow: hidden;
+    width: 90%; background: #E0E0E0; border-radius: 10px;
+    height: 12px; margin-top: 35px; overflow: hidden;
   }
   #progress-bar {
     height: 100%; background: #4CAF50; width: 0%;
@@ -99,56 +108,58 @@
 
   /* --- NOTIFIKASI SALAH --- */
   #wrong-notif {
-    display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
+    display: none; position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
     background: #FF4081; color: white; padding: 10px 25px; border-radius: 30px;
-    font-size: 18px; font-weight: bold; text-align: center; border: 3px solid #FFF;
+    font-size: 16px; font-weight: bold; text-align: center; border: 3px solid #FFF;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 100; pointer-events: none;
+    white-space: nowrap;
   }
 
   /* --- LAYAR MENU & HASIL --- */
   .screen {
     display: none; position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px); flex-direction: column; align-items: center;
+    width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-direction: column; align-items: center;
     justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
   }
 
   .screen-content {
-    background: #fff; color: #333; padding: 40px; border-radius: 35px;
-    border: 8px solid #4FC3F7; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-width: 90%;
+    background: var(--glass-bg); padding: 50px 25px; border-radius: 40px;
+    border: 4px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+    width: 85%; max-width: 400px; box-sizing: border-box;
   }
 
-  h1 { font-size: 45px; color: #0288D1; margin: 0 0 15px 0; }
-  .screen p { font-size: 22px; color: #555; line-height: 1.5; margin-bottom: 35px; font-weight: bold; }
+  h1 { font-size: 32px; color: #0288D1; margin: 0 0 15px 0; font-weight: 900; line-height: 1.2; }
+  .screen p { font-size: 16px; color: #555; line-height: 1.5; margin-bottom: 35px; font-weight: 700; }
   
   .btn {
-    padding: 15px 50px; font-size: 28px; font-weight: bold;
-    background-color: #4CAF50; color: white; border: 5px solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 8px 0 #388E3C, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s; font-family: inherit;
+    padding: 15px 30px; font-size: 18px; font-weight: 900;
+    background-color: #4CAF50; color: white; border: 3px solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 15px rgba(76, 175, 80, 0.4);
+    transition: 0.2s; font-family: inherit; width: 90%;
   }
-  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  .btn:active { transform: translateY(5px); box-shadow: 0 2px 5px rgba(76, 175, 80, 0.4); }
 
   /* Lencana Developer */
   .dev-link {
     position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 8px 20px; font-size: 14px; color: #555; text-decoration: none;
+    padding: 8px 25px; font-size: 14px; color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #4FC3F7;
-    border-radius: 25px; transition: all 0.3s ease; text-align: center;
-    white-space: nowrap; z-index: 60; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 30px; transition: all 0.3s ease; text-align: center;
+    white-space: nowrap; z-index: 60; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: 700;
   }
   .dev-link strong { color: #0288D1; font-size: 16px; font-weight: 900; margin-left: 5px; }
 
   /* Responsive HP */
   @media (max-width: 600px) {
-    #game-container { padding: 20px; width: 90vw; }
-    #shadow-box { width: 150px; height: 150px; font-size: 80px; }
-    .option-btn { width: 75px; height: 75px; font-size: 40px; }
-    h2 { font-size: 24px; }
+    #game-container { padding: 45px 20px; border-radius: 35px; width: 85%; }
+    #shadow-box { width: 140px; height: 140px; font-size: 70px; margin-bottom: 25px; }
+    .option-btn { width: 75px; height: 75px; font-size: 38px; }
+    h2 { font-size: 22px; }
     p.instruksi { font-size: 14px; }
-    h1 { font-size: 35px; }
-    .screen p { font-size: 18px; }
-    .btn { font-size: 24px; padding: 12px 40px; }
+    .screen h1 { font-size: 28px; }
+    .screen p { font-size: 15px; }
+    .btn { font-size: 16px; padding: 12px 20px; }
   }
 </style>
 </head>
@@ -160,9 +171,8 @@
 <!-- LAYAR SAMBUTAN -->
 <div id="welcome-screen" class="screen" style="display: flex;">
   <div class="screen-content">
-    <h1>🌙 Tebak Bayangan Islami 🕌</h1>
-    <h2>Game MADASA</h2>
-    <p>Mari belajar mengenal ciptaan Allah dan atribut Islam dengan penuh ceria! Siap mencocokkan bayangannya?</p>
+    <h1>🌙 Tebak Bayangan 🕌</h1>
+    <p>Mari belajar mengenal benda-benda dan atribut Islam dengan penuh ceria! Siap mencocokkan bayangannya?</p>
     <button class="btn" onclick="startGame()">▶️ BISMILLAH, MAIN</button>
   </div>
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
@@ -194,7 +204,7 @@
 <div id="win-screen" class="screen">
   <div class="screen-content">
     <h1 id="win-title">Alhamdulillah! 🌟</h1>
-    <p id="win-message">Masya Allah, anak shalih dan shalihah! Semua bayangan berhasil ditebug dengan sangat teliti.</p>
+    <p id="win-message">Masya Allah, anak shalih dan shalihah! Semua bayangan berhasil ditebak dengan sangat teliti.</p>
     <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
   </div>
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
@@ -203,10 +213,24 @@
 </div>
 
 <script>
-  const items = ['🕌', '🕋', '🌙', '🐫', '📖', '📿', '👳‍♂️', '🧕', '🌴'];
+  // Koleksi gambar diperbanyak dengan tema alam, buah, benda Islami, dan kisah para Nabi
+  const items = [
+    '🕌', '🕋', '🌙', '🐫', '📖', '📿', '⭐', '🍎', '🌴', 
+    '🐑', /* Domba Qurban */
+    '🐄', /* Sapi Qurban */
+    '🐘', /* Pasukan Gajah */
+    '🐳', /* Paus Nabi Yunus */
+    '🚢', /* Kapal Nabi Nuh */
+    '⛰️', /* Gunung Uhud/Jabal Nur */
+    '💧', /* Air Wudhu/Zamzam */
+    '🍇', /* Anggur Surga */
+    '🍯', /* Minuman Madu */
+    '🏕️', /* Tenda Arafah */
+    '⛅'  /* Awan ciptaan Allah */
+  ];
   
   let currentLevel = 0;
-  const totalLevels = 5; 
+  const totalLevels = 10; // Dinaikkan menjadi 10 agar anak bisa mencoba lebih banyak variasi
   let correctAnswer = '';
   let options = [];
 
