@@ -93,7 +93,7 @@
 
   /* Posisi awan dijauhkan dari pojok kiri/kanan atas */
   .c1 { top: 40%; left: 5%; opacity: 0.4; }
-  .c2 { top: 55%; left: 75%; transform: scale(0.7); opacity: 0.4; }
+  .c2 { top: 55%; right: 10%; transform: scale(0.7); opacity: 0.4; }
 
   /* Bukit Hijau Berlapis */
   .hill {
@@ -121,7 +121,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between; 
-    align-items: center;
+    align-items: flex-start;
     z-index: 10;
     padding: 0 25px; 
     box-sizing: border-box;
@@ -148,6 +148,7 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     border: 4px solid #4CAF50;
     animation: pulseTarget 2s infinite;
+    margin: 0 10px; /* Memberi jarak agar tidak menabrak kotak di sebelahnya saat layar sempit */
   }
   
   #target-text {
@@ -155,6 +156,7 @@
     color: #666;
     margin-bottom: 5px;
     font-weight: 800;
+    white-space: nowrap;
   }
 
   #target-letter {
@@ -323,30 +325,33 @@
     margin-left: 4px;
   }
 
-  /* Responsive Mobile (HP) */
-  @media (max-width: 600px) {
-    .ui-box { font-size: 18px; padding: 6px 15px; border-width: 2px; }
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR KECIL / HP POTRAIT */
+  /* ============================================== */
+  @media (max-width: 650px) {
+    #top-bar { padding: 0 10px; top: 10px; }
+    .ui-box { font-size: 16px; padding: 6px 12px; border-width: 2px; }
     
-    #target-container { padding: 8px 20px 20px 20px; border-width: 3px; }
-    #target-text { font-size: 14px; }
+    #target-container { padding: 5px 25px 15px 25px; border-width: 3px; }
+    #target-text { font-size: 12px; }
     #target-letter { font-size: 55px; } 
     
     .balloon { 
-      width: 85px; 
-      height: 105px; 
-      font-size: 50px; 
+      width: 80px; 
+      height: 100px; 
+      font-size: 45px; 
       padding-bottom: 12px;
     }
     
     .sun { width: 75px; height: 75px; right: -10px; top: -10px; }
 
-    h1 { font-size: 32px; }
-    h2 { font-size: 18px; }
-    p { font-size: 15px; margin-bottom: 25px; }
-    .btn { font-size: 20px; padding: 12px 30px; border-width: 3px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 16px; margin-bottom: 10px;}
+    p { font-size: 14px; margin-bottom: 20px; }
+    .btn { font-size: 18px; padding: 10px 25px; border-width: 3px; }
     
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 10px; }
+    .dev-link strong { font-size: 12px; }
   }
 
 </style>
@@ -443,15 +448,9 @@
     const balloon = document.createElement('div');
     balloon.className = 'balloon';
     
-    // Sistem Jalur (Lanes) agar balon tidak mepet ke tepi kiri/kanan
-    const jalur = [12, 35, 60, 78]; 
-    const pilihJalur = Math.floor(Math.random() * jalur.length);
-    const variasiAcak = Math.floor(Math.random() * 10) - 5; 
-    let posisiAkhir = jalur[pilihJalur] + variasiAcak;
-    
-    if (posisiAkhir < 5) posisiAkhir = 5;
-    if (posisiAkhir > 82) posisiAkhir = 82;
-
+    // PEMBARUAN: Balon menyebar dinamis mengikuti lebar layar secara acak (10% hingga 85%)
+    // Menghindari penumpukan dan membuat tampilan merata di layar lebar (TV) maupun sempit (HP)
+    let posisiAkhir = Math.floor(Math.random() * 75) + 10;
     balloon.style.left = posisiAkhir + '%';
     
     const randomColor = balloonColors[Math.floor(Math.random() * balloonColors.length)];

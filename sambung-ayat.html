@@ -18,6 +18,11 @@
     background: linear-gradient(to bottom, #A5D6A7 0%, #E8F5E9 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
+    /* Menggunakan Flexbox agar game selalu di tengah dengan sempurna di TV & HP */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -27,7 +32,7 @@
 
   /* --- KOTAK GAME UTAMA --- */
   #game-container {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    position: relative; /* Diubah agar lebih stabil dan responsif */
     width: 95%; max-width: 500px; 
     z-index: 10;
     display: none; flex-direction: column; align-items: center; text-align: center;
@@ -187,7 +192,49 @@
   }
   .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
 
-  /* Responsive HP */
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR LEBAR (TV HISENSE)     */
+  /* ============================================== */
+  @media screen and (orientation: landscape) and (min-width: 768px) {
+    #game-container { 
+      max-width: 900px; 
+      padding: 50px 40px; 
+      border-radius: 50px; 
+    }
+    
+    .level-badge { font-size: 24px; padding: 10px 40px; margin-bottom: 25px; }
+    .surah-badge { font-size: 22px; padding: 8px 25px; margin-bottom: 20px; border-radius: 20px; }
+    
+    #question-box { padding: 40px 30px; margin-bottom: 30px; min-height: 200px; }
+    .arabic-text { font-size: 60px; line-height: 1.8; margin-bottom: 15px; }
+    .latin-text { font-size: 24px; }
+    
+    .question-instruction { font-size: 26px; margin-bottom: 25px; }
+    
+    #options-area { gap: 20px; }
+    .option-btn { padding: 25px; border-width: 6px; border-radius: 30px; }
+    .option-btn .arabic-text { font-size: 45px; margin-bottom: 10px; }
+    .option-btn .latin-text { font-size: 20px; }
+    
+    #progress-bar { height: 18px; margin-top: 40px; }
+    
+    .screen-content { max-width: 800px; }
+    .screen h1 { font-size: 55px; margin-bottom: 15px; }
+    .screen p { font-size: 24px; margin-bottom: 40px; }
+    .btn { font-size: 32px; padding: 20px 60px; border-width: 6px; border-radius: 50px; }
+    
+    .eval-box { gap: 30px; margin-bottom: 40px; }
+    .eval-item { width: 160px; padding: 25px; border-width: 6px; }
+    .eval-item span { font-size: 55px; margin-bottom: 10px; }
+    .eval-item h3 { font-size: 22px; }
+    .eval-item p { font-size: 45px; }
+  }
+
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR KECIL (HP PORTRAIT)    */
+  /* ============================================== */
   @media (max-width: 600px) {
     #game-container { padding: 30px 15px; border-radius: 35px; width: 95%; }
     

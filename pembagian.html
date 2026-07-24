@@ -17,6 +17,11 @@
     background: linear-gradient(to bottom, #F48FB1 0%, #FCE4EC 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
+    /* Menggunakan Flexbox agar game selalu di tengah dengan sempurna di TV & HP */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -26,7 +31,7 @@
 
   /* --- KOTAK GAME UTAMA --- */
   #game-container {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    position: relative; /* Diubah agar lebih stabil dan responsif */
     width: 95%; max-width: 500px; 
     z-index: 10;
     display: none; flex-direction: column; align-items: center; text-align: center;
@@ -45,7 +50,7 @@
     border: 2px solid #FFF;
   }
 
-  /* --- AREA SOAL MATEMATIKA (DIPERBAIKI) --- */
+  /* --- AREA SOAL MATEMATIKA --- */
   #question-box {
     background: rgba(255, 255, 255, 0.9); border: 4px dashed #D81B60; border-radius: 25px;
     padding: 20px 10px; width: 100%; box-sizing: border-box; margin-bottom: 20px;
@@ -61,13 +66,11 @@
     font-size: 45px; font-weight: 900; color: #AD1457; line-height: 1; margin-bottom: 5px;
   }
 
-  /* PERBAIKAN: Lebar ditambah, height diganti min-height agar bisa memanjang ke bawah jika emoji banyak */
   .visual-aid {
     font-size: 14px; letter-spacing: 1px; min-height: 25px;
     display: flex; flex-wrap: wrap; justify-content: center; width: 100px;
   }
 
-  /* PERBAIKAN: Posisi operator & tanda tanya diseimbangkan secara otomatis */
   .operator {
     font-size: 45px; font-weight: 900; color: #03A9F4; transform: translateY(-12px);
   }
@@ -191,7 +194,49 @@
   }
   .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
 
-  /* Responsive HP (DIPERBAIKI) */
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR LEBAR (TV HISENSE)     */
+  /* ============================================== */
+  @media screen and (orientation: landscape) and (min-width: 768px) {
+    #game-container { 
+      max-width: 900px; 
+      padding: 50px 40px; 
+      border-radius: 50px; 
+    }
+    
+    .level-badge { font-size: 24px; padding: 10px 40px; margin-bottom: 25px; }
+    
+    #question-box { padding: 40px 20px; gap: 15px; min-height: 250px; margin-bottom: 30px; }
+    .number-big { font-size: 75px; margin-bottom: 10px; }
+    .operator { font-size: 70px; transform: translateY(-20px); }
+    .question-mark { font-size: 75px; transform: translateY(-20px); }
+    
+    .visual-aid { font-size: 24px; width: 150px; letter-spacing: 3px; min-height: 40px; }
+    
+    .question-instruction { font-size: 26px; margin-bottom: 25px; }
+    
+    #options-area { gap: 30px; }
+    .option-btn { width: 140px; height: 140px; font-size: 60px; border-width: 6px; border-radius: 30px; }
+    
+    #progress-bar { height: 18px; margin-top: 40px; }
+    
+    .screen-content { max-width: 800px; }
+    .screen h1 { font-size: 55px; margin-bottom: 15px; }
+    .screen p { font-size: 24px; margin-bottom: 40px; }
+    .btn { font-size: 32px; padding: 20px 60px; border-width: 6px; border-radius: 50px; }
+    
+    .eval-box { gap: 30px; margin-bottom: 40px; }
+    .eval-item { width: 160px; padding: 25px; border-width: 6px; }
+    .eval-item span { font-size: 55px; margin-bottom: 10px; }
+    .eval-item h3 { font-size: 22px; }
+    .eval-item p { font-size: 45px; }
+  }
+
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR KECIL (HP PORTRAIT)    */
+  /* ============================================== */
   @media (max-width: 600px) {
     #game-container { padding: 30px 15px; border-radius: 35px; width: 95%; }
     .number-big { font-size: 38px; }
