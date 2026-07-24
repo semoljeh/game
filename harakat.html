@@ -50,7 +50,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
     z-index: 10;
-    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+    overflow-y: auto; 
   }
   #game-container { display: none; } 
 
@@ -96,18 +96,18 @@
     background: #FF9800; color: white; border-radius: 20px;
     padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
     font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4); border: 2px solid #FFF; margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
   }
 
   .question-text {
-    font-size: clamp(16px, 4vmin, 26px); font-weight: 900; 
-    color: #0288D1; margin: clamp(5px, 1.5vh, 15px) 0; text-align: center;
+    font-size: clamp(15px, 3.8vmin, 24px); font-weight: 900; 
+    color: #0288D1; margin: clamp(2px, 1vh, 10px) 0; text-align: center;
   }
 
   /* --- TATA LETAK GAME (DIBAGI AGAR FLEXIBEL SAAT LANDSCAPE) --- */
   .game-layout {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: 100%; flex-grow: 1; gap: clamp(10px, 2vh, 20px);
+    width: 100%; flex-grow: 1; gap: clamp(5px, 1.5vh, 15px);
   }
   .game-layout-left, .game-layout-right {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -118,10 +118,10 @@
   #arabic-display {
     display: flex; justify-content: center; align-items: center;
     background: transparent; border: none; 
-    width: clamp(120px, 30vmin, 200px); height: clamp(120px, 30vmin, 200px); 
-    margin-bottom: clamp(10px, 2vh, 20px);
+    width: clamp(110px, 26vmin, 180px); height: clamp(110px, 26vmin, 180px); 
+    margin-bottom: clamp(5px, 1vh, 10px);
     font-family: 'Amiri', serif; 
-    font-size: clamp(70px, 20vmin, 140px); font-weight: bold; color: #E91E63;
+    font-size: clamp(65px, 18vmin, 120px); font-weight: bold; color: #E91E63;
     line-height: normal; padding-bottom: 10px; box-sizing: border-box;
     text-shadow: 3px 3px 15px rgba(0,0,0,0.15);
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -131,17 +131,23 @@
   /* --- TOMBOL PILIHAN HURUF LATIN --- */
   #options-area {
     display: flex; gap: clamp(8px, 2vw, 20px); justify-content: center; 
-    width: 100%; flex-wrap: wrap; margin-bottom: 10px;
+    width: 100%; flex-wrap: wrap; margin-bottom: 5px;
+    padding: 0 10px;
   }
 
   .option-btn {
     background: #FFF; border: clamp(3px, 1vmin, 6px) solid #4CAF50; border-radius: clamp(15px, 4vmin, 25px);
-    width: clamp(70px, 18vmin, 120px); height: clamp(65px, 16vmin, 110px); 
+    /* Lebar tombol ditambahkan sedikit dan font diperkecil agar teks 3 karakter tidak menyentuh garis */
+    width: clamp(80px, 22vmin, 130px); 
+    height: clamp(65px, 16vmin, 110px); 
     display: flex; justify-content: center; align-items: center;
-    font-size: clamp(28px, 8vmin, 50px); font-weight: 900; color: #4CAF50;
+    font-size: clamp(22px, 6.5vmin, 42px); /* Penyesuaian ukuran font minimum dan maksimum */
+    font-weight: 900; color: #4CAF50;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1); outline: none; font-family: inherit;
     -webkit-tap-highlight-color: transparent;
+    padding: clamp(2px, 1vmin, 5px);
+    box-sizing: border-box; 
   }
   .option-btn:active { transform: translateY(6px) scale(0.95); box-shadow: 0 0 0 rgba(0,0,0,0); }
 
@@ -174,8 +180,8 @@
 
   /* --- PROGRESS BAR --- */
   #progress-bar { 
-    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
-    border-radius: 10px; margin-top: clamp(15px, 3vh, 35px); flex-shrink: 0;
+    width: 90%; height: clamp(6px, 1.2vh, 12px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(8px, 1.5vh, 15px); flex-shrink: 0;
     overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
   }
   #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
@@ -192,18 +198,18 @@
 
   /* 3. RESPONSIVE KHUSUS LAYAR MIRING (LANDSCAPE) */
   @media (orientation: landscape) and (max-height: 600px) {
-    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    #game-container, .screen { padding: 8px; height: 98vh; width: 98vw; justify-content: space-around; }
     
     /* Membelah layout game menjadi Kiri (Arab) & Kanan (Jawaban Latin) */
-    .game-layout { flex-direction: row; gap: 10px; }
-    .game-layout-left { width: 40%; }
-    .game-layout-right { width: 60%; }
+    .game-layout { flex-direction: row; gap: 15px; margin: 2px 0; }
+    .game-layout-left { width: 35%; }
+    .game-layout-right { width: 65%; }
     
     /* Menyesuaikan jarak dan ukuran agar tidak memakan ruang */
-    .question-text { margin: 5px 0; }
-    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
-    #progress-bar { margin-top: 5px; }
-    #arabic-display { margin-bottom: 5px; }
+    .question-text { margin: 2px 0; font-size: clamp(13px, 3vmin, 18px); }
+    .level-badge { padding: 2px 12px; margin-bottom: 2px; font-size: clamp(11px, 2.8vmin, 16px); }
+    #progress-bar { margin-top: 4px; height: 5px; }
+    #arabic-display { margin-bottom: 2px; width: clamp(90px, 22vmin, 130px); height: clamp(90px, 22vmin, 130px); font-size: clamp(50px, 15vmin, 90px); }
     
     /* Mengecilkan elemen di layar Menu & Hasil */
     .screen h1 { font-size: 28px; margin-bottom: 2px; }
@@ -215,7 +221,7 @@
     /* 4. MENGUBAH POSISI LENCANA DEV AGAR MENGALIR RAPI DI BAWAH TOMBOL */
     .dev-link { 
       position: relative; bottom: auto; left: auto; transform: none; 
-      margin-top: 10px; margin-bottom: 10px; display: inline-block;
+      margin-top: 5px; margin-bottom: 5px; display: inline-block;
     }
   }
 </style>
@@ -449,11 +455,10 @@
   }
 
   function checkAnswer(btn, selectedOption) {
-    // 6. Keamanan UX JavaScript: Mencegah tombol diklik ganda (double-click)
     if (isWaiting || btn.style.pointerEvents === 'none') return; 
     
     isWaiting = true;
-    btn.style.pointerEvents = 'none'; // Mengunci tombol yang sedang diklik
+    btn.style.pointerEvents = 'none';
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
     const isCorrect = (selectedOption === correctAnswer);
@@ -467,7 +472,6 @@
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan jawaban yang benar dengan efek highlight
       allBtns.forEach(b => {
         if(b.innerText === correctAnswer) {
           b.classList.add('correct-highlight');
@@ -475,7 +479,6 @@
       });
     }
 
-    // Mengunci seluruh opsi saat animasi berjalan
     allBtns.forEach(b => b.style.pointerEvents = 'none');
 
     setTimeout(() => {
