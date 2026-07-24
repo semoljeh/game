@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 1. Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <title>MADASA - Portal Game Edukasi Anak Islami</title>
 <meta name="description" content="Menu utama untuk memilih game edukasi Islami anak TK/RA dari MADASA.">
@@ -32,21 +33,39 @@
     --glass-border: rgba(255, 255, 255, 0.6);
   }
 
+  * { box-sizing: border-box; }
+
   html, body {
-    margin: 0; padding: 0; width: 100%; min-height: 100vh;
+    margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', sans-serif;
     background: #fdfbfb;
-    color: #333; overflow-x: hidden; touch-action: manipulation;
-    display: flex; flex-direction: column;
+    color: #333; overflow: hidden; touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  /* --- ANIMASI BACKGROUND (Nuansa Ceria & Modern) --- */
-  .blob {
-    position: fixed; border-radius: 50%; filter: blur(60px); z-index: -2; opacity: 0.6;
+  /* --- KONTAINER ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    overflow-y: auto; overflow-x: hidden;
+    transition: transform 0.4s ease; transform-origin: center center;
+    background: #fdfbfb;
   }
-  .shape1 { width: 400px; height: 400px; background: #FF9A9E; top: -100px; left: -100px; animation: float 6s infinite alternate; }
-  .shape2 { width: 450px; height: 450px; background: #FECFEF; bottom: -100px; right: -100px; animation: float 8s infinite alternate-reverse; }
-  .shape3 { width: 350px; height: 350px; background: #a1c4fd; top: 30%; left: 40%; animation: float 7s infinite alternate; }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* --- ANIMASI BACKGROUND --- */
+  .blob {
+    position: fixed; border-radius: 50%; filter: blur(60px); z-index: -2; opacity: 0.6; pointer-events: none;
+  }
+  .shape1 { width: clamp(200px, 30vw, 400px); height: clamp(200px, 30vw, 400px); background: #FF9A9E; top: -100px; left: -100px; animation: float 6s infinite alternate; }
+  .shape2 { width: clamp(200px, 35vw, 450px); height: clamp(200px, 35vw, 450px); background: #FECFEF; bottom: -100px; right: -100px; animation: float 8s infinite alternate-reverse; }
+  .shape3 { width: clamp(180px, 25vw, 350px); height: clamp(180px, 25vw, 350px); background: #a1c4fd; top: 30%; left: 40%; animation: float 7s infinite alternate; }
   
   @keyframes float {
     0% { transform: translateY(0px) scale(1); }
@@ -56,27 +75,30 @@
   .bg-pattern {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-image: radial-gradient(rgba(0, 0, 0, 0.04) 2px, transparent 2px);
-    background-size: 30px 30px; z-index: -1;
+    background-size: 30px 30px; z-index: -1; pointer-events: none;
   }
 
-  /* --- LAYAR SELAMAT DATANG (SPLASH SCREEN) --- */
+  /* --- LAYAR SELAMAT DATANG (SPLASH SCREEN) PAS SATU LAYAR --- */
   #welcome-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
     z-index: 100; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 20px; box-sizing: border-box;
+    justify-content: center; padding: 10px; box-sizing: border-box;
     transition: opacity 0.8s ease, transform 0.8s ease;
+    overflow: hidden;
   }
 
   .welcome-content {
     background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 4px solid var(--glass-border); border-radius: 40px;
-    padding: 60px 25px; 
+    border: 3px solid var(--glass-border); border-radius: 30px;
+    padding: clamp(15px, 2.5vh, 30px) clamp(15px, 3vw, 25px); 
     text-align: center; 
-    width: 85%; max-width: 380px; 
+    width: min(92%, 380px); 
+    max-height: 95vh;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
     box-sizing: border-box;
     animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
 
   @keyframes popIn {
@@ -84,43 +106,62 @@
     100% { transform: scale(1); opacity: 1; }
   }
 
-  .welcome-content h1 { font-size: 38px; color: #E91E63; margin: 0 0 10px 0; font-weight: 900; line-height: 1.2; }
-  .welcome-content h2 { font-size: 20px; color: #0288D1; margin: 0 0 20px 0; }
-  .welcome-content p { font-size: 16px; color: #555; line-height: 1.6; font-weight: 700; margin-bottom: 40px; }
+  .welcome-icon { font-size: clamp(35px, 8vmin, 55px); margin-bottom: 4px; }
+  .welcome-content h1 { font-size: clamp(20px, 5.5vmin, 32px); color: #E91E63; margin: 0 0 4px 0; font-weight: 900; line-height: 1.1; }
+  .welcome-content h2 { font-size: clamp(13px, 3.5vmin, 18px); color: #0288D1; margin: 0 0 8px 0; }
+  .welcome-content p { font-size: clamp(11px, 2.8vmin, 14px); color: #555; line-height: 1.4; font-weight: 700; margin: 0 0 12px 0; }
 
-  .welcome-buttons { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; }
+  .welcome-buttons { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
 
   .btn-masuk {
     background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-    color: white; border: 3px solid #FFF; padding: 15px 20px; font-size: 20px;
-    font-weight: 900; border-radius: 40px; cursor: pointer;
+    color: white; border: 2px solid #FFF; 
+    padding: clamp(8px, 1.5vh, 12px) 15px; 
+    font-size: clamp(13px, 3.5vmin, 18px);
+    font-weight: 900; border-radius: 30px; cursor: pointer;
     box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); transition: 0.2s; 
-    width: 95%;
+    width: 95%; outline: none;
   }
   .btn-masuk:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2); }
 
   .btn-install {
     background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
-    color: white; border: 3px solid #FFF; padding: 15px 20px; font-size: 18px;
-    font-weight: 900; border-radius: 40px; cursor: pointer;
+    color: white; border: 2px solid #FFF; 
+    padding: clamp(8px, 1.5vh, 12px) 15px; 
+    font-size: clamp(12px, 3.2vmin, 16px);
+    font-weight: 900; border-radius: 30px; cursor: pointer;
     box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); transition: 0.2s; 
-    width: 95%; display: none; 
+    width: 95%; display: none; outline: none;
   }
   .btn-install:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2); }
 
+  /* Tombol Putar Layar Mungil Sesuai Permintaan */
+  .btn-rotate-mini {
+    background: rgba(255, 255, 255, 0.9);
+    color: #0288D1; border: 2px solid #0288D1; 
+    padding: 6px 14px; 
+    font-size: clamp(11px, 2.8vmin, 13px);
+    font-weight: 800; border-radius: 20px; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(2, 136, 209, 0.15); transition: 0.2s; 
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    margin-top: 4px; outline: none;
+  }
+  .btn-rotate-mini:active { transform: translateY(1px); background: #e1f5fe; }
+
   /* HEADER PORTAL UTAMA */
   .header {
-    text-align: center; margin-top: 60px; padding: 0 20px; flex-shrink: 0;
+    text-align: center; margin-top: clamp(30px, 6vh, 60px); padding: 0 clamp(10px, 3vw, 20px); flex-shrink: 0;
+    width: 100%; display: flex; flex-direction: column; align-items: center;
   }
   .salam { 
-    font-family: 'Amiri', serif; font-size: 38px; color: #E91E63; 
-    margin-bottom: 5px; font-weight: normal; 
+    font-family: 'Amiri', serif; font-size: clamp(24px, 6.5vmin, 38px); color: #E91E63; 
+    margin-bottom: clamp(2px, 1vh, 5px); font-weight: normal; 
   }
-  .header h1 { font-size: 48px; font-weight: 900; margin: 0; color: #4A148C; text-shadow: 2px 2px 0px #FFF, 3px 3px 6px rgba(0,0,0,0.05); }
+  .header h1 { font-size: clamp(28px, 8vmin, 48px); font-weight: 900; margin: 0; color: #4A148C; text-shadow: 2px 2px 0px #FFF, 3px 3px 6px rgba(0,0,0,0.05); }
   .header p {
-    font-size: 20px; font-weight: 800; margin-top: 15px; color: #0288D1;
+    font-size: clamp(13px, 3.5vmin, 20px); font-weight: 800; margin-top: clamp(10px, 2vh, 15px); color: #0288D1;
     background: var(--glass-bg); backdrop-filter: blur(10px);
-    display: inline-block; padding: 12px 35px; border-radius: 30px;
+    display: inline-block; padding: clamp(8px, 1.5vh, 12px) clamp(20px, 4vw, 35px); border-radius: 30px;
     border: 2px solid var(--glass-border); box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
   }
 
@@ -128,14 +169,16 @@
   .game-menu {
     display: grid; 
     grid-template-columns: repeat(2, 1fr); 
-    gap: 25px; max-width: 1000px; width: 92%; 
-    margin: 50px auto 80px auto; flex-grow: 1;
+    gap: clamp(15px, 3vmin, 25px); 
+    max-width: 1000px; width: min(92%, 1000px); 
+    margin: clamp(25px, 5vh, 50px) auto clamp(40px, 8vh, 80px) auto; 
+    flex-grow: 1;
   }
 
   .game-card {
     background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    border: 3px solid var(--glass-border); border-radius: 40px; 
-    padding: 35px 20px; text-align: center; text-decoration: none; color: #333; 
+    border: clamp(2px, 0.8vmin, 3px) solid var(--glass-border); border-radius: clamp(20px, 4vmin, 40px); 
+    padding: clamp(20px, 4vh, 35px) clamp(10px, 2vw, 20px); text-align: center; text-decoration: none; color: #333; 
     position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
     transition: all 0.25s ease-out; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -148,17 +191,17 @@
   }
   
   .icon-container { 
-    font-size: 70px; margin-bottom: 15px; 
+    font-size: clamp(40px, 12vmin, 70px); margin-bottom: clamp(8px, 2vh, 15px); 
     filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); 
     transition: transform 0.25s ease-out; 
   }
   
   .game-card:hover .icon-container { transform: scale(1.05); }
   
-  .game-card h2 { font-size: 24px; font-weight: 900; margin: 0 0 10px 0; }
-  .game-card p { font-size: 15px; font-weight: 700; color: #777; margin: 0; }
+  .game-card h2 { font-size: clamp(15px, 4vmin, 24px); font-weight: 900; margin: 0 0 clamp(5px, 1vh, 10px) 0; }
+  .game-card p { font-size: clamp(11px, 2.8vmin, 15px); font-weight: 700; color: #777; margin: 0; }
 
-  /* WARNA KHUSUS KARTU (Termasuk Warna Tambahan untuk Game Matematika) */
+  /* WARNA KHUSUS KARTU */
   .c-balon h2 { color: #4CAF50; } 
   .c-bayangan h2 { color: #03A9F4; } 
   .c-bintang h2 { color: #FF9800; }
@@ -180,7 +223,6 @@
   .c-pola h2 { color: #C2185B; }
   .c-warna h2 { color: #673AB7; }
 
-  /* Warna Khusus Game Matematika Baru */
   .c-tambah h2 { color: #4CAF50; }
   .c-kurang h2 { color: #FF9800; }
   .c-kali h2 { color: #9C27B0; }
@@ -188,10 +230,14 @@
   .c-campuran h2 { color: #E91E63; }
   .c-2player h2 { color: #F44336; }
 
+  .c-bacaangka h2 { color: #0072ff; }
+  .c-tebakbuah h2 { color: #2e7d32; }
+
   /* TOMBOL MAIN */
   .play-btn {
-    display: inline-block; margin-top: 20px; padding: 12px 30px;
-    border-radius: 30px; font-size: 16px; font-weight: 900; color: #FFF;
+    display: inline-block; margin-top: clamp(10px, 2vh, 20px); 
+    padding: clamp(8px, 1.5vh, 12px) clamp(15px, 3vw, 30px);
+    border-radius: 30px; font-size: clamp(11px, 3vmin, 16px); font-weight: 900; color: #FFF;
     text-transform: uppercase; letter-spacing: 1.5px; transition: transform 0.2s, box-shadow 0.2s;
   }
   
@@ -216,7 +262,6 @@
   .c-pola .play-btn { background: linear-gradient(135deg, #F06292, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
   .c-warna .play-btn { background: linear-gradient(135deg, #BA68C8, #7B1FA2); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
 
-  /* Tombol Main Game Matematika Baru */
   .c-tambah .play-btn { background: linear-gradient(135deg, #66BB6A, #388E3C); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2); }
   .c-kurang .play-btn { background: linear-gradient(135deg, #FFA726, #F57C00); box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2); }
   .c-kali .play-btn { background: linear-gradient(135deg, #AB47BC, #7B1FA2); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
@@ -224,48 +269,59 @@
   .c-campuran .play-btn { background: linear-gradient(135deg, #EC407A, #C2185B); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2); }
   .c-2player .play-btn { background: linear-gradient(135deg, #EF5350, #D32F2F); box-shadow: 0 4px 10px rgba(244, 67, 54, 0.2); }
 
+  .c-bacaangka .play-btn { background: linear-gradient(135deg, #00c6ff, #0072ff); box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2); }
+  .c-tebakbuah .play-btn { background: linear-gradient(135deg, #66bb6a, #2e7d32); box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2); }
+
   .game-card:hover .play-btn { transform: translateY(-2px); }
 
   /* FOOTER */
   footer {
-    width: 100%; padding: 25px 0; text-align: center;
+    width: 100%; padding: clamp(15px, 3vh, 25px) 0; text-align: center;
     background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     border-top: 3px solid var(--glass-border); margin-top: auto;
     box-shadow: 0 -4px 10px rgba(0,0,0,0.03); z-index: 10;
   }
 
   .dev-link {
-    display: inline-block; padding: 10px 25px; font-size: 15px; color: #555; text-decoration: none;
+    display: inline-block; padding: clamp(8px, 1.5vh, 10px) clamp(18px, 4vw, 25px); 
+    font-size: clamp(12px, 3.2vmin, 15px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FF9A9E; border-radius: 30px; 
     transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); white-space: nowrap;
+    font-weight: 700;
   }
   .dev-link:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); }
-  .dev-link strong { color: #E91E63; font-size: 16px; font-weight: 900; margin-left: 5px; }
+  .dev-link strong { color: #E91E63; font-size: clamp(13px, 3.5vmin, 16px); font-weight: 900; margin-left: 5px; }
 
-  /* RESPONSIVE UNTUK HP */
-  @media (max-width: 600px) {
-    .welcome-content { width: 90%; padding: 45px 20px; }
-    .welcome-content h1 { font-size: 32px; }
-    .welcome-content h2 { font-size: 18px; }
-    .welcome-content p { font-size: 14px; margin-bottom: 25px;}
-    .btn-masuk { font-size: 18px; padding: 12px 15px; }
-    .btn-install { font-size: 15px; padding: 12px 15px; }
+  /* --- OPTIMASI MODE MIRING / LANDSCAPE KHUSUS --- */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .header { margin-top: 20px; }
+    .salam { font-size: 20px; }
+    .header h1 { font-size: 24px; }
+    .header p { font-size: 11px; padding: 6px 15px; margin-top: 6px; }
 
-    .header { margin-top: 40px; }
-    .salam { font-size: 26px; } 
-    .header h1 { font-size: 32px; }
-    .header p { font-size: 14px; padding: 10px 20px; }
-    
-    .game-menu { gap: 15px; margin-top: 35px; margin-bottom: 50px; width: 95%; }
-    .game-card { padding: 20px 10px; border-radius: 25px; border-width: 2px; }
-    .icon-container { font-size: 45px; margin-bottom: 10px;}
-    .game-card h2 { font-size: 16px; margin-bottom: 5px; }
-    .game-card p { font-size: 11px; }
-    .play-btn { font-size: 12px; padding: 8px 15px; margin-top: 15px; }
+    .game-menu { gap: 10px; margin: 20px auto; width: 95%; }
+    .game-card { padding: 12px 8px; border-radius: 15px; }
+    .icon-container { font-size: 32px; margin-bottom: 5px; }
+    .game-card h2 { font-size: 13px; margin-bottom: 3px; }
+    .game-card p { font-size: 9px; }
+    .play-btn { font-size: 9px; padding: 5px 10px; margin-top: 8px; letter-spacing: 1px; }
+
+    .welcome-content { padding: 12px 15px; width: 85%; max-width: 340px; }
+    .welcome-icon { font-size: 28px; margin-bottom: 2px; }
+    .welcome-content h1 { font-size: 16px; margin-bottom: 2px; }
+    .welcome-content h2 { font-size: 11px; margin-bottom: 4px; }
+    .welcome-content p { font-size: 9.5px; margin-bottom: 8px; line-height: 1.3; }
+    .welcome-buttons { gap: 5px; }
+    .btn-masuk, .btn-install { padding: 6px 10px; font-size: 11px; }
+    .btn-rotate-mini { padding: 4px 10px; font-size: 10px; margin-top: 2px; }
+
+    footer { padding: 10px 0; }
+    .dev-link { padding: 4px 12px; font-size: 10px; }
+    .dev-link strong { font-size: 11px; }
   }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <!-- ELEMEN BACKGROUND -->
 <div class="blob shape1"></div>
@@ -273,248 +329,275 @@
 <div class="blob shape3"></div>
 <div class="bg-pattern"></div>
 
-<!-- ============================================== -->
-<!-- LAYAR SELAMAT DATANG (SPLASH SCREEN) -->
-<!-- ============================================== -->
-<div id="welcome-overlay">
-  <div class="welcome-content">
-    <div style="font-size: 70px; margin-bottom: 10px;">🌟</div>
-    <h1>Ahlan wa Sahlan!</h1>
-    <h2>Di Portal Game MADASA</h2>
-    <p>Hai anak shalih dan shalihah! Yuk kita bermain sambil belajar ilmu agama dan pengetahuan dengan ceria. Sudah siap memulai petualanganmu hari ini?</p>
-    
-    <div class="welcome-buttons">
-      <button class="btn-masuk" onclick="tutupWelcome()">▶️ KLIK MASUK</button>
-      <button id="btn-install" class="btn-install">📲 INSTALL APLIKASI</button>
+<div id="app-container">
+
+  <!-- ============================================== -->
+  <!-- LAYAR SELAMAT DATANG (SPLASH SCREEN) -->
+  <!-- ============================================== -->
+  <div id="welcome-overlay">
+    <div class="welcome-content">
+      <div class="welcome-icon">🌟</div>
+      <h1>Ahlan wa Sahlan!</h1>
+      <h2>Di Portal Game MADASA</h2>
+      <p>Hai anak shalih dan shalihah! Yuk kita bermain sambil belajar ilmu agama dan pengetahuan dengan ceria. Sudah siap memulai petualanganmu hari ini?</p>
+      
+      <div class="welcome-buttons">
+        <button type="button" class="btn-masuk" onclick="tutupWelcome()">▶️ KLIK MASUK</button>
+        <button type="button" id="btn-install" class="btn-install">📲 INSTALL APLIKASI</button>
+        <button type="button" class="btn-rotate-mini" onclick="putarLayar()">🔄 Putar Layar</button>
+      </div>
     </div>
   </div>
+
+  <!-- ============================================== -->
+  <!-- KONTEN PORTAL UTAMA -->
+  <!-- ============================================== -->
+  <div class="header">
+    <div class="salam">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</div>
+    <h1>Portal Game MADASA</h1>
+    <p>Bermain & Belajar Islami dengan Ceria!</p>
+  </div>
+
+  <!-- GRID MENU PERMAINAN -->
+  <div class="game-menu">
+    
+    <!-- === KATEGORI ISLAMI (URUTAN DEPAN) === -->
+    
+    <a href="balon.html" class="game-card c-balon">
+      <div class="icon-container">🎈</div>
+      <h2>Tangkap Balon</h2>
+      <p>Belajar Huruf Hijaiyah</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+    
+    <a href="hijaiyah.html" class="game-card c-hijaiyah">
+      <div class="icon-container">📖</div>
+      <h2>Kenal Hijaiyah</h2>
+      <p>Cari Huruf yang Tepat</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="harakat.html" class="game-card c-harakat">
+      <div class="icon-container">✨</div>
+      <h2>Pintar Harakat</h2>
+      <p>Belajar Membaca Iqra</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="cari-beda.html" class="game-card c-caribeda">
+      <div class="icon-container">🦅</div>
+      <h2>Cari Huruf Beda</h2>
+      <p>Latih Fokus Hijaiyah</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="tajwid.html" class="game-card c-tajwid">
+      <div class="icon-container">🕋</div>
+      <h2>Pintar Tajwid</h2>
+      <p>Hukum Bacaan Al-Qur'an</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+    
+    <a href="sambung-ayat.html" class="game-card c-pola">
+      <div class="icon-container">📖</div>
+      <h2>Sambung Ayat</h2>
+      <p>Murojaah Surah Pendek</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+    
+    <a href="angka.html" class="game-card c-angka">
+      <div class="icon-container">١٢٣</div>
+      <h2>Angka Arab</h2>
+      <p>Cocokkan Angka 1-100</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="kereta.html" class="game-card c-kereta">
+      <div class="icon-container">🚂</div>
+      <h2>Kereta Angka</h2>
+      <p>Logika Urutan Arab</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="anakshalih.html" class="game-card c-kuis">
+      <div class="icon-container">💡</div>
+      <h2>Kuis Islami</h2>
+      <p>Uji Pengetahuanmu</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="fiqih.html" class="game-card c-fiqih">
+      <div class="icon-container">⚖️</div>
+      <h2>Cerdas Fiqih</h2>
+      <p>Hukum Islam Dasar</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="nabi.html" class="game-card c-nabi">
+      <div class="icon-container">📜</div>
+      <h2>Kisah Nabi</h2>
+      <p>Tebak Sejarah & Mukjizat</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="akhlak.html" class="game-card c-akhlak">
+      <div class="icon-container">💖</div>
+      <h2>Akhlak Mulia</h2>
+      <p>Tebak Baik & Buruk</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="ciptaan.html" class="game-card c-ciptaan">
+      <div class="icon-container">🌍</div>
+      <h2>Ciptaan Siapa?</h2>
+      <p>Belajar Bersyukur</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="bayangan.html" class="game-card c-bayangan">
+      <div class="icon-container">🕌</div>
+      <h2>Tebak Bayangan</h2>
+      <p>Mengenal Benda Islami</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="memori.html" class="game-card c-memori">
+      <div class="icon-container">🃏</div>
+      <h2>Memori Islami</h2>
+      <p>Latih Daya Ingatmu</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+
+    <!-- === KATEGORI MATEMATIKA DASAR & ANGKA === -->
+
+    <a href="bacaangka.html" class="game-card c-bacaangka">
+      <div class="icon-container">🔢</div>
+      <h2>Tebak Cara Baca Angka</h2>
+      <p>Belajar Membaca Angka</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="hitung.html" class="game-card c-hitung">
+      <div class="icon-container">🖐️</div>
+      <h2>Hitung Ceria</h2>
+      <p>Belajar Berhitung 1-10</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="penjumlahan.html" class="game-card c-tambah">
+      <div class="icon-container">🍎</div>
+      <h2>Penjumlahan</h2>
+      <p>Belajar Menjumlah</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="pengurangan.html" class="game-card c-kurang">
+      <div class="icon-container">🍓</div>
+      <h2>Pengurangan</h2>
+      <p>Belajar Sisa Berhitung</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="perkalian.html" class="game-card c-kali">
+      <div class="icon-container">📦</div>
+      <h2>Perkalian</h2>
+      <p>Penjumlahan Berulang</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="pembagian.html" class="game-card c-bagi">
+      <div class="icon-container">🍪</div>
+      <h2>Pembagian</h2>
+      <p>Berbagi Sama Rata</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="campuran.html" class="game-card c-campuran">
+      <div class="icon-container">🌟</div>
+      <h2>Ujian Campuran</h2>
+      <p>Tambah, Kurang, Kali, Bagi!</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="campuran%202%20player.html" class="game-card c-2player">
+      <div class="icon-container">⚔️</div>
+      <h2>Mode 2 Player</h2>
+      <p>Adu Cepat Matematika!</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+
+    <!-- === KATEGORI GENERAL / PENDIDIKAN UMUM === -->
+    
+    <a href="tebaknamabuah.html" class="game-card c-tebakbuah">
+      <div class="icon-container">🍉</div>
+      <h2>Tebak Nama Buah</h2>
+      <p>Mengenal Berbagai Buah</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="bintang.html" class="game-card c-bintang">
+      <div class="icon-container">⭐</div>
+      <h2>Tangkap Bintang</h2>
+      <p>Kumpulkan Kebaikan</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="huruf-awal.html" class="game-card c-hurufawal">
+      <div class="icon-container">🔤</div>
+      <h2>Tebak Huruf Awal</h2>
+      <p>Mengenal Huruf Abjad</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="susun-kata.html" class="game-card c-susunkata">
+      <div class="icon-container">🔠</div>
+      <h2>Susun Kata</h2>
+      <p>Belajar Membaca</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+    <a href="warna.html" class="game-card c-warna">
+      <div class="icon-container">🎨</div>
+      <h2>Tebak Warna</h2>
+      <p>Mengenal Macam Warna</p>
+      <div class="play-btn">Mainkan</div>
+    </a>
+
+  </div>
+
+  <!-- ============================================== -->
+  <!-- FOOTER BARU DI BAGIAN BAWAH -->
+  <!-- ============================================== -->
+  <footer>
+    <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+      Development <strong>Arom Kobama 😎</strong>
+    </a>
+  </footer>
+
 </div>
-
-<!-- ============================================== -->
-<!-- KONTEN PORTAL UTAMA -->
-<!-- ============================================== -->
-<div class="header">
-  <div class="salam">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</div>
-  <h1>Portal Game MADASA</h1>
-  <p>Bermain & Belajar Islami dengan Ceria!</p>
-</div>
-
-<!-- GRID MENU PERMAINAN -->
-<div class="game-menu">
-  
-  <!-- === KATEGORI ISLAMI (URUTAN DEPAN) === -->
-  
-  <a href="balon.html" class="game-card c-balon">
-    <div class="icon-container">🎈</div>
-    <h2>Tangkap Balon</h2>
-    <p>Belajar Huruf Hijaiyah</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-  
-  <a href="hijaiyah.html" class="game-card c-hijaiyah">
-    <div class="icon-container">📖</div>
-    <h2>Kenal Hijaiyah</h2>
-    <p>Cari Huruf yang Tepat</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="harakat.html" class="game-card c-harakat">
-    <div class="icon-container">✨</div>
-    <h2>Pintar Harakat</h2>
-    <p>Belajar Membaca Iqra</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="cari-beda.html" class="game-card c-caribeda">
-    <div class="icon-container">🦅</div>
-    <h2>Cari Huruf Beda</h2>
-    <p>Latih Fokus Hijaiyah</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="tajwid.html" class="game-card c-tajwid">
-    <div class="icon-container">🕋</div>
-    <h2>Pintar Tajwid</h2>
-    <p>Hukum Bacaan Al-Qur'an</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-  
-  <a href="sambung-ayat.html" class="game-card c-pola">
-    <div class="icon-container">📖</div>
-    <h2>Sambung Ayat</h2>
-    <p>Murojaah Surah Pendek</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-  
-  <a href="angka.html" class="game-card c-angka">
-    <div class="icon-container">١٢٣</div>
-    <h2>Angka Arab</h2>
-    <p>Cocokkan Angka 1-100</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="kereta.html" class="game-card c-kereta">
-    <div class="icon-container">🚂</div>
-    <h2>Kereta Angka</h2>
-    <p>Logika Urutan Arab</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="anakshalih.html" class="game-card c-kuis">
-    <div class="icon-container">💡</div>
-    <h2>Kuis Islami</h2>
-    <p>Uji Pengetahuanmu</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="fiqih.html" class="game-card c-fiqih">
-    <div class="icon-container">⚖️</div>
-    <h2>Cerdas Fiqih</h2>
-    <p>Hukum Islam Dasar</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="nabi.html" class="game-card c-nabi">
-    <div class="icon-container">📜</div>
-    <h2>Kisah Nabi</h2>
-    <p>Tebak Sejarah & Mukjizat</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="akhlak.html" class="game-card c-akhlak">
-    <div class="icon-container">💖</div>
-    <h2>Akhlak Mulia</h2>
-    <p>Tebak Baik & Buruk</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="ciptaan.html" class="game-card c-ciptaan">
-    <div class="icon-container">🌍</div>
-    <h2>Ciptaan Siapa?</h2>
-    <p>Belajar Bersyukur</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="bayangan.html" class="game-card c-bayangan">
-    <div class="icon-container">🕌</div>
-    <h2>Tebak Bayangan</h2>
-    <p>Mengenal Benda Islami</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="memori.html" class="game-card c-memori">
-    <div class="icon-container">🃏</div>
-    <h2>Memori Islami</h2>
-    <p>Latih Daya Ingatmu</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-
-  <!-- === KATEGORI MATEMATIKA DASAR === -->
-
-  <a href="hitung.html" class="game-card c-hitung">
-    <div class="icon-container">🖐️</div>
-    <h2>Hitung Ceria</h2>
-    <p>Belajar Berhitung 1-10</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="penjumlahan.html" class="game-card c-tambah">
-    <div class="icon-container">🍎</div>
-    <h2>Penjumlahan</h2>
-    <p>Belajar Menjumlah</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="pengurangan.html" class="game-card c-kurang">
-    <div class="icon-container">🍓</div>
-    <h2>Pengurangan</h2>
-    <p>Belajar Sisa Berhitung</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="perkalian.html" class="game-card c-kali">
-    <div class="icon-container">📦</div>
-    <h2>Perkalian</h2>
-    <p>Penjumlahan Berulang</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="pembagian.html" class="game-card c-bagi">
-    <div class="icon-container">🍪</div>
-    <h2>Pembagian</h2>
-    <p>Berbagi Sama Rata</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="campuran.html" class="game-card c-campuran">
-    <div class="icon-container">🌟</div>
-    <h2>Ujian Campuran</h2>
-    <p>Tambah, Kurang, Kali, Bagi!</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="campuran%202%20player.html" class="game-card c-2player">
-    <div class="icon-container">⚔️</div>
-    <h2>Mode 2 Player</h2>
-    <p>Adu Cepat Matematika!</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-
-  <!-- === KATEGORI GENERAL / PENDIDIKAN UMUM === -->
-  
-  <a href="bintang.html" class="game-card c-bintang">
-    <div class="icon-container">⭐</div>
-    <h2>Tangkap Bintang</h2>
-    <p>Kumpulkan Kebaikan</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="huruf-awal.html" class="game-card c-hurufawal">
-    <div class="icon-container">🔤</div>
-    <h2>Tebak Huruf Awal</h2>
-    <p>Mengenal Huruf Abjad</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="susun-kata.html" class="game-card c-susunkata">
-    <div class="icon-container">🔠</div>
-    <h2>Susun Kata</h2>
-    <p>Belajar Membaca</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-  <a href="warna.html" class="game-card c-warna">
-    <div class="icon-container">🎨</div>
-    <h2>Tebak Warna</h2>
-    <p>Mengenal Macam Warna</p>
-    <div class="play-btn">Mainkan</div>
-  </a>
-
-</div>
-
-<!-- ============================================== -->
-<!-- FOOTER BARU DI BAGIAN BAWAH -->
-<!-- ============================================== -->
-<footer>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</footer>
 
 <!-- ============================================== -->
 <!-- SCRIPT UNTUK WELCOME SCREEN & INSTALL PWA -->
 <!-- ============================================== -->
 <script>
-  // Fungsi Menutup Layar Welcome dengan Animasi Halus
+  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
+  // Fungsi Menutup Layar Welcome dengan Animasi Halus & Cegah Double-click
   function tutupWelcome() {
     const overlay = document.getElementById('welcome-overlay');
+    if (overlay.style.visibility === 'hidden') return;
+    
     overlay.style.opacity = '0';
     overlay.style.transform = 'translateY(-20px)';
     
     setTimeout(() => {
       overlay.style.display = 'none';
+      overlay.style.visibility = 'hidden';
     }, 800);
   }
 
@@ -529,6 +612,7 @@
   });
 
   installBtn.addEventListener('click', async () => {
+    if (installBtn.style.visibility === 'hidden') return;
     installBtn.style.display = 'none';
     
     if (deferredPrompt) {

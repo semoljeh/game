@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 1. Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <title>MADASA - Cocok Angka Arab (1-100)</title>
 <meta name="description" content="Game Belajar Angka Arab dan Latin 1-100 untuk anak TK/RA dari MADASA.">
@@ -12,10 +13,10 @@
 
 <style>
   /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    /* Disamakan dengan tema utama MADASA */
     background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
@@ -27,37 +28,54 @@
     user-select: none;
   }
 
-  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
-  #game-container {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 85%; max-width: 400px; 
-    z-index: 10;
-    display: none; flex-direction: column; align-items: center; text-align: center;
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 5px solid #FFF; border-radius: 40px;
-    padding: 50px 25px; 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    box-sizing: border-box;
+  /* --- KONTAINER ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
   }
 
+  /* 2. KONTAINER UTAMA GAME & SCREEN (RESPONSIF ELASTIS DENGAN CLAMP) */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh;
+    max-width: 900px; max-height: 900px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: clamp(4px, 1vmin, 8px) solid #FFF;
+    border-radius: clamp(20px, 4vmin, 40px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px);
+    z-index: 10;
+    overflow-y: auto;
+  }
+  #game-container { display: none; }
+
   .level-badge {
-    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
-    font-size: 18px; font-weight: 900; margin-bottom: 20px;
+    background: #FF9800; color: white; padding: clamp(4px, 1vh, 8px) clamp(12px, 3vw, 20px); border-radius: 20px;
+    font-size: clamp(13px, 3.2vmin, 18px); font-weight: 900; margin-bottom: clamp(6px, 1.5vh, 15px);
     box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
-    border: 2px solid #FFF;
+    border: clamp(2px, 0.5vmin, 3px) solid #FFF;
   }
 
   .question-text {
-    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 15px 0;
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900; color: #0288D1; margin: 0 0 clamp(10px, 2vh, 25px) 0;
+    line-height: 1.4; padding: 0 10px; text-align: center;
   }
 
   /* --- AREA ANGKA SOAL --- */
   .number-display {
     display: flex; justify-content: center; align-items: center;
-    background: #FFF; border: 5px dashed #4FC3F7; border-radius: 30px;
-    width: 130px; height: 130px; margin-bottom: 35px;
-    font-size: 65px; font-weight: 900; color: #0288D1;
+    background: #FFF; border: clamp(3px, 0.8vmin, 5px) dashed #4FC3F7; border-radius: clamp(20px, 3vmin, 30px);
+    width: clamp(90px, 22vmin, 130px); height: clamp(90px, 22vmin, 130px); margin-bottom: clamp(10px, 2.5vh, 35px);
+    font-size: clamp(40px, 11vmin, 65px); font-weight: 900; color: #0288D1;
     box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -69,14 +87,15 @@
 
   /* --- TOMBOL JAWABAN --- */
   .options-container {
-    display: flex; gap: 15px; justify-content: center; width: 100%;
+    display: flex; gap: clamp(10px, 2.5vmin, 15px); justify-content: center; width: 100%;
+    margin-bottom: clamp(10px, 2vh, 20px);
   }
 
   .option-btn {
-    background: #FFF; border: 4px solid #4FC3F7; border-radius: 25px;
-    width: 90px; height: 90px; 
+    background: #FFF; border: clamp(3px, 0.8vmin, 4px) solid #4FC3F7; border-radius: clamp(16px, 3vmin, 25px);
+    width: clamp(70px, 18vmin, 90px); height: clamp(70px, 18vmin, 90px); 
     display: flex; justify-content: center; align-items: center;
-    font-size: 38px; font-weight: 900; color: #0288D1;
+    font-size: clamp(28px, 7.5vmin, 38px); font-weight: 900; color: #0288D1;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     -webkit-tap-highlight-color: transparent;
@@ -112,78 +131,120 @@
 
   /* --- NOTIFIKASI --- */
   #feedback-msg {
-    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
-    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: clamp(10px, 2vh, 14px) clamp(18px, 4vw, 25px); border-radius: 30px;
+    font-size: clamp(14px, 3.5vmin, 20px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
-    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+    white-space: nowrap; border: clamp(3px, 1vmin, 4px) solid #FFF; z-index: 100;
   }
-  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-show { opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
   /* --- LAYAR MENU & HASIL (KONSISTEN GLASSMORPHISM) --- */
   .screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+    display: none; justify-content: center; z-index: 50; text-align: center;
   }
-
   .screen-content {
-    background: transparent; padding: 20px; width: 100%; max-width: 400px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+    gap: clamp(8px, 1.5vh, 16px);
   }
 
-  .screen h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
-  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
+  .screen h1 { font-size: clamp(26px, 6.5vmin, 40px); color: #4CAF50; margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 22px); color: #FF9800; margin: 0; font-weight: 800; }
+  .screen p { font-size: clamp(13px, 3.2vmin, 18px); max-width: 600px; color: #555; line-height: 1.4; margin: 0; font-weight: 700; }
   
-  /* Tombol disamakan dengan modul lain */
-  .btn {
-    padding: 15px 40px; font-size: 24px; font-weight: 900;
-    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s; font-family: inherit; width: auto;
+  /* Tombol Utama & Tombol Putar Terbungkus Rapih */
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1.2vh, 12px);
+    width: 100%;
+    margin: 0;
   }
-  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  .btn {
+    padding: clamp(10px, 2.5vmin, 15px) clamp(22px, 5vmin, 40px); 
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900;
+    background-color: #FF9800; color: white;
+    border: clamp(3px, 1vmin, 5px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 6px 0 #E65100, 0 12px 18px rgba(0,0,0,0.25);
+    transition: 0.1s; font-family: inherit; margin: 0; outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  /* Tombol Putar Layar Manual */
+  .btn-rotate {
+    background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(8px, 2vmin, 12px) clamp(18px, 5vmin, 30px); 
+    font-size: clamp(13px, 3.2vmin, 16px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 5px 0 #7B1FA2, 0 8px 12px rgba(0,0,0,0.25); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin: 0;
+  }
+  .btn-rotate:active { transform: translateY(5px); box-shadow: 0 0 0; }
 
   /* --- KOTAK EVALUASI --- */
-  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  .eval-box {
+    display: flex; justify-content: center; gap: clamp(10px, 2.5vmin, 15px); margin: clamp(4px, 1vh, 10px) 0;
+  }
+  .eval-item {
+    background: #FFF; padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px); border-radius: clamp(16px, 3vmin, 25px); border: clamp(3px, 0.8vmin, 4px) solid; width: clamp(90px, 22vmin, 110px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; text-align: center;
+  }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
-  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
-  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
-  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+  .eval-item span { display: block; font-size: clamp(28px, 8vmin, 35px); margin-bottom: 2px; }
+  .eval-item h3 { margin: 0; font-size: clamp(12px, 3vmin, 16px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(20px, 6vmin, 28px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
-  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 35px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-bar {
+    width: 90%; background: #E0E0E0; border-radius: 10px;
+    height: clamp(8px, 1.5vmin, 12px); overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); margin-top: auto;
+  }
   #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
 
   /* LENCANA DEV */
   .dev-link {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    padding: 3px 12px; font-size: clamp(10px, 2.2vmin, 14px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
-    border-radius: 25px; transition: all 0.3s ease; text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+    border-radius: 20px; text-align: center; box-shadow: 0 3px 8px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 2.5vmin, 15px); font-weight: 900; margin-left: 4px; }
 
-  @media (max-width: 600px) {
-    #game-container { padding: 45px 15px; border-radius: 35px; width: 90%; }
-    .question-text { font-size: 18px; margin-bottom: 15px; }
-    .number-display { width: 120px; height: 120px; font-size: 55px; margin-bottom: 30px; border-width: 4px; }
-    .option-btn { width: 75px; height: 75px; font-size: 32px; border-width: 3px; border-radius: 20px; }
-    .options-container { gap: 12px; }
-    .screen h1 { font-size: 32px; }
-    .screen p { font-size: 15px; margin-bottom: 25px; }
-    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
-    #feedback-msg { font-size: 16px; padding: 8px 20px; }
-    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
-    .eval-item span { font-size: 30px; }
-    .eval-item h3 { font-size: 14px; }
-    .eval-item p { font-size: 22px; }
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
+  /* --- OPTIMASI MODE MIRING / LANDSCAPE KHUSUS --- */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 4px 10px; height: 98vh; width: 98vw; justify-content: center; }
+    .screen-content { gap: 4px; }
+    
+    .level-badge { padding: 2px 10px; font-size: 11px; margin-bottom: 2px; }
+    .question-text { font-size: 13px; margin-bottom: 4px; }
+    .number-display { width: 75px; height: 75px; font-size: 38px; margin-bottom: 6px; border-width: 2px; }
+    .option-btn { width: 60px; height: 60px; font-size: 24px; border-width: 2px; }
+    .options-container { gap: 6px; margin-bottom: 4px; }
+    #progress-bar { height: 5px; margin-top: 2px; }
+
+    .screen h1 { font-size: 18px; }
+    .screen h2 { font-size: 11px; }
+    .screen p { font-size: 10px; line-height: 1.15; max-width: 500px; }
+    .eval-box { gap: 8px; margin: 2px 0; }
+    .eval-item { width: 75px; padding: 4px 8px; border-width: 2px; }
+    .eval-item span { font-size: 20px; }
+    .eval-item h3 { font-size: 10px; }
+    .eval-item p { font-size: 16px; }
+
+    .button-group { gap: 4px; }
+    .btn { padding: 4px 14px; font-size: 12px; border-width: 2px; box-shadow: 0 3px 0 #E65100; }
+    .btn-rotate { padding: 3px 10px; font-size: 10px; border-width: 2px; box-shadow: 0 3px 0 #7B1FA2; }
+    
+    .dev-link { 
+      position: relative; bottom: auto; left: auto; transform: none; 
+      margin-top: 2px; margin-bottom: 0; display: inline-block; padding: 2px 10px; font-size: 9px;
+    }
   }
 </style>
 </head>
@@ -191,58 +252,73 @@
 <!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- LAYAR MENU AWAL -->
-<div id="welcome-screen" class="screen" style="display: flex;">
-  <div class="screen-content">
-    <h1 style="color: #E91E63;">١٠٠ Cocok Angka ١٠٠</h1>
-    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Belajar Angka Arab!</h2>
-    <p>Ayo belajar mencocokkan angka satuan, belasan, dan puluhan dari 1 sampai 100! Kamu pasti bisa!</p>
-    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
-  </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
+<div id="app-container">
 
-<!-- AREA GAME -->
-<div id="game-container">
+  <!-- NOTIFIKASI -->
   <div id="feedback-msg">Benar!</div>
-  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
-  
-  <div class="question-text" id="question-text">Angka berapakah ini?</div>
-  
-  <div class="number-display" id="number-display"></div>
-  
-  <div class="options-container" id="options-area"></div>
 
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-</div>
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1 style="color: #E91E63;">١٠٠ Cocok Angka ١٠٠</h1>
+      <h2 style="color: #FF9800;">Belajar Angka Arab!</h2>
+      <p>Ayo belajar mencocokkan angka satuan, belasan, dan puluhan dari 1 sampai 100! Kamu pasti bisa!</p>
+      
+      <div class="button-group">
+        <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+        <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+      </div>
 
-<!-- LAYAR HASIL & EVALUASI -->
-<div id="result-screen" class="screen">
-  <div class="screen-content">
-    <h1 id="result-title">Alhamdulillah! 🎉</h1>
-    <p>Kamu sudah hebat mengenal angka sampai 100. Ini adalah hasilnya:</p>
-    
-    <div class="eval-box">
-      <div class="eval-item eval-benar">
-        <span>✅</span>
-        <h3>Benar</h3>
-        <p id="score-benar">0</p>
-      </div>
-      <div class="eval-item eval-salah">
-        <span>❌</span>
-        <h3>Salah</h3>
-        <p id="score-salah">0</p>
-      </div>
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
     </div>
-
-    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
+
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+    
+    <div class="question-text" id="question-text">Angka berapakah ini?</div>
+    
+    <div class="number-display" id="number-display"></div>
+    
+    <div class="options-container" id="options-area"></div>
+
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Alhamdulillah! 🎉</h1>
+      <p>Kamu sudah hebat mengenal angka sampai 100. Ini adalah hasilnya:</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+        <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+      </div>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+</div> <!-- PENUTUP APP CONTAINER -->
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -250,6 +326,11 @@
 </audio>
 
 <script>
+  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
   const JUMLAH_SOAL = 10;
   let activeQuiz = [];
   let currentQuestionIndex = 0;
@@ -257,6 +338,7 @@
   let skorBenar = 0;
   let skorSalah = 0;
   let correctAnswerText = "";
+  let notifTimeout;
 
   const gameContainer = document.getElementById('game-container');
   const numberDisplay = document.getElementById('number-display');
@@ -284,41 +366,34 @@
   function generateMixedTargets() {
     let targets = [];
     
-    // 1. Ambil 3 Angka Satuan (1-9)
     while(targets.length < 3) {
       let n = getRandomInt(1, 9);
       if(!targets.includes(n)) targets.push(n);
     }
     
-    // 2. Ambil 2 Angka Belasan (11-19)
     while(targets.length < 5) {
       let n = getRandomInt(11, 19);
       if(!targets.includes(n)) targets.push(n);
     }
 
-    // 3. Ambil 2 Angka Puluhan Bulat (10, 20, 30... 100)
     while(targets.length < 7) {
       let n = getRandomInt(1, 10) * 10;
       if(!targets.includes(n)) targets.push(n);
     }
 
-    // 4. Ambil 3 Angka Puluhan Campuran (21-99, bukan genap 10)
     while(targets.length < 10) {
       let n = getRandomInt(21, 99);
       if(n % 10 !== 0 && !targets.includes(n)) targets.push(n);
     }
 
-    // Acak urutan target agar tidak selalu satuan di awal
     return targets.sort(() => Math.random() - 0.5);
   }
 
-  // Membuat daftar 10 pertanyaan dari target yang sudah diseimbangkan
   function generateQuestions() {
     let questions = [];
     let mixedTargets = generateMixedTargets();
 
     for(let i = 0; i < JUMLAH_SOAL; i++) {
-      // 0 = Tanya Arab (Jawab Latin), 1 = Tanya Latin (Jawab Arab)
       let questionType = Math.floor(Math.random() * 2); 
       let targetNum = mixedTargets[i];
       
@@ -329,18 +404,15 @@
         allOptions: [questionType === 0 ? targetNum.toString() : convertToArabic(targetNum)]
       };
 
-      // Buat 2 angka pengecoh secara acak
       while(qObj.allOptions.length < 3) {
         let wrongNum = Math.floor(Math.random() * 100) + 1;
         let wrongOption = questionType === 0 ? wrongNum.toString() : convertToArabic(wrongNum);
         
-        // Pastikan angka pengecoh tidak sama dengan opsi yang sudah ada
         if(!qObj.allOptions.includes(wrongOption)) {
           qObj.allOptions.push(wrongOption);
         }
       }
       
-      // Acak urutan tombol A, B, C agar posisi jawaban selalu pindah
       qObj.allOptions.sort(() => Math.random() - 0.5);
       questions.push(qObj);
     }
@@ -377,7 +449,6 @@
     
     currentQDisplay.innerText = currentQuestionIndex + 1;
     
-    // Trik memutar ulang animasi popIn
     numberDisplay.style.animation = 'none';
     numberDisplay.offsetHeight; /* trigger reflow */
     numberDisplay.style.animation = null; 
@@ -399,7 +470,7 @@
   }
 
   function checkAnswer(btn, selectedOption) {
-    if (isWaiting) return; 
+    if (isWaiting || btn.style.visibility === 'hidden') return; 
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
@@ -414,7 +485,6 @@
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan kotak dengan angka yang benar menggunakan highlight
       allBtns.forEach(b => {
         if(b.innerText === correctAnswerText) {
           b.classList.add('correct-highlight');
@@ -422,7 +492,6 @@
       });
     }
 
-    // Pindah ke soal berikutnya setelah 1.5 detik
     setTimeout(() => {
       currentQuestionIndex++;
       if (currentQuestionIndex < JUMLAH_SOAL) {
@@ -442,8 +511,8 @@
     }
     
     feedbackMsg.classList.add('feedback-show');
-    
-    setTimeout(() => {
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(() => {
       feedbackMsg.classList.remove('feedback-show');
     }, 1200);
   }

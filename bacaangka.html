@@ -5,10 +5,10 @@
 <!-- 1. Meta Viewport Stabil -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-<title>MADASA - Hitung Ceria Islami</title>
-<meta name="description" content="Game Belajar Berhitung untuk anak TK/RA dari MADASA.">
+<title>MADASA - Tebak Cara Baca Angka</title>
+<meta name="description" content="Game Edukasi Belajar Membaca Angka interaktif untuk anak-anak dari MADASA.">
 
-<!-- --- GOOGLE FONTS (PENTING AGAR FONT KONSISTEN DI HP) --- -->
+<!-- --- GOOGLE FONTS --- -->
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -17,11 +17,10 @@
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    /* Disamakan dengan tema utama MADASA */
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
-    /* Mencegah seleksi teks (copy paste) */
+    /* Mencegah seleksi teks */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -33,7 +32,7 @@
   #app-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; justify-content: center; align-items: center;
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
     transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
   }
   .layar-diputar {
@@ -47,7 +46,7 @@
     position: absolute;
     width: 95vw; height: 95vh;
     max-width: 900px; max-height: 900px;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: clamp(4px, 1vmin, 8px) solid #FFF;
     border-radius: clamp(20px, 4vmin, 40px);
@@ -55,60 +54,65 @@
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px);
     z-index: 10;
-    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+    overflow-y: auto;
   }
   #game-container { display: none; }
 
   .level-badge {
-    background: #FF9800; color: white; padding: clamp(4px, 1vh, 8px) clamp(12px, 3vw, 20px); border-radius: 20px;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; 
+    padding: clamp(4px, 1vh, 8px) clamp(12px, 3vw, 20px); border-radius: 20px;
     font-size: clamp(13px, 3.2vmin, 18px); font-weight: 900; margin-bottom: clamp(6px, 1.5vh, 15px);
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.4);
     border: clamp(2px, 0.5vmin, 3px) solid #FFF;
   }
 
   .question-text {
-    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900; color: #0288D1; margin: 0 0 clamp(10px, 2vh, 25px) 0;
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900; 
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    color: #0072ff; /* Fallback */
+    margin: 0 0 clamp(8px, 1.5vh, 15px) 0;
     line-height: 1.4; padding: 0 10px; text-align: center;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.1));
   }
 
-  /* --- AREA BENDA (YANG DIHITUNG) --- */
-  #items-area {
-    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    gap: clamp(6px, 1.5vmin, 12px); min-height: clamp(80px, 18vh, 140px); margin-bottom: clamp(10px, 2vh, 20px);
-    background: rgba(255, 255, 255, 0.9); padding: clamp(10px, 2vh, 20px); border-radius: clamp(16px, 3vmin, 25px);
-    border: clamp(3px, 0.8vmin, 4px) dashed #4fc3f7; width: 100%; box-sizing: border-box;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
+  /* --- AREA TAMPILAN SOAL (TANPA GARIS, HURUF/ANGKA LEPAS & NYAMAN) --- */
+  .display-box {
+    display: flex; justify-content: center; align-items: center;
+    background: transparent; border: none;
+    width: 100%; min-height: clamp(80px, 18vmin, 140px); 
+    margin-bottom: clamp(10px, 2vh, 20px);
+    font-size: clamp(22px, 5.5vmin, 38px); font-weight: 900; color: #ff4b2b;
+    text-align: center; padding: 0 15px; line-height: 1.35; word-break: break-word;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
-  .item-emoji {
-    font-size: clamp(30px, 8.5vmin, 48px);
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
-  }
   @keyframes popIn {
     0% { transform: scale(0); }
     100% { transform: scale(1); }
   }
 
-  /* --- TOMBOL ANGKA --- */
+  /* --- TOMBOL JAWABAN --- */
   .options-container {
     display: flex; gap: clamp(10px, 2.5vmin, 15px); justify-content: center; width: 100%;
-    margin-bottom: clamp(10px, 2vh, 20px);
+    margin-bottom: clamp(10px, 2vh, 20px); flex-wrap: wrap;
   }
 
   .option-btn {
-    background: #FFF; border: clamp(3px, 0.8vmin, 5px) solid #FFCA28; border-radius: clamp(16px, 3vmin, 25px);
-    width: clamp(70px, 18vmin, 100px); height: clamp(70px, 18vmin, 100px); 
+    background: #FFF; border: clamp(3px, 0.8vmin, 4px) solid #ff758c; border-radius: clamp(16px, 3vmin, 25px);
+    padding: clamp(10px, 2vh, 15px) clamp(15px, 3vw, 25px);
+    min-width: clamp(140px, 35vmin, 220px);
     display: flex; justify-content: center; align-items: center;
-    font-size: clamp(30px, 8vmin, 45px); font-weight: 900; color: #FF8F00;
+    font-size: clamp(15px, 3.8vmin, 20px); font-weight: 900; color: #ff4b2b;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     -webkit-tap-highlight-color: transparent;
+    text-align: center;
   }
 
   .option-btn:hover, .option-btn:active {
-    transform: translateY(-4px) scale(1.05);
-    border-color: #FF8F00; box-shadow: 0 12px 20px rgba(255, 143, 0, 0.3); color: #E65100;
+    transform: translateY(-8px) scale(1.05);
+    border-color: #ff416c; box-shadow: 0 15px 25px rgba(255, 65, 108, 0.3); color: #d81b60;
   }
 
   .shake {
@@ -126,8 +130,8 @@
   }
   @keyframes popAnim {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1.05); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1.1); }
   }
   
   .correct-highlight {
@@ -138,14 +142,14 @@
   #feedback-msg {
     position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
     background: #4CAF50; color: white; padding: clamp(10px, 2vh, 14px) clamp(18px, 4vw, 25px); border-radius: 30px;
-    font-size: clamp(14px, 3.5vmin, 18px); font-weight: 900; opacity: 0; pointer-events: none;
+    font-size: clamp(14px, 3.5vmin, 20px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
     white-space: nowrap; border: clamp(3px, 1vmin, 4px) solid #FFF; z-index: 100;
   }
   .feedback-show { opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL (KONSISTEN GLASSMORPHISM) --- */
+  /* --- LAYAR MENU & HASIL --- */
   .screen {
     display: none; justify-content: center; z-index: 50; text-align: center;
   }
@@ -155,36 +159,34 @@
     gap: clamp(8px, 1.5vh, 16px);
   }
 
-  .screen h1 { font-size: clamp(26px, 6.5vmin, 40px); color: #4CAF50; margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
-  .screen h2 { font-size: clamp(16px, 4.5vmin, 22px); color: #FF9800; margin: 0; font-weight: 800; }
+  .screen h1 { 
+    font-size: clamp(24px, 6vmin, 38px); 
+    background: linear-gradient(45deg, #ff416c, #ff4b2b, #ff758c);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); line-height: 1.2; 
+  }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 22px); color: #ff8000; margin: 0; font-weight: 800; }
   .screen p { font-size: clamp(13px, 3.2vmin, 18px); max-width: 600px; color: #555; line-height: 1.4; margin: 0; font-weight: 700; }
   
-  /* Tombol Utama & Tombol Putar Terbungkus Rapih */
   .button-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(6px, 1.2vh, 12px);
-    width: 100%;
-    margin: 0;
+    display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.2vh, 12px); width: 100%; margin: 0;
   }
 
   .btn {
     padding: clamp(10px, 2.5vmin, 15px) clamp(22px, 5vmin, 40px); 
-    font-size: clamp(16px, 4.2vmin, 22px); font-weight: 900;
-    background-color: #FF9800; color: white;
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900;
+    background: linear-gradient(45deg, #f7ff00, #db36a4); color: white;
     border: clamp(3px, 1vmin, 5px) solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 6px 0 #E65100, 0 12px 18px rgba(0,0,0,0.25);
+    cursor: pointer; box-shadow: 0 6px 0 #ad1457, 0 12px 18px rgba(0,0,0,0.25);
     transition: 0.1s; font-family: inherit; margin: 0; outline: none; -webkit-tap-highlight-color: transparent;
   }
   .btn:active { transform: translateY(6px); box-shadow: 0 0 0; }
 
-  /* Tombol Putar Layar Manual */
   .btn-rotate {
-    background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
     padding: clamp(8px, 2vmin, 12px) clamp(18px, 5vmin, 30px); 
     font-size: clamp(13px, 3.2vmin, 16px); font-weight: 900; cursor: pointer; 
-    box-shadow: 0 5px 0 #7B1FA2, 0 8px 12px rgba(0,0,0,0.25); font-family: inherit; transition: 0.1s;
+    box-shadow: 0 5px 0 #0077c2, 0 8px 12px rgba(0,0,0,0.25); font-family: inherit; transition: 0.1s;
     display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin: 0;
   }
   .btn-rotate:active { transform: translateY(5px); box-shadow: 0 0 0; }
@@ -194,13 +196,13 @@
     display: flex; justify-content: center; gap: clamp(10px, 2.5vmin, 15px); margin: clamp(4px, 1vh, 10px) 0;
   }
   .eval-item {
-    background: #FFF; padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px); border-radius: clamp(16px, 3vmin, 25px); border: clamp(3px, 0.8vmin, 4px) solid; width: clamp(90px, 22vmin, 120px);
+    background: #FFF; padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px); border-radius: clamp(16px, 3vmin, 25px); border: clamp(3px, 0.8vmin, 4px) solid; width: clamp(90px, 22vmin, 110px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; text-align: center;
   }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
   .eval-item span { display: block; font-size: clamp(28px, 8vmin, 35px); margin-bottom: 2px; }
-  .eval-item h3 { margin: 0; font-size: clamp(12px, 3vmin, 15px); color: #555; font-weight: 800; }
+  .eval-item h3 { margin: 0; font-size: clamp(12px, 3vmin, 16px); color: #555; font-weight: 800; }
   .eval-item p { margin: 0; font-size: clamp(20px, 6vmin, 28px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
@@ -209,17 +211,17 @@
     height: clamp(8px, 1.5vmin, 12px); overflow: hidden;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); margin-top: auto;
   }
-  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+  #progress-fill { height: 100%; background: linear-gradient(90deg, #f7ff00, #00f2fe); width: 0%; transition: width 0.4s ease-out; }
 
   /* LENCANA DEV */
   .dev-link {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-    padding: 3px 12px; font-size: clamp(10px, 2.2vmin, 13px); color: #555; text-decoration: none;
-    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    padding: 3px 12px; font-size: clamp(10px, 2.2vmin, 14px); color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #ff758c;
     border-radius: 20px; text-align: center; box-shadow: 0 3px 8px rgba(0,0,0,0.1); 
     white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: clamp(11px, 2.5vmin, 14px); font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #ff416c; font-size: clamp(11px, 2.5vmin, 15px); font-weight: 900; margin-left: 4px; }
 
   /* --- OPTIMASI MODE MIRING / LANDSCAPE KHUSUS --- */
   @media (orientation: landscape) and (max-height: 600px) {
@@ -227,10 +229,9 @@
     .screen-content { gap: 4px; }
     
     .level-badge { padding: 2px 10px; font-size: 11px; margin-bottom: 2px; }
-    .question-text { font-size: 13px; margin-bottom: 6px; }
-    #items-area { min-height: 50px; padding: 6px; margin-bottom: 6px; gap: 4px; border-width: 2px; }
-    .item-emoji { font-size: 26px; }
-    .option-btn { width: 60px; height: 60px; font-size: 24px; border-width: 2px; }
+    .question-text { font-size: 13px; margin-bottom: 2px; }
+    .display-box { min-height: 50px; font-size: 19px; margin-bottom: 4px; }
+    .option-btn { padding: 5px 8px; min-width: 120px; font-size: 12px; border-width: 2px; }
     .options-container { gap: 6px; margin-bottom: 4px; }
     #progress-bar { height: 5px; margin-top: 2px; }
 
@@ -244,8 +245,8 @@
     .eval-item p { font-size: 16px; }
 
     .button-group { gap: 4px; }
-    .btn { padding: 4px 14px; font-size: 12px; border-width: 2px; box-shadow: 0 3px 0 #E65100; }
-    .btn-rotate { padding: 3px 10px; font-size: 10px; border-width: 2px; box-shadow: 0 3px 0 #7B1FA2; }
+    .btn { padding: 4px 14px; font-size: 12px; border-width: 2px; box-shadow: 0 3px 0 #ad1457; }
+    .btn-rotate { padding: 3px 10px; font-size: 10px; border-width: 2px; box-shadow: 0 3px 0 #0077c2; }
     
     .dev-link { 
       position: relative; bottom: auto; left: auto; transform: none; 
@@ -255,7 +256,6 @@
 </style>
 </head>
 
-<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <div id="app-container">
@@ -266,9 +266,9 @@
   <!-- LAYAR MENU AWAL -->
   <div id="welcome-screen" class="screen" style="display: flex;">
     <div class="screen-content">
-      <h1 style="color: #E91E63;">🖐️ Hitung Ceria 🖐️</h1>
-      <h2 style="color: #FF9800;">Belajar Berhitung!</h2>
-      <p>Hitung ada berapa jumlah benda yang muncul, lalu pilih angka yang tepat. Siap mencoba?</p>
+      <h1>🌈 Tebak Cara Baca Angka Warni-Warni 🔢</h1>
+      <h2>Belajar Membaca Angka Bersama MADASA!</h2>
+      <p>Soal diselang-seling otomatis: Soal ganjil menampilkan angka (pilih teks), soal genap menampilkan teks (pilih angka), hingga menembus angka ribuan!</p>
       
       <div class="button-group">
         <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
@@ -285,15 +285,11 @@
   <div id="game-container">
     <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
     
-    <div class="question-text" id="question-text">Ada berapa benda di bawah ini?</div>
+    <div class="question-text" id="question-label">Bagaimana cara membaca angka ini?</div>
     
-    <div id="items-area">
-      <!-- Benda yang dihitung akan muncul di sini -->
-    </div>
+    <div class="display-box" id="display-box">15</div>
     
-    <div class="options-container" id="options-area">
-      <!-- Tombol Angka (Pilihan Ganda) -->
-    </div>
+    <div class="options-container" id="options-area"></div>
 
     <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
@@ -302,7 +298,7 @@
   <div id="result-screen" class="screen">
     <div class="screen-content">
       <h1 id="result-title">Alhamdulillah! 🎉</h1>
-      <p>Kamu sudah pintar berhitung. Ini adalah hasilnya:</p>
+      <p>Hebat! Kamu sudah pintar menebak angka dan cara bacanya dari puluhan hingga ribuan. Ini hasilnya:</p>
       
       <div class="eval-box">
         <div class="eval-item eval-benar">
@@ -328,7 +324,7 @@
     </div>
   </div>
 
-</div> <!-- PENUTUP APP CONTAINER -->
+</div>
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -341,41 +337,125 @@
     document.getElementById('app-container').classList.toggle('layar-diputar');
   }
 
-  // Daftar benda Islami & umum untuk dihitung (Bebas dari gambar wajah/manusia)
-  const objectsToCount = [
-    { emoji: '🕌', name: 'Masjid' },
-    { emoji: '🕋', name: "Ka'bah" },
-    { emoji: '📖', name: "Al-Qur'an" },
-    { emoji: '📿', name: 'Tasbih' },
-    { emoji: '🌙', name: 'Bulan' },
-    { emoji: '⭐', name: 'Bintang' },
-    { emoji: '🐪', name: 'Unta' },
-    { emoji: '🌴', name: 'Pohon Kurma' },
-    { emoji: '🍎', name: 'Apel' }
-  ];
+  // FUNGSI KONVERSI ANGKA KE TERBILANG BAHASA INDONESIA (HINGGA RIBUAN)
+  function terbilang(n) {
+    const angkaDasar = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+    
+    if (n < 12) {
+      return angkaDasar[n];
+    } else if (n < 20) {
+      return angkaDasar[n - 10] + " belas";
+    } else if (n < 100) {
+      let puluh = Math.floor(n / 10);
+      let sisa = n % 10;
+      return angkaDasar[puluh] + " puluh" + (sisa > 0 ? " " + angkaDasar[sisa] : "");
+    } else if (n === 100) {
+      return "seratus";
+    } else if (n < 200) {
+      let sisa = n - 100;
+      return "seratus " + terbilang(sisa);
+    } else if (n < 1000) {
+      let ratus = Math.floor(n / 100);
+      let sisa = n % 100;
+      let ratusStr = (ratus === 1) ? "seratus" : angkaDasar[ratus] + " ratus";
+      return ratusStr + (sisa > 0 ? " " + terbilang(sisa) : "");
+    } else if (n === 1000) {
+      return "seribu";
+    } else if (n < 2000) {
+      let sisa = n - 1000;
+      return "seribu " + terbilang(sisa);
+    } else if (n < 10000) {
+      let ribu = Math.floor(n / 1000);
+      let sisa = n % 1000;
+      let ribuStr = angkaDasar[ribu] + " ribu";
+      return ribuStr + (sisa > 0 ? " " + terbilang(sisa) : "");
+    }
+    return n.toString();
+  }
+
+  // MEMBUAT POOL ANGKA BESAR HINGGA RIBUAN
+  function generateNumberPool() {
+    let pool = [];
+    
+    // Kategori Belasan & Puluhan (20 - 99)
+    for (let i = 20; i < 100; i += Math.floor(Math.random() * 3) + 1) {
+      pool.push(i);
+    }
+    // Kategori Ratusan (100 - 999)
+    for (let i = 0; i < 30; i++) {
+      let num = Math.floor(Math.random() * 900) + 100;
+      if (!pool.includes(num)) pool.push(num);
+    }
+    // Kategori Ribuan (1000 - 5000)
+    for (let i = 0; i < 25; i++) {
+      let num = Math.floor(Math.random() * 4001) + 1000;
+      if (!pool.includes(num)) pool.push(num);
+    }
+
+    return pool;
+  }
 
   const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
   let currentQuestionIndex = 0;
   let isWaiting = false; 
   let skorBenar = 0;
   let skorSalah = 0;
-  let correctNumber = 0;
+  let correctAnswerValue = "";
   let notifTimeout;
 
   const gameContainer = document.getElementById('game-container');
-  const itemsArea = document.getElementById('items-area');
+  const displayBox = document.getElementById('display-box');
+  const questionLabel = document.getElementById('question-label');
   const optionsArea = document.getElementById('options-area');
   const currentQDisplay = document.getElementById('current-q');
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
-  const questionText = document.getElementById('question-text');
   
-  // Memanggil elemen musik latar
   const bgMusic = document.getElementById('bg-music');
 
+  function generateQuestions() {
+    let pool = generateNumberPool();
+    let shuffledPool = pool.sort(() => Math.random() - 0.5);
+    let questions = [];
+    
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let targetNum = shuffledPool[i % shuffledPool.length];
+      let reading = terbilang(targetNum);
+      reading = reading.charAt(0).toUpperCase() + reading.slice(1);
+
+      // SELANG-SELING: Soal Ganjil (index 0, 2, 4...) Mode 0 (Angka di atas -> Pilih Teks)
+      // Soal Genap (index 1, 3, 5...) Mode 1 (Teks di atas -> Pilih Angka)
+      let mode = (i % 2 === 0) ? 0 : 1;
+
+      let qObj = {
+        mode: mode,
+        questionText: mode === 0 ? "Bagaimana cara membaca angka ini?" : "Berapa angka dari tulisan ini?",
+        displayContent: mode === 0 ? targetNum.toLocaleString('id-ID') : reading,
+        correctAnswer: mode === 0 ? reading : targetNum.toLocaleString('id-ID'),
+        options: [mode === 0 ? reading : targetNum.toLocaleString('id-ID')]
+      };
+
+      while(qObj.options.length < 3) {
+        let wrongNum = pool[Math.floor(Math.random() * pool.length)];
+        let wrongReading = terbilang(wrongNum);
+        wrongReading = wrongReading.charAt(0).toUpperCase() + wrongReading.slice(1);
+
+        let wrongOpt = mode === 0 ? wrongReading : wrongNum.toLocaleString('id-ID');
+
+        if(!qObj.options.includes(wrongOpt)) {
+          qObj.options.push(wrongOpt);
+        }
+      }
+      
+      qObj.options.sort(() => Math.random() - 0.5);
+      questions.push(qObj);
+    }
+    return questions;
+  }
+
   function startGame() {
-    // Memulai pemutaran musik saat tombol ditekan
     if (bgMusic.paused) {
       bgMusic.play().catch(error => {
         console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
@@ -387,6 +467,7 @@
     currentQuestionIndex = 0;
     isWaiting = false;
     
+    activeQuiz = generateQuestions();
     totalQDisplay.innerText = JUMLAH_SOAL;
 
     document.getElementById('welcome-screen').style.display = 'none';
@@ -398,65 +479,50 @@
 
   function loadQuestion() {
     isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctAnswerValue = currentQuiz.correctAnswer;
+    
     currentQDisplay.innerText = currentQuestionIndex + 1;
-    itemsArea.innerHTML = '';
+    questionLabel.innerText = currentQuiz.questionText;
+    
+    displayBox.style.animation = 'none';
+    displayBox.offsetHeight; 
+    displayBox.style.animation = null; 
+    
+    displayBox.innerText = currentQuiz.displayContent;
     optionsArea.innerHTML = '';
 
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    const randomObject = objectsToCount[Math.floor(Math.random() * objectsToCount.length)];
-    correctNumber = Math.floor(Math.random() * 10) + 1;
-
-    questionText.innerText = `Coba hitung, ada berapa ${randomObject.name}?`;
-
-    for (let i = 0; i < correctNumber; i++) {
-      const itemSpan = document.createElement('span');
-      itemSpan.className = 'item-emoji';
-      itemSpan.innerText = randomObject.emoji;
-      itemSpan.style.animationDelay = `${i * 0.05}s`;
-      itemsArea.appendChild(itemSpan);
-    }
-
-    let options = [correctNumber];
-    while(options.length < 3) {
-      let randomWrongAnswer = Math.floor(Math.random() * 10) + 1;
-      if(randomWrongAnswer !== correctNumber && !options.includes(randomWrongAnswer)) {
-        options.push(randomWrongAnswer);
-      }
-    }
-    
-    options.sort(() => Math.random() - 0.5);
-
-    options.forEach(num => {
+    currentQuiz.options.forEach(opt => {
       const btn = document.createElement('div');
       btn.className = 'option-btn';
-      btn.innerText = num;
+      btn.innerText = opt;
       
-      btn.onclick = () => checkAnswer(btn, num);
+      btn.onclick = () => checkAnswer(btn, opt);
       optionsArea.appendChild(btn);
     });
   }
 
-  function checkAnswer(btn, selectedNumber) {
-    // Pencegahan double-click cepat & pemeriksaan status visibilitas/disabled
+  function checkAnswer(btn, selectedOption) {
     if (isWaiting || btn.style.visibility === 'hidden') return; 
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
-    const isCorrect = (selectedNumber === correctNumber);
+    const isCorrect = (selectedOption === correctAnswerValue);
 
     if (isCorrect) {
       btn.classList.add('pop');
       skorBenar++;
-      showFeedback("Masya Allah, Pintar! 🌟", true);
+      showFeedback("Hebat Sekali, Pintar! 🌟", true);
     } else {
       btn.classList.add('shake');
       skorSalah++;
-      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      showFeedback("Kurang Tepat, Coba Lagi ya! 😉", false);
       
       allBtns.forEach(b => {
-        if(parseInt(b.innerText) === correctNumber) {
+        if(b.innerText === correctAnswerValue) {
           b.classList.add('correct-highlight');
         }
       });
@@ -495,11 +561,11 @@
 
     const title = document.getElementById('result-title');
     if (skorBenar === JUMLAH_SOAL) {
-      title.innerText = "Sempurna! 🌟";
+      title.innerText = "Luar Biasa Sempurna! 🌟";
     } else if (skorBenar > skorSalah) {
-      title.innerText = "Alhamdulillah! 🎉";
+      title.innerText = "Alhamdulillah Hebat! 🎉";
     } else {
-      title.innerText = "Tetap Semangat! 💪";
+      title.innerText = "Tetap Semangat Belajar! 💪";
     }
 
     setTimeout(() => {

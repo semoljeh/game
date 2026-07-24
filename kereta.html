@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 1. Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <!-- --- META TAGS DASAR --- -->
 <title>MADASA - Kereta Angka Arab</title>
@@ -13,94 +14,149 @@
 
 <style>
   /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background-color: #000; 
     color: #333; overflow: hidden; touch-action: manipulation;
-    
-    /* Menggunakan Flexbox agar game selalu di tengah dengan sempurna di TV & HP */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* Mencegah seleksi teks (copy paste) */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -moz-user-select: none; -ms-user-select: none; user-select: none;
   }
 
-  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
-  #game-container {
-    position: relative; /* Diubah agar lebih stabil dan responsif */
-    width: 95%; max-width: 550px; 
-    z-index: 10;
-    display: none; flex-direction: column; align-items: center; text-align: center;
+  /* --- KONTROL ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* 2. KOTAK GAME & SCREEN UTAMA (FULL RESPONSIVE ELASTIS) */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh; 
+    max-width: 950px; max-height: 900px;
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 5px solid #FFF; border-radius: 40px;
-    padding: 35px 20px; 
+    border: clamp(4px, 1vmin, 8px) solid #FFF; 
+    border-radius: clamp(20px, 4vmin, 40px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
+    z-index: 10;
+    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+  }
+  #game-container { display: none; } 
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; justify-content: center; z-index: 50; text-align: center;
+  }
+  .screen-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+  }
+
+  .screen h1 { font-size: clamp(28px, 7vmin, 50px); color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 26px); color: #FF9800; margin-bottom: 15px; font-weight: 800; }
+  .screen p { font-size: clamp(14px, 3.5vmin, 20px); color: #555; margin-bottom: 25px; font-weight: 700; max-width: 90%; line-height: 1.4; }
+  
+  .btn {
+    padding: clamp(12px, 3vmin, 20px) clamp(25px, 6vmin, 50px); 
+    font-size: clamp(18px, 5vmin, 28px); font-weight: 900;
+    background-color: #FF9800; color: white; border: clamp(3px, 1vmin, 6px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; margin-bottom: 10px; outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* 5. TOMBOL PUTAR DI DALAM MENU */
+  .btn-rotate {
+    background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px); 
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 6px 0 #7B1FA2, 0 10px 15px rgba(0,0,0,0.3); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  /* --- HEADER SOAL (GAME AREA) --- */
+  .header-area {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; flex-shrink: 0;
   }
 
   .level-badge {
-    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
-    font-size: 18px; font-weight: 900; margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
-    border: 2px solid #FFF;
+    background: #FF9800; color: white; border-radius: 20px;
+    padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
   }
 
   .question-text {
-    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 25px 0; line-height: 1.4;
+    font-size: clamp(15px, 3.8vmin, 24px); font-weight: 900; 
+    color: #0288D1; margin: 0 0 clamp(8px, 1.5vh, 15px) 0; text-align: center;
+  }
+
+  /* --- TATA LETAK GAME (DIBAGI AGAR FLEXIBEL SAAT LANDSCAPE) --- */
+  .game-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; flex-grow: 1; gap: clamp(10px, 2vh, 20px);
+  }
+  .game-layout-left, .game-layout-right {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%;
   }
 
   /* --- AREA KERETA API --- */
   #train-area {
     display: flex; align-items: flex-end; justify-content: center;
-    width: 100%; margin-bottom: 15px; position: relative;
+    width: 100%; margin-bottom: 5px; position: relative;
     animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   .locomotive {
-    font-size: 65px; line-height: 1; margin-right: 5px;
-    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
-    z-index: 2;
+    font-size: clamp(45px, 13vmin, 90px); line-height: 1; margin-right: clamp(4px, 1.5vw, 12px);
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); z-index: 2;
   }
 
   .wagons-container {
-    display: flex; align-items: flex-end; gap: 8px; z-index: 2;
+    display: flex; align-items: flex-end; gap: clamp(5px, 1.5vw, 12px); z-index: 2;
   }
 
   .wagon {
-    width: 55px; height: 50px;
-    background: #FF9800; border-radius: 8px 8px 4px 4px;
+    width: clamp(45px, 12vmin, 85px); height: clamp(40px, 11vmin, 75px);
+    background: #FF9800; border-radius: clamp(6px, 1.5vmin, 12px) clamp(6px, 1.5vmin, 12px) 4px 4px;
     display: flex; justify-content: center; align-items: center;
-    color: white; font-family: 'Amiri', serif; font-size: 35px; font-weight: bold;
-    position: relative; border: 3px solid #E65100;
+    color: white; font-family: 'Amiri', serif; font-size: clamp(26px, 8vmin, 50px); font-weight: bold;
+    position: relative; border: clamp(2px, 0.8vmin, 4px) solid #E65100;
     box-shadow: inset 0 5px 10px rgba(255,255,255,0.3);
-    padding-bottom: 8px; box-sizing: border-box;
+    padding-bottom: clamp(4px, 1.5vmin, 10px); box-sizing: border-box;
   }
 
   /* Roda Gerbong */
   .wagon::after {
-    content: ''; position: absolute; bottom: -10px; left: 6px;
-    width: 14px; height: 14px; background: #333; border-radius: 50%;
-    box-shadow: 25px 0 0 #333; border: 2px solid #FFF; box-sizing: border-box;
+    content: ''; position: absolute; bottom: clamp(-8px, -2vmin, -12px); left: clamp(4px, 1.5vmin, 10px);
+    width: clamp(10px, 2.5vmin, 18px); height: clamp(10px, 2.5vmin, 18px); background: #333; border-radius: 50%;
+    box-shadow: clamp(18px, 6vmin, 38px) 0 0 #333; border: 2px solid #FFF; box-sizing: border-box;
   }
 
   /* Sambungan Antar Gerbong */
   .wagon::before {
-    content: ''; position: absolute; bottom: 10px; left: -10px;
-    width: 10px; height: 4px; background: #555;
+    content: ''; position: absolute; bottom: clamp(8px, 2.5vmin, 16px); left: clamp(-8px, -2vmin, -12px);
+    width: clamp(8px, 2vmin, 14px); height: clamp(3px, 0.8vmin, 5px); background: #555;
   }
-  .wagon:first-child::before { display: none; } /* Hilangkan sambungan di gerbong pertama */
+  .wagon:first-child::before { display: none; } 
 
   /* Gerbong Kosong (Target) */
   .wagon-missing {
-    background: #FFF3E0; color: #FF9800; border: 3px dashed #FF9800;
+    background: #FFF3E0; color: #FF9800; border: clamp(2px, 0.8vmin, 4px) dashed #FF9800;
     animation: pulseMissing 1.5s infinite;
   }
 
@@ -109,17 +165,13 @@
     animation: popAnim 0.4s forwards;
   }
 
-  @keyframes pulseMissing {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
+  @keyframes pulseMissing { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
   /* Rel Kereta */
   .train-track {
-    width: 100%; height: 8px; background: #795548; border-radius: 4px;
-    margin-bottom: 30px; position: relative;
-    box-shadow: 0 4px 5px rgba(0,0,0,0.1);
+    width: 100%; height: clamp(6px, 1.2vh, 12px); background: #795548; border-radius: 4px;
+    margin-bottom: clamp(15px, 3vh, 30px); position: relative;
+    box-shadow: 0 4px 5px rgba(0,0,0,0.1); flex-shrink: 0;
   }
   .train-track::after {
     content: ''; position: absolute; top: 2px; left: 0; width: 100%; height: 2px;
@@ -128,174 +180,96 @@
 
   /* --- TOMBOL PILIHAN JAWABAN --- */
   #options-area {
-    display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap; margin-bottom: 10px;
+    display: flex; gap: clamp(8px, 2vw, 20px); justify-content: center; 
+    width: 100%; flex-wrap: wrap; margin-bottom: 10px;
   }
 
   .option-btn {
-    background: #FFF; border: 5px solid #4FC3F7; border-radius: 20px;
-    width: 80px; height: 80px; 
+    background: #FFF; border: clamp(3px, 1vmin, 6px) solid #4FC3F7; border-radius: clamp(12px, 3.5vmin, 25px);
+    width: clamp(60px, 16vmin, 110px); height: clamp(60px, 16vmin, 110px); 
     display: flex; justify-content: center; align-items: center;
-    font-family: 'Amiri', serif; font-size: 50px; font-weight: bold; color: #0288D1;
+    font-family: 'Amiri', serif; font-size: clamp(35px, 10vmin, 70px); font-weight: bold; color: #0288D1;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1); padding-bottom: 10px; box-sizing: border-box;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); padding-bottom: clamp(6px, 1.5vmin, 12px); box-sizing: border-box;
     -webkit-tap-highlight-color: transparent; outline: none;
   }
-
-  .option-btn:active {
-    transform: translateY(6px) scale(0.95); box-shadow: 0 0 0 rgba(0,0,0,0);
-  }
+  .option-btn:active { transform: translateY(6px) scale(0.95); box-shadow: 0 0 0 rgba(0,0,0,0); }
 
   /* Animasi Standar */
   .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important; }
-  @keyframes shakeAnim {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    50% { transform: translateX(8px); }
-    75% { transform: translateX(-8px); }
-  }
-
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
   .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; }
-  @keyframes popAnim {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1.05); }
-  }
-  
-  .correct-highlight {
-    border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05);
-  }
+  @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1.05); } }
+  .correct-highlight { border-color: #4CAF50 !important; color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05); }
 
-  @keyframes popIn {
-    0% { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
   /* --- NOTIFIKASI --- */
   #feedback-msg {
     position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
-    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: clamp(14px, 4vmin, 22px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
     white-space: nowrap; border: 4px solid #FFF; z-index: 20;
   }
-  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-show { top: 20px !important; opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL --- */
-  .screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
-  }
-
-  .screen-content {
-    background: transparent; padding: 20px; width: 100%; max-width: 400px;
-  }
-
-  .screen h1 { font-size: 38px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
-  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
-  
-  .btn {
-    padding: 15px 40px; font-size: 24px; font-weight: 900;
-    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s; font-family: inherit; width: auto;
-    outline: none; -webkit-tap-highlight-color: transparent;
-  }
-  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
-
-  /* --- KOTAK EVALUASI --- */
-  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  /* --- KOTAK EVALUASI HASIL --- */
+  .eval-box { display: flex; justify-content: center; gap: clamp(10px, 3vw, 30px); margin-bottom: 20px; }
+  .eval-item { background: #FFF; padding: clamp(10px, 2vmin, 20px); border-radius: 20px; border: clamp(3px, 1vmin, 5px) solid; width: clamp(90px, 25vmin, 150px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
-  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
-  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
-  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+  .eval-item span { display: block; font-size: clamp(30px, 8vmin, 50px); margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: clamp(14px, 3.5vmin, 20px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(24px, 6vmin, 40px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
-  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-bar { 
+    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(10px, 2vh, 25px); flex-shrink: 0;
+    overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+  }
   #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
 
-  /* LENCANA DEV */
+  /* 4. PENCEGAHAN PENUMPUKAN LENCANA DEV (POSISI RELATIF SAAT KECIL/MIRING) */
   .dev-link {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    padding: 4px 15px; font-size: clamp(10px, 2.5vmin, 14px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
-    border-radius: 25px; transition: all 0.3s ease; text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+    border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 3vmin, 15px); font-weight: 900; margin-left: 4px; }
 
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR LEBAR (TV HISENSE)     */
-  /* ============================================== */
-  @media screen and (orientation: landscape) and (min-width: 768px) {
-    #game-container { 
-      max-width: 950px; 
-      padding: 50px 40px; 
-      border-radius: 50px; 
+  /* 3. RESPONSIVE KHUSUS LAYAR MIRING (LANDSCAPE) */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    
+    /* Membelah layout game menjadi Kiri (Kereta) & Kanan (Pilihan Angka) */
+    .game-layout { flex-direction: row; gap: 15px; }
+    .game-layout-left { width: 55%; }
+    .game-layout-right { width: 45%; }
+    
+    /* Menyesuaikan jarak dan ukuran agar tidak memakan ruang */
+    .question-text { margin: 2px 0; font-size: clamp(13px, 3vmin, 17px); }
+    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
+    #progress-bar { margin-top: 5px; }
+    #train-area { margin-bottom: 2px; }
+    .train-track { margin-bottom: 10px; }
+    
+    /* Mengecilkan elemen di layar Menu & Hasil */
+    .screen h1 { font-size: 28px; margin-bottom: 2px; }
+    .screen h2 { font-size: 16px; margin-bottom: 5px; }
+    .screen p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
+    .btn { padding: 6px 20px; font-size: 16px; margin-bottom: 6px; border-width: 3px; box-shadow: 0 4px 0 #E65100; }
+    .btn-rotate { padding: 6px 15px; font-size: 14px; border-width: 2px; box-shadow: 0 4px 0 #7B1FA2; }
+    
+    /* 4. MENGUBAH POSISI LENCANA DEV AGAR MENGALIR RAPI DI BAWAH TOMBOL */
+    .dev-link { 
+      position: relative; bottom: auto; left: auto; transform: none; 
+      margin-top: 10px; margin-bottom: 10px; display: inline-block;
     }
-    
-    .level-badge { font-size: 24px; padding: 10px 40px; margin-bottom: 25px; }
-    .question-text { font-size: 32px; margin-bottom: 40px; }
-    
-    #train-area { margin-bottom: 30px; }
-    .locomotive { font-size: 110px; margin-right: 15px; }
-    .wagons-container { gap: 15px; }
-    
-    .wagon { width: 95px; height: 90px; font-size: 55px; border-width: 5px; border-radius: 15px 15px 8px 8px; padding-bottom: 12px; }
-    .wagon::after { width: 22px; height: 22px; bottom: -14px; left: 12px; box-shadow: 45px 0 0 #333; border-width: 3px; }
-    .wagon::before { width: 16px; height: 6px; bottom: 20px; left: -16px; }
-    
-    .train-track { height: 12px; margin-bottom: 45px; }
-    .train-track::after { height: 4px; }
-
-    #options-area { gap: 25px; margin-bottom: 20px; }
-    .option-btn { width: 130px; height: 130px; font-size: 80px; border-width: 8px; border-radius: 30px; padding-bottom: 15px; }
-
-    #progress-bar { height: 18px; margin-top: 40px; }
-    
-    .screen-content { max-width: 800px; }
-    .screen h1 { font-size: 55px; margin-bottom: 15px; }
-    .screen p { font-size: 24px; margin-bottom: 40px; }
-    .btn { font-size: 32px; padding: 20px 60px; border-width: 6px; border-radius: 50px; }
-    
-    .eval-box { gap: 30px; margin-bottom: 40px; }
-    .eval-item { width: 160px; padding: 25px; border-width: 6px; }
-    .eval-item span { font-size: 55px; margin-bottom: 10px; }
-    .eval-item h3 { font-size: 22px; }
-    .eval-item p { font-size: 45px; }
-  }
-
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR KECIL (HP PORTRAIT)    */
-  /* ============================================== */
-  @media (max-width: 600px) {
-    #game-container { padding: 35px 10px; border-radius: 35px; width: 95%; }
-    .question-text { font-size: 18px; margin-bottom: 20px; }
-    
-    .locomotive { font-size: 50px; }
-    .wagon { width: 45px; height: 42px; font-size: 28px; padding-bottom: 5px; border-width: 2px; }
-    .wagon::after { width: 12px; height: 12px; box-shadow: 20px 0 0 #333; left: 4px; }
-    .wagons-container { gap: 6px; }
-    
-    .option-btn { width: 65px; height: 65px; font-size: 40px; border-width: 4px; border-radius: 15px; }
-    #options-area { gap: 10px; }
-    
-    .screen h1 { font-size: 32px; }
-    .screen p { font-size: 15px; margin-bottom: 25px; }
-    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
-    #feedback-msg { font-size: 16px; padding: 8px 20px; }
-    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
-    .eval-item span { font-size: 30px; }
-    .eval-item h3 { font-size: 14px; }
-    .eval-item p { font-size: 22px; }
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
   }
 </style>
 </head>
@@ -303,64 +277,84 @@
 <!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- LAYAR MENU AWAL -->
-<div id="welcome-screen" class="screen" style="display: flex;">
-  <div class="screen-content">
-    <h1 style="color: #E91E63;">🚂 Kereta Angka 🚂</h1>
-    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Logika Angka Arab!</h2>
-    <p>Lihat urutan angkanya. Ada satu gerbong kereta yang angkanya hilang. Ayo tebak angka berapa itu!</p>
-    <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+<div id="app-container">
+
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1 style="color: #E91E63;">🚂 Kereta Angka 🚂</h1>
+      <h2 style="color: #FF9800;">Logika Angka Arab!</h2>
+      <p>Lihat urutan angkanya. Ada satu gerbong kereta yang angkanya hilang. Ayo tebak angka berapa itu!</p>
+      
+      <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+      
+      <!-- Lencana Developer ditempatkan di dalam Screen Content agar ikut scroll -->
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
 
-<!-- AREA GAME -->
-<div id="game-container">
-  <div id="feedback-msg">Benar!</div>
-  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
-  
-  <div class="question-text">Angka berapakah yang hilang?</div>
-  
-  <!-- Area Kereta Api -->
-  <div id="train-area">
-    <div class="locomotive">🚂</div>
-    <div class="wagons-container" id="wagons-area"></div>
-  </div>
-  <div class="train-track"></div>
-  
-  <!-- Area Tombol Pilihan -->
-  <div id="options-area"></div>
-
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-</div>
-
-<!-- LAYAR HASIL & EVALUASI -->
-<div id="result-screen" class="screen">
-  <div class="screen-content">
-    <h1 id="result-title">Alhamdulillah! 🎉</h1>
-    <p>Masya Allah! Logika berhitungmu sangat tajam. Kereta sekarang bisa melaju lagi. Ini hasilnya:</p>
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div id="feedback-msg">Benar!</div>
     
-    <div class="eval-box">
-      <div class="eval-item eval-benar">
-        <span>✅</span>
-        <h3>Benar</h3>
-        <p id="score-benar">0</p>
+    <div class="header-area">
+      <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+      <div class="question-text">Angka berapakah yang hilang?</div>
+    </div>
+    
+    <div class="game-layout">
+      <!-- Kiri saat Landscape, Atas saat Portrait -->
+      <div class="game-layout-left">
+        <!-- Area Kereta Api -->
+        <div id="train-area">
+          <div class="locomotive">🚂</div>
+          <div class="wagons-container" id="wagons-area"></div>
+        </div>
+        <div class="train-track"></div>
       </div>
-      <div class="eval-item eval-salah">
-        <span>❌</span>
-        <h3>Salah</h3>
-        <p id="score-salah">0</p>
+      
+      <!-- Kanan saat Landscape, Bawah saat Portrait -->
+      <div class="game-layout-right">
+        <!-- Area Tombol Pilihan -->
+        <div id="options-area"></div>
       </div>
     </div>
 
-    <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Alhamdulillah! 🎉</h1>
+      <p>Masya Allah! Logika berhitungmu sangat tajam. Kereta sekarang bisa melaju lagi. Ini hasilnya:</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+</div> <!-- PENUTUP APP CONTAINER -->
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -368,6 +362,11 @@
 </audio>
 
 <script>
+  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
   // Angka Arab 0-10 (Index 1 = ١)
   const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '١٠'];
 
@@ -389,24 +388,18 @@
   const bgMusic = document.getElementById('bg-music');
   const trainArea = document.getElementById('train-area');
 
-  // Generator Soal Dinamis (Urutan berlanjut 4 angka)
   function generateDynamicQuestions() {
     let questions = [];
     
     for(let i = 0; i < JUMLAH_SOAL; i++) {
-      // Tentukan angka awal (1 sampai 7 agar maksimal mentok di 10)
       let startNum = Math.floor(Math.random() * 7) + 1;
       let sequence = [startNum, startNum + 1, startNum + 2, startNum + 3];
-      
-      // Pilih satu gerbong acak (index 0, 1, 2, atau 3) yang angkanya dihilangkan
       let missingIndex = Math.floor(Math.random() * 4);
       let answerNum = sequence[missingIndex];
       
-      // Buat pengecoh (jawaban salah)
       let distractors = [];
       while(distractors.length < 2) {
         let randNum = Math.floor(Math.random() * 10) + 1;
-        // Pengecoh tidak boleh sama dengan jawaban & bukan bagian dari deret aslinya
         if(randNum !== answerNum && !distractors.includes(randNum) && !sequence.includes(randNum)) {
           distractors.push(randNum);
         }
@@ -425,11 +418,7 @@
   }
 
   function startGame() {
-    if (bgMusic.paused) {
-      bgMusic.play().catch(error => {
-        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
-      });
-    }
+    if (bgMusic.paused) { bgMusic.play().catch(e => console.log(e)); }
 
     skorBenar = 0;
     skorSalah = 0;
@@ -453,16 +442,13 @@
     
     currentQDisplay.innerText = currentQuestionIndex + 1;
 
-    // Trik memutar ulang animasi masuk kereta
     trainArea.style.animation = 'none';
     trainArea.offsetHeight;
     trainArea.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
-    // Update Progress Bar
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    // Render Gerbong Kereta
     wagonsArea.innerHTML = '';
     currentQuiz.sequence.forEach((num, index) => {
       const wagon = document.createElement('div');
@@ -471,7 +457,7 @@
       
       if(index === currentQuiz.missingIndex) {
         wagon.classList.add('wagon-missing');
-        wagon.innerText = '؟'; // Tanda tanya Arab
+        wagon.innerText = '؟'; 
       } else {
         wagon.innerText = arabicNums[num];
       }
@@ -479,7 +465,6 @@
       wagonsArea.appendChild(wagon);
     });
 
-    // Render Tombol Pilihan (Diubah ke button type="button")
     optionsArea.innerHTML = '';
     currentQuiz.options.forEach((optNum, index) => {
       const btn = document.createElement('button');
@@ -496,10 +481,14 @@
   }
 
   function checkAnswer(btn, selectedNum, missingIndex) {
-    if (isWaiting) return; 
+    // 6. Keamanan UX JavaScript: Mencegah tombol diklik ganda (double-click)
+    if (isWaiting || btn.style.pointerEvents === 'none') return; 
+    
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
+    allBtns.forEach(b => b.style.pointerEvents = 'none');
+
     const targetWagon = document.getElementById(`wagon-${missingIndex}`);
     const isCorrect = (selectedNum === correctAnswerNum);
 
@@ -508,17 +497,14 @@
       skorBenar++;
       showFeedback("Masya Allah, Pintar! 🌟", true);
       
-      // Isi gerbong yang kosong
       targetWagon.innerText = arabicNums[selectedNum];
       targetWagon.classList.remove('wagon-missing');
       targetWagon.classList.add('wagon-filled');
-
     } else {
       btn.classList.add('shake');
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan jawaban yang benar dengan efek highlight
       allBtns.forEach(b => {
         if(b.innerText === arabicNums[correctAnswerNum]) {
           b.classList.add('correct-highlight');

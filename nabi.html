@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 1. Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <!-- --- META TAGS DASAR --- -->
 <title>MADASA - Kisah Para Nabi</title>
@@ -13,225 +14,210 @@
 
 <style>
   /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background-color: #000; 
     color: #333; overflow: hidden; touch-action: manipulation;
-    
-    /* Menggunakan Flexbox agar game selalu di tengah dengan sempurna di TV & HP */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* Mencegah seleksi teks (copy paste) */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -moz-user-select: none; -ms-user-select: none; user-select: none;
   }
 
-  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
-  #game-container {
-    position: relative; /* Diubah agar lebih stabil dan responsif */
-    width: 90%; max-width: 480px; 
-    z-index: 10;
-    display: none; flex-direction: column; align-items: center; text-align: center;
+  /* --- KONTROL ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* 2. KOTAK GAME & SCREEN UTAMA (FULL RESPONSIVE ELASTIS) */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh; 
+    max-width: 900px; max-height: 900px;
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 5px solid #FFF; border-radius: 40px;
-    padding: 35px 20px; 
+    border: clamp(4px, 1vmin, 8px) solid #FFF; 
+    border-radius: clamp(20px, 4vmin, 40px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
+    z-index: 10;
+    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+  }
+  #game-container { display: none; } 
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; justify-content: center; z-index: 50; text-align: center;
+  }
+  .screen-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+  }
+
+  .screen h1 { font-size: clamp(28px, 7vmin, 50px); color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 26px); color: #FF9800; margin-bottom: 15px; font-weight: 800; }
+  .screen p { font-size: clamp(14px, 3.5vmin, 20px); color: #555; margin-bottom: 25px; font-weight: 700; max-width: 90%; line-height: 1.4; }
+  
+  .btn {
+    padding: clamp(12px, 3vmin, 20px) clamp(25px, 6vmin, 50px); 
+    font-size: clamp(18px, 5vmin, 28px); font-weight: 900;
+    background-color: #FF9800; color: white; border: clamp(3px, 1vmin, 6px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; margin-bottom: 10px; outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* 5. TOMBOL PUTAR DI DALAM MENU */
+  .btn-rotate {
+    background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px); 
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 6px 0 #7B1FA2, 0 10px 15px rgba(0,0,0,0.3); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  /* --- HEADER SOAL (GAME AREA) --- */
+  .header-area {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; flex-shrink: 0;
   }
 
   .level-badge {
-    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
-    font-size: 18px; font-weight: 900; margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
-    border: 2px solid #FFF;
+    background: #FF9800; color: white; border-radius: 20px;
+    padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
   }
 
-  /* --- AREA GAMBAR (EMOJI) --- */
+  /* --- TATA LETAK GAME (DIBAGI AGAR FLEXIBEL SAAT LANDSCAPE) --- */
+  .game-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; flex-grow: 1; gap: clamp(10px, 2vh, 20px);
+  }
+  .game-layout-left, .game-layout-right {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%;
+  }
+
+  /* --- AREA GAMBAR & PERTANYAAN --- */
   #item-display {
     display: flex; justify-content: center; align-items: center;
-    background: rgba(255, 255, 255, 0.9); border: 5px dashed #4FC3F7; border-radius: 30px;
-    width: 110px; height: 110px; margin-bottom: 20px;
-    font-size: 65px; 
-    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
+    background: rgba(255, 255, 255, 0.9); border: clamp(3px, 1vmin, 6px) dashed #4FC3F7; 
+    border-radius: clamp(15px, 4vmin, 30px);
+    width: clamp(90px, 25vmin, 150px); height: clamp(90px, 25vmin, 150px); 
+    font-size: clamp(45px, 14vmin, 85px); margin-bottom: clamp(8px, 1.5vh, 15px);
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05); filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
   }
+  @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
   .question-text {
-    font-size: 18px; font-weight: 800; color: #333; margin: 0 0 20px 0; line-height: 1.4;
-    padding: 0 10px;
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 800; color: #333; 
+    margin: 0 0 clamp(10px, 2vh, 20px) 0; line-height: 1.4; padding: 0 10px; text-align: center;
   }
-  
-  .highlight-text {
-    color: #0288D1; font-weight: 900;
-  }
+  .highlight-text { color: #0288D1; font-weight: 900; }
 
   /* --- TOMBOL PILIHAN JAWABAN --- */
   #options-area {
-    display: flex; gap: 12px; justify-content: center; width: 100%; flex-direction: column; margin-bottom: 10px;
+    display: flex; gap: clamp(8px, 1.5vh, 15px); justify-content: center; 
+    width: 100%; flex-direction: column; margin-bottom: 10px;
   }
 
   .option-btn {
-    background: #FFF; border: 4px solid #4CAF50; border-radius: 20px;
-    width: 100%; padding: 12px 15px;
+    background: #FFF; border: clamp(3px, 1vmin, 5px) solid #4CAF50; border-radius: clamp(12px, 3.5vmin, 20px);
+    width: 100%; padding: clamp(10px, 1.8vh, 16px) clamp(10px, 2vw, 20px);
     display: flex; justify-content: center; align-items: center;
-    font-size: 18px; font-weight: 900; color: #4CAF50; text-align: center;
+    font-size: clamp(15px, 3.8vmin, 22px); font-weight: 900; color: #4CAF50; text-align: center;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1); outline: none; font-family: inherit;
     -webkit-tap-highlight-color: transparent; box-sizing: border-box;
-    font-family: inherit; outline: none;
   }
-
-  .option-btn:active {
-    transform: translateY(4px) scale(0.98); box-shadow: 0 0 0 rgba(0,0,0,0);
-  }
+  .option-btn:active { transform: translateY(4px) scale(0.98); box-shadow: 0 0 0 rgba(0,0,0,0); }
 
   /* Animasi Standar */
   .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; color: #F44336 !important; background: #FFEBEE !important; }
-  @keyframes shakeAnim {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    50% { transform: translateX(8px); }
-    75% { transform: translateX(-8px); }
-  }
-
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
   .pop { animation: popAnim 0.5s forwards; border-color: #FF9800 !important; color: #FF9800 !important; background: #FFF3E0 !important; }
-  @keyframes popAnim {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1.02); }
-  }
-  
-  .correct-highlight {
-    border-color: #FF9800 !important; color: #FF9800 !important; background: #FFF3E0 !important; transform: scale(1.02);
-  }
-
-  @keyframes popIn {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
-  }
+  @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1.02); } }
+  .correct-highlight { border-color: #FF9800 !important; color: #FF9800 !important; background: #FFF3E0 !important; transform: scale(1.02); }
 
   /* --- NOTIFIKASI --- */
   #feedback-msg {
     position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
-    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: clamp(14px, 4vmin, 22px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
     white-space: nowrap; border: 4px solid #FFF; z-index: 20;
   }
-  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-show { top: 20px !important; opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL --- */
-  .screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
-  }
-
-  .screen-content {
-    background: transparent; padding: 20px; width: 100%; max-width: 400px;
-  }
-
-  .screen h1 { font-size: 38px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
-  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
-  
-  .btn {
-    padding: 15px 40px; font-size: 24px; font-weight: 900;
-    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s; font-family: inherit; width: auto;
-    outline: none; -webkit-tap-highlight-color: transparent;
-  }
-  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
-
-  /* --- KOTAK EVALUASI --- */
-  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  /* --- KOTAK EVALUASI HASIL --- */
+  .eval-box { display: flex; justify-content: center; gap: clamp(10px, 3vw, 30px); margin-bottom: 20px; }
+  .eval-item { background: #FFF; padding: clamp(10px, 2vmin, 20px); border-radius: 20px; border: clamp(3px, 1vmin, 5px) solid; width: clamp(90px, 25vmin, 150px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
-  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
-  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
-  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+  .eval-item span { display: block; font-size: clamp(30px, 8vmin, 50px); margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: clamp(14px, 3.5vmin, 20px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(24px, 6vmin, 40px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
-  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 25px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-bar { 
+    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(12px, 2vh, 25px); flex-shrink: 0;
+    overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+  }
   #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
 
-  /* LENCANA DEV */
+  /* 4. PENCEGAHAN PENUMPUKAN LENCANA DEV (POSISI RELATIF SAAT KECIL/MIRING) */
   .dev-link {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    padding: 4px 15px; font-size: clamp(10px, 2.5vmin, 14px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
-    border-radius: 25px; transition: all 0.3s ease; text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+    border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 3vmin, 15px); font-weight: 900; margin-left: 4px; }
 
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR LEBAR (TV HISENSE)     */
-  /* ============================================== */
-  @media screen and (orientation: landscape) and (min-width: 768px) {
-    #game-container { 
-      max-width: 900px; 
-      padding: 50px 40px; 
-      border-radius: 50px; 
+  /* 3. RESPONSIVE KHUSUS LAYAR MIRING (LANDSCAPE) */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    
+    /* Membelah layout game menjadi Kiri (Gambar & Pertanyaan) & Kanan (Pilihan) */
+    .game-layout { flex-direction: row; gap: 15px; }
+    .game-layout-left { width: 45%; }
+    .game-layout-right { width: 55%; }
+    
+    /* Menyesuaikan jarak dan ukuran agar tidak memakan ruang */
+    .question-text { margin: 2px 0; font-size: clamp(12px, 2.8vmin, 15px); line-height: 1.2; }
+    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
+    #progress-bar { margin-top: 5px; }
+    #item-display { width: 65px; height: 65px; font-size: 38px; margin-bottom: 5px; }
+    #options-area { gap: 6px; }
+    .option-btn { padding: 6px 10px; font-size: clamp(12px, 2.8vmin, 15px); border-width: 2px; }
+    
+    /* Mengecilkan elemen di layar Menu & Hasil */
+    .screen h1 { font-size: 28px; margin-bottom: 2px; }
+    .screen h2 { font-size: 16px; margin-bottom: 5px; }
+    .screen p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
+    .btn { padding: 6px 20px; font-size: 16px; margin-bottom: 6px; border-width: 3px; box-shadow: 0 4px 0 #E65100; }
+    .btn-rotate { padding: 6px 15px; font-size: 14px; border-width: 2px; box-shadow: 0 4px 0 #7B1FA2; }
+    
+    /* 4. MENGUBAH POSISI LENCANA DEV AGAR MENGALIR RAPI DI BAWAH TOMBOL */
+    .dev-link { 
+      position: relative; bottom: auto; left: auto; transform: none; 
+      margin-top: 10px; margin-bottom: 10px; display: inline-block;
     }
-    
-    .level-badge { font-size: 24px; padding: 10px 40px; margin-bottom: 25px; }
-    
-    #item-display { width: 180px; height: 180px; font-size: 100px; margin-bottom: 30px; border-width: 8px; }
-    
-    .question-text { font-size: 32px; margin-bottom: 40px; line-height: 1.5; padding: 0 20px; }
-    
-    #options-area { gap: 20px; margin-bottom: 20px; }
-    .option-btn { padding: 20px; font-size: 32px; border-width: 6px; border-radius: 30px; }
-    
-    #progress-bar { height: 18px; margin-top: 40px; }
-    
-    .screen-content { max-width: 800px; }
-    .screen h1 { font-size: 55px; margin-bottom: 15px; }
-    .screen p { font-size: 24px; margin-bottom: 40px; }
-    .btn { font-size: 32px; padding: 20px 60px; border-width: 6px; border-radius: 50px; }
-    
-    .eval-box { gap: 30px; margin-bottom: 40px; }
-    .eval-item { width: 160px; padding: 25px; border-width: 6px; }
-    .eval-item span { font-size: 55px; margin-bottom: 10px; }
-    .eval-item h3 { font-size: 22px; }
-    .eval-item p { font-size: 45px; }
-  }
-
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR KECIL (HP PORTRAIT)    */
-  /* ============================================== */
-  @media (max-width: 600px) {
-    #game-container { padding: 35px 15px; border-radius: 35px; width: 95%; }
-    .question-text { font-size: 16px; margin-bottom: 15px; }
-    
-    #item-display { width: 90px; height: 90px; font-size: 50px; margin-bottom: 15px; border-width: 3px; }
-    .option-btn { width: 100%; padding: 10px 10px; font-size: 16px; border-width: 3px; border-radius: 15px; }
-    #options-area { gap: 10px; }
-    
-    .screen h1 { font-size: 32px; }
-    .screen p { font-size: 15px; margin-bottom: 25px; }
-    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
-    #feedback-msg { font-size: 16px; padding: 8px 20px; }
-    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
-    .eval-item span { font-size: 30px; }
-    .eval-item h3 { font-size: 14px; }
-    .eval-item p { font-size: 22px; }
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
   }
 </style>
 </head>
@@ -239,60 +225,80 @@
 <!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- LAYAR MENU AWAL -->
-<div id="welcome-screen" class="screen" style="display: flex;">
-  <div class="screen-content">
-    <h1 style="color: #E91E63;">📜 Kisah Para Nabi 📜</h1>
-    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Tebak Mukjizat & Sejarah!</h2>
-    <p>Ayo kita mengingat kembali kisah luar biasa dari 25 Nabi dan Rasul. Baca ceritanya dan tebak siapa Nabinya!</p>
-    <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+<div id="app-container">
+
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1 style="color: #E91E63;">📜 Kisah Para Nabi 📜</h1>
+      <h2 style="color: #FF9800;">Tebak Mukjizat & Sejarah!</h2>
+      <p>Ayo kita mengingat kembali kisah luar biasa dari 25 Nabi dan Rasul. Baca ceritanya dan tebak siapa Nabinya!</p>
+      
+      <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+      
+      <!-- Lencana Developer ditempatkan di dalam Screen Content agar ikut scroll -->
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
 
-<!-- AREA GAME -->
-<div id="game-container">
-  <div id="feedback-msg">Benar!</div>
-  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
-  
-  <!-- Area Gambar Emoji -->
-  <div id="item-display">🕋</div>
-  
-  <div class="question-text" id="question-text">Memuat pertanyaan...</div>
-  
-  <!-- Area Tombol Pilihan -->
-  <div id="options-area"></div>
-
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-</div>
-
-<!-- LAYAR HASIL & EVALUASI -->
-<div id="result-screen" class="screen">
-  <div class="screen-content">
-    <h1 id="result-title">Alhamdulillah! 🎉</h1>
-    <p>Masya Allah! Pengetahuanmu tentang sejarah Nabi dan Rasul sangat hebat. Ini hasil belajarmu:</p>
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div id="feedback-msg">Benar!</div>
     
-    <div class="eval-box">
-      <div class="eval-item eval-benar">
-        <span>✅</span>
-        <h3>Benar</h3>
-        <p id="score-benar">0</p>
+    <div class="header-area">
+      <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+    </div>
+    
+    <div class="game-layout">
+      <!-- Kiri saat Landscape, Atas saat Portrait -->
+      <div class="game-layout-left">
+        <!-- Area Gambar Emoji -->
+        <div id="item-display">🕋</div>
+        <div class="question-text" id="question-text">Memuat pertanyaan...</div>
       </div>
-      <div class="eval-item eval-salah">
-        <span>❌</span>
-        <h3>Salah</h3>
-        <p id="score-salah">0</p>
+      
+      <!-- Kanan saat Landscape, Bawah saat Portrait -->
+      <div class="game-layout-right">
+        <!-- Area Tombol Pilihan -->
+        <div id="options-area"></div>
       </div>
     </div>
 
-    <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Alhamdulillah! 🎉</h1>
+      <p>Masya Allah! Pengetahuanmu tentang sejarah Nabi dan Rasul sangat hebat. Ini hasil belajarmu:</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+</div> <!-- PENUTUP APP CONTAINER -->
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -300,9 +306,13 @@
 </audio>
 
 <script>
+  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
   // DATABASE KISAH DAN MUKJIZAT NABI
-const nabiDatabase = [
-    // --- NABI ADAM, IDRIS, NUH, HUD, SHALIH ---
+  const nabiDatabase = [
     { emoji: '🌍', text: 'Nabi sekaligus manusia pertama yang diciptakan oleh Allah SWT di bumi adalah...', answer: 'Nabi Adam', options: ['Nabi Adam', 'Nabi Idris', 'Nabi Nuh'] },
     { emoji: '🍎', text: 'Nabi yang awalnya tinggal di surga, namun diturunkan ke bumi karena digoda iblis memakan buah Khuldi adalah...', answer: 'Nabi Adam', options: ['Nabi Adam', 'Nabi Luth', 'Nabi Yahya'] },
     { emoji: '✍️', text: 'Nabi yang pertama kali pandai menulis dengan pena, membaca, dan menjahit pakaian adalah...', answer: 'Nabi Idris', options: ['Nabi Idris', 'Nabi Adam', 'Nabi Syuaib'] },
@@ -310,8 +320,6 @@ const nabiDatabase = [
     { emoji: '🌧️', text: 'Nabi yang berdakwah ratusan tahun tapi hanya sedikit umatnya yang ikut naik ke kapal saat banjir besar adalah...', answer: 'Nabi Nuh', options: ['Nabi Nuh', 'Nabi Ibrahim', 'Nabi Yunus'] },
     { emoji: '🌪️', text: 'Nabi yang diutus kepada kaum \'Ad yang sombong dan dihancurkan dengan angin topan sangat kencang adalah...', answer: 'Nabi Hud', options: ['Nabi Hud', 'Nabi Shalih', 'Nabi Luth'] },
     { emoji: '🐪', text: 'Nabi yang memiliki mukjizat seekor unta betina keluar dari dalam celah batu karang adalah...', answer: 'Nabi Shalih', options: ['Nabi Shalih', 'Nabi Hud', 'Nabi Nuh'] },
-
-    // --- NABI IBRAHIM, LUTH, ISMAIL, ISHAQ, YAQUB ---
     { emoji: '🔥', text: 'Nabi yang tidak hangus ketika dibakar di dalam api oleh Raja Namrud adalah...', answer: 'Nabi Ibrahim', options: ['Nabi Ibrahim', 'Nabi Ismail', 'Nabi Luth'] },
     { emoji: '🐑', text: 'Nabi yang ikhlas saat diperintah menyembelih putranya, yang kemudian Allah ganti dengan seekor domba adalah...', answer: 'Nabi Ibrahim', options: ['Nabi Ibrahim', 'Nabi Yaqub', 'Nabi Zakariya'] },
     { emoji: '🏙️', text: 'Nabi yang diutus kepada kaum Sodom yang suka berbuat maksiat, hingga kotanya dibalikkan oleh Allah adalah...', answer: 'Nabi Luth', options: ['Nabi Luth', 'Nabi Syuaib', 'Nabi Hud'] },
@@ -319,8 +327,6 @@ const nabiDatabase = [
     { emoji: '🕋', text: 'Nabi yang ikut membantu membangun Ka\'bah (Baitullah) bersama Ayahnya (Nabi Ibrahim) adalah...', answer: 'Nabi Ismail', options: ['Nabi Ismail', 'Nabi Ishaq', 'Nabi Luth'] },
     { emoji: '👶', text: 'Nabi yang merupakan putra kedua Nabi Ibrahim (dari Siti Sarah), dan merupakan ayah dari Nabi Yaqub adalah...', answer: 'Nabi Ishaq', options: ['Nabi Ishaq', 'Nabi Ismail', 'Nabi Harun'] },
     { emoji: '😭', text: 'Nabi yang sangat sedih hingga matanya buta karena terus menangisi putranya (Nabi Yusuf) yang hilang adalah...', answer: 'Nabi Yaqub', options: ['Nabi Yaqub', 'Nabi Ayub', 'Nabi Daud'] },
-
-    // --- NABI YUSUF, AYUB, SYUAIB, MUSA, HARUN ---
     { emoji: '🌙', text: 'Nabi yang memiliki wajah sangat tampan dan pandai menafsirkan mimpi adalah...', answer: 'Nabi Yusuf', options: ['Nabi Yusuf', 'Nabi Ayub', 'Nabi Syuaib'] },
     { emoji: '🕳️', text: 'Nabi yang pernah dibuang ke dalam sumur oleh saudara-saudaranya karena merasa iri kepadanya adalah...', answer: 'Nabi Yusuf', options: ['Nabi Yusuf', 'Nabi Yunus', 'Nabi Yahya'] },
     { emoji: '🤒', text: 'Nabi yang sangat sabar meskipun diberi ujian penyakit kulit yang lama oleh Allah SWT adalah...', answer: 'Nabi Ayub', options: ['Nabi Ayub', 'Nabi Yunus', 'Nabi Yahya'] },
@@ -328,8 +334,6 @@ const nabiDatabase = [
     { emoji: '🦯', text: 'Nabi yang memiliki mukjizat tongkat ajaib yang bisa membelah air lautan adalah...', answer: 'Nabi Musa', options: ['Nabi Musa', 'Nabi Harun', 'Nabi Isa'] },
     { emoji: '🐍', text: 'Nabi yang tongkatnya bisa berubah menjadi ular besar untuk mengalahkan penyihir Fir\'aun adalah...', answer: 'Nabi Musa', options: ['Nabi Musa', 'Nabi Sulaiman', 'Nabi Ilyasa'] },
     { emoji: '🗣️', text: 'Nabi yang sangat fasih berbicara dan setia menemani saudaranya (Nabi Musa) berdakwah kepada Fir\'aun adalah...', answer: 'Nabi Harun', options: ['Nabi Harun', 'Nabi Yahya', 'Nabi Idris'] },
-
-    // --- NABI DZULKIFLI, DAUD, SULAIMAN, ILYAS, ILYASA, YUNUS ---
     { emoji: '🛡️', text: 'Nabi yang sangat sabar, selalu menepati janji, dan sanggup berpuasa di siang hari adalah...', answer: 'Nabi Dzulkifli', options: ['Nabi Dzulkifli', 'Nabi Daud', 'Nabi Ayub'] },
     { emoji: '🎶', text: 'Nabi yang memiliki suara sangat merdu dan kitab Zabur diturunkan kepadanya adalah...', answer: 'Nabi Daud', options: ['Nabi Daud', 'Nabi Yahya', 'Nabi Zakariya'] },
     { emoji: '🐜', text: 'Nabi kaya raya dan raja yang bisa berbicara dengan binatang seperti semut dan burung adalah...', answer: 'Nabi Sulaiman', options: ['Nabi Sulaiman', 'Nabi Daud', 'Nabi Ilyas'] },
@@ -337,8 +341,6 @@ const nabiDatabase = [
     { emoji: '🏜️', text: 'Nabi yang diutus kepada kaum Bani Israil yang menyembah berhala bernama Ba\'al adalah...', answer: 'Nabi Ilyas', options: ['Nabi Ilyas', 'Nabi Ilyasa', 'Nabi Syuaib'] },
     { emoji: '🤝', text: 'Nabi yang merupakan anak angkat sekaligus penerus dakwah dari Nabi Ilyas adalah...', answer: 'Nabi Ilyasa', options: ['Nabi Ilyasa', 'Nabi Ishaq', 'Nabi Yahya'] },
     { emoji: '🐳', text: 'Nabi yang pernah ditelan dan bertahan hidup di dalam perut ikan paus yang besar adalah...', answer: 'Nabi Yunus', options: ['Nabi Yunus', 'Nabi Sulaiman', 'Nabi Daud'] },
-
-    // --- NABI ZAKARIYA, YAHYA, ISA, MUHAMMAD ---
     { emoji: '🕌', text: 'Nabi yang merawat Siti Maryam di Baitul Maqdis dan terus berdoa meminta anak meski di usia tua adalah...', answer: 'Nabi Zakariya', options: ['Nabi Zakariya', 'Nabi Ibrahim', 'Nabi Yaqub'] },
     { emoji: '🦁', text: 'Nabi yang sangat penyayang kepada binatang dan merupakan putra dari Nabi Zakariya adalah...', answer: 'Nabi Yahya', options: ['Nabi Yahya', 'Nabi Ismail', 'Nabi Isa'] },
     { emoji: '🏥', text: 'Nabi yang atas izin Allah bisa menyembuhkan orang sakit dan menerima kitab Injil adalah...', answer: 'Nabi Isa', options: ['Nabi Isa', 'Nabi Musa', 'Nabi Daud'] },
@@ -367,18 +369,13 @@ const nabiDatabase = [
   const bgMusic = document.getElementById('bg-music');
 
   function startGame() {
-    if (bgMusic.paused) {
-      bgMusic.play().catch(error => {
-        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
-      });
-    }
+    if (bgMusic.paused) { bgMusic.play().catch(e => console.log(e)); }
 
     skorBenar = 0;
     skorSalah = 0;
     currentQuestionIndex = 0;
     isWaiting = false;
     
-    // Mengacak bank soal dan mengambil 10 soal
     let shuffledBase = [...nabiDatabase].sort(() => Math.random() - 0.5);
     activeQuiz = shuffledBase.slice(0, JUMLAH_SOAL);
     
@@ -398,26 +395,21 @@ const nabiDatabase = [
     
     currentQDisplay.innerText = currentQuestionIndex + 1;
     
-    // Memberi highlight pada kata "Nabi" atau kalimat di akhir
     const splitText = currentQuiz.text.replace('adalah...', '<span class="highlight-text">adalah...</span>');
     questionTextDisplay.innerHTML = splitText;
     
-    // Render Emoji dengan Animasi Pop
     itemDisplay.style.animation = 'none';
     itemDisplay.offsetHeight;
     itemDisplay.style.animation = 'popIn 0.3s forwards';
     itemDisplay.innerText = currentQuiz.emoji;
 
-    // Update Progress Bar
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    // Acak dan Render Tombol Pilihan
     optionsArea.innerHTML = '';
     let shuffledOptions = [...currentQuiz.options].sort(() => Math.random() - 0.5);
     
     shuffledOptions.forEach((opt, index) => {
-      // Mengubah div menjadi button type="button" agar responsif di HP
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'option-btn';
@@ -432,10 +424,14 @@ const nabiDatabase = [
   }
 
   function checkAnswer(btn, selectedOption) {
-    if (isWaiting) return; 
+    // 6. Keamanan UX JavaScript: Mencegah tombol diklik ganda (double-click)
+    if (isWaiting || btn.style.pointerEvents === 'none') return; 
+    
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
+    allBtns.forEach(b => b.style.pointerEvents = 'none');
+
     const isCorrect = (selectedOption === correctAnswer);
 
     if (isCorrect) {
@@ -447,7 +443,6 @@ const nabiDatabase = [
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan jawaban yang benar dengan efek highlight
       allBtns.forEach(b => {
         if(b.innerText === correctAnswer) {
           b.classList.add('correct-highlight');

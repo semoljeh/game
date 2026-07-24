@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 1. Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <!-- --- META TAGS DASAR --- -->
 <title>MADASA - Tebak Warna</title>
@@ -13,13 +14,12 @@
 
 <style>
   /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background-color: #000; 
     color: #333; overflow: hidden; touch-action: manipulation;
-    
-    /* Mencegah seleksi teks (copy paste) */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -27,37 +27,103 @@
     user-select: none;
   }
 
-  /* --- KOTAK GAME UTAMA (GLASSMORPHISM) --- */
-  #game-container {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 85%; max-width: 450px; 
-    z-index: 10;
-    display: none; flex-direction: column; align-items: center; text-align: center;
+  /* --- KONTROL ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* 2. KOTAK GAME & SCREEN UTAMA (FULL RESPONSIVE ELASTIS) */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh; 
+    max-width: 900px; max-height: 900px;
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 5px solid #FFF; border-radius: 40px;
-    padding: 45px 20px; 
+    border: clamp(4px, 1vmin, 8px) solid #FFF; 
+    border-radius: clamp(20px, 4vmin, 40px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
+    z-index: 10;
+    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+  }
+  #game-container { display: none; } 
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; justify-content: center; z-index: 50; text-align: center;
+  }
+  .screen-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+  }
+
+  .screen h1 { font-size: clamp(28px, 7vmin, 50px); color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 26px); color: #FF9800; margin-bottom: 15px; font-weight: 800; }
+  .screen p { font-size: clamp(14px, 3.5vmin, 20px); color: #555; margin-bottom: 25px; font-weight: 700; max-width: 90%; line-height: 1.4; }
+  
+  .btn {
+    padding: clamp(12px, 3vmin, 20px) clamp(25px, 6vmin, 50px); 
+    font-size: clamp(18px, 5vmin, 28px); font-weight: 900;
+    background-color: #FF9800; color: white; border: clamp(3px, 1vmin, 6px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; margin-bottom: 10px; outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+
+  /* 5. TOMBOL PUTAR DI DALAM MENU */
+  .btn-rotate {
+    background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px); 
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 6px 0 #7B1FA2, 0 10px 15px rgba(0,0,0,0.3); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  /* --- HEADER SOAL (GAME AREA) --- */
+  .header-area {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; flex-shrink: 0;
   }
 
   .level-badge {
-    background: #FF9800; color: white; padding: 5px 25px; border-radius: 20px;
-    font-size: 18px; font-weight: 900; margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
-    border: 2px solid #FFF;
+    background: #FF9800; color: white; border-radius: 20px;
+    padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
+  }
+
+  /* --- TATA LETAK GAME (DIBAGI AGAR FLEXIBEL SAAT LANDSCAPE) --- */
+  .game-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; flex-grow: 1; gap: clamp(8px, 1.5vh, 15px);
+  }
+  .game-layout-left, .game-layout-right {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%;
   }
 
   .question-text {
-    font-size: 20px; font-weight: 900; color: #0288D1; margin: 0 0 15px 0; line-height: 1.4;
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; color: #0288D1; 
+    margin: 0 0 clamp(8px, 1.5vh, 15px) 0; line-height: 1.4; text-align: center;
   }
 
   /* --- AREA BENDA (EMOJI) --- */
   #item-display {
     display: flex; justify-content: center; align-items: center;
-    background: rgba(255, 255, 255, 0.9); border: 5px dashed #4FC3F7; border-radius: 30px;
-    width: 140px; height: 140px; margin-bottom: 30px;
-    font-size: 80px; 
+    background: rgba(255, 255, 255, 0.9); border: clamp(3px, 1vmin, 6px) dashed #4FC3F7; 
+    border-radius: clamp(15px, 4vmin, 30px);
+    width: clamp(90px, 25vmin, 160px); height: clamp(90px, 25vmin, 160px); 
+    font-size: clamp(45px, 14vmin, 90px); margin-bottom: clamp(10px, 2vh, 20px);
     box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
@@ -70,18 +136,18 @@
 
   /* --- TOMBOL WARNA JAWABAN --- */
   .options-container {
-    display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap;
+    display: flex; gap: clamp(10px, 2vw, 20px); justify-content: center; width: 100%; flex-wrap: wrap;
   }
 
   .color-btn {
-    border: 4px solid #FFF; border-radius: 25px;
-    padding: 15px 20px; min-width: 100px;
+    border: clamp(3px, 1vmin, 5px) solid #FFF; border-radius: clamp(12px, 3.5vmin, 25px);
+    padding: clamp(10px, 2vh, 18px) clamp(12px, 2vw, 22px); min-width: clamp(80px, 22vmin, 120px);
     display: flex; justify-content: center; align-items: center;
-    font-size: 20px; font-weight: 900; color: #FFF;
+    font-size: clamp(14px, 3.8vmin, 22px); font-weight: 900; color: #FFF;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-    -webkit-tap-highlight-color: transparent;
+    outline: none; font-family: inherit; -webkit-tap-highlight-color: transparent;
   }
 
   .color-btn:active {
@@ -90,24 +156,11 @@
   }
 
   /* Animasi standar MADASA */
-  .shake {
-    animation: shakeAnim 0.4s; border-color: #F44336 !important;
-  }
-  @keyframes shakeAnim {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    50% { transform: translateX(10px); }
-    75% { transform: translateX(-10px); }
-  }
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; }
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }
 
-  .pop {
-    animation: popAnim 0.5s forwards; border-color: #FFF !important;
-  }
-  @keyframes popAnim {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1.05); }
-  }
+  .pop { animation: popAnim 0.5s forwards; border-color: #FFF !important; }
+  @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1.05); } }
   
   .correct-highlight {
     border-color: #FFF !important; transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.8);
@@ -116,76 +169,70 @@
   /* --- NOTIFIKASI --- */
   #feedback-msg {
     position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-    background: #4CAF50; color: white; padding: 12px 25px; border-radius: 30px;
-    font-size: 20px; font-weight: 900; opacity: 0; pointer-events: none;
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: clamp(14px, 4vmin, 22px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
     white-space: nowrap; border: 4px solid #FFF; z-index: 20;
   }
-  .feedback-show { top: -25px !important; opacity: 1 !important; }
+  .feedback-show { top: 20px !important; opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL --- */
-  .screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
-  }
-
-  .screen-content {
-    background: transparent; padding: 20px; width: 100%; max-width: 400px;
-  }
-
-  .screen h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
-  .screen p { font-size: 18px; color: #555; margin-bottom: 30px; font-weight: 700; line-height: 1.5; }
-  
-  .btn {
-    padding: 15px 40px; font-size: 24px; font-weight: 900;
-    background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px;
-    cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s; font-family: inherit; width: auto;
-  }
-  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
-
-  /* --- KOTAK EVALUASI --- */
-  .eval-box { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-  .eval-item { background: #FFF; padding: 15px 20px; border-radius: 25px; border: 4px solid; width: 110px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+  /* --- KOTAK EVALUASI HASIL --- */
+  .eval-box { display: flex; justify-content: center; gap: clamp(10px, 3vw, 30px); margin-bottom: 20px; }
+  .eval-item { background: #FFF; padding: clamp(10px, 2vmin, 20px); border-radius: 20px; border: clamp(3px, 1vmin, 5px) solid; width: clamp(90px, 25vmin, 150px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
-  .eval-item span { display: block; font-size: 35px; margin-bottom: 5px; }
-  .eval-item h3 { margin: 0; font-size: 16px; color: #555; font-weight: 800; }
-  .eval-item p { margin: 0; font-size: 28px; font-weight: 900; color: #333; }
+  .eval-item span { display: block; font-size: clamp(30px, 8vmin, 50px); margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: clamp(14px, 3.5vmin, 20px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(24px, 6vmin, 40px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
-  #progress-bar { width: 90%; height: 12px; background: #E0E0E0; border-radius: 10px; margin-top: 35px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+  #progress-bar { 
+    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(10px, 2vh, 25px); flex-shrink: 0;
+    overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+  }
   #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
 
-  /* LENCANA DEV */
+  /* 4. PENCEGAHAN PENUMPUKAN LENCANA DEV (POSISI RELATIF SAAT KECIL/MIRING) */
   .dev-link {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    padding: 4px 15px; font-size: clamp(10px, 2.5vmin, 14px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
-    border-radius: 25px; transition: all 0.3s ease; text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
+    border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 3vmin, 15px); font-weight: 900; margin-left: 4px; }
 
-  @media (max-width: 600px) {
-    #game-container { padding: 40px 15px; border-radius: 35px; width: 90%; }
-    .question-text { font-size: 18px; margin-bottom: 15px; }
-    #item-display { width: 120px; height: 120px; font-size: 70px; margin-bottom: 25px; border-width: 4px; }
-    .color-btn { padding: 12px 15px; font-size: 16px; min-width: 85px; border-width: 3px; border-radius: 20px; }
-    .options-container { gap: 10px; }
-    .screen h1 { font-size: 32px; }
-    .screen p { font-size: 15px; margin-bottom: 25px; }
-    .btn { font-size: 20px; padding: 12px 30px; border-width: 4px; }
-    #feedback-msg { font-size: 16px; padding: 8px 20px; }
-    .eval-item { width: 95px; padding: 10px 15px; border-width: 3px; }
-    .eval-item span { font-size: 30px; }
-    .eval-item h3 { font-size: 14px; }
-    .eval-item p { font-size: 22px; }
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 12px; }
-    .dev-link strong { font-size: 13px; }
+  /* 3. RESPONSIVE KHUSUS LAYAR MIRING (LANDSCAPE) */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    
+    /* Membelah layout game menjadi Kiri (Gambar & Pertanyaan) & Kanan (Pilihan) */
+    .game-layout { flex-direction: row; gap: 15px; }
+    .game-layout-left { width: 45%; }
+    .game-layout-right { width: 55%; }
+    
+    /* Menyesuaikan jarak dan ukuran agar tidak memakan ruang */
+    .question-text { margin: 2px 0; font-size: clamp(12px, 2.8vmin, 15px); }
+    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
+    #progress-bar { margin-top: 5px; }
+    #item-display { width: 65px; height: 65px; font-size: 38px; margin-bottom: 5px; }
+    .options-container { gap: 8px; }
+    .color-btn { padding: 6px 12px; min-width: 70px; }
+    
+    /* Mengecilkan elemen di layar Menu & Hasil */
+    .screen h1 { font-size: 28px; margin-bottom: 2px; }
+    .screen h2 { font-size: 16px; margin-bottom: 5px; }
+    .screen p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
+    .btn { padding: 6px 20px; font-size: 16px; margin-bottom: 6px; border-width: 3px; box-shadow: 0 4px 0 #E65100; }
+    .btn-rotate { padding: 6px 15px; font-size: 14px; border-width: 2px; box-shadow: 0 4px 0 #7B1FA2; }
+    
+    /* 4. MENGUBAH POSISI LENCANA DEV AGAR MENGALIR RAPI DI BAWAH TOMBOL */
+    .dev-link { 
+      position: relative; bottom: auto; left: auto; transform: none; 
+      margin-top: 10px; margin-bottom: 10px; display: inline-block;
+    }
   }
 </style>
 </head>
@@ -193,58 +240,78 @@
 <!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- LAYAR MENU AWAL -->
-<div id="welcome-screen" class="screen" style="display: flex;">
-  <div class="screen-content">
-    <h1 style="color: #E91E63;">🎨 Tebak Warna 🎨</h1>
-    <h2 style="color: #FF9800; font-size: 22px; margin-bottom: 20px; font-weight: 800;">Warna Ciptaan Allah</h2>
-    <p>Mari belajar mengenal warna dari benda-benda dan hewan ciptaan Allah. Pilih warna yang sesuai ya!</p>
-    <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+<div id="app-container">
+
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1 style="color: #E91E63;">🎨 Tebak Warna 🎨</h1>
+      <h2 style="color: #FF9800;">Warna Ciptaan Allah</h2>
+      <p>Mari belajar mengenal warna dari benda-benda dan hewan ciptaan Allah. Pilih warna yang sesuai ya!</p>
+      
+      <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+      
+      <!-- Lencana Developer ditempatkan di dalam Screen Content agar ikut scroll -->
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
 
-<!-- AREA GAME -->
-<div id="game-container">
-  <div id="feedback-msg">Benar!</div>
-  <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
-  
-  <div class="question-text" id="question-text">Warna apakah ini?</div>
-  
-  <div id="item-display">🍎</div>
-  
-  <div class="options-container" id="options-area"></div>
-
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-</div>
-
-<!-- LAYAR HASIL & EVALUASI -->
-<div id="result-screen" class="screen">
-  <div class="screen-content">
-    <h1 id="result-title">Alhamdulillah! 🎉</h1>
-    <p>Kamu sudah hebat mengenal macam-makan warna. Ini adalah hasil belajarmu:</p>
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div id="feedback-msg">Benar!</div>
     
-    <div class="eval-box">
-      <div class="eval-item eval-benar">
-        <span>✅</span>
-        <h3>Benar</h3>
-        <p id="score-benar">0</p>
+    <div class="header-area">
+      <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+    </div>
+    
+    <div class="game-layout">
+      <!-- Kiri saat Landscape, Atas saat Portrait -->
+      <div class="game-layout-left">
+        <div class="question-text" id="question-text">Warna apakah ini?</div>
+        <div id="item-display">🍎</div>
       </div>
-      <div class="eval-item eval-salah">
-        <span>❌</span>
-        <h3>Salah</h3>
-        <p id="score-salah">0</p>
+      
+      <!-- Kanan saat Landscape, Bawah saat Portrait -->
+      <div class="game-layout-right">
+        <div class="options-container" id="options-area"></div>
       </div>
     </div>
 
-    <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
-</div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Alhamdulillah! 🎉</h1>
+      <p>Kamu sudah hebat mengenal macam-makan warna. Ini adalah hasil belajarmu:</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+</div> <!-- PENUTUP APP CONTAINER -->
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -252,13 +319,18 @@
 </audio>
 
 <script>
+  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
   // Database Benda dan Warna
   const colorsData = [
     { name: 'Merah', hex: '#F44336', textShadow: 'rgba(0,0,0,0.4)' },
     { name: 'Hijau', hex: '#4CAF50', textShadow: 'rgba(0,0,0,0.4)' },
     { name: 'Kuning', hex: '#FFC107', textShadow: 'rgba(0,0,0,0.4)' },
     { name: 'Biru', hex: '#2196F3', textShadow: 'rgba(0,0,0,0.4)' },
-    { name: 'Putih', hex: '#E0E0E0', textShadow: 'rgba(0,0,0,0.6)', fontColor: '#333' }, // Putih butuh font gelap
+    { name: 'Putih', hex: '#E0E0E0', textShadow: 'rgba(0,0,0,0.6)', fontColor: '#333' },
     { name: 'Hitam', hex: '#212121', textShadow: 'rgba(255,255,255,0.2)' },
     { name: 'Ungu', hex: '#9C27B0', textShadow: 'rgba(0,0,0,0.4)' },
     { name: 'Oranye', hex: '#FF9800', textShadow: 'rgba(0,0,0,0.4)' },
@@ -305,8 +377,6 @@
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
-  
-  // Memanggil elemen musik latar
   const bgMusic = document.getElementById('bg-music');
 
   function generateQuestions() {
@@ -323,16 +393,13 @@
         options: [correctColor]
       };
 
-      // Mencari 2 warna pengecoh
       while(qObj.options.length < 3) {
         let wrongColor = colorsData[Math.floor(Math.random() * colorsData.length)];
-        // Pastikan warna tidak sama
         if(!qObj.options.find(c => c.name === wrongColor.name)) {
           qObj.options.push(wrongColor);
         }
       }
       
-      // Acak urutan tombol pilihan
       qObj.options.sort(() => Math.random() - 0.5);
       questions.push(qObj);
     }
@@ -340,7 +407,6 @@
   }
 
   function startGame() {
-    // Memutar musik saat tombol ditekan
     if (bgMusic.paused) {
       bgMusic.play().catch(error => {
         console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
@@ -371,7 +437,7 @@
     questionText.innerText = `Apa warna ${currentQuiz.item.name} ini?`;
     
     itemDisplay.style.animation = 'none';
-    itemDisplay.offsetHeight; /* trigger reflow */
+    itemDisplay.offsetHeight; 
     itemDisplay.style.animation = null; 
     
     itemDisplay.innerText = currentQuiz.item.emoji;
@@ -381,7 +447,8 @@
     progressFill.style.width = progressPercent + '%';
 
     currentQuiz.options.forEach(opt => {
-      const btn = document.createElement('div');
+      const btn = document.createElement('button');
+      btn.type = 'button';
       btn.className = 'color-btn';
       btn.innerText = opt.name;
       btn.style.backgroundColor = opt.hex;
@@ -398,10 +465,14 @@
   }
 
   function checkAnswer(btn, selectedOption) {
-    if (isWaiting) return; 
+    // 6. Keamanan UX JavaScript: Mencegah tombol diklik ganda (double-click)
+    if (isWaiting || btn.style.pointerEvents === 'none') return; 
+    
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.color-btn');
+    allBtns.forEach(b => b.style.pointerEvents = 'none');
+
     const isCorrect = (selectedOption.name === correctColorObj.name);
 
     if (isCorrect) {
@@ -413,7 +484,6 @@
       skorSalah++;
       showFeedback("Kurang Tepat, Sayang! 😉", false);
       
-      // Tunjukkan jawaban yang benar dengan efek highlight
       allBtns.forEach(b => {
         if(b.innerText === correctColorObj.name) {
           b.classList.add('correct-highlight');
@@ -421,7 +491,6 @@
       });
     }
 
-    // Pindah ke soal berikutnya setelah jeda
     setTimeout(() => {
       currentQuestionIndex++;
       if (currentQuestionIndex < JUMLAH_SOAL) {

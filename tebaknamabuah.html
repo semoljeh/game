@@ -5,10 +5,10 @@
 <!-- 1. Meta Viewport Stabil -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-<title>MADASA - Hitung Ceria Islami</title>
-<meta name="description" content="Game Belajar Berhitung untuk anak TK/RA dari MADASA.">
+<title>MADASA - Tebak Buah & Hewan</title>
+<meta name="description" content="Game Edukasi Tebak Nama Buah dan Hewan interaktif untuk anak-anak dari MADASA.">
 
-<!-- --- GOOGLE FONTS (PENTING AGAR FONT KONSISTEN DI HP) --- -->
+<!-- --- GOOGLE FONTS --- -->
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -17,11 +17,10 @@
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif;
-    /* Disamakan dengan tema utama MADASA */
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background: linear-gradient(to bottom, #aed581 0%, #f1f8e9 100%);
     color: #333; overflow: hidden; touch-action: manipulation;
     
-    /* Mencegah seleksi teks (copy paste) */
+    /* Mencegah seleksi teks */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -33,7 +32,7 @@
   #app-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; justify-content: center; align-items: center;
-    background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%);
+    background: linear-gradient(to bottom, #aed581 0%, #f1f8e9 100%);
     transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
   }
   .layar-diputar {
@@ -47,7 +46,7 @@
     position: absolute;
     width: 95vw; height: 95vh;
     max-width: 900px; max-height: 900px;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: clamp(4px, 1vmin, 8px) solid #FFF;
     border-radius: clamp(20px, 4vmin, 40px);
@@ -55,7 +54,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px);
     z-index: 10;
-    overflow-y: auto; /* Mencegah terpotong jika layar HP terlalu kecil */
+    overflow-y: auto;
   }
   #game-container { display: none; }
 
@@ -67,48 +66,45 @@
   }
 
   .question-text {
-    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900; color: #0288D1; margin: 0 0 clamp(10px, 2vh, 25px) 0;
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900; color: #558b2f; margin: 0 0 clamp(10px, 2vh, 20px) 0;
     line-height: 1.4; padding: 0 10px; text-align: center;
   }
 
-  /* --- AREA BENDA (YANG DIHITUNG) --- */
-  #items-area {
-    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    gap: clamp(6px, 1.5vmin, 12px); min-height: clamp(80px, 18vh, 140px); margin-bottom: clamp(10px, 2vh, 20px);
-    background: rgba(255, 255, 255, 0.9); padding: clamp(10px, 2vh, 20px); border-radius: clamp(16px, 3vmin, 25px);
-    border: clamp(3px, 0.8vmin, 4px) dashed #4fc3f7; width: 100%; box-sizing: border-box;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
+  /* --- AREA TAMPILAN IKON / GAMBAR --- */
+  .icon-display {
+    display: flex; justify-content: center; align-items: center;
+    background: #FFF; border: clamp(3px, 0.8vmin, 5px) dashed #8bc34a; border-radius: clamp(20px, 3vmin, 30px);
+    width: clamp(100px, 26vmin, 150px); height: clamp(100px, 26vmin, 150px); margin-bottom: clamp(10px, 2.5vh, 25px);
+    font-size: clamp(50px, 14vmin, 85px);
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.05);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
-  .item-emoji {
-    font-size: clamp(30px, 8.5vmin, 48px);
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
-  }
   @keyframes popIn {
     0% { transform: scale(0); }
     100% { transform: scale(1); }
   }
 
-  /* --- TOMBOL ANGKA --- */
+  /* --- TOMBOL JAWABAN --- */
   .options-container {
     display: flex; gap: clamp(10px, 2.5vmin, 15px); justify-content: center; width: 100%;
-    margin-bottom: clamp(10px, 2vh, 20px);
+    margin-bottom: clamp(10px, 2vh, 20px); flex-wrap: wrap;
   }
 
   .option-btn {
-    background: #FFF; border: clamp(3px, 0.8vmin, 5px) solid #FFCA28; border-radius: clamp(16px, 3vmin, 25px);
-    width: clamp(70px, 18vmin, 100px); height: clamp(70px, 18vmin, 100px); 
+    background: #FFF; border: clamp(3px, 0.8vmin, 4px) solid #8bc34a; border-radius: clamp(16px, 3vmin, 25px);
+    padding: clamp(10px, 2vh, 15px) clamp(15px, 3vw, 25px);
+    min-width: clamp(100px, 28vmin, 160px);
     display: flex; justify-content: center; align-items: center;
-    font-size: clamp(30px, 8vmin, 45px); font-weight: 900; color: #FF8F00;
+    font-size: clamp(16px, 4.5vmin, 22px); font-weight: 900; color: #33691e;
     cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     -webkit-tap-highlight-color: transparent;
   }
 
   .option-btn:hover, .option-btn:active {
-    transform: translateY(-4px) scale(1.05);
-    border-color: #FF8F00; box-shadow: 0 12px 20px rgba(255, 143, 0, 0.3); color: #E65100;
+    transform: translateY(-8px) scale(1.05);
+    border-color: #558b2f; box-shadow: 0 15px 25px rgba(85, 139, 47, 0.3); color: #2e7d32;
   }
 
   .shake {
@@ -126,8 +122,8 @@
   }
   @keyframes popAnim {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1.05); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1.1); }
   }
   
   .correct-highlight {
@@ -138,14 +134,14 @@
   #feedback-msg {
     position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
     background: #4CAF50; color: white; padding: clamp(10px, 2vh, 14px) clamp(18px, 4vw, 25px); border-radius: 30px;
-    font-size: clamp(14px, 3.5vmin, 18px); font-weight: 900; opacity: 0; pointer-events: none;
+    font-size: clamp(14px, 3.5vmin, 20px); font-weight: 900; opacity: 0; pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
     white-space: nowrap; border: clamp(3px, 1vmin, 4px) solid #FFF; z-index: 100;
   }
   .feedback-show { opacity: 1 !important; }
   .feedback-wrong { background: #FF4081 !important; }
 
-  /* --- LAYAR MENU & HASIL (KONSISTEN GLASSMORPHISM) --- */
+  /* --- LAYAR MENU & HASIL --- */
   .screen {
     display: none; justify-content: center; z-index: 50; text-align: center;
   }
@@ -155,23 +151,17 @@
     gap: clamp(8px, 1.5vh, 16px);
   }
 
-  .screen h1 { font-size: clamp(26px, 6.5vmin, 40px); color: #4CAF50; margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2; }
+  .screen h1 { font-size: clamp(26px, 6.5vmin, 40px); color: #558b2f; margin: 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); line-height: 1.2; }
   .screen h2 { font-size: clamp(16px, 4.5vmin, 22px); color: #FF9800; margin: 0; font-weight: 800; }
   .screen p { font-size: clamp(13px, 3.2vmin, 18px); max-width: 600px; color: #555; line-height: 1.4; margin: 0; font-weight: 700; }
   
-  /* Tombol Utama & Tombol Putar Terbungkus Rapih */
   .button-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(6px, 1.2vh, 12px);
-    width: 100%;
-    margin: 0;
+    display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.2vh, 12px); width: 100%; margin: 0;
   }
 
   .btn {
     padding: clamp(10px, 2.5vmin, 15px) clamp(22px, 5vmin, 40px); 
-    font-size: clamp(16px, 4.2vmin, 22px); font-weight: 900;
+    font-size: clamp(16px, 4.2vmin, 24px); font-weight: 900;
     background-color: #FF9800; color: white;
     border: clamp(3px, 1vmin, 5px) solid #FFF; border-radius: 40px;
     cursor: pointer; box-shadow: 0 6px 0 #E65100, 0 12px 18px rgba(0,0,0,0.25);
@@ -179,7 +169,6 @@
   }
   .btn:active { transform: translateY(6px); box-shadow: 0 0 0; }
 
-  /* Tombol Putar Layar Manual */
   .btn-rotate {
     background: #9C27B0; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
     padding: clamp(8px, 2vmin, 12px) clamp(18px, 5vmin, 30px); 
@@ -194,13 +183,13 @@
     display: flex; justify-content: center; gap: clamp(10px, 2.5vmin, 15px); margin: clamp(4px, 1vh, 10px) 0;
   }
   .eval-item {
-    background: #FFF; padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px); border-radius: clamp(16px, 3vmin, 25px); border: clamp(3px, 0.8vmin, 4px) solid; width: clamp(90px, 22vmin, 120px);
+    background: #FFF; padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px); border-radius: clamp(16px, 3vmin, 25px); border: clamp(3px, 0.8vmin, 4px) solid; width: clamp(90px, 22vmin, 110px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; text-align: center;
   }
   .eval-benar { border-color: #4CAF50; }
   .eval-salah { border-color: #F44336; }
   .eval-item span { display: block; font-size: clamp(28px, 8vmin, 35px); margin-bottom: 2px; }
-  .eval-item h3 { margin: 0; font-size: clamp(12px, 3vmin, 15px); color: #555; font-weight: 800; }
+  .eval-item h3 { margin: 0; font-size: clamp(12px, 3vmin, 16px); color: #555; font-weight: 800; }
   .eval-item p { margin: 0; font-size: clamp(20px, 6vmin, 28px); font-weight: 900; color: #333; }
 
   /* --- PROGRESS BAR --- */
@@ -214,12 +203,12 @@
   /* LENCANA DEV */
   .dev-link {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-    padding: 3px 12px; font-size: clamp(10px, 2.2vmin, 13px); color: #555; text-decoration: none;
+    padding: 3px 12px; font-size: clamp(10px, 2.2vmin, 14px); color: #555; text-decoration: none;
     background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
     border-radius: 20px; text-align: center; box-shadow: 0 3px 8px rgba(0,0,0,0.1); 
     white-space: nowrap; z-index: 60; font-weight: 700;
   }
-  .dev-link strong { color: #FF9800; font-size: clamp(11px, 2.5vmin, 14px); font-weight: 900; margin-left: 4px; }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 2.5vmin, 15px); font-weight: 900; margin-left: 4px; }
 
   /* --- OPTIMASI MODE MIRING / LANDSCAPE KHUSUS --- */
   @media (orientation: landscape) and (max-height: 600px) {
@@ -227,10 +216,9 @@
     .screen-content { gap: 4px; }
     
     .level-badge { padding: 2px 10px; font-size: 11px; margin-bottom: 2px; }
-    .question-text { font-size: 13px; margin-bottom: 6px; }
-    #items-area { min-height: 50px; padding: 6px; margin-bottom: 6px; gap: 4px; border-width: 2px; }
-    .item-emoji { font-size: 26px; }
-    .option-btn { width: 60px; height: 60px; font-size: 24px; border-width: 2px; }
+    .question-text { font-size: 13px; margin-bottom: 4px; }
+    .icon-display { width: 75px; height: 75px; font-size: 40px; margin-bottom: 6px; border-width: 2px; }
+    .option-btn { padding: 6px 10px; min-width: 90px; font-size: 13px; border-width: 2px; }
     .options-container { gap: 6px; margin-bottom: 4px; }
     #progress-bar { height: 5px; margin-top: 2px; }
 
@@ -255,7 +243,6 @@
 </style>
 </head>
 
-<!-- Mencegah Klik Kanan dan Copy Paste pada tag Body -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <div id="app-container">
@@ -266,9 +253,9 @@
   <!-- LAYAR MENU AWAL -->
   <div id="welcome-screen" class="screen" style="display: flex;">
     <div class="screen-content">
-      <h1 style="color: #E91E63;">🖐️ Hitung Ceria 🖐️</h1>
-      <h2 style="color: #FF9800;">Belajar Berhitung!</h2>
-      <p>Hitung ada berapa jumlah benda yang muncul, lalu pilih angka yang tepat. Siap mencoba?</p>
+      <h1 style="color: #689f38;">🍎 Tebak Buah & Hewan 🦁</h1>
+      <h2 style="color: #FF9800;">Ayo Main Sambil Belajar!</h2>
+      <p>Tebak nama buah dan hewan dengan soal yang diacak seru setiap kali bermain. Kamu pasti bisa!</p>
       
       <div class="button-group">
         <button type="button" class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
@@ -285,15 +272,11 @@
   <div id="game-container">
     <div class="level-badge">Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
     
-    <div class="question-text" id="question-text">Ada berapa benda di bawah ini?</div>
+    <div class="question-text" id="question-label">Apakah nama gambar di bawah ini?</div>
     
-    <div id="items-area">
-      <!-- Benda yang dihitung akan muncul di sini -->
-    </div>
+    <div class="icon-display" id="icon-display">🍎</div>
     
-    <div class="options-container" id="options-area">
-      <!-- Tombol Angka (Pilihan Ganda) -->
-    </div>
+    <div class="options-container" id="options-area"></div>
 
     <div id="progress-bar"><div id="progress-fill"></div></div>
   </div>
@@ -302,7 +285,7 @@
   <div id="result-screen" class="screen">
     <div class="screen-content">
       <h1 id="result-title">Alhamdulillah! 🎉</h1>
-      <p>Kamu sudah pintar berhitung. Ini adalah hasilnya:</p>
+      <p>Hebat! Kamu telah menyelesaikan kuis tebak buah dan hewan dengan luar biasa. Ini hasilnya:</p>
       
       <div class="eval-box">
         <div class="eval-item eval-benar">
@@ -328,7 +311,7 @@
     </div>
   </div>
 
-</div> <!-- PENUTUP APP CONTAINER -->
+</div>
 
 <!-- --- MUSIK LATAR --- -->
 <audio id="bg-music" loop>
@@ -341,41 +324,92 @@
     document.getElementById('app-container').classList.toggle('layar-diputar');
   }
 
-  // Daftar benda Islami & umum untuk dihitung (Bebas dari gambar wajah/manusia)
-  const objectsToCount = [
-    { emoji: '🕌', name: 'Masjid' },
-    { emoji: '🕋', name: "Ka'bah" },
-    { emoji: '📖', name: "Al-Qur'an" },
-    { emoji: '📿', name: 'Tasbih' },
-    { emoji: '🌙', name: 'Bulan' },
-    { emoji: '⭐', name: 'Bintang' },
-    { emoji: '🐪', name: 'Unta' },
-    { emoji: '🌴', name: 'Pohon Kurma' },
-    { emoji: '🍎', name: 'Apel' }
+  // KUMPULAN DATA MASTER (BUAH & HEWAN YANG BANYAK)
+  const masterData = [
+    // Buah-buahan
+    { name: 'Apel', icon: '🍎', category: 'buah' },
+    { name: 'Pisang', icon: '🍌', category: 'buah' },
+    { name: 'Jeruk', icon: '🍊', category: 'buah' },
+    { name: 'Anggur', icon: '🍇', category: 'buah' },
+    { name: 'Semangka', icon: '🍉', category: 'buah' },
+    { name: 'Stroberi', icon: '🍓', category: 'buah' },
+    { name: 'Mangga', icon: '🥭', category: 'buah' },
+    { name: 'Nanas', icon: '🍍', category: 'buah' },
+    { name: 'Melon', icon: '🍈', category: 'buah' },
+    { name: 'Ceri', icon: '🍒', category: 'buah' },
+    { name: 'Alpukat', icon: '🥑', category: 'buah' },
+    { name: 'Kelapa', icon: '🥥', category: 'buah' },
+    { name: 'Kiwi', icon: '🥝', category: 'buah' },
+    { name: 'Peach', icon: '🍑', category: 'buah' },
+    { name: 'Pir', icon: '🍐', category: 'buah' },
+    
+    // Hewan
+    { name: 'Kucing', icon: '🐱', category: 'hewan' },
+    { name: 'Anjing', icon: '🐶', category: 'hewan' },
+    { name: 'Sapi', icon: '🐮', category: 'hewan' },
+    { name: 'Ayam', icon: '🐔', category: 'hewan' },
+    { name: 'Bebek', icon: '🦆', category: 'hewan' },
+    { name: 'Kelinci', icon: '🐰', category: 'hewan' },
+    { name: 'Monyet', icon: '🐵', category: 'hewan' },
+    { name: 'Singa', icon: '🦁', category: 'hewan' },
+    { name: 'Harimau', icon: '🐯', category: 'hewan' },
+    { name: 'Gajah', icon: '🐘', category: 'hewan' },
+    { name: 'Jerapah', icon: '🦒', category: 'hewan' },
+    { name: 'Kuda', icon: '🐴', category: 'hewan' },
+    { name: 'Panda', icon: '🐼', category: 'hewan' },
+    { name: 'Koala', icon: '🐨', category: 'hewan' },
+    { name: 'Ular', icon: '🐍', category: 'hewan' },
+    { name: 'Kura-kura', icon: '🐢', category: 'hewan' },
+    { name: 'Ikan', icon: '🐠', category: 'hewan' },
+    { name: 'Pinguin', icon: '🐧', category: 'hewan' }
   ];
 
   const JUMLAH_SOAL = 10;
+  let activeQuiz = [];
   let currentQuestionIndex = 0;
   let isWaiting = false; 
   let skorBenar = 0;
   let skorSalah = 0;
-  let correctNumber = 0;
+  let correctAnswerText = "";
   let notifTimeout;
 
   const gameContainer = document.getElementById('game-container');
-  const itemsArea = document.getElementById('items-area');
+  const iconDisplay = document.getElementById('icon-display');
   const optionsArea = document.getElementById('options-area');
   const currentQDisplay = document.getElementById('current-q');
   const totalQDisplay = document.getElementById('total-q');
   const progressFill = document.getElementById('progress-fill');
   const feedbackMsg = document.getElementById('feedback-msg');
-  const questionText = document.getElementById('question-text');
   
-  // Memanggil elemen musik latar
   const bgMusic = document.getElementById('bg-music');
 
+  function generateQuestions() {
+    let questions = [];
+    let shuffledMaster = [...masterData].sort(() => Math.random() - 0.5);
+    
+    for(let i = 0; i < JUMLAH_SOAL; i++) {
+      let target = shuffledMaster[i];
+      
+      let qObj = {
+        icon: target.icon,
+        correctAnswer: target.name,
+        options: [target.name]
+      };
+
+      while(qObj.options.length < 3) {
+        let wrongTarget = masterData[Math.floor(Math.random() * masterData.length)];
+        if(!qObj.options.includes(wrongTarget.name)) {
+          qObj.options.push(wrongTarget.name);
+        }
+      }
+      
+      qObj.options.sort(() => Math.random() - 0.5);
+      questions.push(qObj);
+    }
+    return questions;
+  }
+
   function startGame() {
-    // Memulai pemutaran musik saat tombol ditekan
     if (bgMusic.paused) {
       bgMusic.play().catch(error => {
         console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
@@ -387,6 +421,7 @@
     currentQuestionIndex = 0;
     isWaiting = false;
     
+    activeQuiz = generateQuestions();
     totalQDisplay.innerText = JUMLAH_SOAL;
 
     document.getElementById('welcome-screen').style.display = 'none';
@@ -398,65 +433,49 @@
 
   function loadQuestion() {
     isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    correctAnswerText = currentQuiz.correctAnswer;
+    
     currentQDisplay.innerText = currentQuestionIndex + 1;
-    itemsArea.innerHTML = '';
+    
+    iconDisplay.style.animation = 'none';
+    iconDisplay.offsetHeight; 
+    iconDisplay.style.animation = null; 
+    
+    iconDisplay.innerText = currentQuiz.icon;
     optionsArea.innerHTML = '';
 
     const progressPercent = (currentQuestionIndex / JUMLAH_SOAL) * 100;
     progressFill.style.width = progressPercent + '%';
 
-    const randomObject = objectsToCount[Math.floor(Math.random() * objectsToCount.length)];
-    correctNumber = Math.floor(Math.random() * 10) + 1;
-
-    questionText.innerText = `Coba hitung, ada berapa ${randomObject.name}?`;
-
-    for (let i = 0; i < correctNumber; i++) {
-      const itemSpan = document.createElement('span');
-      itemSpan.className = 'item-emoji';
-      itemSpan.innerText = randomObject.emoji;
-      itemSpan.style.animationDelay = `${i * 0.05}s`;
-      itemsArea.appendChild(itemSpan);
-    }
-
-    let options = [correctNumber];
-    while(options.length < 3) {
-      let randomWrongAnswer = Math.floor(Math.random() * 10) + 1;
-      if(randomWrongAnswer !== correctNumber && !options.includes(randomWrongAnswer)) {
-        options.push(randomWrongAnswer);
-      }
-    }
-    
-    options.sort(() => Math.random() - 0.5);
-
-    options.forEach(num => {
+    currentQuiz.options.forEach(opt => {
       const btn = document.createElement('div');
       btn.className = 'option-btn';
-      btn.innerText = num;
+      btn.innerText = opt;
       
-      btn.onclick = () => checkAnswer(btn, num);
+      btn.onclick = () => checkAnswer(btn, opt);
       optionsArea.appendChild(btn);
     });
   }
 
-  function checkAnswer(btn, selectedNumber) {
-    // Pencegahan double-click cepat & pemeriksaan status visibilitas/disabled
+  function checkAnswer(btn, selectedOption) {
     if (isWaiting || btn.style.visibility === 'hidden') return; 
     isWaiting = true;
 
     const allBtns = optionsArea.querySelectorAll('.option-btn');
-    const isCorrect = (selectedNumber === correctNumber);
+    const isCorrect = (selectedOption === correctAnswerText);
 
     if (isCorrect) {
       btn.classList.add('pop');
       skorBenar++;
-      showFeedback("Masya Allah, Pintar! 🌟", true);
+      showFeedback("Hebat Sekali, Pintar! 🌟", true);
     } else {
       btn.classList.add('shake');
       skorSalah++;
-      showFeedback("Kurang Tepat, Sayang! 😉", false);
+      showFeedback("Kurang Tepat, Coba Lagi ya! 😉", false);
       
       allBtns.forEach(b => {
-        if(parseInt(b.innerText) === correctNumber) {
+        if(b.innerText === correctAnswerText) {
           b.classList.add('correct-highlight');
         }
       });
@@ -495,11 +514,11 @@
 
     const title = document.getElementById('result-title');
     if (skorBenar === JUMLAH_SOAL) {
-      title.innerText = "Sempurna! 🌟";
+      title.innerText = "Luar Biasa Sempurna! 🌟";
     } else if (skorBenar > skorSalah) {
-      title.innerText = "Alhamdulillah! 🎉";
+      title.innerText = "Alhamdulillah Hebat! 🎉";
     } else {
-      title.innerText = "Tetap Semangat! 💪";
+      title.innerText = "Tetap Semangat Belajar! 💪";
     }
 
     setTimeout(() => {

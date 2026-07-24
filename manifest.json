@@ -3,10 +3,10 @@
   "short_name": "MADASA GAME",
   "description": "Kumpulan Game Edukasi Islami Anak TK/RA Ceria",
   "start_url": "./index.html",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#fdfbfb",
   "theme_color": "#FF9A9E",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "asset/logo.png",
