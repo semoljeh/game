@@ -28,7 +28,6 @@
     user-select: none;
   }
   
-  /* --- BUNGKUSAN UTAMA UNTUK ROTASI OTOMATIS --- */
   #app-container {
     position: absolute;
     top: 0; left: 0;
@@ -36,26 +35,16 @@
     overflow: hidden;
   }
 
-  /* TRIK AUTO-ROTATE JIKA HP TEGAK (PORTRAIT) */
-  @media screen and (orientation: portrait) {
-    #app-container {
-      width: 100vh;
-      height: 100vw;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(90deg);
-    }
-  }
-
+  /* --- ZONA PERMAINAN (DEFAULT: LANSKAP / KIRI-KANAN) --- */
   #game-board { 
     display: flex; 
+    flex-direction: row; /* Kiri dan Kanan */
     height: 100%; 
     width: 100%; 
     position: relative;
     overflow: hidden;
   }
   
-  /* --- ZONA PEMAIN DENGAN WARNA BERBEDA --- */
   .player-zone { 
     flex: 1; 
     display: flex; 
@@ -69,13 +58,14 @@
   #p1-zone { background: linear-gradient(135deg, #F8BBD0 0%, #F48FB1 100%); }
   #p2-zone { background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%); }
 
-  /* --- GARIS PEMISAH DI TENGAH --- */
+  /* --- GARIS PEMISAH (DEFAULT: VERTIKAL) --- */
   #center-line {
     position: absolute;
     top: 0; bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 10px;
+    height: 100%;
     background-color: rgba(255, 255, 255, 0.8); 
     z-index: 2; 
     box-shadow: 0 0 15px rgba(0,0,0,0.1); 
@@ -83,7 +73,7 @@
 
   .belum-mulai { filter: blur(8px); pointer-events: none; }
 
-  /* --- TIMER & TOMBOL SKOR --- */
+  /* --- TIMER & TOMBOL SKOR (DEFAULT: ATAS TENGAH) --- */
   #top-center-container {
     position: absolute;
     top: 25px;
@@ -113,79 +103,42 @@
   }
 
   /* --- EFEK WAKTU MAU HABIS --- */
-  .waktu-kritis {
-    color: #F44336 !important;
-    animation: detak 1s infinite;
-  }
-
-  @keyframes detak {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
+  .waktu-kritis { color: #F44336 !important; animation: detak 1s infinite; }
+  @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
   #btn-lihat-skor {
-    font-size: 18px;
-    font-weight: 900;
-    background: #E91E63;
-    padding: 8px 20px;
-    border-radius: 20px; 
-    color: #FFF;
-    border: 3px solid #FFF;
-    cursor: pointer;
-    box-shadow: 0 5px 0 #C2185B; 
-    transition: 0.1s;
-    font-family: inherit;
+    font-size: 18px; font-weight: 900; background: #E91E63;
+    padding: 8px 20px; border-radius: 20px; color: #FFF; border: 3px solid #FFF;
+    cursor: pointer; box-shadow: 0 5px 0 #C2185B; transition: 0.1s; font-family: inherit;
   }
   #btn-lihat-skor:active { transform: translateY(5px); box-shadow: 0 0 0; }
 
-  /* --- KOTAK SOAL (GLASSMORPHISM STYLE) --- */
+  /* --- KOTAK SOAL & OPSI --- */
   .question-box { 
-    font-size: 55px; 
-    font-weight: 900; 
-    margin-bottom: 30px; 
-    background: rgba(255, 255, 255, 0.9); 
-    padding: 20px 40px; 
-    border-radius: 25px; 
-    text-align: center;
-    min-width: 200px;
+    font-size: 55px; font-weight: 900; margin-bottom: 30px; 
+    background: rgba(255, 255, 255, 0.9); padding: 20px 40px; border-radius: 25px; 
+    text-align: center; min-width: 200px;
     box-shadow: inset 0 4px 10px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.1);
   }
-  
   #p1-zone .question-box { border: 5px dashed #D81B60; color: #AD1457; }
   #p2-zone .question-box { border: 5px dashed #0288D1; color: #01579B; }
   
-  /* --- OPSI JAWABAN --- */
-  .options { 
-    display: flex; gap: 15px; min-height: 70px; justify-content: center; flex-wrap: wrap;
-  }
+  .options { display: flex; gap: 15px; min-height: 70px; justify-content: center; flex-wrap: wrap; }
   
   .btn-option { 
-    font-size: 35px; 
-    width: 90px; height: 90px;
-    display: flex; justify-content: center; align-items: center;
-    cursor: pointer; 
-    border-radius: 20px; 
-    background: #FFF; 
-    color: #333; 
-    font-weight: 900; 
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
-    transition: 0.1s; 
-    font-family: inherit;
+    font-size: 35px; width: 90px; height: 90px;
+    display: flex; justify-content: center; align-items: center; cursor: pointer; 
+    border-radius: 20px; background: #FFF; color: #333; font-weight: 900; 
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15); transition: 0.1s; font-family: inherit;
   }
   #p1-zone .btn-option { border: 4px solid #F48FB1; }
   #p2-zone .btn-option { border: 4px solid #81D4FA; }
-
   .btn-option:active { transform: translateY(6px); box-shadow: 0 0 0; }
 
   .btn-next { 
-    margin-top: 50px; 
-    padding: 10px 30px; 
-    font-size: 16px; font-weight: 800; letter-spacing: 1px;
-    cursor: pointer; 
-    background: rgba(255, 255, 255, 0.8); 
-    color: #555; 
-    border: 3px solid #FFF; border-radius: 30px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-top: 50px; padding: 10px 30px; font-size: 16px; font-weight: 800; letter-spacing: 1px;
+    cursor: pointer; background: rgba(255, 255, 255, 0.8); color: #555; 
+    border: 3px solid #FFF; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.3s ease; font-family: inherit;
   }
   .btn-next:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -197,37 +150,23 @@
     flex-direction: column; align-items: center; justify-content: center;
     z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
   }
-
   .welcome-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    max-width: 650px; width: 95%; box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.95); border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 650px; width: 95%; box-sizing: border-box;
   }
-
   .welcome-card h1 { font-size: 40px; color: #E91E63; margin: 0 0 5px 0; font-weight: 900; line-height: 1.2; }
   .welcome-card h2 { font-size: 22px; color: #03A9F4; margin: 0 0 15px 0; font-weight: 800; }
   .welcome-card p { font-size: 16px; color: #555; margin-bottom: 20px; font-weight: 700; line-height: 1.4; }
 
-  /* --- TOMBOL MODE PERMAINAN (DIPERBAIKI AGAR MUNGIL) --- */
-  .mode-container {
-    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
-  }
-
+  /* --- TOMBOL MODE PERMAINAN --- */
+  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   .btn-mode {
     padding: 10px 15px; font-size: 16px; font-weight: 900; color: white;
     border: 3px solid #FFF; border-radius: 20px; cursor: pointer;
-    transition: 0.1s; font-family: inherit; 
-    flex: 1 1 40%; /* Mengatur tombol agar sejajar 2 kiri kanan */
-    max-width: 48%; /* Membatasi pelebaran maksimal */
-    box-sizing: border-box;
+    transition: 0.1s; font-family: inherit; flex: 1 1 40%; max-width: 48%; box-sizing: border-box;
   }
   .btn-mode:active { transform: translateY(4px); box-shadow: 0 0 0 !important; }
-
-  .btn-campuran { 
-    flex: 1 1 100%; max-width: 100%; /* Tombol campuran tetap lebar penuh */
-    background: #E91E63; box-shadow: 0 5px 0 #C2185B; font-size: 20px; padding: 12px; 
-  }
+  .btn-campuran { flex: 1 1 100%; max-width: 100%; background: #E91E63; box-shadow: 0 5px 0 #C2185B; font-size: 20px; padding: 12px; }
   .btn-tambah { background: #4CAF50; box-shadow: 0 5px 0 #2E7D32; }
   .btn-kurang { background: #FF9800; box-shadow: 0 5px 0 #E65100; }
   .btn-kali { background: #9C27B0; box-shadow: 0 5px 0 #6A1B9A; }
@@ -236,8 +175,7 @@
   .btn-play {
     padding: 12px 30px; font-size: 20px; font-weight: 900;
     background-color: #4CAF50; color: white; border: 4px solid #FFF; border-radius: 30px;
-    cursor: pointer; box-shadow: 0 6px 0 #2E7D32, 0 10px 15px rgba(0,0,0,0.2);
-    transition: 0.1s; font-family: inherit;
+    cursor: pointer; box-shadow: 0 6px 0 #2E7D32, 0 10px 15px rgba(0,0,0,0.2); transition: 0.1s; font-family: inherit;
   }
   .btn-play:active { transform: translateY(6px); box-shadow: 0 0 0; }
 
@@ -256,9 +194,7 @@
     margin: 10px; width: 200px; display: flex; flex-direction: column; align-items: center;
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
   }
-  
   .results-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-  
   #waktu-akhir-display {
     font-size: 24px; font-weight: 900; color: #FFF; margin-bottom: 25px;
     background: #F44336; padding: 10px 30px; border-radius: 20px; border: 3px solid #FFF;
@@ -269,10 +205,8 @@
   .notif-lucu {
     position: absolute; top: 35%; font-size: 45px; font-weight: 900;
     text-shadow: 3px 3px 0 #FFF, -3px -3px 0 #FFF, 3px -3px 0 #FFF, -3px 3px 0 #FFF, 0 8px 15px rgba(0,0,0,0.2);
-    pointer-events: none; z-index: 100;
-    animation: popUpAnim 1s ease-out forwards; text-align: center;
+    pointer-events: none; z-index: 100; animation: popUpAnim 1s ease-out forwards; text-align: center;
   }
-
   @keyframes popUpAnim {
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
     20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
@@ -280,40 +214,61 @@
     100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
   }
 
+
   /* ========================================================= */
-  /* RESPONSIVE LAYOUT HP (Mendatar Otomatis / Manual) */
+  /* RESPONSIVE LAYOUT HP - JIKA LAYAR TEGAK (PORTRAIT) */
   /* ========================================================= */
-  @media screen and (max-height: 600px), screen and (max-width: 650px) and (orientation: portrait) {
-    #top-center-container { top: 15px; padding: 5px 15px; gap: 15px; }
-    #timer-display { font-size: 24px; min-width: 40px; }
-    #btn-lihat-skor { font-size: 14px; padding: 6px 15px; border-width: 2px; }
+  @media screen and (orientation: portrait) {
     
+    /* Ubah arah terbelah menjadi Atas-Bawah */
+    #game-board { flex-direction: column; }
+    
+    /* Garis pemisah menjadi Horizontal di tengah */
+    #center-line {
+      top: 50%; left: 0; transform: translateY(-50%);
+      width: 100%; height: 10px;
+    }
+
+    /* Timer pindah ke tengah-tengah persis di atas garis pemisah */
+    #top-center-container {
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      gap: 15px; padding: 5px 20px;
+    }
+    #timer-display { font-size: 28px; }
+    #btn-lihat-skor { font-size: 14px; padding: 5px 15px; }
+
+    /* !!! PUTAR AREA PEMAIN 2 AGAR BISA BERHADAPAN !!! */
+    #p2-zone { transform: rotate(180deg); }
+
+    /* Perkecil ukuran kotak soal & opsi agar muat di HP */
     .question-box { font-size: 38px; padding: 10px 20px; margin-bottom: 15px; border-width: 4px; min-width: 150px;}
     .btn-option { font-size: 26px; width: 70px; height: 70px; border-width: 3px; }
+    .btn-next { font-size: 13px; padding: 8px 25px; margin-top: 15px; } 
     
-    .btn-next { font-size: 13px; padding: 8px 25px; margin-top: 25px; } 
-    
-    /* PENYESUAIAN KARTU SAMBUTAN AGAR LEBIH COMPACT DI HP */
+    /* Menu Welcome di HP Tegak */
     .welcome-card { padding: 15px 15px; border-radius: 25px; max-width: 90%; }
     .welcome-card h1 { font-size: 24px; margin-bottom: 2px; }
     .welcome-card h2 { font-size: 14px; margin-bottom: 5px; }
     .welcome-card p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
-    
     .mode-container { gap: 6px; }
     .btn-mode { font-size: 12px; padding: 6px 8px; border-width: 2px; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
     .btn-campuran { font-size: 14px; padding: 8px; }
-
     .dev-link { bottom: 8px; padding: 6px 15px; font-size: 10px; }
-    .result-card { width: 150px; padding: 10px; }
-    .result-card h2 { font-size: 18px !important; }
-    .result-card p { font-size: 16px !important; }
+    
+    /* Menu Skor Akhir di HP Tegak */
+    .results-container { gap: 10px; }
+    .result-card { width: 130px; padding: 10px; }
+    .result-card h2 { font-size: 18px !important; margin-bottom: 5px !important;}
+    .result-card p { font-size: 14px !important; margin: 3px 0 !important; }
+    #waktu-akhir-display { font-size: 18px; padding: 8px 20px; margin-bottom: 15px;}
   }
   
-  @media screen and (max-height: 400px), screen and (max-width: 450px) and (orientation: portrait) {
-    .question-box { font-size: 32px; margin-bottom: 10px; padding: 8px 15px; }
-    .btn-option { font-size: 22px; width: 60px; height: 60px; }
+  /* HP SANGAT KECIL */
+  @media screen and (orientation: portrait) and (max-height: 650px) {
+    .question-box { font-size: 30px; margin-bottom: 10px; padding: 5px 10px; }
+    .btn-option { font-size: 22px; width: 55px; height: 55px; }
     .options { gap: 10px; }
-    .btn-next { margin-top: 15px; font-size: 12px; }
   }
 </style>
 </head>
@@ -356,14 +311,14 @@
 
     <div id="center-line"></div>
 
-    <!-- ZONA PLAYER 1 -->
+    <!-- ZONA PLAYER 1 (BAWAH KALAU TEGAK, KIRI KALAU MENDATAR) -->
     <div class="player-zone belum-mulai" id="p1-zone">
       <div class="question-box" id="p1-q">Soal</div>
       <div class="options" id="p1-options"></div>
       <button class="btn-next" id="p1-skip" onclick="skipQuestion(1)">Lewati >></button>
     </div>
 
-    <!-- ZONA PLAYER 2 -->
+    <!-- ZONA PLAYER 2 (ATAS KALAU TEGAK, KANAN KALAU MENDATAR) -->
     <div class="player-zone belum-mulai" id="p2-zone">
       <div class="question-box" id="p2-q">Soal</div>
       <div class="options" id="p2-options"></div>
@@ -432,10 +387,8 @@
   const timerDisplay = document.getElementById('timer-display');
 
   function updateTimerDisplay() {
-    // Menampilkan langsung angkanya saja
     timerDisplay.innerText = timeLeft;
     
-    // Trik "Greget": Warna merah dan efek detak jantung jika <= 10 detik
     if (timeLeft <= 10) {
       timerDisplay.classList.add('waktu-kritis');
     } else {
@@ -449,32 +402,21 @@
       timeLeft--;
       updateTimerDisplay();
       
-      // Menghentikan game otomatis saat 0 detik
-      if (timeLeft <= 0) {
-        endGame();
-      }
+      if (timeLeft <= 0) { endGame(); }
     }, 1000);
   }
 
-  function stopTimer() { 
-    clearInterval(timerInterval); 
-  }
+  function stopTimer() { clearInterval(timerInterval); }
 
   function generateQuestions(modePilihan) {
     let masterQuestions = []; 
     let operators = [];
 
-    if (modePilihan === 'campuran') {
-      operators = ['+', '-', 'x', '÷'];
-    } else if (modePilihan === 'penjumlahan') {
-      operators = ['+'];
-    } else if (modePilihan === 'pengurangan') {
-      operators = ['-'];
-    } else if (modePilihan === 'perkalian') {
-      operators = ['x'];
-    } else if (modePilihan === 'pembagian') {
-      operators = ['÷'];
-    }
+    if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
+    else if (modePilihan === 'penjumlahan') { operators = ['+']; } 
+    else if (modePilihan === 'pengurangan') { operators = ['-']; } 
+    else if (modePilihan === 'perkalian') { operators = ['x']; } 
+    else if (modePilihan === 'pembagian') { operators = ['÷']; }
     
     for(let i=0; i < totalQuestions; i++) {
       let op = operators[Math.floor(Math.random() * operators.length)];
@@ -517,11 +459,7 @@
   }
 
   function mulaiPermainanDenganMode(mode) {
-    // Memutar Musik Latar
-    try {
-      bgMusic.currentTime = 0;
-      bgMusic.play().catch(e => console.log("Audio play prevented", e));
-    } catch(err) {}
+    try { bgMusic.currentTime = 0; bgMusic.play().catch(e => console.log(e)); } catch(err) {}
 
     p1 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
     p2 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
@@ -535,17 +473,13 @@
 
     generateQuestions(mode);
     
-    loadQuestion(1);
-    loadQuestion(2);
+    loadQuestion(1); loadQuestion(2);
 
-    stopTimer();
-    timeLeft = 60; // Reset ke 60 Detik
-    updateTimerDisplay();
-    startTimer();
+    stopTimer(); timeLeft = 60; 
+    updateTimerDisplay(); startTimer();
   }
 
   function kembaliKeMenu() {
-    // Hentikan Musik Latar
     bgMusic.pause();
 
     document.getElementById('result-screen').style.display = 'none';
@@ -559,9 +493,7 @@
     document.getElementById('p1-options').innerHTML = "";
     document.getElementById('p2-options').innerHTML = "";
     
-    stopTimer();
-    timeLeft = 60;
-    updateTimerDisplay();
+    stopTimer(); timeLeft = 60; updateTimerDisplay();
 
     document.getElementById('welcome-screen').style.display = 'flex';
   }
@@ -574,11 +506,7 @@
       document.getElementById(`${prefix}-q`).innerText = "SELESAI!";
       document.getElementById(`${prefix}-options`).innerHTML = '';
       document.getElementById(`${prefix}-skip`).style.display = 'none';
-      
-      // Jika keduanya sudah mencapai 100 soal sebelum waktu habis
-      if (p1.index >= totalQuestions && p2.index >= totalQuestions) {
-         endGame();
-      }
+      if (p1.index >= totalQuestions && p2.index >= totalQuestions) { endGame(); }
       return;
     }
 
@@ -590,8 +518,7 @@
     
     qData.opts.forEach(opt => {
       let btn = document.createElement('button');
-      btn.className = 'btn-option';
-      btn.innerText = opt;
+      btn.className = 'btn-option'; btn.innerText = opt;
       btn.onclick = () => checkAnswer(player, opt, qData.ans);
       optsDiv.appendChild(btn);
     });
@@ -622,22 +549,15 @@
     
     munculkanNotifLucu(player, isCorrect);
     
-    if (isCorrect) {
-      pData.score += 10; pData.correct++;
-    } else {
-      pData.score -= 5; pData.wrong++;
-    }
+    if (isCorrect) { pData.score += 10; pData.correct++; } 
+    else { pData.score -= 5; pData.wrong++; }
     
-    pData.index++; 
-    loadQuestion(player);
+    pData.index++; loadQuestion(player);
   }
 
   function skipQuestion(player) {
     let pData = player === 1 ? p1 : p2;
-    if (pData.index < totalQuestions) {
-      pData.index++; 
-      loadQuestion(player);
-    }
+    if (pData.index < totalQuestions) { pData.index++; loadQuestion(player); }
   }
 
   function tampilkanSkorSaatIni() {
@@ -655,9 +575,7 @@
   function tutupSkor() { document.getElementById('skor-sementara-screen').style.display = 'none'; }
 
   function endGame() {
-    stopTimer();
-    bgMusic.pause(); // Hentikan musik saat permainan selesai
-    timerDisplay.classList.remove('waktu-kritis'); // Hilangkan efek kedip
+    stopTimer(); bgMusic.pause(); timerDisplay.classList.remove('waktu-kritis');
 
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
     document.getElementById('p1-benar').innerText = p1.correct;
@@ -667,13 +585,9 @@
     document.getElementById('p2-benar').innerText = p2.correct;
     document.getElementById('p2-salah').innerText = p2.wrong;
 
-    // Sembunyikan pop up skor jika masih terbuka
     document.getElementById('skor-sementara-screen').style.display = 'none';
-    
-    // Munculkan hasil akhir
     document.getElementById('result-screen').style.display = 'flex';
   }
-
 </script>
 
 </body>
