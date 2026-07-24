@@ -1,4 +1,4 @@
-const CACHE_NAME = 'madasa-game-cache-v1';
+const CACHE_NAME = 'madasa-game-cache-v2'; // Ubah ke v2 agar sistem melakukan update otomatis
 
 // Daftar semua file yang akan disimpan agar bisa dimainkan offline
 const urlsToCache = [
@@ -8,11 +8,29 @@ const urlsToCache = [
   './bayangan.html',
   './bintang.html',
   './memori.html',
-  './kuis.html',
+  './anakshalih.html',
   './hitung.html',
   './angka.html',
+  './tajwid.html',
+  './fiqih.html',
+  './ciptaan.html',
+  './cari-beda.html',
+  './harakat.html',
+  './huruf-awal.html',
+  './susun-kata.html',
+  './warna.html',
+  './kereta.html',
+  './hijaiyah.html',
+  './nabi.html',
+  './penjumlahan.html',
+  './pengurangan.html',
+  './perkalian.html',
+  './pembagian.html',
+  './campuran.html',
+  './campuran 2 player.html',
   './manifest.json',
-  './asset/logo.png'
+  './asset/logo.png',
+  './asset/musik.mp3' // Jangan lupa musiknya dicache!
 ];
 
 // Proses Install & Menyimpan Cache
