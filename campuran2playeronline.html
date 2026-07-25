@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Cerdas Cermat 2 Player Online</title>
+<meta name="description" content="Game edukasi Cerdas Cermat Matematika seru untuk 2 pemain.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body { 
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', sans-serif; background-color: #FCE4EC; 
+    color: #333; overflow: hidden; touch-action: manipulation; 
+    -webkit-user-select: none; user-select: none;
+  }
+  #app-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
+
+  /* --- ZONA PERMAINAN --- */
+  #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
+  .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; }
+  #p1-zone { background: linear-gradient(135deg, #F8BBD0 0%, #F48FB1 100%); }
+  #p2-zone { background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%); }
+
+  .terkunci { pointer-events: none; opacity: 0.6; filter: grayscale(50%); }
+  .belum-mulai { filter: blur(8px); pointer-events: none; }
+
+  #center-line { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 10px; background-color: rgba(255, 255, 255, 0.8); z-index: 2; }
+
+  /* --- UI COMPONENT --- */
+  #top-center-container { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; align-items: center; gap: 30px; background: rgba(255, 255, 255, 0.95); padding: 10px 25px; border-radius: 30px; border: 4px solid #FFF; }
+  #timer-display { font-size: 34px; font-weight: 900; color: #673AB7; }
+  .waktu-kritis { color: #F44336 !important; animation: detak 1s infinite; }
+  @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  #btn-lihat-skor { font-size: 18px; font-weight: 900; background: #E91E63; padding: 8px 20px; border-radius: 20px; color: #FFF; border: 3px solid #FFF; cursor: pointer; }
+  
+  .question-box { font-size: 55px; font-weight: 900; margin-bottom: 30px; background: rgba(255,255,255,0.9); padding: 20px 40px; border-radius: 25px; text-align: center; }
+  #p1-zone .question-box { border: 5px dashed #D81B60; color: #AD1457; }
+  #p2-zone .question-box { border: 5px dashed #0288D1; color: #01579B; }
+  
+  .options { display: flex; gap: 15px; min-height: 70px; justify-content: center; flex-wrap: wrap; }
+  .btn-option { font-size: 35px; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 20px; background: #FFF; font-weight: 900; }
+  #p1-zone .btn-option { border: 4px solid #F48FB1; }
+  #p2-zone .btn-option { border: 4px solid #81D4FA; }
+  .btn-next { margin-top: 50px; padding: 10px 30px; font-size: 16px; font-weight: 800; cursor: pointer; background: rgba(255, 255, 255, 0.8); border: 3px solid #FFF; border-radius: 30px; }
+
+  /* --- MODAL LAYAR --- */
+  .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; }
+  .welcome-card { background: rgba(255,255,255,0.95); border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px; max-width: 650px; width: 95%; box-sizing: border-box; }
+  .welcome-card h1 { font-size: 40px; color: #E91E63; margin: 0 0 5px 0; }
+  .welcome-card h2 { font-size: 22px; color: #03A9F4; margin: 0 0 15px 0; }
+  .welcome-card p { font-size: 16px; margin-bottom: 20px; font-weight: 700; }
+  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .btn-mode { padding: 10px 15px; font-size: 16px; font-weight: 900; color: white; border: 3px solid #FFF; border-radius: 20px; cursor: pointer; flex: 1 1 40%; max-width: 48%; }
+  .btn-campuran { flex: 1 1 100%; max-width: 100%; background: #E91E63; }
+  .btn-tambah { background: #4CAF50; }
+  .btn-kurang { background: #FF9800; }
+  .btn-kali { background: #9C27B0; }
+  .btn-bagi { background: #00BCD4; }
+
+  .dev-link { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); padding: 6px 20px; font-size: 14px; text-decoration: none; background: rgba(255,255,255,0.9); border: 2px solid #FFD700; border-radius: 25px; font-weight: 700; z-index: 60;}
+  
+  .result-card { background: #FFF; border: 4px solid #FFF; padding: 15px; border-radius: 25px; margin: 10px; width: 200px; }
+  .results-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  #waktu-akhir-display { font-size: 24px; font-weight: 900; color: #FFF; margin-bottom: 25px; background: #F44336; padding: 10px 30px; border-radius: 20px; border: 3px solid #FFF; }
+  
+  .room-input { font-size: 24px; padding: 15px; text-align: center; width: 100%; max-width: 250px; border-radius: 15px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none;}
+  .room-input:focus { border-color: #03A9F4; }
+
+  .notif-lucu { position: absolute; top: 35%; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
+  @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 80% { transform: translateY(-60px) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(0.8); opacity: 0; } }
+
+  @media screen and (orientation: portrait) {
+    #game-board { flex-direction: column; }
+    #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 10px; }
+    #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 5px 20px; }
+    #p1-zone { transform: rotate(180deg); }
+    .question-box { font-size: 38px; padding: 10px 20px; margin-bottom: 15px; border-width: 4px; min-width: 150px;}
+    .btn-option { font-size: 26px; width: 70px; height: 70px; }
+    .welcome-card { padding: 15px; max-width: 90%; }
+    .welcome-card h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<audio id="bg-music" loop><source src="asset/musik.mp3" type="audio/mpeg"></audio>
+
+<div id="app-container">
+
+  <!-- TAHAP 1: Layar Pembuatan/Gabung Kamar -->
+  <div id="room-screen" class="screen-overlay" style="display: flex;">
+    <div class="welcome-card">
+      <h1>🚪 MADASA ROOM</h1>
+      <h2>Main Bareng Teman (Online)</h2>
+      <p>Buat kamar baru jika kamu Player 1, atau masukkan kode kamar temanmu jika kamu Player 2.</p>
+      
+      <div class="mode-container" style="flex-direction: column; align-items: center; gap: 20px;">
+        <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%;">+ Buat Kamar Baru (P1)</button>
+        
+        <div style="width: 100%; padding-top: 15px; border-top: 2px dashed #ccc;">
+          <input type="text" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" autocomplete="off">
+          <button class="btn-mode btn-tambah" onclick="gabungKamar()" style="width: 100%; margin-top: 10px; background: #03A9F4;">Gabung Kamar (P2)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 2: Lobi Menunggu -->
+  <div id="welcome-screen" class="screen-overlay" style="display: none;">
+    <div class="welcome-card">
+      <h1>KODE KAMAR: <span id="room-code-display" style="color: #4CAF50;">---</span></h1>
+      <h2 id="p2-status" style="color: #FF9800; font-size: 18px; background: #FFF3E0; padding: 10px; border-radius: 10px;">Menunggu Player 2 bergabung...</h2>
+      
+      <div id="host-controls" style="display: none; margin-top: 20px;">
+        <p>Silakan Host (P1) pilih mode permainan:</p>
+        <div class="mode-container">
+          <button class="btn-mode btn-campuran" onclick="hostPilihMode('campuran')">🌟 CAMPURAN</button>
+          <button class="btn-mode btn-tambah" onclick="hostPilihMode('penjumlahan')">➕ Tambah</button>
+          <button class="btn-mode btn-kurang" onclick="hostPilihMode('pengurangan')">➖ Kurang</button>
+          <button class="btn-mode btn-kali" onclick="hostPilihMode('perkalian')">✖️ Kali</button>
+          <button class="btn-mode btn-bagi" onclick="hostPilihMode('pembagian')">➗ Bagi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 3: Area Permainan -->
+  <div id="game-board">
+    <div id="top-center-container">
+      <div id="timer-display">60</div>
+    </div>
+    <div id="center-line"></div>
+    <div class="player-zone belum-mulai" id="p1-zone">
+      <div class="question-box" id="p1-q">Soal</div>
+      <div class="options" id="p1-options"></div>
+      <button class="btn-next" id="p1-skip" onclick="skipQuestion(1)">Lewati >></button>
+    </div>
+    <div class="player-zone belum-mulai" id="p2-zone">
+      <div class="question-box" id="p2-q">Soal</div>
+      <div class="options" id="p2-options"></div>
+      <button class="btn-next" id="p2-skip" onclick="skipQuestion(2)">Lewati >></button>
+    </div>
+  </div>
+
+  <!-- Popup Hasil Akhir -->
+  <div id="result-screen" class="screen-overlay">
+    <div class="welcome-card">
+      <h1>PERMAINAN SELESAI 🎉</h1>
+      <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
+      <div class="results-container">
+        <div class="result-card" style="border-color: #F48FB1;">
+          <h2 style="color: #D81B60;">Player 1</h2>
+          <h3 style="border-bottom: 2px dashed #ccc;">Dijawab: <span id="p1-dijawab">0</span></h3>
+          <p style="color: #4CAF50; font-weight: 900;">Benar: <span id="p1-benar">0</span></p>
+        </div>
+        <div class="result-card" style="border-color: #81D4FA;">
+          <h2 style="color: #0288D1;">Player 2</h2>
+          <h3 style="border-bottom: 2px dashed #ccc;">Dijawab: <span id="p2-dijawab">0</span></h3>
+          <p style="color: #4CAF50; font-weight: 900;">Benar: <span id="p2-benar">0</span></p>
+        </div>
+      </div>
+      <button class="btn-mode btn-campuran" onclick="location.reload()">🏠 Main Lagi</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- === KODE FIREBASE === -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
+    authDomain: "madasagame.firebaseapp.com",
+    projectId: "madasagame",
+    storageBucket: "madasagame.firebasestorage.app",
+    messagingSenderId: "394583790148",
+    appId: "1:394583790148:web:d20af0e57771a63bf5e211",
+    databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getDatabase(app);
+  window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
+</script>
+
+<!-- === LOGIKA PERMAINAN === -->
+<script>
+  let myRole = 0; // 1 = P1, 2 = P2
+  let roomId = "";
+  let currentRoomRef = null;
+  const totalQuestions = 100;
+  let p1 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
+  let p2 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
+  let timerInterval; let timeLeft = 60;
+  const timerDisplay = document.getElementById('timer-display');
+
+  // --- LOGIKA KAMAR (ROOM) ---
+  function buatKamar() {
+    roomId = Math.floor(1000 + Math.random() * 9000).toString(); // Buat 4 angka acak
+    myRole = 1;
+    currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+    // Bikin ruang di database
+    window.dbSet(currentRoomRef, { mode: "", p2_ready: false });
+
+    document.getElementById('room-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    document.getElementById('room-code-display').innerText = roomId;
+    document.getElementById('p2-zone').classList.add('terkunci'); // Kunci area P2
+
+    // Dengarkan kalau P2 masuk
+    window.dbOnValue(currentRoomRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
+        document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
+        document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
+        document.getElementById('p2-status').style.color = "#2E7D32";
+        document.getElementById('host-controls').style.display = 'flex'; // Munculkan tombol mode
+      }
+    });
+  }
+
+  function gabungKamar() {
+    const input = document.getElementById('input-kode-kamar').value;
+    if (input.length !== 4) { alert("Masukkan 4 digit kode dengan benar!"); return; }
+    
+    roomId = input;
+    myRole = 2;
+    currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+    // Kasih tau Firebase kalau P2 udah masuk
+    window.dbUpdate(currentRoomRef, { p2_ready: true });
+
+    document.getElementById('room-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    document.getElementById('room-code-display').innerText = roomId;
+    document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
+    document.getElementById('p1-zone').classList.add('terkunci'); // Kunci area P1
+
+    // Dengarkan kalau P1 milih mode soal
+    window.dbOnValue(currentRoomRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.mode !== "" && document.getElementById('welcome-screen').style.display === 'flex') {
+        mulaiPermainan(data.mode); // Langsung mulai main kalau mode berubah
+      }
+    });
+  }
+
+  function hostPilihMode(modeDipilih) {
+    // Tulis ke Firebase agar P2 juga ikut mulai
+    window.dbUpdate(currentRoomRef, { mode: modeDipilih });
+    mulaiPermainan(modeDipilih);
+  }
+
+  // --- LOGIKA PERMAINAN (SAMA SEPERTI SEBELUMNYA) ---
+  function mulaiPermainan(mode) {
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('p1-zone').classList.remove('belum-mulai');
+    document.getElementById('p2-zone').classList.remove('belum-mulai');
+    try { document.getElementById('bg-music').play(); } catch(e){}
+
+    generateQuestions(mode); // P1 dan P2 akan punya soal yang urutannya beda karena Math.random lokal
+    loadQuestion(1); loadQuestion(2);
+    startTimer();
+  }
+
+  function generateQuestions(modePilihan) {
+    let master = []; let operators = [];
+    if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
+    else if (modePilihan === 'penjumlahan') { operators = ['+']; } 
+    else if (modePilihan === 'pengurangan') { operators = ['-']; } 
+    else if (modePilihan === 'perkalian') { operators = ['x']; } 
+    else if (modePilihan === 'pembagian') { operators = ['÷']; }
+    
+    for(let i=0; i<totalQuestions; i++) {
+      let op = operators[Math.floor(Math.random() * operators.length)];
+      let a, b, ans;
+      if (op === '+') { a = Math.floor(Math.random() * 20)+1; b = Math.floor(Math.random() * 20)+1; ans = a+b; } 
+      else if (op === '-') { a = Math.floor(Math.random() * 19)+2; b = Math.floor(Math.random() * (a-1))+1; ans = a-b; } 
+      else if (op === 'x') { a = Math.floor(Math.random() * 10)+1; b = Math.floor(Math.random() * 10)+1; ans = a*b; } 
+      else if (op === '÷') { b = Math.floor(Math.random() * 10)+1; ans = Math.floor(Math.random() * 10)+1; a = b*ans; }
+      
+      let w1, w2;
+      do { w1 = ans + Math.floor(Math.random()*5)+1; } while (w1===ans);
+      do { let o = Math.floor(Math.random()*5)+1; w2 = (ans-o>0)?(ans-o):(ans+o+2); } while(w2===ans||w2===w1);
+
+      let opts = [ans, w1, w2].sort(() => Math.random() - 0.5);
+      master.push({ q: `${a} ${op} ${b}`, ans: ans, opts: opts });
+    }
+    p1.questions = [...master].sort(() => Math.random() - 0.5);
+    p2.questions = [...master].sort(() => Math.random() - 0.5);
+  }
+
+  function loadQuestion(player) {
+    let pData = player === 1 ? p1 : p2;
+    let prefix = player === 1 ? 'p1' : 'p2';
+    if (pData.index >= totalQuestions) { document.getElementById(`${prefix}-q`).innerText = "SELESAI!"; return; }
+
+    let qData = pData.questions[pData.index];
+    document.getElementById(`${prefix}-q`).innerText = qData.q;
+    let optsDiv = document.getElementById(`${prefix}-options`);
+    optsDiv.innerHTML = '';
+    
+    qData.opts.forEach(opt => {
+      let btn = document.createElement('button'); btn.className = 'btn-option'; btn.innerText = opt;
+      btn.onclick = () => checkAnswer(player, opt, qData.ans);
+      optsDiv.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(player, selected, correct) {
+    if (player !== myRole) return; // Cegah ngeklik area lawan
+    let pData = player === 1 ? p1 : p2;
+    let isCorrect = (selected === correct);
+    
+    // Munculkan notif lokal
+    let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+    let notif = document.createElement('div'); notif.className = 'notif-lucu';
+    notif.innerText = isCorrect ? "🔥 Benar!" : "❌ Salah!";
+    notif.style.color = isCorrect ? "#4CAF50" : "#E91E63";
+    zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
+    
+    if (isCorrect) { pData.correct++; } else { pData.wrong++; }
+    pData.index++; loadQuestion(player);
+  }
+
+  function skipQuestion(player) {
+    if (player !== myRole) return;
+    let pData = player === 1 ? p1 : p2;
+    pData.index++; loadQuestion(player);
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--; timerDisplay.innerText = timeLeft;
+      if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function endGame() {
+    clearInterval(timerInterval);
+    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
+    document.getElementById('p1-benar').innerText = p1.correct;
+    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
+    document.getElementById('p2-benar').innerText = p2.correct;
+    document.getElementById('result-screen').style.display = 'flex';
+  }
+</script>
+
+</body>
+</html>
