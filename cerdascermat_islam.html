@@ -12,7 +12,7 @@
   /* --- PENGATURAN DASAR TEMA ISLAMI --- */
   html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Nunito', sans-serif; background-color: #E8F5E9; /* Hijau muda yang lembut */
+    font-family: 'Nunito', sans-serif; background-color: #E8F5E9; 
     color: #333; overflow: hidden; touch-action: manipulation; 
     -webkit-user-select: none; user-select: none;
   }
@@ -21,7 +21,6 @@
   /* --- ZONA PERMAINAN --- */
   #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
   .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; padding: 10px; box-sizing: border-box; }
-  /* P1 Tema Hijau, P2 Tema Emas/Kuning */
   #p1-zone { background: linear-gradient(135deg, #A5D6A7 0%, #4CAF50 100%); }
   #p2-zone { background: linear-gradient(135deg, #FFF59D 0%, #FBC02D 100%); }
 
@@ -36,83 +35,106 @@
   .waktu-kritis { color: #F44336 !important; animation: detak 1s infinite; }
   @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
   
-  .question-box { font-size: 28px; font-weight: 900; margin-bottom: 30px; background: rgba(255,255,255,0.95); padding: 20px 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 500px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
-  #p1-zone .question-box { border: 5px dashed #2E7D32; color: #1B5E20; }
-  #p2-zone .question-box { border: 5px dashed #F57F17; color: #E65100; }
+  .question-box { font-size: 24px; font-weight: 900; margin-bottom: 25px; background: rgba(255,255,255,0.95); padding: 15px 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 500px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+  #p1-zone .question-box { border: 4px dashed #2E7D32; color: #1B5E20; }
+  #p2-zone .question-box { border: 4px dashed #F57F17; color: #E65100; }
   
-  .options { display: flex; gap: 15px; min-height: 70px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px;}
-  .btn-option { font-size: 18px; padding: 15px; flex: 1 1 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 15px; background: #FFF; font-weight: 900; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s;}
+  .options { display: flex; gap: 10px; min-height: 70px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px;}
+  .btn-option { font-size: 16px; padding: 10px; flex: 1 1 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 12px; background: #FFF; font-weight: 900; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s;}
   .btn-option:active { transform: scale(0.95); }
-  #p1-zone .btn-option { border: 4px solid #4CAF50; }
-  #p2-zone .btn-option { border: 4px solid #FBC02D; }
-  .btn-next { margin-top: 20px; padding: 10px 30px; font-size: 16px; font-weight: 800; cursor: pointer; background: rgba(255, 255, 255, 0.8); border: 3px solid #FFF; border-radius: 30px; }
+  #p1-zone .btn-option { border: 3px solid #4CAF50; }
+  #p2-zone .btn-option { border: 3px solid #FBC02D; }
+  .btn-next { margin-top: 15px; padding: 8px 25px; font-size: 14px; font-weight: 800; cursor: pointer; background: rgba(255, 255, 255, 0.8); border: 3px solid #FFF; border-radius: 30px; }
 
   /* --- MODAL LAYAR --- */
   .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; }
-  .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #4CAF50; border-radius: 40px; padding: 30px 20px; max-width: 650px; width: 95%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-  .welcome-card h1 { font-size: 34px; color: #2E7D32; margin: 0 0 5px 0; }
-  .welcome-card h2 { font-size: 20px; color: #F57F17; margin: 0 0 15px 0; }
-  .welcome-card p { font-size: 16px; margin-bottom: 20px; font-weight: 700; }
-  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-  .btn-mode { padding: 10px 15px; font-size: 16px; font-weight: 900; color: white; border: 3px solid #FFF; border-radius: 20px; cursor: pointer; flex: 1 1 40%; max-width: 48%; }
+  .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #4CAF50; border-radius: 30px; padding: 25px 15px; max-width: 600px; width: 95%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+  .welcome-card h1 { font-size: 30px; color: #2E7D32; margin: 0 0 5px 0; }
+  .welcome-card h2 { font-size: 18px; color: #F57F17; margin: 0 0 15px 0; }
+  .welcome-card p { font-size: 15px; margin-bottom: 15px; font-weight: 700; }
+  .mode-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .btn-mode { padding: 10px; font-size: 14px; font-weight: 900; color: white; border: 3px solid #FFF; border-radius: 15px; cursor: pointer; flex: 1 1 40%; max-width: 48%; }
   
-  /* Warna Kategori Islami */
   .btn-campuran { flex: 1 1 100%; max-width: 100%; background: #2E7D32; }
-  .btn-kategori1 { background: #00897B; } /* Kisah Nabi */
-  .btn-kategori2 { background: #F57C00; } /* Fiqih & Rukun */
-  .btn-kategori3 { background: #1E88E5; } /* Doa Harian */
-  .btn-kategori4 { background: #8E24AA; } /* Al-Qur'an & Tajwid */
+  .btn-kategori1 { background: #00897B; } 
+  .btn-kategori2 { background: #F57C00; } 
+  .btn-kategori3 { background: #1E88E5; } 
+  .btn-kategori4 { background: #8E24AA; } 
   
-  .result-card { background: #FFF; border: 4px solid #FFF; padding: 15px; border-radius: 25px; margin: 10px; width: 200px; }
-  .results-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-  #waktu-akhir-display { font-size: 24px; font-weight: 900; color: #FFF; margin-bottom: 25px; background: #F44336; padding: 10px 30px; border-radius: 20px; border: 3px solid #FFF; }
+  .result-card { background: #FFF; border: 4px solid #FFF; padding: 15px; border-radius: 20px; margin: 5px; width: 180px; }
+  .results-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  #waktu-akhir-display { font-size: 20px; font-weight: 900; color: #FFF; margin-bottom: 20px; background: #F44336; padding: 8px 25px; border-radius: 15px; border: 3px solid #FFF; }
   
-  .room-input { font-size: 24px; padding: 15px; text-align: center; width: 100%; max-width: 250px; border-radius: 15px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none;}
+  .room-input { font-size: 20px; padding: 12px; text-align: center; width: 100%; max-width: 200px; border-radius: 12px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none;}
   .room-input:focus { border-color: #4CAF50; }
 
-  .notif-lucu { position: absolute; top: 35%; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
-  @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 80% { transform: translateY(-60px) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(0.8); opacity: 0; } }
+  .notif-lucu { position: absolute; top: 30%; font-size: 40px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
+  @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-15px) scale(1.2); opacity: 1; } 80% { transform: translateY(-40px) scale(1); opacity: 1; } 100% { transform: translateY(-60px) scale(0.8); opacity: 0; } }
 
-  /* --- UI CHAT --- (Sama dengan sebelumnya) */
-  #chat-icon { position: absolute; bottom: 20px; right: 20px; z-index: 100; width: 65px; height: 65px; background: #2E7D32; color: #FFF; border-radius: 50%; font-size: 32px; display: none; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 4px solid #FFF; transition: transform 0.2s; }
+  /* --- UI CHAT --- */
+  #chat-icon { position: absolute; bottom: 20px; right: 20px; z-index: 100; width: 60px; height: 60px; background: #2E7D32; color: #FFF; border-radius: 50%; font-size: 28px; display: none; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 4px solid #FFF; transition: transform 0.2s; }
   #chat-icon:active { transform: scale(0.9); }
-  #chat-wrapper { position: absolute; bottom: 100px; right: 20px; z-index: 101; width: 320px; background: rgba(255, 255, 255, 0.98); border: 4px solid #2E7D32; border-radius: 15px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-  .chat-header { background: #2E7D32; color: white; padding: 12px 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
-  .close-chat { cursor: pointer; color: #FFF; font-size: 16px; font-weight: bold; background: #F44336; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
-  #chat-box { height: 220px; overflow-y: auto; padding: 12px; font-size: 14px; font-weight: 700; display: flex; flex-direction: column; gap: 8px; }
-  .pesan { padding: 8px 14px; border-radius: 15px; max-width: 85%; width: fit-content; word-wrap: break-word; }
+  #chat-wrapper { position: absolute; bottom: 90px; right: 20px; z-index: 101; width: 300px; background: rgba(255, 255, 255, 0.98); border: 4px solid #2E7D32; border-radius: 15px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+  .chat-header { background: #2E7D32; color: white; padding: 10px 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .close-chat { cursor: pointer; color: #FFF; font-size: 14px; font-weight: bold; background: #F44336; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
+  #chat-box { height: 200px; overflow-y: auto; padding: 10px; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 8px; }
+  .pesan { padding: 6px 12px; border-radius: 12px; max-width: 85%; width: fit-content; word-wrap: break-word; }
   .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; border-bottom-right-radius: 3px; }
   .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; border-bottom-left-radius: 3px; }
-  #chat-input-area { display: flex; border-top: 2px solid #ccc; background: #FFF; padding: 8px;}
-  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; margin-right: 8px; }
-  #btn-send-chat { background: #2E7D32; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
-  #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  #chat-input-area { display: flex; border-top: 2px solid #ccc; background: #FFF; padding: 6px;}
+  #chat-input { flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 8px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; margin-right: 6px; }
+  #btn-send-chat { background: #2E7D32; color: white; border: none; border-radius: 8px; padding: 0 12px; font-weight: 900; cursor: pointer; }
+  #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; }
   .goyang { animation: wiggle 0.5s infinite; }
   @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
 
+  /* --- PERBAIKAN RESPONSIVE LAYAR HP (PORTRAIT) --- */
   @media screen and (orientation: portrait) {
     #game-board { flex-direction: column; }
-    #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 10px; }
-    #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 5px 20px; }
+    #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 8px; }
+    #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 5px 15px; border-width: 3px; z-index: 10;}
+    #timer-display { font-size: 24px; }
     #p1-zone { transform: rotate(180deg); }
-    .question-box { font-size: 20px; padding: 15px; margin-bottom: 10px; border-width: 4px; width: 95%; max-width: 350px;}
-    .btn-option { font-size: 16px; padding: 10px; min-height: 40px; }
-    .options { gap: 8px; }
-    .welcome-card { padding: 15px; max-width: 95%; max-height: 85vh; overflow-y: auto; border-width: 3px; }
-    .welcome-card h1 { font-size: 24px; margin-top: 10px; }
-    #waktu-akhir-display { font-size: 16px; padding: 8px 20px; margin-bottom: 10px; }
-    .results-container { gap: 8px; margin-bottom: 15px; }
-    .result-card { padding: 10px; margin: 5px; flex: 1 1 40%; max-width: 45%; }
-    #chat-icon { bottom: 15px; right: 15px; width: 55px; height: 55px; font-size: 26px;}
-    #chat-wrapper { bottom: 80px; right: 15px; width: 280px; }
-    #host-controls p { font-size: 14px; margin-bottom: 10px; }
-    .mode-container { width: 100%; gap: 8px; }
-    .btn-mode { flex: 1 1 45%; max-width: 48%; padding: 12px 5px; font-size: 14px; border-width: 2px; }
-    .btn-campuran { flex: 1 1 100%; max-width: 100%; font-size: 16px; }
+    .player-zone { padding: 5px; justify-content: center; }
+    
+    /* Ukuran font teks soal dikecilkan agar muat */
+    .question-box { font-size: 15px; padding: 10px; margin-bottom: 8px; border-width: 3px; width: 98%; max-width: 100%; box-sizing: border-box; line-height: 1.3;}
+    
+    /* Ukuran tombol jawaban dikecilkan, jarak dirapatkan */
+    .btn-option { font-size: 13px; padding: 6px 10px; min-height: 35px; border-width: 2px; border-radius: 8px;}
+    .options { gap: 4px; width: 98%; }
+    .btn-next { margin-top: 8px; padding: 5px 15px; font-size: 12px; }
+    
+    /* Modal / Lobi di HP */
+    .welcome-card { padding: 15px 10px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-width: 3px; }
+    .welcome-card h1 { font-size: 20px; margin-top: 5px; }
+    .welcome-card h2 { font-size: 14px; margin-bottom: 10px; }
+    .welcome-card p { font-size: 13px; margin-bottom: 10px; }
+    .room-input { font-size: 16px; padding: 8px; }
+    #waktu-akhir-display { font-size: 15px; padding: 8px 15px; margin-bottom: 10px; border-width: 2px;}
+    .results-container { gap: 5px; margin-bottom: 10px; }
+    .result-card { padding: 8px; margin: 3px; flex: 1 1 40%; max-width: 45%; border-width: 2px; border-radius: 10px;}
+    .result-card h2 { font-size: 15px; margin: 0;}
+    .result-card h3 { font-size: 13px; margin: 5px 0;}
+    .result-card p { font-size: 13px; margin: 0;}
+    
+    .mode-container { width: 100%; gap: 5px; }
+    .btn-mode { flex: 1 1 45%; max-width: 48%; padding: 8px 5px; font-size: 12px; border-width: 2px; }
+    .btn-campuran { flex: 1 1 100%; max-width: 100%; font-size: 14px; }
+    
+    #chat-icon { bottom: 10px; right: 10px; width: 45px; height: 45px; font-size: 22px;}
+    #chat-wrapper { bottom: 65px; right: 10px; width: 260px; }
+    .notif-lucu { font-size: 28px; }
   }
 </style>
 </head>
 <body>
+
+<!-- === PENAMBAHAN AUDIO === -->
+<!-- Pastikan Akang menyiapkan 3 file MP3 ini di dalam folder "asset" -->
+<audio id="bg-music" loop><source src="asset/musik.mp3" type="audio/mpeg"></audio>
+<audio id="sound-benar"><source src="asset/benar.mp3" type="audio/mpeg"></audio>
+<audio id="sound-salah"><source src="asset/salah.mp3" type="audio/mpeg"></audio>
 
 <div id="app-container">
 
@@ -122,17 +144,17 @@
       <h1>🕌 CERDAS CERMAT ISLAMI</h1>
       <h2>Bermain Sambil Belajar</h2>
       
-      <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
-        <p style="margin-bottom: 10px; font-weight: 800;">Bermain dengan lawan acak (Global):</p>
-        <button class="btn-mode" style="background: #2E7D32; width: 100%; padding: 12px; font-size: 18px;" onclick="cariLawanAcak()">🌍 CARI LAWAN ACAK</button>
+      <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px dashed #ccc;">
+        <p style="margin-bottom: 8px; font-weight: 800;">Bermain dengan lawan acak (Global):</p>
+        <button class="btn-mode" style="background: #2E7D32; width: 100%; padding: 12px; font-size: 16px;" onclick="cariLawanAcak()">🌍 CARI LAWAN ACAK</button>
       </div>
 
       <p style="margin-top: 0; font-weight: 800;">Bermain privat dengan teman (KODE):</p>
-      <div class="mode-container" style="flex-direction: column; align-items: center; gap: 15px;">
+      <div class="mode-container" style="flex-direction: column; align-items: center; gap: 10px;">
         <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%;">+ Buat Kamar Baru (P1)</button>
         
         <div style="width: 100%; display: flex; gap: 10px;">
-          <input type="text" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" autocomplete="off" style="flex: 1; margin: 0; font-size: 18px;">
+          <input type="text" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" autocomplete="off" style="flex: 1; margin: 0;">
           <button class="btn-mode btn-kategori2" onclick="gabungKamar()" style="flex: 1; margin: 0;">Gabung (P2)</button>
         </div>
       </div>
@@ -143,9 +165,9 @@
   <div id="welcome-screen" class="screen-overlay" style="display: none;">
     <div class="welcome-card">
       <h1>KODE KAMAR: <span id="room-code-display" style="color: #2E7D32;">---</span></h1>
-      <h2 id="p2-status" style="color: #F57F17; font-size: 18px; background: #FFF3E0; padding: 10px; border-radius: 10px;">Menunggu Player 2 bergabung...</h2>
+      <h2 id="p2-status" style="color: #F57F17; background: #FFF3E0; padding: 8px; border-radius: 8px;">Menunggu Player 2 bergabung...</h2>
       
-      <div id="host-controls" style="display: none; margin-top: 20px;">
+      <div id="host-controls" style="display: none; margin-top: 15px;">
         <p>Silakan Host (P1) pilih kategori soal:</p>
         <div class="mode-container">
           <button class="btn-mode btn-campuran" onclick="hostPilihMode('campuran')">🌟 SEMUA KATEGORI (ACAK)</button>
@@ -194,8 +216,8 @@
         </div>
       </div>
       <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
-        <button class="btn-mode btn-kategori1" onclick="mainLagi()" style="flex: 1 1 45%; min-width: 130px; margin: 0; font-size: 16px;">🔄 Main Lagi</button>
-        <button class="btn-mode" onclick="akhiriGame()" style="flex: 1 1 45%; min-width: 130px; margin: 0; background: #F44336; border-color: #FFF; font-size: 16px;">🚪 Keluar</button>
+        <button class="btn-mode btn-kategori1" onclick="mainLagi()" style="flex: 1 1 45%; min-width: 130px; margin: 0; font-size: 14px;">🔄 Main Lagi</button>
+        <button class="btn-mode" onclick="akhiriGame()" style="flex: 1 1 45%; min-width: 130px; margin: 0; background: #F44336; border-color: #FFF; font-size: 14px;">🚪 Keluar</button>
       </div>
     </div>
   </div>
@@ -218,7 +240,7 @@
 
 </div>
 
-<!-- === KODE FIREBASE (TETAP SAMA DENGAN GAME MADASA) === -->
+<!-- === KODE FIREBASE === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
   import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
@@ -239,54 +261,234 @@
   window.dbGet = get; window.dbRemove = remove; 
 </script>
 
-
 <script>
   // === BANK SOAL ISLAMI ===
-  // Cara Menambah Soal: Copy blok { q: "...", ans: "...", opts: ["...", "...", "..."], cat: "..." }
+// === BANK SOAL ISLAMI (Total: 200 Soal) ===
   const bankSoal = [
-    // --- KATEGORI: KISAH NABI (nabi) ---
-    { q: "Siapakah Nabi yang pertama kali diciptakan Allah?", ans: "Nabi Adam", opts: ["Nabi Adam", "Nabi Muhammad", "Nabi Nuh"], cat: "nabi" },
-    { q: "Nabi yang ditelan oleh ikan paus adalah Nabi...", ans: "Yunus", opts: ["Yunus", "Musa", "Isa"], cat: "nabi" },
-    { q: "Malaikat yang bertugas menyampaikan wahyu kepada Nabi Muhammad adalah...", ans: "Jibril", opts: ["Jibril", "Mikail", "Israfil"], cat: "nabi" },
-    { q: "Mukjizat tongkat berubah menjadi ular adalah milik Nabi...", ans: "Musa", opts: ["Musa", "Ibrahim", "Sulaiman"], cat: "nabi" },
-    { q: "Nabi yang tidak hangus dibakar api oleh Raja Namrud adalah...", ans: "Ibrahim", opts: ["Ibrahim", "Ismail", "Yusuf"], cat: "nabi" },
-    { q: "Nabi terakhir penutup para Nabi adalah...", ans: "Muhammad", opts: ["Muhammad", "Isa", "Ibrahim"], cat: "nabi" },
+    // --- 1. KATEGORI: KISAH NABI & MALAIKAT (50 Soal) ---
+    { q: "Siapakah manusia dan Nabi pertama yang diciptakan Allah?", ans: "Nabi Adam", opts: ["Nabi Adam", "Nabi Muhammad", "Nabi Nuh"], cat: "nabi" },
+    { q: "Nabi yang ditelan oleh ikan paus karena meninggalkan kaumnya adalah...", ans: "Nabi Yunus", opts: ["Nabi Yunus", "Nabi Musa", "Nabi Isa"], cat: "nabi" },
+    { q: "Malaikat yang bertugas menyampaikan wahyu adalah...", ans: "Jibril", opts: ["Jibril", "Mikail", "Israfil"], cat: "nabi" },
+    { q: "Mukjizat tongkat berubah menjadi ular adalah milik Nabi...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Ibrahim", "Nabi Sulaiman"], cat: "nabi" },
+    { q: "Nabi yang tidak hangus dibakar api oleh Raja Namrud adalah...", ans: "Nabi Ibrahim", opts: ["Nabi Ibrahim", "Nabi Ismail", "Nabi Yusuf"], cat: "nabi" },
+    { q: "Nabi terakhir, penutup para Nabi dan Rasul adalah...", ans: "Nabi Muhammad", opts: ["Nabi Muhammad", "Nabi Isa", "Nabi Ibrahim"], cat: "nabi" },
     { q: "Hewan apa yang menolak menghancurkan Ka'bah pada tahun gajah?", ans: "Gajah", opts: ["Gajah", "Burung Ababil", "Kuda"], cat: "nabi" },
-    { q: "Nabi yang bisa berbicara dengan hewan adalah Nabi...", ans: "Sulaiman", opts: ["Sulaiman", "Daud", "Nuh"], cat: "nabi" },
+    { q: "Nabi yang bisa berbicara dengan hewan dan jin adalah Nabi...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Daud", "Nabi Nuh"], cat: "nabi" },
+    { q: "Malaikat peniup sangkakala pada hari kiamat adalah...", ans: "Israfil", opts: ["Israfil", "Izrail", "Rakib"], cat: "nabi" },
+    { q: "Nabi yang membuat kapal sangat besar saat banjir bandang adalah...", ans: "Nabi Nuh", opts: ["Nabi Nuh", "Nabi Adam", "Nabi Hud"], cat: "nabi" },
+    { q: "Malaikat yang bertugas mencabut nyawa adalah...", ans: "Izrail", opts: ["Izrail", "Mikail", "Ridwan"], cat: "nabi" },
+    { q: "Nabi yang sangat tampan dan pernah dimasukkan ke sumur oleh saudaranya adalah...", ans: "Nabi Yusuf", opts: ["Nabi Yusuf", "Nabi Yaqub", "Nabi Yahya"], cat: "nabi" },
+    { q: "Malaikat penjaga pintu surga adalah...", ans: "Ridwan", opts: ["Ridwan", "Malik", "Atid"], cat: "nabi" },
+    { q: "Malaikat penjaga pintu neraka adalah...", ans: "Malik", opts: ["Malik", "Ridwan", "Munkar"], cat: "nabi" },
+    { q: "Nabi yang disembelih ayahnya lalu diganti domba oleh Allah adalah...", ans: "Nabi Ismail", opts: ["Nabi Ismail", "Nabi Ishaq", "Nabi Ibrahim"], cat: "nabi" },
+    { q: "Nabi yang menerima kitab Taurat adalah...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Daud", "Nabi Isa"], cat: "nabi" },
+    { q: "Nabi yang menerima kitab Zabur adalah...", ans: "Nabi Daud", opts: ["Nabi Daud", "Nabi Sulaiman", "Nabi Musa"], cat: "nabi" },
+    { q: "Nabi yang menerima kitab Injil adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Yahya", "Nabi Muhammad"], cat: "nabi" },
+    { q: "Nabi Muhammad SAW lahir di kota...", ans: "Makkah", opts: ["Makkah", "Madinah", "Palestina"], cat: "nabi" },
+    { q: "Malaikat yang bertugas membagi rezeki dan menurunkan hujan adalah...", ans: "Mikail", opts: ["Mikail", "Jibril", "Israfil"], cat: "nabi" },
+    { q: "Nabi yang diberi mukjizat bisa menghidupkan orang mati atas izin Allah adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Musa", "Nabi Ibrahim"], cat: "nabi" },
+    { q: "Malaikat yang mencatat amal baik adalah...", ans: "Rakib", opts: ["Rakib", "Atid", "Nakir"], cat: "nabi" },
+    { q: "Malaikat yang mencatat amal buruk adalah...", ans: "Atid", opts: ["Atid", "Rakib", "Munkar"], cat: "nabi" },
+    { q: "Nabi yang bergelar Khalilullah (Kekasih Allah) adalah...", ans: "Nabi Ibrahim", opts: ["Nabi Ibrahim", "Nabi Muhammad", "Nabi Musa"], cat: "nabi" },
+    { q: "Burung yang menghancurkan tentara bergajah dengan batu panas adalah burung...", ans: "Ababil", opts: ["Ababil", "Hud-hud", "Buraq"], cat: "nabi" },
+    { q: "Kendaraan Nabi Muhammad SAW saat Isra' Mi'raj adalah...", ans: "Buraq", opts: ["Buraq", "Kuda", "Unta"], cat: "nabi" },
+    { q: "Ibu Nabi Muhammad SAW bernama...", ans: "Aminah", opts: ["Aminah", "Khadijah", "Aisyah"], cat: "nabi" },
+    { q: "Ayah Nabi Muhammad SAW bernama...", ans: "Abdullah", opts: ["Abdullah", "Abu Thalib", "Abdul Muthalib"], cat: "nabi" },
+    { q: "Nabi yang diuji dengan penyakit kulit yang lama namun tetap sabar adalah...", ans: "Nabi Ayyub", opts: ["Nabi Ayyub", "Nabi Zulkifli", "Nabi Yunus"], cat: "nabi" },
+    { q: "Paman Nabi Muhammad yang selalu melindunginya adalah...", ans: "Abu Thalib", opts: ["Abu Thalib", "Abu Lahab", "Abu Jahal"], cat: "nabi" },
+    { q: "Gua tempat Nabi Muhammad menerima wahyu pertama adalah...", ans: "Gua Hira", opts: ["Gua Hira", "Gua Tsur", "Gua Kahfi"], cat: "nabi" },
+    { q: "Istri pertama Nabi Muhammad SAW adalah...", ans: "Khadijah", opts: ["Khadijah", "Aisyah", "Fatimah"], cat: "nabi" },
+    { q: "Sahabat Nabi yang membenarkan peristiwa Isra' Mi'raj dan diberi gelar As-Siddiq adalah...", ans: "Abu Bakar", opts: ["Abu Bakar", "Umar bin Khattab", "Ali bin Abi Thalib"], cat: "nabi" },
+    { q: "Nabi yang tongkatnya bisa membelah lautan adalah...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Isa", "Nabi Nuh"], cat: "nabi" },
+    { q: "Siapakah raja zalim yang mengejar Nabi Musa ke Laut Merah?", ans: "Fir'aun", opts: ["Fir'aun", "Namrud", "Jalut"], cat: "nabi" },
+    { q: "Nabi yang diselamatkan oleh semut yang menuntun pasukannya adalah...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Daud", "Nabi Ibrahim"], cat: "nabi" },
+    { q: "Burung yang menjadi pembawa pesan Nabi Sulaiman kepada Ratu Balqis adalah...", ans: "Hud-hud", opts: ["Hud-hud", "Ababil", "Merpati"], cat: "nabi" },
+    { q: "Malaikat Munkar dan Nakir bertugas menanya manusia di...", ans: "Alam Kubur", opts: ["Alam Kubur", "Padang Mahsyar", "Jembatan Shirath"], cat: "nabi" },
+    { q: "Nabi yang lahir tanpa seorang ayah adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Adam", "Nabi Yahya"], cat: "nabi" },
+    { q: "Anak Nabi Nuh yang tenggelam karena durhaka bernama...", ans: "Kan'an", opts: ["Kan'an", "Qabil", "Habil"], cat: "nabi" },
+    { q: "Putra Nabi Adam yang membunuh saudaranya karena iri hati adalah...", ans: "Qabil", opts: ["Qabil", "Habil", "Kan'an"], cat: "nabi" },
+    { q: "Nabi yang berdakwah kepada kaum Tsamud adalah...", ans: "Nabi Shaleh", opts: ["Nabi Shaleh", "Nabi Hud", "Nabi Luth"], cat: "nabi" },
+    { q: "Mukjizat Nabi Shaleh adalah...", ans: "Unta Betina", opts: ["Unta Betina", "Tongkat Ular", "Bulan Terbelah"], cat: "nabi" },
+    { q: "Nabi Muhammad SAW menerima wahyu saat berumur... tahun.", ans: "40", opts: ["40", "25", "63"], cat: "nabi" },
+    { q: "Tempat umat Islam melaksanakan ibadah Haji adalah di kota...", ans: "Makkah", opts: ["Makkah", "Madinah", "Yerusalem"], cat: "nabi" },
+    { q: "Nabi yang pernah menjadi raja yang sangat kaya raya adalah...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Ayyub", "Nabi Yunus"], cat: "nabi" },
+    { q: "Siapakah nama kakek Nabi Muhammad SAW?", ans: "Abdul Muthalib", opts: ["Abdul Muthalib", "Abu Thalib", "Hamzah"], cat: "nabi" },
+    { q: "Nabi yang memiliki suara sangat merdu saat membaca Zabur adalah...", ans: "Nabi Daud", opts: ["Nabi Daud", "Nabi Sulaiman", "Nabi Isa"], cat: "nabi" },
+    { q: "Kaum Nabi Luth diazab oleh Allah karena perbuatan mereka yang...", ans: "Menyimpang (Suka sesama jenis)", opts: ["Menyimpang (Suka sesama jenis)", "Kikir", "Suka Berkelahi"], cat: "nabi" },
+    { q: "Jumlah Nabi dan Rasul yang wajib kita imani ada...", ans: "25", opts: ["25", "99", "114"], cat: "nabi" },
 
-    // --- KATEGORI: FIQIH & RUKUN (fiqih) ---
+    // --- 2. KATEGORI: FIQIH & RUKUN (50 Soal) ---
     { q: "Rukun Islam ada berapa perkara?", ans: "5", opts: ["5", "6", "4"], cat: "fiqih" },
-    { q: "Rukun Iman yang pertama adalah beriman kepada...", ans: "Allah", opts: ["Allah", "Malaikat", "Kitab"], cat: "fiqih" },
-    { q: "Salat wajib dalam sehari semalam ada berapa waktu?", ans: "5 Waktu", opts: ["5 Waktu", "3 Waktu", "4 Waktu"], cat: "fiqih" },
-    { q: "Puasa wajib bagi umat Islam dilaksanakan pada bulan...", ans: "Ramadhan", opts: ["Ramadhan", "Syawal", "Muharram"], cat: "fiqih" },
-    { q: "Membayar Zakat termasuk Rukun Islam yang ke-...", ans: "Tiga", opts: ["Tiga", "Dua", "Empat"], cat: "fiqih" },
-    { q: "Membersihkan diri dari najis dan hadas disebut...", ans: "Thaharah", opts: ["Thaharah", "Puasa", "Imsak"], cat: "fiqih" },
-    { q: "Salat wajib yang rakaatnya paling sedikit adalah salat...", ans: "Subuh", opts: ["Subuh", "Maghrib", "Dzuhur"], cat: "fiqih" },
-    { q: "Kiblat umat Islam saat melaksanakan salat adalah...", ans: "Ka'bah", opts: ["Ka'bah", "Masjid Nabawi", "Masjidil Aqsa"], cat: "fiqih" },
+    { q: "Rukun Iman ada berapa perkara?", ans: "6", opts: ["6", "5", "10"], cat: "fiqih" },
+    { q: "Rukun Islam yang pertama adalah mengucapkan...", ans: "Dua Kalimat Syahadat", opts: ["Dua Kalimat Syahadat", "Alhamdulillah", "Allahu Akbar"], cat: "fiqih" },
+    { q: "Salat wajib dalam sehari semalam dikerjakan sebanyak...", ans: "5 Waktu", opts: ["5 Waktu", "3 Waktu", "4 Waktu"], cat: "fiqih" },
+    { q: "Puasa wajib bagi umat Islam dilaksanakan sebulan penuh pada bulan...", ans: "Ramadhan", opts: ["Ramadhan", "Syawal", "Muharram"], cat: "fiqih" },
+    { q: "Membayar Zakat merupakan Rukun Islam yang ke-...", ans: "Tiga", opts: ["Tiga", "Empat", "Dua"], cat: "fiqih" },
+    { q: "Ibadah Haji wajib dilaksanakan bagi yang...", ans: "Mampu", opts: ["Mampu", "Miskin", "Sakit"], cat: "fiqih" },
+    { q: "Salat Subuh berjumlah... rakaat.", ans: "2", opts: ["2", "3", "4"], cat: "fiqih" },
+    { q: "Salat Maghrib berjumlah... rakaat.", ans: "3", opts: ["3", "4", "2"], cat: "fiqih" },
+    { q: "Salat Dzuhur, Ashar, dan Isya masing-masing berjumlah... rakaat.", ans: "4", opts: ["4", "3", "2"], cat: "fiqih" },
+    { q: "Kiblat umat Islam ketika salat menghadap ke...", ans: "Ka'bah", opts: ["Ka'bah", "Timur", "Masjid Nabawi"], cat: "fiqih" },
+    { q: "Sebelum melaksanakan salat, kita diwajibkan untuk...", ans: "Wudhu", opts: ["Wudhu", "Mandi Wajib", "Tayamum"], cat: "fiqih" },
+    { q: "Jika tidak ada air, wudhu bisa diganti dengan debu yang suci. Ini disebut...", ans: "Tayamum", opts: ["Tayamum", "Istinja", "Mandi Wajib"], cat: "fiqih" },
+    { q: "Anggota badan pertama yang dibasuh saat wudhu setelah niat adalah...", ans: "Muka/Wajah", opts: ["Muka/Wajah", "Tangan", "Kepala"], cat: "fiqih" },
+    { q: "Membasuh kaki saat wudhu wajib dilakukan sampai...", ans: "Mata Kaki", opts: ["Mata Kaki", "Lutut", "Paha"], cat: "fiqih" },
+    { q: "Suara panggilan untuk melaksanakan salat fardhu disebut...", ans: "Adzan", opts: ["Adzan", "Iqamah", "Tilawah"], cat: "fiqih" },
+    { q: "Panggilan kedua tanda salat berjamaah segera dimulai disebut...", ans: "Iqamah", opts: ["Iqamah", "Adzan", "Takbir"], cat: "fiqih" },
+    { q: "Membersihkan kotoran setelah buang air kecil atau besar disebut...", ans: "Istinja'", opts: ["Istinja'", "Tayamum", "Wudhu"], cat: "fiqih" },
+    { q: "Air liur anjing dan babi termasuk ke dalam najis...", ans: "Mughallazah (Berat)", opts: ["Mughallazah (Berat)", "Mukhaffafah (Ringan)", "Mutawassitah (Sedang)"], cat: "fiqih" },
+    { q: "Air kencing bayi laki-laki yang belum makan selain ASI termasuk najis...", ans: "Mukhaffafah (Ringan)", opts: ["Mukhaffafah (Ringan)", "Mughallazah (Berat)", "Mutawassitah (Sedang)"], cat: "fiqih" },
+    { q: "Kotoran ayam dan darah manusia termasuk najis...", ans: "Mutawassitah (Sedang)", opts: ["Mutawassitah (Sedang)", "Mughallazah (Berat)", "Mukhaffafah (Ringan)"], cat: "fiqih" },
+    { q: "Zakat yang wajib dikeluarkan di akhir bulan Ramadhan sebelum Idul Fitri adalah...", ans: "Zakat Fitrah", opts: ["Zakat Fitrah", "Zakat Mal", "Zakat Perniagaan"], cat: "fiqih" },
+    { q: "Salat sunnah yang dilaksanakan pada malam bulan Ramadhan adalah...", ans: "Salat Tarawih", opts: ["Salat Tarawih", "Salat Dhuha", "Salat Tahajud"], cat: "fiqih" },
+    { q: "Salat sunnah yang dilakukan sepertiga malam setelah tidur adalah...", ans: "Salat Tahajud", opts: ["Salat Tahajud", "Salat Dhuha", "Salat Witir"], cat: "fiqih" },
+    { q: "Salat sunnah dengan rakaat ganjil sebagai penutup salat malam adalah...", ans: "Salat Witir", opts: ["Salat Witir", "Salat Dhuha", "Salat Tahajud"], cat: "fiqih" },
+    { q: "Salat sunnah yang dilakukan di pagi hari setelah matahari naik adalah...", ans: "Salat Dhuha", opts: ["Salat Dhuha", "Salat Tarawih", "Salat Istisqa"], cat: "fiqih" },
+    { q: "Salat sunnah untuk meminta hujan disebut...", ans: "Salat Istisqa", opts: ["Salat Istisqa", "Salat Dhuha", "Salat Gerhana"], cat: "fiqih" },
+    { q: "Perkara yang apabila dikerjakan mendapat pahala, jika ditinggalkan berdosa disebut...", ans: "Wajib", opts: ["Wajib", "Sunnah", "Haram"], cat: "fiqih" },
+    { q: "Perkara yang apabila dikerjakan mendapat pahala, jika ditinggalkan tidak apa-apa disebut...", ans: "Sunnah", opts: ["Sunnah", "Mubah", "Makruh"], cat: "fiqih" },
+    { q: "Perkara yang dilarang keras, jika dikerjakan berdosa, jika ditinggalkan berpahala disebut...", ans: "Haram", opts: ["Haram", "Makruh", "Wajib"], cat: "fiqih" },
+    { q: "Daging babi dan darah hukumnya ... untuk dimakan.", ans: "Haram", opts: ["Haram", "Halal", "Makruh"], cat: "fiqih" },
+    { q: "Air suci yang bisa digunakan untuk wudhu (misal: air hujan, air sumur) disebut air...", ans: "Mutlak", opts: ["Mutlak", "Musyammas", "Musta'mal"], cat: "fiqih" },
+    { q: "Rukun Iman yang keenam adalah percaya kepada...", ans: "Qada dan Qadar (Takdir)", opts: ["Qada dan Qadar (Takdir)", "Hari Kiamat", "Rasul-Rasul"], cat: "fiqih" },
+    { q: "Rukun Iman yang ketiga adalah beriman kepada...", ans: "Kitab-kitab Allah", opts: ["Kitab-kitab Allah", "Malaikat", "Rasul"], cat: "fiqih" },
+    { q: "Berlari kecil antara bukit Shafa dan Marwah saat haji/umrah disebut...", ans: "Sa'i", opts: ["Sa'i", "Tawaf", "Tahallul"], cat: "fiqih" },
+    { q: "Berjalan mengelilingi Ka'bah sebanyak 7 kali disebut...", ans: "Tawaf", opts: ["Tawaf", "Sa'i", "Wukuf"], cat: "fiqih" },
+    { q: "Berdiam diri di padang Arafah pada tanggal 9 Dzulhijjah disebut...", ans: "Wukuf", opts: ["Wukuf", "Tahallul", "Sa'i"], cat: "fiqih" },
+    { q: "Mencukur rambut sebagai tanda selesainya haji/umrah disebut...", ans: "Tahallul", opts: ["Tahallul", "Wukuf", "Tawaf"], cat: "fiqih" },
+    { q: "Hari raya Idul Fitri jatuh pada tanggal 1...", ans: "Syawal", opts: ["Syawal", "Ramadhan", "Dzulhijjah"], cat: "fiqih" },
+    { q: "Hari raya Idul Adha jatuh pada tanggal 10...", ans: "Dzulhijjah", opts: ["Dzulhijjah", "Muharram", "Syawal"], cat: "fiqih" },
+    { q: "Menahan makan, minum, dan amarah dari terbit fajar hingga terbenam matahari disebut...", ans: "Puasa", opts: ["Puasa", "Zakat", "I'tikaf"], cat: "fiqih" },
+    { q: "Makan di waktu sebelum subuh bagi orang yang akan berpuasa disebut...", ans: "Sahur", opts: ["Sahur", "Imsak", "Buka"], cat: "fiqih" },
+    { q: "Batas waktu tanda dimulainya puasa dan berhentinya sahur disebut...", ans: "Imsak", opts: ["Imsak", "Iftar", "Adzan Subuh"], cat: "fiqih" },
+    { q: "Membatalkan puasa saat waktu maghrib tiba disebut...", ans: "Berbuka (Iftar)", opts: ["Berbuka (Iftar)", "Sahur", "Imsak"], cat: "fiqih" },
+    { q: "Berapa banyak takbir pada rakaat pertama Salat Idul Fitri?", ans: "7 Kali", opts: ["7 Kali", "5 Kali", "3 Kali"], cat: "fiqih" },
+    { q: "Berapa banyak takbir pada rakaat kedua Salat Idul Fitri?", ans: "5 Kali", opts: ["5 Kali", "7 Kali", "4 Kali"], cat: "fiqih" },
+    { q: "Surat pendek yang wajib dibaca pada setiap rakaat salat adalah...", ans: "Al-Fatihah", opts: ["Al-Fatihah", "Al-Ikhlas", "An-Nas"], cat: "fiqih" },
+    { q: "Gerakan membungkuk setelah membaca surat dalam salat disebut...", ans: "Ruku'", opts: ["Ruku'", "Sujud", "I'tidal"], cat: "fiqih" },
+    { q: "Gerakan menempelkan dahi dan hidung ke lantai dalam salat disebut...", ans: "Sujud", opts: ["Sujud", "Ruku'", "Tahiyat"], cat: "fiqih" },
+    { q: "Gerakan menengok ke kanan dan ke kiri di akhir salat disebut...", ans: "Salam", opts: ["Salam", "Sujud Sahwi", "Takbir"], cat: "fiqih" },
 
-    // --- KATEGORI: DOA HARIAN (doa) ---
-    { q: "Doa sebelum makan diawali dengan kalimat...", ans: "Allahumma barik lana", opts: ["Allahumma barik lana", "Alhamdulillah", "Bismika allahumma"], cat: "doa" },
-    { q: "Kalimat 'Alhamdulillah' diucapkan ketika...", ans: "Mendapat nikmat", opts: ["Mendapat nikmat", "Mendengar petir", "Bersin"], cat: "doa" },
-    { q: "Doa masuk WC mendahulukan kaki...", ans: "Kiri", opts: ["Kiri", "Kanan", "Keduanya"], cat: "doa" },
-    { q: "Ucapan saat meminta maaf atau ampunan kepada Allah adalah...", ans: "Astaghfirullah", opts: ["Astaghfirullah", "Subhanallah", "Allahu Akbar"], cat: "doa" },
-    { q: "Doa memohon ilmu: Rabbi zidni 'ilman, warzuqni...", ans: "Fahman", opts: ["Fahman", "Rahman", "Amalan"], cat: "doa" },
-    { q: "Jika melihat pemandangan yang indah kita ucapkan...", ans: "Masya Allah", opts: ["Masya Allah", "Astaghfirullah", "Innalillahi"], cat: "doa" },
+    // --- 3. KATEGORI: DOA HARIAN (50 Soal) ---
+    { q: "Doa sebelum makan diawali dengan...", ans: "Allahumma barik lana", opts: ["Allahumma barik lana", "Alhamdulillah", "Bismika allahumma"], cat: "doa" },
+    { q: "Doa sesudah makan diawali dengan...", ans: "Alhamdulillahilladzi ath'amana", opts: ["Alhamdulillahilladzi ath'amana", "Allahumma barik lana", "Bismillahi"], cat: "doa" },
+    { q: "Doa sebelum tidur adalah: Bismika allahumma ahya...", ans: "Wabismika amut", opts: ["Wabismika amut", "Wa barik lana", "Warzuqni fahman"], cat: "doa" },
+    { q: "Doa bangun tidur: Alhamdulillahilladzi ahyana ba'da ma amatana...", ans: "Wa ilaihin nusyur", opts: ["Wa ilaihin nusyur", "Wabismika amut", "Fil 'alamin"], cat: "doa" },
+    { q: "Doa masuk kamar mandi mendahulukan kaki...", ans: "Kiri", opts: ["Kiri", "Kanan", "Bebas"], cat: "doa" },
+    { q: "Doa masuk WC: Allahumma inni a'udzubika minal khubutsi...", ans: "Wal khaba-is", opts: ["Wal khaba-is", "Wa ilaihin nusyur", "Minal khathaya"], cat: "doa" },
+    { q: "Doa keluar kamar mandi: Ghufranaka alhamdulillahilladzi azhaba 'annil adza...", ans: "Wa 'afani", opts: ["Wa 'afani", "Wal khaba-is", "Fil 'alamin"], cat: "doa" },
+    { q: "Doa keluar kamar mandi mendahulukan kaki...", ans: "Kanan", opts: ["Kanan", "Kiri", "Bebas"], cat: "doa" },
+    { q: "Kalimat memohon ampunan kepada Allah adalah...", ans: "Astaghfirullah", opts: ["Astaghfirullah", "Subhanallah", "Allahu Akbar"], cat: "doa" },
+    { q: "Doa belajar: Rabbi zidni 'ilman, warzuqni...", ans: "Fahman", opts: ["Fahman", "Rahman", "Amalan"], cat: "doa" },
+    { q: "Jika melihat pemandangan indah atau menakjubkan, kita ucapkan...", ans: "Masya Allah", opts: ["Masya Allah", "Astaghfirullah", "Innalillahi"], cat: "doa" },
+    { q: "Jika mendengar kabar duka/kematian, kita ucapkan...", ans: "Innalillahi wa inna ilaihi raji'un", opts: ["Innalillahi wa inna ilaihi raji'un", "Alhamdulillah", "Subhanallah"], cat: "doa" },
+    { q: "Kalimat Tasbih berbunyi...", ans: "Subhanallah", opts: ["Subhanallah", "Alhamdulillah", "Allahu Akbar"], cat: "doa" },
+    { q: "Kalimat Tahmid berbunyi...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Subhanallah", "Allahu Akbar"], cat: "doa" },
+    { q: "Kalimat Takbir berbunyi...", ans: "Allahu Akbar", opts: ["Allahu Akbar", "Subhanallah", "Alhamdulillah"], cat: "doa" },
+    { q: "Kalimat Tahlil berbunyi...", ans: "La ilaha illallah", opts: ["La ilaha illallah", "Allahu Akbar", "Subhanallah"], cat: "doa" },
+    { q: "Doa untuk kedua orang tua: Rabbighfirli waliwalidayya warhamhuma kama...", ans: "Rabbayani shaghira", opts: ["Rabbayani shaghira", "Hasbiyallah", "Fil 'alamin"], cat: "doa" },
+    { q: "Doa sapu jagat: Rabbana atina fiddunya hasanah wafil akhirati hasanah...", ans: "Waqina 'adzabannar", opts: ["Waqina 'adzabannar", "Rabbayani shaghira", "Wal khaba-is"], cat: "doa" },
+    { q: "Doa masuk masjid mendahulukan kaki...", ans: "Kanan", opts: ["Kanan", "Kiri", "Bebas"], cat: "doa" },
+    { q: "Doa keluar masjid mendahulukan kaki...", ans: "Kiri", opts: ["Kiri", "Kanan", "Bebas"], cat: "doa" },
+    { q: "Doa masuk masjid: Allahummaftahli abwaba...", ans: "Rahmatik", opts: ["Rahmatik", "Fadlik", "Maghfiratik"], cat: "doa" },
+    { q: "Doa keluar masjid: Allahumma inni as-aluka min...", ans: "Fadlik", opts: ["Fadlik", "Rahmatik", "Maghfiratik"], cat: "doa" },
+    { q: "Doa bercermin: Allahumma kama hassanta khalqi, fahassin...", ans: "Khuluqi", opts: ["Khuluqi", "Wajhi", "Badani"], cat: "doa" },
+    { q: "Doa naik kendaraan: Subhanalladzi sakhara lana...", ans: "Hadza", opts: ["Hadza", "Minal khathaya", "Rahmatik"], cat: "doa" },
+    { q: "Doa keluar rumah: Bismillahi tawakkaltu 'alallah la haula wala...", ans: "Quwwata illa billah", opts: ["Quwwata illa billah", "Wa ilaihin nusyur", "Waqina adzabannar"], cat: "doa" },
+    { q: "Saat bersin kita dianjurkan mengucapkan...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Yarhamukallah", "Astaghfirullah"], cat: "doa" },
+    { q: "Orang yang mendengar orang lain bersin dan mengucapkan Alhamdulillah, membalasnya dengan...", ans: "Yarhamukallah", opts: ["Yarhamukallah", "Yahdikumullah", "Subhanallah"], cat: "doa" },
+    { q: "Doa saat turun hujan: Allahumma shayyiban...", ans: "Nafi'an", opts: ["Nafi'an", "Katsiran", "Mubarakan"], cat: "doa" },
+    { q: "Salam umat Islam adalah: Assalamu'alaikum...", ans: "Warahmatullahi Wabarakatuh", opts: ["Warahmatullahi Wabarakatuh", "Selesai", "Wa Maghfiratuh"], cat: "doa" },
+    { q: "Jika diucapkan Assalamu'alaikum, wajib menjawab dengan...", ans: "Wa'alaikumussalam", opts: ["Wa'alaikumussalam", "Sama-sama", "Terima kasih"], cat: "doa" },
+    { q: "Setiap melakukan perbuatan baik harus diawali dengan...", ans: "Bismillah", opts: ["Bismillah", "Alhamdulillah", "Takbir"], cat: "doa" },
+    { q: "Setelah selesai melakukan pekerjaan, kita mengucapkan...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Bismillah", "Subhanallah"], cat: "doa" },
+    { q: "Doa berpakaian: Allahumma inni as'aluka min khairihi...", ans: "Wa khairi ma huwa lah", opts: ["Wa khairi ma huwa lah", "Waqina adzabannar", "Rabbayani shaghira"], cat: "doa" },
+    { q: "Doa melepas pakaian: Bismillahi alladzi la ilaha...", ans: "Illahuwa", opts: ["Illahuwa", "Wallahu Akbar", "Subhanallah"], cat: "doa" },
+    { q: "Doa sebelum wudhu diawali dengan membaca...", ans: "Niat / Bismillah", opts: ["Niat / Bismillah", "Takbir", "Salam"], cat: "doa" },
+    { q: "Doa kesembuhan: Allahumma rabbannasi adzhibil ba'sa...", ans: "Isyfi antasy-syafi", opts: ["Isyfi antasy-syafi", "La syifa'a illa syifa'uka", "Rahmatik"], cat: "doa" },
+    { q: "Saat berjanji, kita wajib mengucapkan...", ans: "Insya Allah", opts: ["Insya Allah", "Subhanallah", "Alhamdulillah"], cat: "doa" },
+    { q: "Doa mohon kelapangan dada: Rabbisyrahli...", ans: "Shadri", opts: ["Shadri", "Amri", "Uqdatan"], cat: "doa" },
+    { q: "Doa kelancaran lisan: Wahlul 'uqdatan min lisani yafqahu...", ans: "Qauli", opts: ["Qauli", "Amri", "Shadri"], cat: "doa" },
+    { q: "Doa melihat keburukan: A'udzu billahi minasy-syaitani...", ans: "Ar-Rajim", opts: ["Ar-Rajim", "Ar-Rahim", "Al-Hakim"], cat: "doa" },
+    { q: "Senyum di hadapan saudaramu adalah...", ans: "Sedekah", opts: ["Sedekah", "Wajib", "Makruh"], cat: "doa" },
+    { q: "Kebersihan itu sebagian dari...", ans: "Iman", opts: ["Iman", "Islam", "Ihsan"], cat: "doa" },
+    { q: "Jika kita berbuat salah kepada teman, kita harus segera...", ans: "Meminta maaf", opts: ["Meminta maaf", "Lari", "Menangis"], cat: "doa" },
+    { q: "Jika ada orang tua yang sedang duduk, saat lewat kita harus...", ans: "Menunduk / Permisi", opts: ["Menunduk / Permisi", "Lari", "Melihat saja"], cat: "doa" },
+    { q: "Doa sebelum membaca Al-Qur'an (Ta'awudz) adalah...", ans: "A'udzubillahi minasy syaitani rrajim", opts: ["A'udzubillahi minasy syaitani rrajim", "Bismillahir rahmanir rahim", "Alhamdulillah"], cat: "doa" },
+    { q: "Surga berada di bawah telapak kaki...", ans: "Ibu", opts: ["Ibu", "Ayah", "Guru"], cat: "doa" },
+    { q: "Jika diberi hadiah atau dibantu orang lain, ucapkanlah...", ans: "Jazakallahu khairan", opts: ["Jazakallahu khairan", "Masya Allah", "Astaghfirullah"], cat: "doa" },
+    { q: "Balasan untuk ucapan Jazakallah adalah...", ans: "Waiyyaka", opts: ["Waiyyaka", "Amin", "Sama-sama"], cat: "doa" },
+    { q: "Doa agar husnul khatimah: Allahumma inni as-aluka husnal...", ans: "Khatimah", opts: ["Khatimah", "Rahmatik", "Fadlik"], cat: "doa" },
+    { q: "Tidur dianjurkan menghadap ke arah...", ans: "Kanan (Kiblat)", opts: ["Kanan (Kiblat)", "Kiri", "Atas"], cat: "doa" },
 
-    // --- KATEGORI: AL-QUR'AN & TAJWID (quran) ---
-    { q: "Surat pertama dalam Al-Qur'an adalah...", ans: "Al-Fatihah", opts: ["Al-Fatihah", "Al-Baqarah", "An-Nas"], cat: "quran" },
-    { q: "Hukum bacaan Nun mati bertemu huruf 'Ba' disebut...", ans: "Iqlab", opts: ["Iqlab", "Idgham", "Ikhfa"], cat: "quran" },
-    { q: "Sambung ayat ini: 'Qul Huwallahu...'", ans: "Ahad", opts: ["Ahad", "Somad", "Falaq"], cat: "quran" },
-    { q: "Surat Al-Kautsar terdiri dari berapa ayat?", ans: "3", opts: ["3", "4", "5"], cat: "quran" },
-    { q: "Huruf Idgham Bighunnah ada...", ans: "4 Huruf", opts: ["4 Huruf", "5 Huruf", "6 Huruf"], cat: "quran" },
-    { q: "Kitab Al-Qur'an diturunkan kepada Nabi...", ans: "Muhammad", opts: ["Muhammad", "Musa", "Daud"], cat: "quran" },
-    { q: "Membaca Al-Qur'an mendapat pahala per-...", ans: "Huruf", opts: ["Huruf", "Kata", "Kalimat"], cat: "quran" },
-    { q: "Sambung ayat ini: 'Maliki yaumid...'", ans: "Diin", opts: ["Diin", "Ahad", "Nas"], cat: "quran" }
+    // --- 4. KATEGORI: AL-QUR'AN, TAJWID & SAMBUNG AYAT (50 Soal) ---
+    // (Pertanyaan Tajwid)
+    { q: "Kitab suci umat Islam adalah...", ans: "Al-Qur'an", opts: ["Al-Qur'an", "Taurat", "Injil"], cat: "quran" },
+    { q: "Surat pertama yang ada di dalam Al-Qur'an adalah...", ans: "Al-Fatihah", opts: ["Al-Fatihah", "Al-Baqarah", "An-Nas"], cat: "quran" },
+    { q: "Surat Al-Fatihah artinya...", ans: "Pembukaan", opts: ["Pembukaan", "Penutup", "Manusia"], cat: "quran" },
+    { q: "Hukum bacaan Nun Mati/Tanwin bertemu huruf 'Ba' disebut...", ans: "Iqlab", opts: ["Iqlab", "Idgham", "Ikhfa"], cat: "quran" },
+    { q: "Huruf Qalqalah (pantulan) berjumlah...", ans: "5 (Baju di toko)", opts: ["5 (Baju di toko)", "4", "6"], cat: "quran" },
+    { q: "Hukum bacaan jika Nun Mati bertemu huruf 'Ra' atau 'Lam' adalah...", ans: "Idgham Bilaghunnah", opts: ["Idgham Bilaghunnah", "Idgham Bighunnah", "Izhar"], cat: "quran" },
+    { q: "Membaca Al-Qur'an dinilai ibadah, dihitung pahalanya per-...", ans: "Huruf", opts: ["Huruf", "Kata", "Lembar"], cat: "quran" },
+    { q: "Al-Qur'an terdiri dari berapa Juz?", ans: "30 Juz", opts: ["30 Juz", "114 Juz", "10 Juz"], cat: "quran" },
+    { q: "Al-Qur'an terdiri dari berapa Surat?", ans: "114 Surat", opts: ["114 Surat", "30 Surat", "99 Surat"], cat: "quran" },
+    { q: "Malaikat yang menurunkan wahyu Al-Qur'an ke Nabi Muhammad adalah...", ans: "Malaikat Jibril", opts: ["Malaikat Jibril", "Malaikat Mikail", "Malaikat Israfil"], cat: "quran" },
+    { q: "Hukum membaca terang/jelas pada Nun mati/Tanwin disebut...", ans: "Izhar Halqi", opts: ["Izhar Halqi", "Ikhfa", "Iqlab"], cat: "quran" },
+    { q: "Surat terakhir di dalam Al-Qur'an adalah surat...", ans: "An-Nas", opts: ["An-Nas", "Al-Falaq", "Al-Ikhlas"], cat: "quran" },
+    { q: "Ayat pertama yang diturunkan kepada Nabi Muhammad adalah surat Al-'Alaq ayat 1, yang berbunyi...", ans: "Iqra' (Bacalah)", opts: ["Iqra' (Bacalah)", "Qul", "Alhamdulillah"], cat: "quran" },
+    { q: "Surat yang menceritakan tentang pasukan gajah adalah surat...", ans: "Al-Fiil", opts: ["Al-Fiil", "Al-Quraish", "Al-Ma'un"], cat: "quran" },
+    { q: "Surat Al-Kautsar memiliki arti...", ans: "Nikmat yang banyak", opts: ["Nikmat yang banyak", "Waktu Subuh", "Manusia"], cat: "quran" },
+    { q: "Panjang bacaan mad thabi'i adalah... harakat", ans: "2 Harakat", opts: ["2 Harakat", "4 Harakat", "6 Harakat"], cat: "quran" },
+    { q: "Nun atau Mim yang bertasydid hukum bacaannya disebut...", ans: "Ghunnah (Dengung)", opts: ["Ghunnah (Dengung)", "Qalqalah", "Mad"], cat: "quran" },
+    { q: "Surat terpendek dalam Al-Qur'an yang hanya terdiri dari 3 ayat adalah...", ans: "Al-Kautsar", opts: ["Al-Kautsar", "Al-Ikhlas", "An-Nas"], cat: "quran" },
+    { q: "Surat terpanjang dalam Al-Qur'an adalah...", ans: "Al-Baqarah", opts: ["Al-Baqarah", "Yasin", "Al-Fatihah"], cat: "quran" },
+    { q: "Ayat Kursi terdapat di dalam surat...", ans: "Al-Baqarah", opts: ["Al-Baqarah", "Ali Imran", "Al-Ikhlas"], cat: "quran" },
+
+    // (Sambung Ayat Tulisan Arab)
+    { q: "Sambung ayat berikut (Al-Fatihah):\nبِسْمِ اللَّهِ ...", ans: "الرَّحْمَٰنِ الرَّحِيمِ", opts: ["الرَّحْمَٰنِ الرَّحِيمِ", "الْعَالَمِينَ", "مَالِكِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Fatihah):\nالْحَمْدُ لِلَّهِ رَبِّ ...", ans: "الْعَالَمِينَ", opts: ["الْعَالَمِينَ", "الدِّينِ", "نَسْتَعِينُ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Fatihah):\nمَالِكِ يَوْمِ ...", ans: "الدِّينِ", opts: ["الدِّينِ", "الرَّحِيمِ", "الصِّرَاطَ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Fatihah):\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ ...", ans: "نَسْتَعِينُ", opts: ["نَسْتَعِينُ", "الْمُسْتَقِيمَ", "عَلَيْهِمْ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Fatihah):\nاهْدِنَا الصِّرَاطَ ...", ans: "الْمُسْتَقِيمَ", opts: ["الْمُسْتَقِيمَ", "الْعَالَمِينَ", "نَسْتَعِينُ"], cat: "quran" },
+    
+    { q: "Sambung ayat berikut (An-Nas):\nقُلْ أَعُوذُ بِرَبِّ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "الْفَلَقِ", "الصَّمَدِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (An-Nas):\nمَلِكِ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "يَوْمِ الدِّينِ", "الْخَنَّاسِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (An-Nas):\nإِلَٰهِ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "الْعَالَمِينَ", "خَلَقَ"], cat: "quran" },
+    { q: "Sambung ayat berikut (An-Nas):\nمِن شَرِّ الْوَسْوَاسِ ...", ans: "الْخَنَّاسِ", opts: ["الْخَنَّاسِ", "النَّاسِ", "الْجِنَّةِ"], cat: "quran" },
+    
+    { q: "Sambung ayat berikut (Al-Falaq):\nقُلْ أَعُوذُ بِرَبِّ ...", ans: "الْفَلَقِ", opts: ["الْفَلَقِ", "النَّاسِ", "الْخَنَّاسِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Falaq):\nمِن شَرِّ مَا ...", ans: "خَلَقَ", opts: ["خَلَقَ", "وَقَبَ", "حَسَدَ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Falaq):\nوَمِن شَرِّ غَاسِقٍ إِذَا ...", ans: "وَقَبَ", opts: ["وَقَبَ", "خَلَقَ", "عُقَدِ"], cat: "quran" },
+    
+    { q: "Sambung ayat berikut (Al-Ikhlas):\nقُلْ هُوَ اللَّهُ ...", ans: "أَحَدٌ", opts: ["أَحَدٌ", "الصَّمَدُ", "كُفُوًا"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Ikhlas):\nاللَّهُ ...", ans: "الصَّمَدُ", opts: ["الصَّمَدُ", "أَحَدٌ", "يَلِدْ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Ikhlas):\nلَمْ يَلِدْ وَلَمْ ...", ans: "يُولَدْ", opts: ["يُولَدْ", "يَكُنْ", "أَحَدٌ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Ikhlas):\nوَلَمْ يَكُن لَّهُ كُفُوًا ...", ans: "أَحَدٌ", opts: ["أَحَدٌ", "الصَّمَدُ", "يُولَدْ"], cat: "quran" },
+
+    { q: "Sambung ayat berikut (Al-Lahab):\nتَبَّتْ يَدَا أَبِي لَهَبٍ ...", ans: "وَتَبَّ", opts: ["وَتَبَّ", "كَسَبَ", "لَهَبٍ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Lahab):\nمَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا ...", ans: "كَسَبَ", opts: ["كَسَبَ", "وَتَبَّ", "حَطَبَ"], cat: "quran" },
+    
+    { q: "Sambung ayat berikut (An-Nasr):\nإِذَا جَاءَ نَصْرُ اللَّهِ ...", ans: "وَالْفَتْحُ", opts: ["وَالْفَتْحُ", "أَفْوَاجًا", "تَوَّابًا"], cat: "quran" },
+    { q: "Sambung ayat berikut (An-Nasr):\nوَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ ...", ans: "أَفْوَاجًا", opts: ["أَفْوَاجًا", "وَالْفَتْحُ", "تَوَّابًا"], cat: "quran" },
+    { q: "Sambung ayat berikut (An-Nasr):\nفَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ ...", ans: "تَوَّابًا", opts: ["تَوَّابًا", "أَفْوَاجًا", "وَالْفَتْحُ"], cat: "quran" },
+
+    { q: "Sambung ayat berikut (Al-Kafirun):\nقُلْ يَا أَيُّهَا ...", ans: "الْكَافِرُونَ", opts: ["الْكَافِرُونَ", "الْمُسْلِمُونَ", "النَّاسُ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Kafirun):\nلَا أَعْبُدُ مَا ...", ans: "تَعْبُدُونَ", opts: ["تَعْبُدُونَ", "عَبَدْتُمْ", "دِينِكُمْ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Kafirun):\nلَكُمْ دِينُكُمْ وَلِيَ ...", ans: "دِينِ", opts: ["دِينِ", "عَبَدْتُمْ", "تَعْبُدُونَ"], cat: "quran" },
+
+    { q: "Sambung ayat berikut (Al-Kautsar):\nإِنَّا أَعْطَيْنَاكَ ...", ans: "الْكَوْثَرَ", opts: ["الْكَوْثَرَ", "الْأَبْتَرُ", "وَانْحَرْ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Kautsar):\nفَصَلِّ لِرَبِّكَ ...", ans: "وَانْحَرْ", opts: ["وَانْحَرْ", "الْكَوْثَرَ", "الْأَبْتَرُ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Kautsar):\nإِنَّ شَانِئَكَ هُوَ ...", ans: "الْأَبْتَرُ", opts: ["الْأَبْتَرُ", "الْكَوْثَرَ", "وَانْحَرْ"], cat: "quran" },
+
+    { q: "Sambung ayat berikut (Al-Ma'un):\nأَرَأَيْتَ الَّذِي يُكَذِّبُ ...", ans: "بِالدِّينِ", opts: ["بِالدِّينِ", "الْيَتِيمَ", "الْمِسْكِينِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Ma'un):\nفَذَٰلِكَ الَّذِي يَدُعُّ ...", ans: "الْيَتِيمَ", opts: ["الْيَتِيمَ", "الْمِسْكِينِ", "بِالدِّينِ"], cat: "quran" },
+    { q: "Sambung ayat berikut (Al-Ma'un):\nوَلَا يَحُضُّ عَلَىٰ طَعَامِ ...", ans: "الْمِسْكِينِ", opts: ["الْمِسْكِينِ", "الْيَتِيمَ", "لِّلْمُصَلِّينَ"], cat: "quran" }
   ];
 
-  let myRole = 0; // 1 = P1, 2 = P2
+  let myRole = 0; 
   let roomId = "";
   let currentRoomRef = null;
-  const maxQuestionsPerGame = 50; // Jumlah maksimal soal yang dimainkan
+  const maxQuestionsPerGame = 50; 
   
   let p1 = { correct: 0, wrong: 0, index: 0, questions: [] };
   let p2 = { correct: 0, wrong: 0, index: 0, questions: [] };
@@ -296,7 +498,6 @@
   let lastChatCount = 0; 
   let lastRestart = 0; 
 
-  // --- LOGIKA SINKRONISASI (Sama seperti Madasa) ---
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
@@ -335,7 +536,6 @@
     });
   }
 
-  // --- LOGIKA PEMBUATAN KAMAR ---
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
@@ -377,11 +577,17 @@
 
   function hostPilihMode(modeDipilih) { window.dbUpdate(currentRoomRef, { mode: modeDipilih }); mulaiPermainan(modeDipilih); }
 
-  // --- LOGIKA PENGACAKAN SOAL ISLAMI ---
   function mulaiPermainan(mode) {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
     document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
+    
+    // MAINKAN AUDIO LATAR SAAT GAME DIMULAI
+    try { 
+      let bgm = document.getElementById('bg-music');
+      bgm.volume = 0.4; // Mengecilkan volume agar tidak menutupi suara benar/salah
+      bgm.play(); 
+    } catch(e){}
 
     generateQuestions(mode);
     loadQuestion(1); loadQuestion(2); startTimer();
@@ -389,22 +595,13 @@
 
   function generateQuestions(modePilihan) {
     let filteredQuestions = [];
-    
-    // Filter soal berdasarkan pilihan host
     if (modePilihan === 'campuran') {
       filteredQuestions = [...bankSoal];
     } else {
       filteredQuestions = bankSoal.filter(item => item.cat === modePilihan);
     }
-
-    // Mengacak susunan soal
     filteredQuestions.sort(() => Math.random() - 0.5);
-
-    // Membatasi jumlah maksimal soal per ronde agar tidak berat
     let finalQuestions = filteredQuestions.slice(0, maxQuestionsPerGame);
-
-    // Berikan urutan soal yang sama persis kepada P1 dan P2
-    // Supaya aman jika ada object reference, kita buat salinan (copy) string JSON
     p1.questions = JSON.parse(JSON.stringify(finalQuestions));
     p2.questions = JSON.parse(JSON.stringify(finalQuestions));
   }
@@ -424,7 +621,6 @@
     let optsDiv = document.getElementById(`${prefix}-options`);
     optsDiv.innerHTML = '';
     
-    // Mengacak urutan tombol pilihan (A, B, C) untuk setiap soal yang dimuat
     let diacakOpts = [...qData.opts].sort(() => Math.random() - 0.5);
 
     diacakOpts.forEach(opt => {
@@ -445,7 +641,20 @@
     notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
     zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
     
-    if (isCorrect) { pData.correct++; } else { pData.wrong++; }
+    // MAINKAN EFEK SUARA BENAR ATAU SALAH
+    if (isCorrect) { 
+      pData.correct++; 
+      try { 
+        let sBenar = document.getElementById('sound-benar');
+        sBenar.currentTime = 0; sBenar.play(); 
+      } catch(e){}
+    } else { 
+      pData.wrong++; 
+      try { 
+        let sSalah = document.getElementById('sound-salah');
+        sSalah.currentTime = 0; sSalah.play(); 
+      } catch(e){}
+    }
     pData.index++; 
 
     let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong };
@@ -476,7 +685,6 @@
     document.getElementById('chat-icon').style.display = 'flex';
   }
 
-  // --- LOGIKA TOMBOL UI CHAT & KELUAR ---
   function toggleChat() {
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
@@ -512,6 +720,12 @@
     document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
     document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
     document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih Kategori...";
+    
+    // MATIKAN MUSIK KETIKA KEMBALI KE LOBI
+    try { 
+      let bgm = document.getElementById('bg-music');
+      bgm.pause(); bgm.currentTime = 0; 
+    } catch(e){}
   }
 
   function akhiriGame() {
