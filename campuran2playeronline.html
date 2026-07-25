@@ -190,40 +190,66 @@
 </script>
 
 <!-- === LOGIKA PERMAINAN === -->
+<!-- === LOGIKA PERMAINAN === -->
 <script>
   let myRole = 0; // 1 = P1, 2 = P2
   let roomId = "";
   let currentRoomRef = null;
   const totalQuestions = 100;
-  let p1 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
-  let p2 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
+  
+  // Objek penyimpan data pemain
+  let p1 = { correct: 0, wrong: 0, index: 0, questions: [] };
+  let p2 = { correct: 0, wrong: 0, index: 0, questions: [] };
+  
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
 
-  // --- LOGIKA KAMAR (ROOM) ---
+  // --- 1. FUNGSI SINKRONISASI REAL-TIME ---
+  function pantauDataKamar() {
+    window.dbOnValue(currentRoomRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      // Pantau jika P2 Gabung (Untuk Layar P1)
+      if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
+        document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
+        document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
+        document.getElementById('p2-status').style.color = "#2E7D32";
+        document.getElementById('host-controls').style.display = 'flex';
+      }
+
+      // Pantau jika Mode Dipilih (Untuk Layar P2)
+      if (myRole === 2 && data.mode && data.mode !== "" && document.getElementById('welcome-screen').style.display === 'flex') {
+        mulaiPermainan(data.mode);
+      }
+
+      // Pantau Tarikan Skor Lawan secara Real-time
+      if (data.p1) { p1.correct = data.p1.correct; p1.wrong = data.p1.wrong; }
+      if (data.p2) { p2.correct = data.p2.correct; p2.wrong = data.p2.wrong; }
+    });
+  }
+
+  // --- 2. LOGIKA KAMAR (ROOM) ---
   function buatKamar() {
-    roomId = Math.floor(1000 + Math.random() * 9000).toString(); // Buat 4 angka acak
+    roomId = Math.floor(1000 + Math.random() * 9000).toString();
     myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    // Bikin ruang di database
-    window.dbSet(currentRoomRef, { mode: "", p2_ready: false });
+    // Set nilai awal kamar
+    window.dbSet(currentRoomRef, { 
+      mode: "", 
+      p2_ready: false,
+      p1: { correct: 0, wrong: 0 },
+      p2: { correct: 0, wrong: 0 }
+    });
 
     document.getElementById('room-screen').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('room-code-display').innerText = roomId;
-    document.getElementById('p2-zone').classList.add('terkunci'); // Kunci area P2
+    document.getElementById('p2-zone').classList.add('terkunci');
 
-    // Dengarkan kalau P2 masuk
-    window.dbOnValue(currentRoomRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
-        document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
-        document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
-        document.getElementById('p2-status').style.color = "#2E7D32";
-        document.getElementById('host-controls').style.display = 'flex'; // Munculkan tombol mode
-      }
-    });
+    // WAJIB: Jalankan pemantauan Firebase
+    pantauDataKamar(); 
   }
 
   function gabungKamar() {
@@ -234,38 +260,32 @@
     myRole = 2;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    // Kasih tau Firebase kalau P2 udah masuk
+    // Lapor ke Firebase bahwa P2 sudah masuk
     window.dbUpdate(currentRoomRef, { p2_ready: true });
 
     document.getElementById('room-screen').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('room-code-display').innerText = roomId;
     document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
-    document.getElementById('p1-zone').classList.add('terkunci'); // Kunci area P1
+    document.getElementById('p1-zone').classList.add('terkunci');
 
-    // Dengarkan kalau P1 milih mode soal
-    window.dbOnValue(currentRoomRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data && data.mode !== "" && document.getElementById('welcome-screen').style.display === 'flex') {
-        mulaiPermainan(data.mode); // Langsung mulai main kalau mode berubah
-      }
-    });
+    // WAJIB: Jalankan pemantauan Firebase
+    pantauDataKamar(); 
   }
 
   function hostPilihMode(modeDipilih) {
-    // Tulis ke Firebase agar P2 juga ikut mulai
     window.dbUpdate(currentRoomRef, { mode: modeDipilih });
     mulaiPermainan(modeDipilih);
   }
 
-  // --- LOGIKA PERMAINAN (SAMA SEPERTI SEBELUMNYA) ---
+  // --- 3. LOGIKA PERMAINAN ---
   function mulaiPermainan(mode) {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai');
     document.getElementById('p2-zone').classList.remove('belum-mulai');
     try { document.getElementById('bg-music').play(); } catch(e){}
 
-    generateQuestions(mode); // P1 dan P2 akan punya soal yang urutannya beda karena Math.random lokal
+    generateQuestions(mode);
     loadQuestion(1); loadQuestion(2);
     startTimer();
   }
@@ -315,11 +335,11 @@
   }
 
   function checkAnswer(player, selected, correct) {
-    if (player !== myRole) return; // Cegah ngeklik area lawan
+    if (player !== myRole) return; // Kunci agar tidak bisa klik area lawan
+    
     let pData = player === 1 ? p1 : p2;
     let isCorrect = (selected === correct);
     
-    // Munculkan notif lokal
     let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
     let notif = document.createElement('div'); notif.className = 'notif-lucu';
     notif.innerText = isCorrect ? "🔥 Benar!" : "❌ Salah!";
@@ -327,13 +347,31 @@
     zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
     
     if (isCorrect) { pData.correct++; } else { pData.wrong++; }
-    pData.index++; loadQuestion(player);
+    pData.index++; 
+
+    // WAJIB: Kirim pembaruan skor ke Firebase setiap kali menjawab
+    window.dbUpdate(currentRoomRef, {
+      [`p${myRole}/correct`]: pData.correct,
+      [`p${myRole}/wrong`]: pData.wrong
+    });
+
+    loadQuestion(player);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
+    
     let pData = player === 1 ? p1 : p2;
-    pData.index++; loadQuestion(player);
+    pData.wrong++; // Dihitung salah jika dilewati agar sinkron
+    pData.index++; 
+
+    // Kirim juga saat soal dilewati
+    window.dbUpdate(currentRoomRef, {
+      [`p${myRole}/correct`]: pData.correct,
+      [`p${myRole}/wrong`]: pData.wrong
+    });
+
+    loadQuestion(player);
   }
 
   function startTimer() {
@@ -346,10 +384,14 @@
 
   function endGame() {
     clearInterval(timerInterval);
+    
+    // Tarik nilai akhir (Sudah tersinkron otomatis oleh pantauDataKamar)
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
     document.getElementById('p1-benar').innerText = p1.correct;
+    
     document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
     document.getElementById('p2-benar').innerText = p2.correct;
+    
     document.getElementById('result-screen').style.display = 'flex';
   }
 </script>
