@@ -233,7 +233,10 @@
           <p style="color: #4CAF50; font-weight: 900;">Benar: <span id="p2-benar">0</span></p>
         </div>
       </div>
-      <button class="btn-mode btn-campuran" onclick="location.reload()">🏠 Main Lagi</button>
+     <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto;">
+        <button class="btn-mode btn-tambah" onclick="mainLagi()" style="flex: 1; margin: 0; font-size: 16px;">🔄 Main Lagi</button>
+        <button class="btn-mode" onclick="akhiriGame()" style="flex: 1; margin: 0; background: #F44336; border-color: #FFF; font-size: 16px;">🚪 Akhiri Game</button>
+      </div>
     </div>
   </div>
 
@@ -296,12 +299,27 @@
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; // Menyimpan jumlah pesan untuk trigger notifikasi
+  let lastRestart = 0; // Melacak jika pemain klik Main Lagi
 
   // --- 1. FUNGSI SINKRONISASI REAL-TIME & CHAT ---
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
-      if (!data) return;
+      
+      // LOGIKA JIKA KAMAR DIBUBARKAN (AKHIRI GAME)
+      if (!data) {
+        if (roomId !== "") {
+          alert("Lawan telah keluar dari kamar. Permainan berakhir.");
+          location.reload();
+        }
+        return;
+      }
+
+      // LOGIKA JIKA DIAJAK MAIN LAGI
+      if (data.restart && data.restart !== lastRestart) {
+        lastRestart = data.restart;
+        kembaliKeLobi();
+      }
 
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
         document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
@@ -609,6 +627,51 @@
   document.getElementById('chat-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') kirimPesan();
   });
+  
+  function mainLagi() {
+    // Reset data skor dan perintahkan Firebase untuk memulai ulang lobi
+    let updateData = { 
+      mode: "", 
+      p1: { correct: 0, wrong: 0 }, 
+      p2: { correct: 0, wrong: 0 },
+      restart: Date.now() 
+    };
+    window.dbUpdate(currentRoomRef, updateData);
+  }
+
+  function kembaliKeLobi() {
+    // Sembunyikan layar hasil akhir, tampilkan lobi
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    
+    // Beri efek blur pada zona permainan (mengunci game board)
+    document.getElementById('p1-zone').classList.add('belum-mulai');
+    document.getElementById('p2-zone').classList.add('belum-mulai');
+
+    // Reset Skor Lokal & UI ke 0
+    p1 = { correct: 0, wrong: 0, index: 0, questions: [] };
+    p2 = { correct: 0, wrong: 0, index: 0, questions: [] };
+    timeLeft = 60;
+    timerDisplay.innerText = "60";
+    timerDisplay.classList.remove('waktu-kritis');
+    
+    document.getElementById('p1-q').innerText = "Soal";
+    document.getElementById('p2-q').innerText = "Soal";
+    document.getElementById('p1-options').innerHTML = "";
+    document.getElementById('p2-options').innerHTML = "";
+    
+    // Ubah teks status di lobi
+    document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih mode...";
+  }
+
+  function akhiriGame() {
+    // Hapus kamar di Firebase agar lawan otomatis mendapat notifikasi keluar
+    if (currentRoomRef) {
+      window.dbRemove(currentRoomRef);
+    }
+    location.reload(); // Muat ulang web ke menu utama
+  }
+  
 </script>
 
 </body>
