@@ -567,41 +567,58 @@
     }
   }
 
+// --- MENGUNCI BUG RACE CONDITION DENGAN .then() ---
+
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-    window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } });
-    document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
-    document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+    
+    // Tunggu kamar selesai dibuat, baru ganti layar UI
+    window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
+      document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+      document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
+      document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+    });
   }
 
   function gabungKamar() {
     const input = document.getElementById('input-kode-kamar').value;
     if (input.length !== 4) { alert("Masukkan 4 digit kode dengan benar!"); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-    window.dbUpdate(currentRoomRef, { p2_ready: true });
-    document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
-    document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+    
+    // Tunggu status 'ready' sukses terkirim ke P1, baru ganti layar
+    window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+      document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+      document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
+      document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+    });
   }
 
   function cariLawanAcak() {
     document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('room-code-display').innerText = "MENCARI..."; document.getElementById('p2-status').innerText = "Mencari lawan yang tersedia di internet...";
     const antreanRef = window.dbRef(window.db, 'antrean_global_islam');
+    
     window.dbGet(antreanRef).then((snapshot) => {
       if (snapshot.exists()) {
+        // PERAN SEBAGAI PLAYER 2
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        window.dbRemove(antreanRef); window.dbUpdate(currentRoomRef, { p2_ready: true });
-        document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 memilih mode...";
-        document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+        window.dbRemove(antreanRef); 
+        window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+          document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 memilih mode...";
+          document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+        });
       } else {
+        // PERAN SEBAGAI PLAYER 1 (HOST)
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } });
-        window.dbSet(antreanRef, roomId);
-        document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
-        document.getElementById('p2-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+        
+        // PERBAIKAN BUG BENGONG: P1 buat kamar dulu sampai TUNTAS (.then), BARU menaruh nomor kamar di antrean
+        window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
+          window.dbSet(antreanRef, roomId).then(() => {
+            document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
+            document.getElementById('p2-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+          });
+        });
       }
     }).catch((error) => { alert("Gagal terhubung ke server."); location.reload(); });
   }
