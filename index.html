@@ -30,7 +30,6 @@
 <style>
   * { 
     box-sizing: border-box; 
-    /* Hilangkan warna biru highlight bawaan browser HP */
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -44,28 +43,17 @@
     user-select: none;
   }
 
-  /* Custom Scrollbar Ringan */
   #app-container::-webkit-scrollbar { width: 6px; }
   #app-container::-webkit-scrollbar-track { background: transparent; }
   #app-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.8); border-radius: 10px; }
 
-  /* --- KONTAINER UTAMA --- */
   #app-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center;
     overflow-y: auto; overflow-x: hidden;
     transition: transform 0.2s ease-out; 
     transform-origin: center center;
-    
-    /* Background Gradient Ringan (Tanpa background-attachment: fixed) */
-    background: linear-gradient(to bottom, 
-      #29B6F6 0%,   
-      #81D4FA 35%,  
-      #FFF59D 50%,  
-      #A5D6A7 55%,  
-      #4CAF50 85%,  
-      #2E7D32 100%
-    );
+    background: linear-gradient(to bottom, #29B6F6 0%, #81D4FA 35%, #FFF59D 50%, #A5D6A7 55%, #4CAF50 85%, #2E7D32 100%);
   }
 
   .layar-diputar {
@@ -74,8 +62,7 @@
     margin-top: -50vw !important; margin-left: -50vh !important;
   }
 
-  /* --- LAYAR WELCOME (RINGAN TANPA BLUR) --- */
-  #welcome-overlay {
+  .screen-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(41, 182, 246, 0.96);
     z-index: 100; display: flex; flex-direction: column; align-items: center;
@@ -85,276 +72,154 @@
   }
 
   .welcome-content {
-    background: #ffffff;
-    border: 3px solid #FFF; border-radius: 28px;
+    background: #ffffff; border: 3px solid #FFF; border-radius: 28px;
     padding: clamp(20px, 3vh, 30px) clamp(20px, 4vw, 25px); 
-    text-align: center; 
-    width: min(92%, 380px); 
-    max-height: 95vh;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); 
-    box-sizing: border-box;
+    text-align: center; width: min(92%, 380px); max-height: 95vh;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); box-sizing: border-box;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     position: relative; z-index: 101;
   }
 
-  .welcome-icon { 
-    font-size: clamp(40px, 9vmin, 55px); 
-    margin-bottom: 6px; 
-  }
-
-  .welcome-content h1 { 
-    font-size: clamp(22px, 6vmin, 30px); 
-    color: #0277BD;
-    margin: 0 0 4px 0; font-weight: 900; line-height: 1.15;
-  }
+  .welcome-icon { font-size: clamp(40px, 9vmin, 55px); margin-bottom: 6px; }
+  .welcome-content h1 { font-size: clamp(22px, 6vmin, 30px); color: #0277BD; margin: 0 0 4px 0; font-weight: 900; line-height: 1.15; }
   .welcome-content h2 { font-size: clamp(14px, 3.8vmin, 18px); color: #2E7D32; margin: 0 0 10px 0; font-weight: 800; }
   .welcome-content p { font-size: clamp(12px, 3vmin, 14px); color: #37474F; line-height: 1.45; font-weight: 700; margin: 0 0 16px 0; }
 
   .welcome-buttons { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
-
-  .btn-masuk {
-    background: #F57C00;
-    color: white; border: none; 
-    padding: clamp(10px, 1.8vh, 14px) 18px; 
-    font-size: clamp(14px, 3.8vmin, 17px);
+  
+  .btn-masuk, .btn-aksi {
+    background: #F57C00; color: white; border: none; 
+    padding: clamp(10px, 1.8vh, 14px) 18px; font-size: clamp(14px, 3.8vmin, 17px);
     font-weight: 900; border-radius: 25px; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(245, 124, 0, 0.3); 
-    transition: transform 0.1s ease, opacity 0.1s ease; 
-    width: 95%; outline: none; letter-spacing: 0.5px;
-    touch-action: manipulation;
+    box-shadow: 0 4px 10px rgba(245, 124, 0, 0.3); transition: transform 0.1s ease; 
+    width: 95%; outline: none; font-family: inherit; text-decoration: none;
+    display: flex; justify-content: center; align-items: center;
   }
-  .btn-masuk:active { transform: scale(0.95); opacity: 0.9; }
+  .btn-masuk:active, .btn-aksi:active { transform: scale(0.95); }
 
   .btn-install {
-    background: #2E7D32;
-    color: white; border: none; 
-    padding: clamp(10px, 1.8vh, 14px) 18px; 
-    font-size: clamp(13px, 3.5vmin, 15px);
+    background: #2E7D32; color: white; border: none; 
+    padding: clamp(10px, 1.8vh, 14px) 18px; font-size: clamp(13px, 3.5vmin, 15px);
     font-weight: 900; border-radius: 25px; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); 
-    transition: transform 0.1s ease, opacity 0.1s ease; 
-    width: 95%; display: none; outline: none;
-    touch-action: manipulation;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); transition: transform 0.1s ease; 
+    width: 95%; display: none; outline: none; font-family: inherit;
   }
-  .btn-install:active { transform: scale(0.95); opacity: 0.9; }
 
-  /* Tombol Putar Layar Mini */
   .btn-rotate-mini {
-    background: #FFF;
-    color: #0288D1; border: 2px solid #81D4FA; 
-    padding: 7px 16px; 
-    font-size: clamp(11px, 2.8vmin, 13px);
+    background: #FFF; color: #0288D1; border: 2px solid #81D4FA; 
+    padding: 7px 16px; font-size: clamp(11px, 2.8vmin, 13px);
     font-weight: 800; border-radius: 20px; cursor: pointer;
-    transition: transform 0.1s ease; 
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    margin-top: 4px; outline: none;
-    touch-action: manipulation;
+    transition: transform 0.1s ease; display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 4px; outline: none; font-family: inherit;
   }
-  .btn-rotate-mini:active { transform: scale(0.95); background: #E1F5FE; }
 
-  /* HEADER PORTAL UTAMA */
   .header {
     text-align: center; margin-top: clamp(20px, 4vh, 40px); padding: 0 clamp(10px, 3vw, 20px); flex-shrink: 0;
     width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1;
   }
-  .salam { 
-    font-family: 'Amiri', serif; font-size: clamp(24px, 6.5vmin, 38px); color: #1B5E20; 
-    margin-bottom: 4px; font-weight: bold; 
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
-  }
-  .header h1 { 
-    font-size: clamp(28px, 8vmin, 46px); font-weight: 900; margin: 0; 
-    color: #01579B;
-    text-shadow: 1px 1px 0px #FFF;
-    letter-spacing: -0.5px;
-  }
-  .header p {
-    font-size: clamp(12px, 3.4vmin, 17px); font-weight: 800; margin-top: 10px; color: #E65100;
-    background: #ffffff;
-    display: inline-block; padding: 8px 24px; border-radius: 25px;
-    border: 2px solid #FFF; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
-  }
+  .salam { font-family: 'Amiri', serif; font-size: clamp(24px, 6.5vmin, 38px); color: #1B5E20; margin-bottom: 4px; font-weight: bold; text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9); }
+  .header h1 { font-size: clamp(28px, 8vmin, 46px); font-weight: 900; margin: 0; color: #01579B; text-shadow: 1px 1px 0px #FFF; letter-spacing: -0.5px; }
+  .header p { font-size: clamp(12px, 3.4vmin, 17px); font-weight: 800; margin-top: 10px; color: #E65100; background: #ffffff; display: inline-block; padding: 8px 24px; border-radius: 25px; border: 2px solid #FFF; }
 
-  /* GRID MENU GAME */
   .game-menu {
-    display: grid; 
-    grid-template-columns: repeat(2, 1fr); 
-    gap: clamp(12px, 3vmin, 20px); 
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(12px, 3vmin, 20px); 
     max-width: 900px; width: min(92%, 900px); 
     margin: clamp(20px, 3vh, 35px) auto clamp(30px, 6vh, 60px) auto; 
     flex-grow: 1; position: relative; z-index: 1;
   }
 
-  /* CARD DESIGN DINGANKAN & RINGAN */
   .game-card {
-    background: #ffffff; 
-    border: 2px solid #ffffff; 
-    border-radius: clamp(16px, 3.5vmin, 24px); 
+    background: #ffffff; border: 2px solid #ffffff; border-radius: clamp(16px, 3.5vmin, 24px); 
     padding: clamp(16px, 3vh, 24px) clamp(10px, 2vw, 16px); 
     text-align: center; text-decoration: none; color: #333; 
-    position: relative; overflow: hidden; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); 
-    transition: transform 0.1s ease, opacity 0.1s ease; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: transform 0.1s ease; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    touch-action: manipulation;
   }
+  .game-card:active { transform: scale(0.96); opacity: 0.9; }
 
-  /* EFEK TAP RINGAN UNTUK HP */
-  .game-card:active { 
-    transform: scale(0.96); 
-    opacity: 0.9;
-  }
-
-  .icon-container { 
-    font-size: clamp(36px, 10vmin, 58px); margin-bottom: 6px; 
-  }
-  
+  .icon-container { font-size: clamp(36px, 10vmin, 58px); margin-bottom: 6px; }
   .game-card h2 { font-size: clamp(14px, 3.8vmin, 20px); font-weight: 900; margin: 0 0 4px 0; line-height: 1.2; }
   .game-card p { font-size: clamp(11px, 2.6vmin, 13px); font-weight: 700; color: #546E7A; margin: 0; }
 
   /* TEMA WARNA TEXT CARD */
-  .c-balon h2 { color: #2E7D32; }
-  .c-hijaiyah h2 { color: #C2185B; }
-  .c-harakat h2 { color: #00695C; }
-  .c-caribeda h2 { color: #4527A0; }
-  .c-tajwid h2 { color: #C62828; }
-  .c-pola h2 { color: #AD1457; }
-  .c-angka h2 { color: #0277BD; }
-  .c-kereta h2 { color: #D84315; }
-  .c-kuis h2 { color: #6A1B9A; }
-  .c-fiqih h2 { color: #00695C; }
-  .c-nabi h2 { color: #4E342E; }
-  .c-akhlak h2 { color: #C2185B; }
-  .c-ciptaan h2 { color: #F57F17; }
-  .c-bayangan h2 { color: #00838F; }
-  .c-memori h2 { color: #AD1457; }
+  .c-balon h2 { color: #2E7D32; } .c-hijaiyah h2 { color: #C2185B; } .c-harakat h2 { color: #00695C; }
+  .c-caribeda h2 { color: #4527A0; } .c-tajwid h2 { color: #C62828; } .c-pola h2 { color: #AD1457; }
+  .c-angka h2 { color: #0277BD; } .c-kereta h2 { color: #D84315; } .c-kuis h2 { color: #6A1B9A; }
+  .c-fiqih h2 { color: #00695C; } .c-nabi h2 { color: #4E342E; } .c-akhlak h2 { color: #C2185B; }
+  .c-ciptaan h2 { color: #F57F17; } .c-bayangan h2 { color: #00838F; } .c-memori h2 { color: #AD1457; }
+  .c-bacaangka h2 { color: #1565C0; } .c-hitung h2 { color: #FF8F00; } .c-tambah h2 { color: #2E7D32; }
+  .c-kurang h2 { color: #EF6C00; } .c-kali h2 { color: #7B1FA2; } .c-bagi h2 { color: #0277BD; }
+  .c-campuran h2 { color: #C2185B; } .c-2player h2 { color: #C62828; } .c-tebakbuah h2 { color: #2E7D32; }
+  .c-bintang h2 { color: #F57F17; } .c-hurufawal h2 { color: #1565C0; } .c-susunkata h2 { color: #827717; } .c-warna h2 { color: #512DA8; }
 
-  .c-bacaangka h2 { color: #1565C0; }
-  .c-hitung h2 { color: #FF8F00; }
-  .c-tambah h2 { color: #2E7D32; }
-  .c-kurang h2 { color: #EF6C00; }
-  .c-kali h2 { color: #7B1FA2; }
-  .c-bagi h2 { color: #0277BD; }
-  .c-campuran h2 { color: #C2185B; }
-  .c-2player h2 { color: #C62828; }
-
-  .c-tebakbuah h2 { color: #2E7D32; }
-  .c-bintang h2 { color: #F57F17; }
-  .c-hurufawal h2 { color: #1565C0; }
-  .c-susunkata h2 { color: #827717; }
-  .c-warna h2 { color: #512DA8; }
-
-  /* TOMBOL MAIN RINGAN */
   .play-btn {
     display: inline-block; margin-top: clamp(8px, 1.5vh, 12px); 
     padding: clamp(6px, 1vh, 8px) clamp(12px, 2.5vw, 20px);
-    border-radius: 20px; font-size: clamp(10px, 2.6vmin, 13px); font-weight: 900; color: #FFF;
-    text-transform: uppercase; letter-spacing: 0.5px; 
-    border: none;
+    border-radius: 20px; font-size: clamp(10px, 2.6vmin, 13px); font-weight: 900; color: #FFF; border: none;
   }
   
-  .c-balon .play-btn { background: #2E7D32; }
-  .c-bayangan .play-btn { background: #0277BD; }
-  .c-bintang .play-btn { background: #F57C00; }
-  .c-memori .play-btn { background: #AD1457; }
-  .c-kuis .play-btn { background: #6A1B9A; }
-  .c-hitung .play-btn { background: #E65100; }
-  .c-angka .play-btn { background: #01579B; }
-  .c-hijaiyah .play-btn { background: #C51162; }
-  .c-harakat .play-btn { background: #004D40; }
-  .c-tajwid .play-btn { background: #B71C1C; }
-  .c-fiqih .play-btn { background: #00695C; }
-  .c-nabi .play-btn { background: #4E342E; }
-  .c-akhlak .play-btn { background: #C2185B; }
-  .c-ciptaan .play-btn { background: #F57F17; }
-  .c-kereta .play-btn { background: #D84315; }
-  .c-caribeda .play-btn { background: #4527A0; }
-  .c-hurufawal .play-btn { background: #1565C0; }
-  .c-susunkata .play-btn { background: #827717; }
-  .c-pola .play-btn { background: #AD1457; }
-  .c-warna .play-btn { background: #512DA8; }
-
-  .c-tambah .play-btn { background: #2E7D32; }
-  .c-kurang .play-btn { background: #EF6C00; }
-  .c-kali .play-btn { background: #7B1FA2; }
-  .c-bagi .play-btn { background: #0277BD; }
-  .c-campuran .play-btn { background: #C2185B; }
-  .c-2player .play-btn { background: #C62828; }
-
-  .c-bacaangka .play-btn { background: #1565C0; }
+  .c-balon .play-btn { background: #2E7D32; } .c-bayangan .play-btn { background: #0277BD; } .c-bintang .play-btn { background: #F57C00; }
+  .c-memori .play-btn { background: #AD1457; } .c-kuis .play-btn { background: #6A1B9A; } .c-hitung .play-btn { background: #E65100; }
+  .c-angka .play-btn { background: #01579B; } .c-hijaiyah .play-btn { background: #C51162; } .c-harakat .play-btn { background: #004D40; }
+  .c-tajwid .play-btn { background: #B71C1C; } .c-fiqih .play-btn { background: #00695C; } .c-nabi .play-btn { background: #4E342E; }
+  .c-akhlak .play-btn { background: #C2185B; } .c-ciptaan .play-btn { background: #F57F17; } .c-kereta .play-btn { background: #D84315; }
+  .c-caribeda .play-btn { background: #4527A0; } .c-hurufawal .play-btn { background: #1565C0; } .c-susunkata .play-btn { background: #827717; }
+  .c-pola .play-btn { background: #AD1457; } .c-warna .play-btn { background: #512DA8; } .c-tambah .play-btn { background: #2E7D32; }
+  .c-kurang .play-btn { background: #EF6C00; } .c-kali .play-btn { background: #7B1FA2; } .c-bagi .play-btn { background: #0277BD; }
+  .c-campuran .play-btn { background: #C2185B; } .c-2player .play-btn { background: #C62828; } .c-bacaangka .play-btn { background: #1565C0; }
   .c-tebakbuah .play-btn { background: #2E7D32; }
 
-  /* FOOTER RINGAN */
+  /* FOOTER DIPERBARUI: SATU BARIS */
   footer {
-    width: 100%; padding: 16px 0; text-align: center;
-    background: #ffffff;
-    border-top: 2px solid #E0E0E0; margin-top: auto;
-    z-index: 10; position: relative;
+    width: 100%; padding: 20px 0; text-align: center; background: #ffffff;
+    border-top: 2px solid #E0E0E0; margin-top: auto; z-index: 10; position: relative;
   }
 
-  /* STATISTIK PENGUNJUNG */
-  .visitor-stats {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #E1F5FE;
-    color: #0277BD;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: clamp(11px, 3vmin, 13px);
-    font-weight: 800;
-    margin-bottom: 12px;
-    border: 1px solid #81D4FA;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  .footer-action-row {
+    display: flex; gap: 12px; justify-content: center; align-items: center; 
+    margin-bottom: 12px; padding: 0 10px; flex-wrap: wrap;
   }
   
-  .visitor-stats span {
-    background: #0277BD;
-    color: #FFF;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: clamp(12px, 3.2vmin, 14px);
+  .visitor-stats-mini {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: #E1F5FE; color: #0277BD; padding: 0 18px; border-radius: 25px;
+    font-size: clamp(14px, 3.5vmin, 16px); font-weight: 900;
+    border: 1px solid #81D4FA; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    height: 44px; box-sizing: border-box;
+  }
+  
+  .visitor-stats-mini span {
+    background: #0277BD; color: #FFF; padding: 2px 10px; border-radius: 12px; 
+    font-size: clamp(13px, 3.2vmin, 15px); letter-spacing: 1px;
   }
 
+  .btn-dana-icon {
+    background: #118EEA; color: white; padding: 0 22px; border-radius: 25px; border: none;
+    font-family: inherit; font-weight: 900; font-size: clamp(13px, 3.5vmin, 15px);
+    box-shadow: 0 4px 10px rgba(17, 142, 234, 0.3); transition: transform 0.1s; cursor: pointer;
+    height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .btn-dana-icon:active { transform: scale(0.95); }
+
   .dev-link {
-    display: inline-block; padding: 8px 20px; 
-    font-size: clamp(12px, 3vmin, 14px); color: #37474F; text-decoration: none;
-    background: #FFF; border: 2px solid #FF9800; border-radius: 25px; 
-    white-space: nowrap; font-weight: 800;
-    touch-action: manipulation;
-    transition: transform 0.1s ease;
+    display: inline-block; padding: 8px 20px; font-size: clamp(12px, 3vmin, 14px); color: #37474F; text-decoration: none;
+    background: #FFF; border: 2px solid #FF9800; border-radius: 25px; white-space: nowrap; font-weight: 800; transition: transform 0.1s ease;
   }
   .dev-link:active { transform: scale(0.95); }
   .dev-link strong { color: #E65100; font-weight: 900; margin-left: 5px; }
 
-  /* MODE LANDSCAPE */
   @media (orientation: landscape) and (max-height: 600px) {
-    .header { margin-top: 15px; }
-    .salam { font-size: 18px; }
-    .header h1 { font-size: 22px; }
-    .header p { font-size: 11px; padding: 4px 12px; margin-top: 4px; }
-
-    .game-menu { gap: 10px; margin: 15px auto; width: 95%; }
-    .game-card { padding: 10px 6px; border-radius: 14px; }
-    .icon-container { font-size: 28px; margin-bottom: 2px; }
-    .game-card h2 { font-size: 12px; margin-bottom: 2px; }
-    .game-card p { font-size: 9px; }
+    .header { margin-top: 15px; } .salam { font-size: 18px; } .header h1 { font-size: 22px; } .header p { font-size: 11px; padding: 4px 12px; margin-top: 4px; }
+    .game-menu { gap: 10px; margin: 15px auto; width: 95%; } .game-card { padding: 10px 6px; border-radius: 14px; }
+    .icon-container { font-size: 28px; margin-bottom: 2px; } .game-card h2 { font-size: 12px; margin-bottom: 2px; }
     .play-btn { font-size: 9px; padding: 4px 8px; margin-top: 6px; }
-
     .welcome-content { padding: 12px 15px; width: 85%; max-width: 320px; }
-    .welcome-icon { font-size: 24px; margin-bottom: 2px; }
-    .welcome-content h1 { font-size: 15px; margin-bottom: 2px; }
-    .welcome-content h2 { font-size: 11px; margin-bottom: 4px; }
-    .welcome-content p { font-size: 9px; margin-bottom: 8px; }
-    .welcome-buttons { gap: 5px; }
-    .btn-masuk, .btn-install { padding: 6px 10px; font-size: 11px; }
-    .btn-rotate-mini { padding: 4px 8px; font-size: 9px; }
-
+    .welcome-icon { font-size: 24px; margin-bottom: 2px; } .welcome-content h1 { font-size: 15px; margin-bottom: 2px; }
+    .btn-masuk, .btn-aksi, .btn-install { padding: 6px 10px; font-size: 11px; }
     footer { padding: 8px 0; }
-    .visitor-stats { margin-bottom: 8px; padding: 4px 12px; font-size: 10px; }
-    .visitor-stats span { font-size: 11px; padding: 2px 6px; }
-    .dev-link { padding: 4px 12px; font-size: 10px; }
+    .footer-action-row { margin-bottom: 8px; gap: 8px; }
+    .visitor-stats-mini, .btn-dana-icon { height: 34px; padding: 0 12px; font-size: 10px; }
+    .visitor-stats-mini span { padding: 2px 6px; font-size: 11px; }
   }
 </style>
 </head>
@@ -362,10 +227,8 @@
 
 <div id="app-container">
 
-  <!-- ============================================== -->
-  <!-- LAYAR SELAMAT DATANG (SPLASH SCREEN) -->
-  <!-- ============================================== -->
-  <div id="welcome-overlay">
+  <!-- LAYAR SELAMAT DATANG -->
+  <div id="welcome-overlay" class="screen-overlay">
     <div class="welcome-content">
       <div class="welcome-icon">🌅</div>
       <h1>Selamat Datang!</h1>
@@ -380,9 +243,7 @@
     </div>
   </div>
 
-  <!-- ============================================== -->
   <!-- KONTEN PORTAL UTAMA -->
-  <!-- ============================================== -->
   <div class="header">
     <div class="salam">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</div>
     <h1>Portal Game MADASA</h1>
@@ -391,219 +252,50 @@
 
   <!-- GRID MENU PERMAINAN -->
   <div class="game-menu">
+    <a href="balon.html" class="game-card c-balon"><div class="icon-container">🎈</div><h2>Tangkap Balon</h2><p>Belajar Huruf Hijaiyah</p><div class="play-btn">Mainkan</div></a>
+    <a href="hijaiyah.html" class="game-card c-hijaiyah"><div class="icon-container">📖</div><h2>Kenal Hijaiyah</h2><p>Cari Huruf yang Tepat</p><div class="play-btn">Mainkan</div></a>
+    <a href="harakat.html" class="game-card c-harakat"><div class="icon-container">✨</div><h2>Pintar Harakat</h2><p>Belajar Membaca Iqra</p><div class="play-btn">Mainkan</div></a>
+    <a href="cari-beda.html" class="game-card c-caribeda"><div class="icon-container">🦅</div><h2>Cari Huruf Beda</h2><p>Latih Fokus Hijaiyah</p><div class="play-btn">Mainkan</div></a>
+    <a href="tajwid.html" class="game-card c-tajwid"><div class="icon-container">🕋</div><h2>Pintar Tajwid</h2><p>Hukum Bacaan Qur'an</p><div class="play-btn">Mainkan</div></a>
+    <a href="sambung-ayat.html" class="game-card c-pola"><div class="icon-container">📖</div><h2>Sambung Ayat</h2><p>Murojaah Surah Pendek</p><div class="play-btn">Mainkan</div></a>
+    <a href="angka.html" class="game-card c-angka"><div class="icon-container">١٢٣</div><h2>Angka Arab</h2><p>Cocokkan Angka 1-100</p><div class="play-btn">Mainkan</div></a>
+    <a href="kereta.html" class="game-card c-kereta"><div class="icon-container">🚂</div><h2>Kereta Angka</h2><p>Logika Urutan Arab</p><div class="play-btn">Mainkan</div></a>
+    <a href="anakshalih.html" class="game-card c-kuis"><div class="icon-container">💡</div><h2>Kuis Islami</h2><p>Uji Pengetahuanmu</p><div class="play-btn">Mainkan</div></a>
+    <a href="fiqih.html" class="game-card c-fiqih"><div class="icon-container">⚖️</div><h2>Cerdas Fiqih</h2><p>Hukum Islam Dasar</p><div class="play-btn">Mainkan</div></a>
+    <a href="nabi.html" class="game-card c-nabi"><div class="icon-container">📜</div><h2>Kisah Nabi</h2><p>Tebak Sejarah & Mukjizat</p><div class="play-btn">Mainkan</div></a>
+    <a href="akhlak.html" class="game-card c-akhlak"><div class="icon-container">💖</div><h2>Akhlak Mulia</h2><p>Tebak Baik & Buruk</p><div class="play-btn">Mainkan</div></a>
+    <a href="ciptaan.html" class="game-card c-ciptaan"><div class="icon-container">🌍</div><h2>Ciptaan Siapa?</h2><p>Belajar Bersyukur</p><div class="play-btn">Mainkan</div></a>
+    <a href="bayangan.html" class="game-card c-bayangan"><div class="icon-container">🕌</div><h2>Tebak Bayangan</h2><p>Mengenal Benda Islami</p><div class="play-btn">Mainkan</div></a>
+    <a href="memori.html" class="game-card c-memori"><div class="icon-container">🃏</div><h2>Memori Islami</h2><p>Latih Daya Ingatmu</p><div class="play-btn">Mainkan</div></a>
+
+    <a href="bacaangka.html" class="game-card c-bacaangka"><div class="icon-container">🔢</div><h2>Cara Baca Angka</h2><p>Belajar Membaca Angka</p><div class="play-btn">Mainkan</div></a>
+    <a href="hitung.html" class="game-card c-hitung"><div class="icon-container">🖐️</div><h2>Hitung Ceria</h2><p>Belajar Berhitung 1-10</p><div class="play-btn">Mainkan</div></a>
+    <a href="penjumlahan.html" class="game-card c-tambah"><div class="icon-container">🍎</div><h2>Penjumlahan</h2><p>Belajar Menjumlah</p><div class="play-btn">Mainkan</div></a>
+    <a href="pengurangan.html" class="game-card c-kurang"><div class="icon-container">🍓</div><h2>Pengurangan</h2><p>Belajar Sisa Berhitung</p><div class="play-btn">Mainkan</div></a>
+    <a href="perkalian.html" class="game-card c-kali"><div class="icon-container">📦</div><h2>Perkalian</h2><p>Penjumlahan Berulang</p><div class="play-btn">Mainkan</div></a>
+    <a href="pembagian.html" class="game-card c-bagi"><div class="icon-container">🍪</div><h2>Pembagian</h2><p>Berbagi Sama Rata</p><div class="play-btn">Mainkan</div></a>
+    <a href="campuran.html" class="game-card c-campuran"><div class="icon-container">🌟</div><h2>Ujian Campuran</h2><p>Tambah, Kurang, Kali, Bagi!</p><div class="play-btn">Mainkan</div></a>
+    <a href="campuran%202%20player.html" class="game-card c-2player"><div class="icon-container">⚔️</div><h2>Mode 2 Player</h2><p>Adu Cepat Matematika!</p><div class="play-btn">Mainkan</div></a>
     
-    <!-- === KATEGORI ISLAMI === -->
-    
-    <a href="balon.html" class="game-card c-balon">
-      <div class="icon-container">🎈</div>
-      <h2>Tangkap Balon</h2>
-      <p>Belajar Huruf Hijaiyah</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-    
-    <a href="hijaiyah.html" class="game-card c-hijaiyah">
-      <div class="icon-container">📖</div>
-      <h2>Kenal Hijaiyah</h2>
-      <p>Cari Huruf yang Tepat</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="harakat.html" class="game-card c-harakat">
-      <div class="icon-container">✨</div>
-      <h2>Pintar Harakat</h2>
-      <p>Belajar Membaca Iqra</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="cari-beda.html" class="game-card c-caribeda">
-      <div class="icon-container">🦅</div>
-      <h2>Cari Huruf Beda</h2>
-      <p>Latih Fokus Hijaiyah</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="tajwid.html" class="game-card c-tajwid">
-      <div class="icon-container">🕋</div>
-      <h2>Pintar Tajwid</h2>
-      <p>Hukum Bacaan Al-Qur'an</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-    
-    <a href="sambung-ayat.html" class="game-card c-pola">
-      <div class="icon-container">📖</div>
-      <h2>Sambung Ayat</h2>
-      <p>Murojaah Surah Pendek</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-    
-    <a href="angka.html" class="game-card c-angka">
-      <div class="icon-container">١٢٣</div>
-      <h2>Angka Arab</h2>
-      <p>Cocokkan Angka 1-100</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="kereta.html" class="game-card c-kereta">
-      <div class="icon-container">🚂</div>
-      <h2>Kereta Angka</h2>
-      <p>Logika Urutan Arab</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="anakshalih.html" class="game-card c-kuis">
-      <div class="icon-container">💡</div>
-      <h2>Kuis Islami</h2>
-      <p>Uji Pengetahuanmu</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="fiqih.html" class="game-card c-fiqih">
-      <div class="icon-container">⚖️</div>
-      <h2>Cerdas Fiqih</h2>
-      <p>Hukum Islam Dasar</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="nabi.html" class="game-card c-nabi">
-      <div class="icon-container">📜</div>
-      <h2>Kisah Nabi</h2>
-      <p>Tebak Sejarah & Mukjizat</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="akhlak.html" class="game-card c-akhlak">
-      <div class="icon-container">💖</div>
-      <h2>Akhlak Mulia</h2>
-      <p>Tebak Baik & Buruk</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="ciptaan.html" class="game-card c-ciptaan">
-      <div class="icon-container">🌍</div>
-      <h2>Ciptaan Siapa?</h2>
-      <p>Belajar Bersyukur</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="bayangan.html" class="game-card c-bayangan">
-      <div class="icon-container">🕌</div>
-      <h2>Tebak Bayangan</h2>
-      <p>Mengenal Benda Islami</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="memori.html" class="game-card c-memori">
-      <div class="icon-container">🃏</div>
-      <h2>Memori Islami</h2>
-      <p>Latih Daya Ingatmu</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-
-    <!-- === KATEGORI MATEMATIKA === -->
-
-    <a href="bacaangka.html" class="game-card c-bacaangka">
-      <div class="icon-container">🔢</div>
-      <h2>Tebak Cara Baca Angka</h2>
-      <p>Belajar Membaca Angka</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="hitung.html" class="game-card c-hitung">
-      <div class="icon-container">🖐️</div>
-      <h2>Hitung Ceria</h2>
-      <p>Belajar Berhitung 1-10</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="penjumlahan.html" class="game-card c-tambah">
-      <div class="icon-container">🍎</div>
-      <h2>Penjumlahan</h2>
-      <p>Belajar Menjumlah</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="pengurangan.html" class="game-card c-kurang">
-      <div class="icon-container">🍓</div>
-      <h2>Pengurangan</h2>
-      <p>Belajar Sisa Berhitung</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="perkalian.html" class="game-card c-kali">
-      <div class="icon-container">📦</div>
-      <h2>Perkalian</h2>
-      <p>Penjumlahan Berulang</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="pembagian.html" class="game-card c-bagi">
-      <div class="icon-container">🍪</div>
-      <h2>Pembagian</h2>
-      <p>Berbagi Sama Rata</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="campuran.html" class="game-card c-campuran">
-      <div class="icon-container">🌟</div>
-      <h2>Ujian Campuran</h2>
-      <p>Tambah, Kurang, Kali, Bagi!</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="campuran%202%20player.html" class="game-card c-2player">
-      <div class="icon-container">⚔️</div>
-      <h2>Mode 2 Player</h2>
-      <p>Adu Cepat Matematika!</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-
-    <!-- === KATEGORI UMUM === -->
-    
-    <a href="tebaknamabuah.html" class="game-card c-tebakbuah">
-      <div class="icon-container">🍉</div>
-      <h2>Tebak Nama Buah</h2>
-      <p>Mengenal Berbagai Buah</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="bintang.html" class="game-card c-bintang">
-      <div class="icon-container">⭐</div>
-      <h2>Tangkap Bintang</h2>
-      <p>Kumpulkan Kebaikan</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="huruf-awal.html" class="game-card c-hurufawal">
-      <div class="icon-container">🔤</div>
-      <h2>Tebak Huruf Awal</h2>
-      <p>Mengenal Huruf Abjad</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="susun-kata.html" class="game-card c-susunkata">
-      <div class="icon-container">🔠</div>
-      <h2>Susun Kata</h2>
-      <p>Belajar Membaca</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
-    <a href="warna.html" class="game-card c-warna">
-      <div class="icon-container">🎨</div>
-      <h2>Tebak Warna</h2>
-      <p>Mengenal Macam Warna</p>
-      <div class="play-btn">Mainkan</div>
-    </a>
-
+    <a href="tebaknamabuah.html" class="game-card c-tebakbuah"><div class="icon-container">🍉</div><h2>Tebak Nama Buah</h2><p>Mengenal Berbagai Buah</p><div class="play-btn">Mainkan</div></a>
+    <a href="bintang.html" class="game-card c-bintang"><div class="icon-container">⭐</div><h2>Tangkap Bintang</h2><p>Kumpulkan Kebaikan</p><div class="play-btn">Mainkan</div></a>
+    <a href="huruf-awal.html" class="game-card c-hurufawal"><div class="icon-container">🔤</div><h2>Tebak Huruf Awal</h2><p>Mengenal Huruf Abjad</p><div class="play-btn">Mainkan</div></a>
+    <a href="susun-kata.html" class="game-card c-susunkata"><div class="icon-container">🔠</div><h2>Susun Kata</h2><p>Belajar Membaca</p><div class="play-btn">Mainkan</div></a>
+    <a href="warna.html" class="game-card c-warna"><div class="icon-container">🎨</div><h2>Tebak Warna</h2><p>Mengenal Macam Warna</p><div class="play-btn">Mainkan</div></a>
   </div>
 
   <!-- FOOTER -->
   <footer>
-    <div class="visitor-stats">
-      👥 Total Pengunjung: <span id="visit-count">...</span>
+    <div class="footer-action-row">
+      <!-- Ikon Pengunjung & Angka Saja -->
+      <div class="visitor-stats-mini">
+        👥 <span id="visit-count">...</span>
+      </div>
+      
+      <!-- Tombol Donasi -->
+      <button class="btn-dana-icon" onclick="tampilkanPopupDonasi()">💙 Donasi DANA</button>
     </div>
-    <br>
+
     <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
       Development <strong>Arom Kobama 😎</strong>
     </a>
@@ -611,43 +303,68 @@
 
 </div>
 
+<!-- === POPUP DONASI DANA === -->
+<div id="popup-donasi" class="screen-overlay" style="display: none; z-index: 200; background: rgba(0,0,0,0.6);">
+  <div class="welcome-content" style="max-width: 320px; padding: 30px 20px;">
+    <h1 style="font-size: 24px; color: #118EEA; margin-bottom: 5px;">💙 Dukung Kami</h1>
+    <p style="margin-bottom: 20px;">Terima kasih! Silakan berdonasi melalui aplikasi DANA ke nomor berikut:</p>
+    
+    <div style="background: #E1F5FE; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 22px; font-weight: 900; color: #0277BD; letter-spacing: 1px; border: 2px dashed #81D4FA;">
+      0878-4666-6636
+    </div>
+    
+    <div class="welcome-buttons">
+      <!-- Tombol Salin -->
+      <button class="btn-aksi" style="background: #0288D1;" onclick="salinNomorDana()">📋 Salin Nomor DANA</button>
+      
+      <!-- Tombol WA (Masuk ke Sini) -->
+      <a href="https://wa.me/6282333166659?text=Assalamu'alaikum%20Admin%20Madasa,%20saya%20sudah%20berdonasi%20untuk%20mendukung%20web%20game%20ini." target="_blank" class="btn-aksi" style="background: #25D366;">✅ Konfirmasi via WA</a>
+      
+      <!-- Tombol Tutup -->
+      <button class="btn-aksi" style="background: #E91E63;" onclick="tutupPopupDonasi()">❌ Tutup</button>
+    </div>
+  </div>
+</div>
+
 <!-- JAVASCRIPT -->
 <script>
-  function putarLayar() {
-    document.getElementById('app-container').classList.toggle('layar-diputar');
-  }
-
+  function putarLayar() { document.getElementById('app-container').classList.toggle('layar-diputar'); }
+  
   function tutupWelcome() {
     const overlay = document.getElementById('welcome-overlay');
     if (overlay.style.visibility === 'hidden') return;
-    
-    overlay.style.opacity = '0';
-    overlay.style.transform = 'translateY(-20px)';
-    
-    setTimeout(() => {
-      overlay.style.display = 'none';
-      overlay.style.visibility = 'hidden';
-    }, 300);
+    overlay.style.opacity = '0'; overlay.style.transform = 'translateY(-20px)';
+    setTimeout(() => { overlay.style.display = 'none'; overlay.style.visibility = 'hidden'; }, 300);
+  }
+
+  function tampilkanPopupDonasi() {
+    const popup = document.getElementById('popup-donasi');
+    popup.style.display = 'flex'; popup.style.opacity = '1';
+  }
+
+  function tutupPopupDonasi() {
+    document.getElementById('popup-donasi').style.display = 'none';
+  }
+
+  function salinNomorDana() {
+    navigator.clipboard.writeText("087846666636").then(() => {
+      alert("✅ Nomor DANA (087846666636) berhasil disalin!");
+    }).catch(err => {
+      alert("Gagal menyalin nomor. Silakan salin manual.");
+    });
   }
 
   let deferredPrompt;
   const installBtn = document.getElementById('btn-install');
-
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'block';
+    e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
   });
-
   installBtn.addEventListener('click', async () => {
     if (installBtn.style.visibility === 'hidden') return;
     installBtn.style.display = 'none';
-    
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response: ${outcome}`);
-      deferredPrompt = null;
+      deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`); deferredPrompt = null;
     }
   });
 
@@ -655,31 +372,17 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(registration => {
         console.log('ServiceWorker PWA Aktif!');
-      }).catch(err => {
-        console.log('ServiceWorker Gagal:', err);
-      });
+      }).catch(err => { console.log('ServiceWorker Gagal:', err); });
     });
   }
 
-  // --- FITUR PENGHITUNG PENGUNJUNG NYATA (REAL-TIME TOTAL VISITS) ---
   function hitungPengunjung() {
-    const namespace = 'madasa_portal_game'; 
-    const key = 'kunjungan';
-    
+    const namespace = 'madasa_portal_game'; const key = 'kunjungan';
     fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
       .then(response => response.json())
-      .then(data => {
-        if(data && data.count) {
-          document.getElementById('visit-count').innerText = data.count.toLocaleString('id-ID');
-        }
-      })
-      .catch(err => {
-        console.error('Gagal memuat data pengunjung:', err);
-        document.getElementById('visit-count').innerText = "Offline";
-      });
+      .then(data => { if(data && data.count) { document.getElementById('visit-count').innerText = data.count.toLocaleString('id-ID'); } })
+      .catch(err => { console.error('Gagal memuat data:', err); document.getElementById('visit-count').innerText = "Offline"; });
   }
-
-  // Panggil fungsi saat halaman selesai dimuat
   window.addEventListener('DOMContentLoaded', hitungPengunjung);
 </script>
 
