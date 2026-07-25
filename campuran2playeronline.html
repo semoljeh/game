@@ -60,8 +60,6 @@
   .btn-kurang { background: #FF9800; }
   .btn-kali { background: #9C27B0; }
   .btn-bagi { background: #00BCD4; }
-
-  .dev-link { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); padding: 6px 20px; font-size: 14px; text-decoration: none; background: rgba(255,255,255,0.9); border: 2px solid #FFD700; border-radius: 25px; font-weight: 700; z-index: 60;}
   
   .result-card { background: #FFF; border: 4px solid #FFF; padding: 15px; border-radius: 25px; margin: 10px; width: 200px; }
   .results-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
@@ -73,6 +71,26 @@
   .notif-lucu { position: absolute; top: 35%; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
   @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 80% { transform: translateY(-60px) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(0.8); opacity: 0; } }
 
+  /* --- UI CHAT MELAYANG --- */
+  #chat-wrapper {
+    position: absolute; bottom: 15px; right: 15px; z-index: 50;
+    width: 280px; background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #673AB7; border-radius: 15px;
+    display: none; flex-direction: column; overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  #chat-box {
+    height: 180px; overflow-y: auto; padding: 10px;
+    font-size: 14px; font-weight: 700; display: flex; flex-direction: column; gap: 8px;
+  }
+  .pesan { padding: 6px 12px; border-radius: 12px; max-width: 85%; width: fit-content; word-wrap: break-word; }
+  .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; }
+  .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; }
+  
+  #chat-input-area { display: flex; border-top: 2px solid #ccc; background: #FFF; }
+  #chat-input { flex: 1; padding: 10px; border: none; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; }
+  #btn-send-chat { background: #673AB7; color: white; border: none; padding: 0 15px; font-weight: 900; cursor: pointer; }
+
   @media screen and (orientation: portrait) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 10px; }
@@ -82,6 +100,8 @@
     .btn-option { font-size: 26px; width: 70px; height: 70px; }
     .welcome-card { padding: 15px; max-width: 90%; }
     .welcome-card h1 { font-size: 24px; }
+    #chat-wrapper { width: 90%; bottom: 10px; left: 5%; right: 5%; border-radius: 10px; z-index: 60;}
+    #chat-box { height: 120px; }
   }
 </style>
 </head>
@@ -145,6 +165,15 @@
       <button class="btn-next" id="p2-skip" onclick="skipQuestion(2)">Lewati >></button>
     </div>
   </div>
+  
+  <!-- Fitur Live Chat Melayang -->
+  <div id="chat-wrapper">
+    <div id="chat-box"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Ketik pesan santuy..." autocomplete="off">
+      <button id="btn-send-chat" onclick="kirimPesan()">Kirim</button>
+    </div>
+  </div>
 
   <!-- Popup Hasil Akhir -->
   <div id="result-screen" class="screen-overlay">
@@ -190,7 +219,6 @@
 </script>
 
 <!-- === LOGIKA PERMAINAN === -->
-<!-- === LOGIKA PERMAINAN === -->
 <script>
   let myRole = 0; // 1 = P1, 2 = P2
   let roomId = "";
@@ -204,7 +232,7 @@
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
 
-  // --- 1. FUNGSI SINKRONISASI REAL-TIME ---
+  // --- 1. FUNGSI SINKRONISASI REAL-TIME & CHAT ---
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
@@ -223,9 +251,37 @@
         mulaiPermainan(data.mode);
       }
 
-      // Pantau Tarikan Skor Lawan secara Real-time
-      if (data.p1) { p1.correct = data.p1.correct; p1.wrong = data.p1.wrong; }
-      if (data.p2) { p2.correct = data.p2.correct; p2.wrong = data.p2.wrong; }
+      // SINKRONISASI SKOR ANTI-TABRAKAN & UPDATE LAYAR HASIL AKHIR
+      if (myRole === 1 && data.p2) { 
+        p2.correct = data.p2.correct; 
+        p2.wrong = data.p2.wrong; 
+        
+        if (document.getElementById('result-screen').style.display === 'flex') {
+          document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
+          document.getElementById('p2-benar').innerText = p2.correct;
+        }
+      } else if (myRole === 2 && data.p1) { 
+        p1.correct = data.p1.correct; 
+        p1.wrong = data.p1.wrong; 
+        
+        if (document.getElementById('result-screen').style.display === 'flex') {
+          document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
+          document.getElementById('p1-benar').innerText = p1.correct;
+        }
+      }
+
+      // SINKRONISASI PESAN CHAT
+      if (data.chats) {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = ''; 
+        Object.values(data.chats).forEach(chat => {
+          const div = document.createElement('div');
+          div.innerText = chat.msg;
+          div.className = chat.role === myRole ? 'pesan pesan-saya' : 'pesan pesan-lawan';
+          chatBox.appendChild(div);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight; 
+      }
     });
   }
 
@@ -235,7 +291,6 @@
     myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    // Set nilai awal kamar
     window.dbSet(currentRoomRef, { 
       mode: "", 
       p2_ready: false,
@@ -248,7 +303,6 @@
     document.getElementById('room-code-display').innerText = roomId;
     document.getElementById('p2-zone').classList.add('terkunci');
 
-    // WAJIB: Jalankan pemantauan Firebase
     pantauDataKamar(); 
   }
 
@@ -260,7 +314,6 @@
     myRole = 2;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    // Lapor ke Firebase bahwa P2 sudah masuk
     window.dbUpdate(currentRoomRef, { p2_ready: true });
 
     document.getElementById('room-screen').style.display = 'none';
@@ -269,7 +322,6 @@
     document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
     document.getElementById('p1-zone').classList.add('terkunci');
 
-    // WAJIB: Jalankan pemantauan Firebase
     pantauDataKamar(); 
   }
 
@@ -283,6 +335,10 @@
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai');
     document.getElementById('p2-zone').classList.remove('belum-mulai');
+    
+    // Tampilkan Chat saat game mulai
+    document.getElementById('chat-wrapper').style.display = 'flex'; 
+
     try { document.getElementById('bg-music').play(); } catch(e){}
 
     generateQuestions(mode);
@@ -335,7 +391,7 @@
   }
 
   function checkAnswer(player, selected, correct) {
-    if (player !== myRole) return; // Kunci agar tidak bisa klik area lawan
+    if (player !== myRole) return; 
     
     let pData = player === 1 ? p1 : p2;
     let isCorrect = (selected === correct);
@@ -349,11 +405,9 @@
     if (isCorrect) { pData.correct++; } else { pData.wrong++; }
     pData.index++; 
 
-    // WAJIB: Kirim pembaruan skor ke Firebase setiap kali menjawab
-    window.dbUpdate(currentRoomRef, {
-      [`p${myRole}/correct`]: pData.correct,
-      [`p${myRole}/wrong`]: pData.wrong
-    });
+    let updateData = {};
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong };
+    window.dbUpdate(currentRoomRef, updateData);
 
     loadQuestion(player);
   }
@@ -362,14 +416,12 @@
     if (player !== myRole) return;
     
     let pData = player === 1 ? p1 : p2;
-    pData.wrong++; // Dihitung salah jika dilewati agar sinkron
+    pData.wrong++; 
     pData.index++; 
 
-    // Kirim juga saat soal dilewati
-    window.dbUpdate(currentRoomRef, {
-      [`p${myRole}/correct`]: pData.correct,
-      [`p${myRole}/wrong`]: pData.wrong
-    });
+    let updateData = {};
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong };
+    window.dbUpdate(currentRoomRef, updateData);
 
     loadQuestion(player);
   }
@@ -385,15 +437,35 @@
   function endGame() {
     clearInterval(timerInterval);
     
-    // Tarik nilai akhir (Sudah tersinkron otomatis oleh pantauDataKamar)
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
     document.getElementById('p1-benar').innerText = p1.correct;
     
     document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
     document.getElementById('p2-benar').innerText = p2.correct;
     
+    // Sembunyikan chat saat game berakhir agar tidak menumpuk dengan modal hasil
+    document.getElementById('chat-wrapper').style.display = 'none';
+    
     document.getElementById('result-screen').style.display = 'flex';
   }
+
+  // --- 4. LOGIKA PENGIRIMAN PESAN CHAT ---
+  function kirimPesan() {
+    const inputPesan = document.getElementById('chat-input');
+    const teks = inputPesan.value.trim();
+    if (teks === "") return;
+
+    const timeKey = Date.now(); 
+    let updateData = {};
+    updateData["chats/" + timeKey] = { role: myRole, msg: teks };
+    
+    window.dbUpdate(currentRoomRef, updateData);
+    inputPesan.value = ""; 
+  }
+
+  document.getElementById('chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') kirimPesan();
+  });
 </script>
 
 </body>
