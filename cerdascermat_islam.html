@@ -486,8 +486,9 @@
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; 
   let lastRestart = 0; 
+  let globalEndTime = 0;
 
-  function pantauDataKamar() {
+function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -502,8 +503,9 @@
         document.getElementById('host-controls').style.display = 'block';
       }
       
-      if (data.mode && data.questionOrder && document.getElementById('welcome-screen').style.display === 'flex') {
-        mulaiPermainan(data.questionOrder);
+      // PERBAIKAN 1: Tambahkan data.endTime sebagai syarat game dimulai
+      if (data.mode && data.questionOrder && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
+        mulaiPermainan(data.questionOrder, data.endTime);
       }
       
       if (document.getElementById('welcome-screen').style.display === 'none') {
@@ -623,7 +625,7 @@
     }).catch((error) => { alert("Gagal terhubung ke server."); location.reload(); });
   }
 
-  function hostPilihMode(modeDipilih) { 
+function hostPilihMode(modeDipilih) { 
     let filteredIndices = [];
     for (let i = 0; i < bankSoal.length; i++) {
       if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) {
@@ -633,7 +635,28 @@
     filteredIndices.sort(() => Math.random() - 0.5);
     let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
 
-    window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder }); 
+    // PERBAIKAN 2: Host menetapkan target waktu mutlak (60 detik dari saat tombol ditekan)
+    let targetWaktuSelesai = Date.now() + 60000; 
+
+    window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
+  }
+
+  // PERBAIKAN 3: Fungsi mulai menerima target waktu dari Firebase
+  function mulaiPermainan(order, targetEndTime) {
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
+    document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
+    
+    try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
+
+    let finalQuestions = [];
+    order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
+    
+    p1.questions = JSON.parse(JSON.stringify(finalQuestions));
+    p2.questions = JSON.parse(JSON.stringify(finalQuestions));
+
+    globalEndTime = targetEndTime; // Simpan waktu mutlak ke variabel global
+    loadQuestion(1); loadQuestion(2); startTimer();
   }
 
   function mulaiPermainan(order) {
@@ -735,12 +758,20 @@
     loadQuestion(player);
   }
 
-  function startTimer() {
+function startTimer() {
+    // Kita jalankan interval lebih cepat (tiap 100ms) agar layar lebih responsif dan akurat
     timerInterval = setInterval(() => {
-      timeLeft--; timerDisplay.innerText = timeLeft;
+      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
+      timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      
+      timerDisplay.innerText = timeLeft;
+
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) endGame();
-    }, 1000);
+      if (timeLeft <= 0) {
+        timerDisplay.innerText = "0";
+        endGame();
+      }
+    }, 100);
   }
 
   function endGame() {
