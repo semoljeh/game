@@ -257,7 +257,8 @@
 </script>
 
 <script>
-  // === BANK SOAL ISLAMI (Total: 200 Soal) ===
+
+
   const bankSoal = [
     { q: "Siapakah manusia dan Nabi pertama yang diciptakan Allah?", ans: "Nabi Adam", opts: ["Nabi Adam", "Nabi Muhammad", "Nabi Nuh"], cat: "nabi" },
     { q: "Nabi yang ditelan oleh ikan paus karena meninggalkan kaumnya adalah...", ans: "Nabi Yunus", opts: ["Nabi Yunus", "Nabi Musa", "Nabi Isa"], cat: "nabi" },
@@ -543,15 +544,9 @@
       let isCorrect = oppData.lastAction.isCorrect;
 
       if (selected !== "SKIP") {
-        let optsDiv = document.getElementById(`${prefix}-options`);
-        let buttons = optsDiv.getElementsByClassName('btn-option');
-        for (let btn of buttons) {
-          if (btn.innerText === selected) {
-            btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336";
-            btn.style.color = "#FFF";
-          }
-        }
+        // --- KODE PEWARNAAN TOMBOL LAWAN SUDAH DIHAPUS DI SINI ---
         
+        // HANYA MENAMPILKAN NOTIFIKASI
         let zone = document.getElementById(`${prefix}-zone`);
         let notif = document.createElement('div'); notif.className = 'notif-lucu';
         notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
@@ -560,10 +555,11 @@
         setTimeout(() => notif.remove(), 1000);
       }
 
+      // Langsung ganti soal teman tanpa jeda lama
       setTimeout(() => {
         localOppData.index = oppData.index;
         loadQuestion(oppRole);
-      }, 500); 
+      }, 100); // Jedanya dikurangi jadi 0.1 detik biar langsung ganti soal
 
     } else if (oppData.index !== undefined && oppData.index > localOppData.index) {
        localOppData.index = oppData.index;
