@@ -154,19 +154,26 @@
 
 <div id="app-container">
 
-  <!-- TAHAP 1: Layar Pembuatan/Gabung Kamar -->
+<!-- TAHAP 1: Layar Pembuatan/Gabung Kamar -->
   <div id="room-screen" class="screen-overlay" style="display: flex;">
     <div class="welcome-card">
       <h1>🚪 MADASA ROOM</h1>
-      <h2>Main Bareng Teman (Online)</h2>
-      <p>Buat kamar baru jika kamu Player 1, atau masukkan kode kamar temanmu jika kamu Player 2.</p>
+      <h2>Main Bareng Teman / Acak</h2>
       
-      <div class="mode-container" style="flex-direction: column; align-items: center; gap: 20px;">
+      <!-- FITUR BARU: TOMBOL MATCHMAKING -->
+      <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
+        <p style="margin-bottom: 10px; font-weight: 800;">Bermain dengan lawan acak (Global):</p>
+        <button class="btn-mode" style="background: #673AB7; width: 100%; padding: 12px; font-size: 18px;" onclick="cariLawanAcak()">🌍 CARI LAWAN ACAK</button>
+      </div>
+
+      <!-- FITUR LAMA: MAIN PRIVAT PAKAI KODE -->
+      <p style="margin-top: 0; font-weight: 800;">Bermain privat dengan teman (KODE):</p>
+      <div class="mode-container" style="flex-direction: column; align-items: center; gap: 15px;">
         <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%;">+ Buat Kamar Baru (P1)</button>
         
-        <div style="width: 100%; padding-top: 15px; border-top: 2px dashed #ccc;">
-          <input type="text" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" autocomplete="off">
-          <button class="btn-mode btn-tambah" onclick="gabungKamar()" style="width: 100%; margin-top: 10px; background: #03A9F4;">Gabung Kamar (P2)</button>
+        <div style="width: 100%; display: flex; gap: 10px;">
+          <input type="text" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" autocomplete="off" style="flex: 1; margin: 0; font-size: 18px;">
+          <button class="btn-mode btn-tambah" onclick="gabungKamar()" style="flex: 1; background: #03A9F4; margin: 0;">Gabung (P2)</button>
         </div>
       </div>
     </div>
@@ -250,10 +257,12 @@
 
 </div>
 
+
 <!-- === KODE FIREBASE === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  // Terdapat tambahan 'get, remove' di ujung baris bawah ini:
+  import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
@@ -268,6 +277,10 @@
   const app = initializeApp(firebaseConfig);
   window.db = getDatabase(app);
   window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
+  
+  // DUA BARIS DI BAWAH INI ADALAH TAMBAHAN BARU
+  window.dbGet = get; 
+  window.dbRemove = remove; 
 </script>
 
 <!-- === LOGIKA PERMAINAN === -->
@@ -384,6 +397,60 @@
     document.getElementById('chat-icon').style.display = 'flex'; // Muncul di Lobi
     pantauDataKamar(); 
   }
+  
+  function cariLawanAcak() {
+    document.getElementById('room-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    document.getElementById('room-code-display').innerText = "MENCARI...";
+    document.getElementById('p2-status').innerText = "Mencari lawan yang tersedia di internet...";
+
+    const antreanRef = window.dbRef(window.db, 'antrean_global');
+
+    // Cek apakah ada antrean di database
+    window.dbGet(antreanRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        // SKENARIO 1: Ada lawan yang sedang menunggu! Kita gabung sebagai P2.
+        roomId = snapshot.val();
+        myRole = 2;
+        currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+        // Langsung hapus room dari antrean agar tidak ada orang ke-3 masuk
+        window.dbRemove(antreanRef);
+
+        // Kabari P1 bahwa kita sudah bergabung
+        window.dbUpdate(currentRoomRef, { p2_ready: true });
+
+        document.getElementById('room-code-display').innerText = "ACAK";
+        document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
+        document.getElementById('p1-zone').classList.add('terkunci');
+        document.getElementById('chat-icon').style.display = 'flex';
+        pantauDataKamar();
+
+      } else {
+        // SKENARIO 2: Tidak ada yang antre. Kita buat room baru dan masuk antrean sebagai P1.
+        roomId = Math.floor(1000 + Math.random() * 9000).toString();
+        myRole = 1;
+        currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+        window.dbSet(currentRoomRef, { 
+          mode: "", p2_ready: false, p1: { correct: 0, wrong: 0 }, p2: { correct: 0, wrong: 0 }
+        });
+
+        // Daftarkan ID Kamar kita ke antrean global
+        window.dbSet(antreanRef, roomId);
+
+        document.getElementById('room-code-display').innerText = "ACAK";
+        document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
+        document.getElementById('p2-zone').classList.add('terkunci');
+        document.getElementById('chat-icon').style.display = 'flex';
+        pantauDataKamar();
+      }
+    }).catch((error) => {
+      alert("Gagal terhubung ke server. Silakan coba lagi.");
+      location.reload();
+    });
+  }
+  
 
   function hostPilihMode(modeDipilih) {
     window.dbUpdate(currentRoomRef, { mode: modeDipilih });
