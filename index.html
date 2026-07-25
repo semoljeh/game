@@ -292,6 +292,31 @@
     z-index: 10; position: relative;
   }
 
+  /* STATISTIK PENGUNJUNG */
+  .visitor-stats {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #E1F5FE;
+    color: #0277BD;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: clamp(11px, 3vmin, 13px);
+    font-weight: 800;
+    margin-bottom: 12px;
+    border: 1px solid #81D4FA;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .visitor-stats span {
+    background: #0277BD;
+    color: #FFF;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: clamp(12px, 3.2vmin, 14px);
+  }
+
   .dev-link {
     display: inline-block; padding: 8px 20px; 
     font-size: clamp(12px, 3vmin, 14px); color: #37474F; text-decoration: none;
@@ -327,6 +352,8 @@
     .btn-rotate-mini { padding: 4px 8px; font-size: 9px; }
 
     footer { padding: 8px 0; }
+    .visitor-stats { margin-bottom: 8px; padding: 4px 12px; font-size: 10px; }
+    .visitor-stats span { font-size: 11px; padding: 2px 6px; }
     .dev-link { padding: 4px 12px; font-size: 10px; }
   }
 </style>
@@ -573,6 +600,10 @@
 
   <!-- FOOTER -->
   <footer>
+    <div class="visitor-stats">
+      👥 Total Pengunjung: <span id="visit-count">...</span>
+    </div>
+    <br>
     <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
       Development <strong>Arom Kobama 😎</strong>
     </a>
@@ -629,6 +660,27 @@
       });
     });
   }
+
+  // --- FITUR PENGHITUNG PENGUNJUNG NYATA (REAL-TIME TOTAL VISITS) ---
+  function hitungPengunjung() {
+    const namespace = 'madasa_portal_game'; 
+    const key = 'kunjungan';
+    
+    fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
+      .then(response => response.json())
+      .then(data => {
+        if(data && data.count) {
+          document.getElementById('visit-count').innerText = data.count.toLocaleString('id-ID');
+        }
+      })
+      .catch(err => {
+        console.error('Gagal memuat data pengunjung:', err);
+        document.getElementById('visit-count').innerText = "Offline";
+      });
+  }
+
+  // Panggil fungsi saat halaman selesai dimuat
+  window.addEventListener('DOMContentLoaded', hitungPengunjung);
 </script>
 
 </body>
