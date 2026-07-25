@@ -139,6 +139,12 @@
     /* Penyesuaian Chat di HP */
     #chat-icon { bottom: 15px; right: 15px; width: 55px; height: 55px; font-size: 26px;}
     #chat-wrapper { bottom: 80px; right: 15px; width: 280px; }
+	
+	/* --- Perbaikan Lobi Host di Layar HP --- */
+    #host-controls p { font-size: 14px; margin-bottom: 10px; }
+    .mode-container { width: 100%; gap: 8px; }
+    .btn-mode { flex: 1 1 45%; max-width: 48%; padding: 12px 5px; font-size: 14px; border-width: 2px; }
+    .btn-campuran { flex: 1 1 100%; max-width: 100%; font-size: 16px; }
   }
 </style>
 </head>
@@ -288,7 +294,7 @@
         document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
         document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
         document.getElementById('p2-status').style.color = "#2E7D32";
-        document.getElementById('host-controls').style.display = 'flex';
+        document.getElementById('host-controls').style.display = 'block';
       }
 
       if (myRole === 2 && data.mode && data.mode !== "" && document.getElementById('welcome-screen').style.display === 'flex') {
