@@ -641,7 +641,7 @@ function hostPilihMode(modeDipilih) {
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
   }
 
-  // PERBAIKAN 3: Fungsi mulai menerima target waktu dari Firebase
+// PERBAIKAN: Gunakan SATU fungsi ini saja untuk mulai permainan
   function mulaiPermainan(order, targetEndTime) {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
@@ -655,7 +655,7 @@ function hostPilihMode(modeDipilih) {
     p1.questions = JSON.parse(JSON.stringify(finalQuestions));
     p2.questions = JSON.parse(JSON.stringify(finalQuestions));
 
-    globalEndTime = targetEndTime; // Simpan waktu mutlak ke variabel global
+    globalEndTime = targetEndTime; // Ini kunci utamanya agar waktu tidak langsung 0
     loadQuestion(1); loadQuestion(2); startTimer();
   }
 
