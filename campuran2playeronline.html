@@ -107,6 +107,26 @@
   #chat-input:focus { border-color: #673AB7; }
   #btn-send-chat { background: #673AB7; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
 
+  /* --- NOTIFIKASI CHAT (Titik Merah & Animasi Goyang) --- */
+  #chat-notif {
+    position: absolute; top: -5px; right: -5px;
+    background: #FF3D00; color: white;
+    border-radius: 50%; width: 22px; height: 22px;
+    font-size: 14px; font-weight: 900;
+    display: none; justify-content: center; align-items: center;
+    border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .goyang {
+    animation: wiggle 0.5s infinite;
+  }
+  @keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(15deg); }
+    100% { transform: rotate(0deg); }
+  }
+
   @media screen and (orientation: portrait) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 10px; }
@@ -205,7 +225,10 @@
   </div>
 
   <!-- IKON CHAT & POPUP CHAT (Di Luar Permainan) -->
-  <div id="chat-icon" onclick="toggleChat()">💬</div>
+  <div id="chat-icon" onclick="toggleChat()">
+    💬
+    <div id="chat-notif">!</div>
+  </div>
   
   <div id="chat-wrapper">
     <div class="chat-header">
@@ -253,6 +276,7 @@
   
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
+  let lastChatCount = 0; // Menyimpan jumlah pesan untuk trigger notifikasi
 
   // --- 1. FUNGSI SINKRONISASI REAL-TIME & CHAT ---
   function pantauDataKamar() {
@@ -286,11 +310,26 @@
         }
       }
 
-      // Sinkronisasi Chat
+      // Sinkronisasi Pesan Chat & Notifikasi
       if (data.chats) {
+        const chatArray = Object.values(data.chats);
+        
+        // Logika memunculkan tanda seru merah dan animasi goyang
+        if (chatArray.length > lastChatCount) {
+          const pesanTerakhir = chatArray[chatArray.length - 1];
+          const chatTertutup = document.getElementById('chat-wrapper').style.display !== 'flex';
+          
+          if (pesanTerakhir.role !== myRole && chatTertutup) {
+            document.getElementById('chat-notif').style.display = 'flex';
+            document.getElementById('chat-icon').classList.add('goyang'); 
+          }
+          lastChatCount = chatArray.length;
+        }
+
+        // Tampilkan pesan di kotak obrolan
         const chatBox = document.getElementById('chat-box');
         chatBox.innerHTML = ''; 
-        Object.values(data.chats).forEach(chat => {
+        chatArray.forEach(chat => {
           const div = document.createElement('div');
           div.innerText = chat.msg;
           div.className = chat.role === myRole ? 'pesan pesan-saya' : 'pesan pesan-lawan';
@@ -474,6 +513,10 @@
       const chatBox = document.getElementById('chat-box');
       chatBox.scrollTop = chatBox.scrollHeight;
       document.getElementById('chat-input').focus();
+      
+      // Matikan tanda seru merah dan animasi saat chat dibuka
+      document.getElementById('chat-notif').style.display = 'none';
+      document.getElementById('chat-icon').classList.remove('goyang');
     }
   }
 
