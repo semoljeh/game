@@ -48,7 +48,7 @@
 
   /* --- MODAL LAYAR --- */
   .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; }
-  .welcome-card { background: rgba(255,255,255,0.95); border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px; max-width: 650px; width: 95%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+  .welcome-card { background: rgba(255,255,255,0.95); border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px; max-width: 650px; width: 95%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;}
   .welcome-card h1 { font-size: 40px; color: #E91E63; margin: 0 0 5px 0; }
   .welcome-card h2 { font-size: 22px; color: #03A9F4; margin: 0 0 15px 0; }
   .welcome-card p { font-size: 16px; margin-bottom: 20px; font-weight: 700; }
@@ -210,7 +210,7 @@
   </div>
 
   <!-- === POPUP NOTIFIKASI MODERN === -->
-  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 999; background: rgba(0,0,0,0.7);">
+  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 9999; background: rgba(0,0,0,0.8);">
     <div class="welcome-card" style="max-width: 350px; padding: 25px 20px; text-align: center; border-color: #F44336; animation: popUpAnim 0.3s ease-out forwards; position: relative;">
       
       <!-- Tombol Silang (X) Sinkron -->
@@ -281,12 +281,15 @@
   // --- SISTEM CUSTOM ALERT (SINKRON X, TUTUP & TOMBOL BACK HP) ---
   let alertCallback = null;
   let isAlertOpen = false;
+  let isGameOver = false; // Mencegah looping infinite jika koneksi terputus
 
   function showCustomAlert(title, message, callback) {
+    if (isAlertOpen) return; // Mencegah pop-up tertimpa berkali-kali
+    isAlertOpen = true;
+    
     document.getElementById('custom-alert-title').innerText = title;
     document.getElementById('custom-alert-message').innerText = message;
     alertCallback = callback;
-    isAlertOpen = true;
     
     // Daftarkan pop-up ke history agar tombol Back HP berfungsi
     history.pushState({ popup: 'alert' }, null, '');
@@ -296,9 +299,9 @@
   function closeCustomAlert() {
     if (!isAlertOpen) return;
     
-    // Jika ditekan X atau Tutup, kita pop state-nya agar selaras dengan HP
+    // Jika ditekan X atau Tutup, kita selaraskan state-nya dengan HP
     if (history.state && history.state.popup === 'alert') {
-      history.back(); // Ini akan memicu event 'popstate' di bawah
+      history.back(); // Memicu popstate event
     } else {
       executeCloseAlert();
     }
@@ -335,8 +338,10 @@
       const data = snapshot.val();
       
       if (!data) {
-        if (roomId !== "") { 
-          showCustomAlert("Terputus!", "Lawan telah terputus atau keluar dari kamar. Permainan berakhir.", () => { location.reload(); }); 
+        if (roomId !== "" && !isGameOver) { 
+          isGameOver = true;
+          clearInterval(timerInterval);
+          showCustomAlert("Terputus!", "Lawan telah keluar dari kamar atau koneksi terputus.", () => { location.reload(); }); 
         } 
         return;
       }
@@ -598,6 +603,7 @@
   }
 
   function akhiriGame() {
+    isGameOver = true; // Mencegah munculnya pop-up disconnect untuk pemain yang klik keluar
     if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
   }
 </script>

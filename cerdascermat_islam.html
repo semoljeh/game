@@ -87,6 +87,7 @@
   #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; }
   
   /* ANIMASI SILANG & GOYANG */
+  #custom-alert-close { position: absolute; top: -15px; right: -15px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; }
   #custom-alert-close:active { transform: scale(0.85); }
   .goyang { animation: wiggle 0.5s infinite; }
   @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
@@ -196,14 +197,14 @@
     </div>
   </div>
   
-  <!-- Popup Hasil Akhir (Sudah Ditambah Jumlah Salah) -->
+  <!-- Popup Hasil Akhir -->
   <div id="result-screen" class="screen-overlay">
     <div class="welcome-card">
       <h1>ALHAMDULILLAH Selesai! 🎉</h1>
       <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
       <div class="results-container">
         
-        <!-- === KOTAK HASIL P1 === -->
+        <!-- KOTAK HASIL P1 -->
         <div class="result-card" style="border-color: #4CAF50;">
           <h2 style="color: #2E7D32;">Player 1</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p1-dijawab">0</span></h3>
@@ -211,7 +212,7 @@
           <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p1-salah">0</span></p>
         </div>
         
-        <!-- === KOTAK HASIL P2 === -->
+        <!-- KOTAK HASIL P2 -->
         <div class="result-card" style="border-color: #FBC02D;">
           <h2 style="color: #F57F17;">Player 2</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p2-dijawab">0</span></h3>
@@ -228,16 +229,18 @@
   </div>
 
   <!-- === POPUP NOTIFIKASI MODERN === -->
-  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 999; background: rgba(0,0,0,0.7);">
+  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 9999; background: rgba(0,0,0,0.8);">
     <div class="welcome-card" style="max-width: 350px; padding: 25px 20px; text-align: center; border-color: #F44336; animation: popUpAnim 0.3s ease-out forwards; position: relative;">
       
-      <!-- Tombol Silang (X) -->
-      <div id="custom-alert-close" style="position: absolute; top: -15px; right: -15px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s;">✖</div>
+      <!-- Tombol Silang (X) Sinkron -->
+      <div id="custom-alert-close" onclick="closeCustomAlert()">✖</div>
       
       <div id="custom-alert-icon" style="font-size: 55px; margin-bottom: 10px;">⚠️</div>
       <h1 id="custom-alert-title" style="color: #F44336; font-size: 26px; margin: 0 0 10px 0;">Peringatan</h1>
       <p id="custom-alert-message" style="font-size: 16px; font-weight: 800; color: #333; margin-bottom: 25px;">Pesan di sini</p>
-      <button class="btn-mode" id="custom-alert-btn" style="width: 100%; background: #F44336; border-color: #FFF; font-size: 18px;">TUTUP</button>
+      
+      <!-- Tombol Tutup Sinkron -->
+      <button class="btn-mode" onclick="closeCustomAlert()" style="width: 100%; background: #F44336; border-color: #FFF; font-size: 18px;">TUTUP</button>
     </div>
   </div>
 
@@ -262,7 +265,7 @@
 <!-- === KODE FIREBASE === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { getDatabase, ref, set, onValue, update, get, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
@@ -277,7 +280,7 @@
   const app = initializeApp(firebaseConfig);
   window.db = getDatabase(app);
   window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
-  window.dbGet = get; window.dbRemove = remove; 
+  window.dbGet = get; window.dbRemove = remove; window.dbOnDisconnect = onDisconnect;
 </script>
 
 <script>
@@ -301,7 +304,7 @@
     { q: "Nabi yang menerima kitab Zabur adalah...", ans: "Nabi Daud", opts: ["Nabi Daud", "Nabi Sulaiman", "Nabi Musa"], cat: "nabi" },
     { q: "Nabi yang menerima kitab Injil adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Yahya", "Nabi Muhammad"], cat: "nabi" },
     { q: "Nabi Muhammad SAW lahir di kota...", ans: "Makkah", opts: ["Makkah", "Madinah", "Palestina"], cat: "nabi" },
-    { q: "Malaikat yang bertugas membagi rezeki dan menurunkan hujan adalah...", ans: "Mikail", opts: ["Mikail", "Jibril", "Israfil"], cat: "nabi" },
+    { q: "Malaikat yang bertugas membagi rezeki dan menurunkan hujan adalah...", Mikail: "Mikail", ans: "Mikail", opts: ["Mikail", "Jibril", "Israfil"], cat: "nabi" },
     { q: "Nabi yang diberi mukjizat bisa menghidupkan orang mati atas izin Allah adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Musa", "Nabi Ibrahim"], cat: "nabi" },
     { q: "Malaikat yang mencatat amal baik adalah...", ans: "Rakib", opts: ["Rakib", "Atid", "Nakir"], cat: "nabi" },
     { q: "Malaikat yang mencatat amal buruk adalah...", ans: "Atid", opts: ["Atid", "Rakib", "Munkar"], cat: "nabi" },
@@ -506,55 +509,71 @@
   
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
-  let lastChatCount = 0; 
-  let lastRestart = 0; 
-  let globalEndTime = 0;
+  let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0;
 
-  // --- FUNGSI CUSTOM ALERT SINKRONISASI HP & LAPTOP ---
+  // --- SISTEM CUSTOM ALERT (SINKRON X, TUTUP & TOMBOL BACK HP) ---
+  let alertCallback = null;
+  let isAlertOpen = false;
+  let isGameOver = false; // Mencegah looping infinite jika koneksi terputus
+
   function showCustomAlert(title, message, callback) {
+    if (isAlertOpen) return; // Mencegah pop-up tertimpa berkali-kali
+    isAlertOpen = true;
+    
     document.getElementById('custom-alert-title').innerText = title;
     document.getElementById('custom-alert-message').innerText = message;
+    alertCallback = callback;
     
-    const btn = document.getElementById('custom-alert-btn');
-    const closeX = document.getElementById('custom-alert-close');
-    
-    // Reset listener sebelumnya
-    const newBtn = btn.cloneNode(true);
-    const newCloseX = closeX.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-    closeX.parentNode.replaceChild(newCloseX, closeX);
-    
-    window.currentAlertCallback = callback;
-    
-    // Daftarkan pop-up ini ke history agar tombol back HP merespon
+    // Daftarkan pop-up ke history agar tombol Back HP berfungsi
     history.pushState({ popup: 'alert' }, null, '');
-    
-    function triggerClose() {
-      // Jika state alert masih ada, jalankan back. Ini akan memicu event 'popstate'
-      if (history.state && history.state.popup === 'alert') {
-        history.back(); 
-      } else {
-        // Fallback jika tidak ada state
-        document.getElementById('custom-alert-overlay').style.display = 'none';
-        if (window.currentAlertCallback) {
-          window.currentAlertCallback();
-          window.currentAlertCallback = null;
-        }
-      }
-    }
-
-    newBtn.onclick = triggerClose;
-    newCloseX.onclick = triggerClose;
-    
     document.getElementById('custom-alert-overlay').style.display = 'flex';
   }
+
+  function closeCustomAlert() {
+    if (!isAlertOpen) return;
+    
+    // Jika ditekan X atau Tutup, kita selaraskan state-nya dengan HP
+    if (history.state && history.state.popup === 'alert') {
+      history.back(); // Memicu popstate event
+    } else {
+      executeCloseAlert();
+    }
+  }
+
+  function executeCloseAlert() {
+    isAlertOpen = false;
+    document.getElementById('custom-alert-overlay').style.display = 'none';
+    if (alertCallback) {
+      let tempCb = alertCallback;
+      alertCallback = null;
+      tempCb();
+    }
+  }
+
+  // Menangkap event tombol Back dari HP
+  window.addEventListener('popstate', function(event) {
+    if (isAlertOpen) {
+      executeCloseAlert();
+      return; 
+    }
+
+    const chatWrapper = document.getElementById('chat-wrapper');
+    if (chatWrapper && chatWrapper.style.display === 'flex') {
+      chatWrapper.style.display = 'none';
+      const chatNotif = document.getElementById('chat-notif'); const chatIcon = document.getElementById('chat-icon');
+      if (chatNotif) chatNotif.style.display = 'none'; if (chatIcon) chatIcon.classList.remove('goyang');
+    }
+  });
+  // -------------------------------------------------------------
 
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) {
-        if (roomId !== "") { 
-          showCustomAlert("Terputus!", "Lawan telah terputus atau keluar dari kamar. Permainan berakhir.", () => { location.reload(); }); 
+        if (roomId !== "" && !isGameOver) { 
+          isGameOver = true;
+          clearInterval(timerInterval);
+          showCustomAlert("Terputus!", "Lawan telah keluar dari kamar atau koneksi terputus.", () => { location.reload(); }); 
         } 
         return;
       }
@@ -592,13 +611,9 @@
   }
 
   function syncOpponent(oppRole, oppData) {
-    let localOppData = oppRole === 1 ? p1 : p2;
-    let prefix = oppRole === 1 ? 'p1' : 'p2';
-
-    localOppData.correct = oppData.correct || 0;
-    localOppData.wrong = oppData.wrong || 0;
+    let localOppData = oppRole === 1 ? p1 : p2; let prefix = oppRole === 1 ? 'p1' : 'p2';
+    localOppData.correct = oppData.correct || 0; localOppData.wrong = oppData.wrong || 0;
     
-    // Sinkronisasi data saat hasil akhir tayang
     if (document.getElementById('result-screen').style.display === 'flex') {
       document.getElementById(`${prefix}-dijawab`).innerText = localOppData.correct + localOppData.wrong;
       document.getElementById(`${prefix}-benar`).innerText = localOppData.correct;
@@ -607,8 +622,7 @@
 
     if (oppData.lastAction && oppData.lastAction.timestamp !== localOppData.lastTimestamp) {
       localOppData.lastTimestamp = oppData.lastAction.timestamp;
-      let selected = oppData.lastAction.selected;
-      let isCorrect = oppData.lastAction.isCorrect;
+      let selected = oppData.lastAction.selected; let isCorrect = oppData.lastAction.isCorrect;
 
       if (selected !== "SKIP") {
         let zone = document.getElementById(`${prefix}-zone`);
@@ -618,21 +632,16 @@
         zone.appendChild(notif); 
         setTimeout(() => notif.remove(), 1000);
       }
-
-      setTimeout(() => {
-        localOppData.index = oppData.index;
-        loadQuestion(oppRole);
-      }, 100);
-
+      setTimeout(() => { localOppData.index = oppData.index; loadQuestion(oppRole); }, 100);
     } else if (oppData.index !== undefined && oppData.index > localOppData.index) {
-       localOppData.index = oppData.index;
-       loadQuestion(oppRole);
+       localOppData.index = oppData.index; loadQuestion(oppRole);
     }
   }
 
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+    window.dbOnDisconnect(currentRoomRef).remove(); 
     
     window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
@@ -643,10 +652,7 @@
 
   function gabungKamar() {
     const input = document.getElementById('input-kode-kamar').value;
-    if (input.length !== 4) { 
-      showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null);
-      return; 
-    }
+    if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
     window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
@@ -673,7 +679,8 @@
         });
       } else {
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        
+        window.dbOnDisconnect(currentRoomRef).remove(); 
+
         window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
           window.dbSet(antreanRef, roomId).then(() => {
             document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
@@ -689,15 +696,10 @@
   function hostPilihMode(modeDipilih) { 
     let filteredIndices = [];
     for (let i = 0; i < bankSoal.length; i++) {
-      if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) {
-        filteredIndices.push(i);
-      }
+      if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) { filteredIndices.push(i); }
     }
-    filteredIndices.sort(() => Math.random() - 0.5);
-    let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
-
+    filteredIndices.sort(() => Math.random() - 0.5); let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
     let targetWaktuSelesai = Date.now() + 60000; 
-
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
   }
 
@@ -705,196 +707,108 @@
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
     document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
-    
     try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
 
-    let finalQuestions = [];
-    order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
-    
-    p1.questions = JSON.parse(JSON.stringify(finalQuestions));
-    p2.questions = JSON.parse(JSON.stringify(finalQuestions));
-
-    globalEndTime = targetEndTime; 
-    loadQuestion(1); loadQuestion(2); startTimer();
+    let finalQuestions = []; order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
+    p1.questions = JSON.parse(JSON.stringify(finalQuestions)); p2.questions = JSON.parse(JSON.stringify(finalQuestions));
+    globalEndTime = targetEndTime; loadQuestion(1); loadQuestion(2); startTimer();
   }
 
   function loadQuestion(player) {
-    let pData = player === 1 ? p1 : p2;
-    let prefix = player === 1 ? 'p1' : 'p2';
-    
-    if (pData.index >= pData.questions.length) { 
-      document.getElementById(`${prefix}-q`).innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
-      document.getElementById(`${prefix}-options`).innerHTML = '';
-      return; 
-    }
-
-    let qData = pData.questions[pData.index];
-    document.getElementById(`${prefix}-q`).innerText = qData.q;
-    let optsDiv = document.getElementById(`${prefix}-options`);
-    optsDiv.innerHTML = '';
+    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2';
+    if (pData.index >= pData.questions.length) { document.getElementById(`${prefix}-q`).innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; document.getElementById(`${prefix}-options`).innerHTML = ''; return; }
+    let qData = pData.questions[pData.index]; document.getElementById(`${prefix}-q`).innerText = qData.q;
+    let optsDiv = document.getElementById(`${prefix}-options`); optsDiv.innerHTML = '';
     
     let diacakOpts = [...qData.opts].sort(() => Math.random() - 0.5);
-
     diacakOpts.forEach(opt => {
       let btn = document.createElement('button'); btn.className = 'btn-option'; btn.innerText = opt;
-      btn.onclick = () => checkAnswer(player, opt, qData.ans);
-      optsDiv.appendChild(btn);
+      btn.onclick = () => checkAnswer(player, opt, qData.ans); optsDiv.appendChild(btn);
     });
   }
 
   function checkAnswer(player, selected, correct) {
     if (player !== myRole) return; 
-    let pData = player === 1 ? p1 : p2;
-    let prefix = player === 1 ? 'p1' : 'p2';
-    let isCorrect = (selected === correct);
+    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2'; let isCorrect = (selected === correct);
     
-    let optsDiv = document.getElementById(`${prefix}-options`);
-    let buttons = optsDiv.getElementsByClassName('btn-option');
+    let optsDiv = document.getElementById(`${prefix}-options`); let buttons = optsDiv.getElementsByClassName('btn-option');
     for (let btn of buttons) {
-      btn.style.pointerEvents = 'none';
-      if (btn.innerText === selected) {
-        btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336";
-        btn.style.color = "#FFF";
-      }
+      btn.style.pointerEvents = 'none'; if (btn.innerText === selected) { btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336"; btn.style.color = "#FFF"; }
     }
     
-    let zone = document.getElementById(prefix + '-zone');
-    let notif = document.createElement('div'); notif.className = 'notif-lucu';
-    notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
-    notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
+    let zone = document.getElementById(prefix + '-zone'); let notif = document.createElement('div'); notif.className = 'notif-lucu';
+    notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!"; notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
     zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
     
-    if (isCorrect) { 
-      pData.correct++; 
-      try { let sBenar = document.getElementById('sound-benar'); sBenar.currentTime = 0; sBenar.play(); } catch(e){}
-    } else { 
-      pData.wrong++; 
-      try { let sSalah = document.getElementById('sound-salah'); sSalah.currentTime = 0; sSalah.play(); } catch(e){}
-    }
+    if (isCorrect) { pData.correct++; try { let sBenar = document.getElementById('sound-benar'); sBenar.currentTime = 0; sBenar.play(); } catch(e){} } 
+    else { pData.wrong++; try { let sSalah = document.getElementById('sound-salah'); sSalah.currentTime = 0; sSalah.play(); } catch(e){} }
     pData.index++; 
 
-    let updateData = {}; 
-    updateData["p" + myRole] = { 
-      correct: pData.correct, 
-      wrong: pData.wrong,
-      index: pData.index,
-      lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() }
-    };
-    window.dbUpdate(currentRoomRef, updateData); 
-    
-    setTimeout(() => { loadQuestion(player); }, 400);
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
+    window.dbUpdate(currentRoomRef, updateData); setTimeout(() => { loadQuestion(player); }, 400);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
-    let pData = player === 1 ? p1 : p2;
-    pData.wrong++; pData.index++; 
-    
-    let updateData = {}; 
-    updateData["p" + myRole] = { 
-      correct: pData.correct, 
-      wrong: pData.wrong,
-      index: pData.index,
-      lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() }
-    };
-    window.dbUpdate(currentRoomRef, updateData); 
-    loadQuestion(player);
+    let pData = player === 1 ? p1 : p2; pData.wrong++; pData.index++; 
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
+    window.dbUpdate(currentRoomRef, updateData); loadQuestion(player);
   }
 
   function startTimer() {
     timerInterval = setInterval(() => {
-      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
-      timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
-      
+      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000); timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
       timerDisplay.innerText = timeLeft;
-
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) {
-        timerDisplay.innerText = "0";
-        endGame();
-      }
+      if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
     }, 100);
   }
 
   function endGame() {
     clearInterval(timerInterval);
-    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; 
-    document.getElementById('p1-benar').innerText = p1.correct;
-    document.getElementById('p1-salah').innerText = p1.wrong;
-
-    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; 
-    document.getElementById('p2-benar').innerText = p2.correct;
-    document.getElementById('p2-salah').innerText = p2.wrong;
-
-    document.getElementById('result-screen').style.display = 'flex';
-    document.getElementById('chat-icon').style.display = 'flex';
+    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; document.getElementById('p1-benar').innerText = p1.correct; document.getElementById('p1-salah').innerText = p1.wrong;
+    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; document.getElementById('p2-benar').innerText = p2.correct; document.getElementById('p2-salah').innerText = p2.wrong;
+    document.getElementById('result-screen').style.display = 'flex'; document.getElementById('chat-icon').style.display = 'flex';
   }
 
   function toggleChat() {
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
-      chatUI.style.display = 'none';
-      if (history.state && history.state.popup === 'chat') { history.back(); }
+      chatUI.style.display = 'none'; if (history.state && history.state.popup === 'chat') { history.back(); }
     } else {
       chatUI.style.display = 'flex'; history.pushState({ popup: 'chat' }, null, '');
       const chatBox = document.getElementById('chat-box'); chatBox.scrollTop = chatBox.scrollHeight;
-      document.getElementById('chat-input').focus();
-      document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
+      document.getElementById('chat-input').focus(); document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
     }
   }
 
   function kirimPesan() {
     const inputPesan = document.getElementById('chat-input'); const teks = inputPesan.value.trim();
-    if (teks === "") return;
-    const timeKey = Date.now(); let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks };
+    if (teks === "") return; const timeKey = Date.now(); let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks };
     window.dbUpdate(currentRoomRef, updateData); inputPesan.value = ""; 
   }
 
   document.getElementById('chat-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') kirimPesan(); });
   
   function mainLagi() {
-    let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() };
-    window.dbUpdate(currentRoomRef, updateData);
+    let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() }; window.dbUpdate(currentRoomRef, updateData);
   }
 
   function kembaliKeLobi() {
     document.getElementById('result-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('p1-zone').classList.add('belum-mulai'); document.getElementById('p2-zone').classList.add('belum-mulai');
-    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 }; 
-    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 }; p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
     timeLeft = 60; timerDisplay.innerText = "60"; timerDisplay.classList.remove('waktu-kritis');
     document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
     document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
     document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih Kategori...";
-    
     try { let bgm = document.getElementById('bg-music'); bgm.pause(); bgm.currentTime = 0; } catch(e){}
   }
 
   function akhiriGame() {
+    isGameOver = true; // Mencegah looping notif saat keluar sendiri
     if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
   }
-
-  // --- LOGIKA TOMBOL BACK HP SINKRONISASI ---
-  window.addEventListener('popstate', function(event) {
-    // 1. Cek Alert dulu (karena ini ada di layer paling atas)
-    const alertOverlay = document.getElementById('custom-alert-overlay');
-    if (alertOverlay && alertOverlay.style.display === 'flex') {
-      alertOverlay.style.display = 'none';
-      if (window.currentAlertCallback) {
-        window.currentAlertCallback();
-        window.currentAlertCallback = null;
-      }
-      return; // Stop di sini agar tidak langsung menutup chat (jika terbuka)
-    }
-
-    // 2. Cek Chat
-    const chatWrapper = document.getElementById('chat-wrapper');
-    if (chatWrapper && chatWrapper.style.display === 'flex') {
-      chatWrapper.style.display = 'none';
-      const chatNotif = document.getElementById('chat-notif'); const chatIcon = document.getElementById('chat-icon');
-      if (chatNotif) chatNotif.style.display = 'none'; if (chatIcon) chatIcon.classList.remove('goyang');
-    }
-  });
 </script>
 </body>
 </html>
