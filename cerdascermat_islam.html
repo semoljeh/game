@@ -6,7 +6,7 @@
 
 <title>Cerdas Cermat Islami - 2 Player Online</title>
 <meta name="description" content="Game edukasi Cerdas Cermat Agama Islam seru untuk anak TK & SD.">
-<!-- MENAMBAHKAN FONT AMIRI UNTUK TEKS ARAB -->
+<!-- MENAMBAHKAN FONT AMIRI UNTUK TEKS ARAB & NUNITO -->
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -15,10 +15,9 @@
     box-sizing: border-box; 
   }
 
-  /* --- PENGATURAN DASAR TEMA ISLAMI --- */
   html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Nunito', 'Amiri', sans-serif; 
+    font-family: 'Nunito', sans-serif; 
     background-color: #E8F5E9; 
     color: #333; overflow: hidden; touch-action: manipulation; 
     -webkit-user-select: none; user-select: none;
@@ -43,7 +42,6 @@
   @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
   
   .question-box { 
-    font-size: clamp(16px, 4vw, 24px); 
     font-weight: 900; 
     margin-bottom: 15px; 
     background: rgba(255,255,255,0.95); 
@@ -61,7 +59,6 @@
   
   .options { display: flex; flex-direction: column; gap: 8px; justify-content: center; width: 90%; max-width: 500px; }
   .btn-option { 
-    font-size: clamp(14px, 3.5vw, 18px); 
     padding: 10px; 
     width: 100%; 
     min-height: 48px;
@@ -80,7 +77,7 @@
   #p1-zone .btn-option { border: 3px solid #4CAF50; }
   #p2-zone .btn-option { border: 3px solid #FBC02D; }
   
-  /* Tombol Lewati Dibuat Tengah */
+  /* Tombol Lewati Tetap di Tengah */
   .btn-next { 
     margin-top: 15px;
     padding: 8px 25px; 
@@ -159,7 +156,7 @@
   .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; border-bottom-right-radius: 3px; }
   .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; border-bottom-left-radius: 3px; }
   #chat-input-area { display: flex; border-top: 2px solid #ccc; background: #FFF; padding: 8px;}
-  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', 'Amiri', sans-serif; font-weight: 700; margin-right: 8px; width: 100%;}
+  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; margin-right: 8px; width: 100%;}
   #chat-input:focus { border-color: #2E7D32; }
   #btn-send-chat { background: #2E7D32; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
   #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -169,18 +166,20 @@
   .goyang { animation: wiggle 0.5s infinite; }
   @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
 
-  /* --- PERBAIKAN RESPONSIVE LAYAR HP --- */
+  /* --- PERBAIKAN ZONA AMAN TIMER (MOBILE) --- */
   @media screen and (max-width: 768px) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 6px; }
     #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 4px 15px; border-width: 3px;}
-    #p1-zone { transform: rotate(180deg); }
     
-    /* Tombol lewati di tengah & Jarak proporsional di HP */
-    .player-zone { padding: 5px; justify-content: center; }
-    .question-box { font-size: clamp(15px, 4vw, 20px); padding: 8px 15px; margin-bottom: 8px; border-width: 3px; }
+    /* FIX: Mendorong konten menjauh dari Timer di tengah layar */
+    #p1-zone { transform: rotate(180deg); padding-bottom: 40px; } 
+    #p2-zone { padding-top: 40px; }
+    
+    .player-zone { justify-content: center; }
+    .question-box { padding: 8px 15px; margin-bottom: 8px; border-width: 3px; }
     .options { gap: 5px; margin-bottom: 5px; }
-    .btn-option { min-height: 38px; padding: 6px; font-size: clamp(14px, 3.5vw, 16px); border-width: 2px;}
+    .btn-option { min-height: 38px; padding: 6px; border-width: 2px;}
     .btn-next { margin-top: 5px; padding: 6px 18px; font-size: 12px; border-width: 2px; }
     
     .welcome-card { padding: 20px 15px; }
@@ -289,8 +288,9 @@
     </div>
   </div>
 
-  <!-- === POPUP NOTIFIKASI MODERN === -->
-  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 9999; background: rgba(0,0,0,0.8);">
+  <!-- === POPUP NOTIFIKASI MODERN (TERPUTUS) === -->
+  <!-- FIX: z-index dinaikkan jadi 99999 agar selalu tampil teratas -->
+  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 99999; background: rgba(0,0,0,0.85);">
     <div class="welcome-card alert-card" style="text-align: center; border-color: #F44336; animation: munculModal 0.3s ease-out forwards;">
       <div id="custom-alert-close" onclick="closeCustomAlert()">✖</div>
       <div id="custom-alert-icon" style="font-size: 55px; margin-bottom: 10px;">⚠️</div>
@@ -569,6 +569,12 @@
   let isAlertOpen = false;
   let isGameOver = false;
 
+  // DETEKSI TEKS ARAB AGAR FONT AMIRI TERAPLIKASI SEMPURNA
+  function isArabic(text) {
+    const arabicPattern = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return arabicPattern.test(text);
+  }
+
   function showCustomAlert(title, message, callback) {
     if (isAlertOpen) return; 
     isAlertOpen = true;
@@ -576,7 +582,6 @@
     document.getElementById('custom-alert-message').innerText = message;
     alertCallback = callback;
     
-    // FIX: Cegah error dari iframe (seperti pada web portal)
     try {
       history.pushState({ popup: 'alert' }, null, '');
     } catch(e) {}
@@ -637,11 +642,20 @@
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
+      // FIX BUG: TAMPILKAN NOTIF JIKA KONEKSI LAWAN TERPUTUS (SEBELUM RELOAD)
       if (!data) {
         if (roomId !== "" && !isGameOver) { 
           isGameOver = true;
           clearInterval(timerInterval);
-          showCustomAlert("Terputus!", "Lawan telah keluar dari kamar atau koneksi terputus.", () => { location.reload(); }); 
+          
+          // Sembunyikan layar lain agar notifikasi tidak tertumpuk z-index
+          document.getElementById('result-screen').style.display = 'none';
+          document.getElementById('welcome-screen').style.display = 'none';
+          document.getElementById('room-screen').style.display = 'none';
+          
+          showCustomAlert("Terputus!", "Lawan telah keluar dari permainan atau koneksi terputus.", () => { 
+            location.reload(); 
+          }); 
         } 
         return;
       }
@@ -711,7 +725,6 @@
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
-    // Memberitahu firebase untuk menghapus kamar ketika P1 putus koneksi
     window.dbOnDisconnect(currentRoomRef).remove(); 
     
     window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
@@ -726,7 +739,6 @@
     if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
-    // FIX BUG: Daftarkan onDisconnect juga untuk P2 agar jika P2 close tab, P1 dapat notif!
     window.dbOnDisconnect(currentRoomRef).remove();
 
     window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
@@ -748,7 +760,6 @@
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbRemove(antreanRef); 
         
-        // FIX BUG: Daftarkan onDisconnect juga untuk P2
         window.dbOnDisconnect(currentRoomRef).remove();
 
         window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
@@ -813,20 +824,47 @@
     let prefix = player === 1 ? 'p1' : 'p2';
     
     if (pData.index >= pData.questions.length) { 
-      document.getElementById(`${prefix}-q`).innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
+      let qBox = document.getElementById(`${prefix}-q`);
+      qBox.innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
+      qBox.style.fontFamily = "'Nunito', sans-serif";
       document.getElementById(`${prefix}-options`).innerHTML = '';
       return; 
     }
 
     let qData = pData.questions[pData.index];
-    document.getElementById(`${prefix}-q`).innerText = qData.q;
+    let qBox = document.getElementById(`${prefix}-q`);
+    qBox.innerText = qData.q;
+    
+    // MENERAPKAN FONT AMIRI UNTUK TEKS ARAB
+    if (isArabic(qData.q)) {
+        qBox.style.fontFamily = "'Amiri', serif";
+        qBox.style.fontSize = "clamp(20px, 6vw, 32px)";
+        qBox.style.lineHeight = "1.6";
+    } else {
+        qBox.style.fontFamily = "'Nunito', sans-serif";
+        qBox.style.fontSize = "clamp(16px, 4vw, 24px)";
+        qBox.style.lineHeight = "normal";
+    }
+
     let optsDiv = document.getElementById(`${prefix}-options`);
     optsDiv.innerHTML = '';
     
     let diacakOpts = [...qData.opts].sort(() => Math.random() - 0.5);
 
     diacakOpts.forEach(opt => {
-      let btn = document.createElement('button'); btn.className = 'btn-option'; btn.innerText = opt;
+      let btn = document.createElement('button'); 
+      btn.className = 'btn-option'; 
+      btn.innerText = opt;
+      
+      // MENERAPKAN FONT AMIRI UNTUK OPSI JAWABAN ARAB
+      if (isArabic(opt)) {
+          btn.style.fontFamily = "'Amiri', serif";
+          btn.style.fontSize = "clamp(18px, 5vw, 24px)";
+      } else {
+          btn.style.fontFamily = "'Nunito', sans-serif";
+          btn.style.fontSize = "clamp(14px, 3.5vw, 18px)";
+      }
+
       btn.onclick = () => checkAnswer(player, opt, qData.ans);
       optsDiv.appendChild(btn);
     });
@@ -954,7 +992,7 @@
   function akhiriGame() {
     isGameOver = true; 
     if (currentRoomRef) {
-      // FIX BUG: Tunggu sampai data benar-benar terhapus di database baru kemudian di-reload
+      // FIX BUG: Tunggu sampai Firebase selesai menghapus data sebelum melakukan reload
       window.dbRemove(currentRoomRef).then(() => {
         location.reload(); 
       }).catch((e) => {
