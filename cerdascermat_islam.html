@@ -576,6 +576,7 @@
   let alertCallback = null;
   let isAlertOpen = false;
   let isGameOver = false;
+  let unsubscribeKamar = null;
 
   // MENDETEKSI HURUF ARAB
   function isArabic(text) {
@@ -643,8 +644,8 @@
     } catch(e) {}
   }
 
-  function pantauDataKamar() {
-    window.dbOnValue(currentRoomRef, (snapshot) => {
+function pantauDataKamar() {
+  unsubscribeKamar = window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
       // FIX NOTIFIKASI PUTUS: Notifikasi dimunculkan untuk LAWAN
@@ -953,12 +954,22 @@
   }
 
   // FIX PENGHAPUSAN BUG: Mengakhiri game dengan layar loading halus, TIDAK ADA peringatan terputus bagi yg keluar.
-  function akhiriGame() {
+function akhiriGame() {
     isGameOver = true; 
+    
+    // 1. Matikan pendengar Firebase agar pemain ini tidak kena notif saat menghapus kamar
+    if (typeof unsubscribeKamar === 'function') {
+      unsubscribeKamar();
+    }
+    
+    // 2. Tutup paksa popup notifikasi jika sempat terbuka
+    const alertOverlay = document.getElementById('custom-alert-overlay');
+    if (alertOverlay) alertOverlay.style.display = 'none';
+
     let tempRef = currentRoomRef;
     currentRoomRef = null; // Putuskan listener secara lokal
 
-    // Layar transisi agar pengguna yang mengakhiri game tidak melihat notifikasi "Terputus" atau "Reload" yang jelek.
+    // Layar transisi agar pengguna yang mengakhiri game tidak melihat notifikasi
     document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background-color:#E8F5E9; font-family:Nunito,sans-serif;'><h2 style='color:#2E7D32;'>Keluar dari permainan...</h2></div>";
 
     if (tempRef) {
