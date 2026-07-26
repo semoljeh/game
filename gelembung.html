@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- --- META TAGS DASAR --- -->
+<title>MADASA - Tangkap Kotak Huruf Besar & Kecil</title>
+<meta name="description" content="Game edukasi untuk anak. Mari belajar huruf besar (A-Z) dan huruf kecil (a-z) dengan menangkap kotak melayang!">
+
+<!-- --- FAVICON & ICON --- -->
+<link rel="icon" type="image/png" href="icon/icon-192x192.png">
+<link rel="apple-touch-icon" href="icon/icon-192x192.png">
+
+<!-- --- GOOGLE FONTS --- -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  html, body { 
+    margin: 0; 
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif; 
+    /* TEMA LUAR ANGKASA: Gradien langit malam */
+    background: linear-gradient(to bottom, #0f2027 0%, #203a43 50%, #2c5364 100%); 
+    color: #333; 
+    overflow: hidden; 
+    touch-action: manipulation; 
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- PEMANDANGAN ALAM (BACKGROUND) --- */
+  #scenery {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1; 
+    pointer-events: none; 
+    overflow: hidden;
+  }
+
+  /* Bulan */
+  .moon {
+    position: absolute;
+    top: 30px; right: 40px;
+    width: 90px; height: 90px;
+    background: #F4F6F0;
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), inset -15px -15px 0 0px #d4d5d1;
+    animation: floatMoon 4s infinite alternate ease-in-out;
+  }
+  @keyframes floatMoon {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+  }
+
+  /* Bintang-bintang */
+  .star {
+    position: absolute;
+    background: #FFF;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #FFF;
+    animation: twinkle 2s infinite alternate;
+  }
+  .s1 { width: 5px; height: 5px; top: 20%; left: 15%; animation-delay: 0s; }
+  .s2 { width: 8px; height: 8px; top: 40%; right: 25%; animation-delay: 0.5s; }
+  .s3 { width: 4px; height: 4px; top: 60%; left: 30%; animation-delay: 1s; }
+  .s4 { width: 6px; height: 6px; top: 15%; right: 40%; animation-delay: 1.5s; }
+  .s5 { width: 7px; height: 7px; top: 50%; left: 10%; animation-delay: 0.8s; }
+
+  @keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.3); }
+  }
+
+  /* Lanskap Planet */
+  .hill {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .hill-back {
+    width: 150%; height: 35vh; left: -25%; bottom: -15vh;
+    background: #4b3655; /* Ungu gelap */
+  }
+  .hill-middle {
+    width: 120%; height: 30vh; right: -10%; bottom: -10vh;
+    background: #5c4366; /* Ungu sedang */
+  }
+  .hill-front {
+    width: 140%; height: 25vh; left: -10%; bottom: -5vh;
+    background: #71557a; /* Ungu terang */
+  }
+
+  /* --- UI ATAS (SKOR & TARGET) --- */
+  #top-bar {
+    position: absolute;
+    top: 2vh; 
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-start;
+    z-index: 10;
+    padding: 0 4vw; 
+    box-sizing: border-box;
+  }
+
+  .ui-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1vh 3vw;
+    border-radius: 15px; /* Menyesuaikan agar lebih kotak modern */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    font-size: clamp(16px, 4vmin, 24px); 
+    font-weight: 900;
+    border: 3px solid #FFD700;
+    color: #ff8c00;
+  }
+
+  #target-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    padding: 1vh 4vw 2vh 4vw; 
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    border: 4px solid #9C27B0;
+    animation: pulseTarget 2s infinite;
+    margin: 0 10px;
+  }
+  
+  #target-text {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 5px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  #target-letter {
+    font-size: clamp(45px, 12vmin, 85px); 
+    font-weight: 900;
+    color: #E91E63;
+    line-height: 1.2; 
+  }
+
+  @keyframes pulseTarget {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- AREA PERMAINAN --- */
+  #game-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    overflow: hidden;
+  }
+
+  /* --- KOTAK MODERN (MENGGANTIKAN BALON) --- */
+  .modern-box {
+    position: absolute;
+    bottom: -150px;
+    /* Dibuat sama rata agar berbentuk persegi */
+    width: clamp(75px, 16vmin, 110px); 
+    height: clamp(75px, 16vmin, 110px); 
+    background-color: var(--b-color);
+    
+    /* Sudut melengkung yang modern */
+    border-radius: 20px; 
+    
+    /* Garis pinggir dan bayangan agar terlihat seperti kaca/3D */
+    border: 3px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 
+      inset 0 5px 15px rgba(255,255,255,0.4), 
+      inset 0 -5px 15px rgba(0,0,0,0.2), 
+      0 10px 20px rgba(0,0,0,0.3);
+      
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(40px, 8vmin, 60px); 
+    color: white;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    cursor: pointer;
+    animation: floatUp linear forwards;
+    user-select: none;
+    transition: transform 0.1s ease;
+    z-index: 10;
+    box-sizing: border-box; 
+  }
+
+  /* Efek ditekan mengecil ke dalam */
+  .modern-box:active {
+    transform: scale(0.85);
+  }
+
+  /* Animasi melayang ke atas sambil sedikit berputar/goyang perlahan */
+  @keyframes floatUp {
+    0% { bottom: -150px; transform: translateX(0) rotate(-5deg); }
+    50% { transform: translateX(15px) rotate(5deg); }
+    100% { bottom: 110vh; transform: translateX(-15px) rotate(-5deg); }
+  }
+
+  /* --- ANIMASI SAAT DITANGKAP (POP!) --- */
+  .pop-anim {
+    position: absolute;
+    font-size: 35px;
+    font-weight: 900;
+    color: #4CAF50;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    pointer-events: none;
+    z-index: 20;
+    animation: popUp 1s ease-out forwards;
+  }
+
+  @keyframes popUp {
+    0% { transform: scale(0.5); opacity: 1; }
+    50% { transform: scale(1.5) translateY(-30px); opacity: 1; }
+    100% { transform: scale(1) translateY(-60px); opacity: 0; }
+  }
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 32, 39, 0.85); 
+    backdrop-filter: blur(8px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 900; }
+  h2 { font-size: 22px; color: #FF9800; margin: 0 0 20px 0; font-weight: 800; }
+  p { font-size: 18px; max-width: 600px; color: #DDD; line-height: 1.5; margin-bottom: 25px; font-weight: 700; }
+
+  .btn {
+    padding: 15px 40px;
+    font-size: 24px;
+    font-weight: 900;
+    background-color: #FF9800;
+    color: white;
+    border: 5px solid #FFF;
+    border-radius: 15px; /* Disesuaikan menjadi kotak membulat */
+    cursor: pointer;
+    box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.5);
+    transition: 0.1s;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .btn:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0;
+  }
+
+  .btn-rotate {
+    margin-top: 5px;
+    background: #9C27B0; 
+    color: white; 
+    border: 4px solid #FFF;
+    border-radius: 12px; 
+    padding: 12px 30px; 
+    font-size: 18px;
+    font-weight: 900; 
+    cursor: pointer; 
+    box-shadow: 0 6px 0 #7B1FA2, 0 10px 15px rgba(0,0,0,0.5);
+    font-family: inherit; 
+    transition: 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-rotate:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0;
+  }
+
+  /* --- LENCANA DEVELOPER --- */
+  .dev-link {
+    position: absolute; 
+    bottom: 20px; 
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 20px;
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    white-space: nowrap; 
+    z-index: 60;
+    font-weight: 700;
+  }
+  .dev-link strong {
+    color: #FF9800; 
+    font-size: 15px;
+    font-weight: 900;
+    margin-left: 4px;
+  }
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS LAYAR KECIL / HP POTRAIT */
+  /* ============================================== */
+  @media (max-width: 650px) {
+    #target-text { font-size: 12px; }
+    
+    .moon { width: 60px; height: 60px; right: 20px; top: 20px; }
+
+    h1 { font-size: 30px; }
+    h2 { font-size: 16px; margin-bottom: 10px;}
+    p { font-size: 14px; margin-bottom: 20px; }
+    
+    .btn { font-size: 18px; padding: 10px 25px; border-width: 3px; margin-bottom: 8px;}
+    .btn:active { transform: translateY(5px); box-shadow: 0 0 0;}
+    
+    .btn-rotate { font-size: 14px; padding: 8px 20px; border-width: 3px; box-shadow: 0 4px 0 #7B1FA2, 0 6px 10px rgba(0,0,0,0.3);}
+    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
+    
+    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 10px; }
+    .dev-link strong { font-size: 12px; }
+  }
+
+  /* ============================================== */
+  /* RESPONSIVE KHUSUS MODE LAYAR MIRING (LANDSCAPE) */
+  /* ============================================== */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #top-bar { top: 10px; padding: 0 15px; }
+    
+    #target-container { flex-direction: row; gap: 15px; padding: 5px 25px; border-radius: 20px; }
+    
+    #target-text { font-size: 14px; margin-bottom: 0; }
+    #target-letter { font-size: 40px; }
+
+    .moon { width: 50px; height: 50px; right: 20px; top: 10px; box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset -10px -10px 0 0px #d4d5d1; }
+    
+    h1 { font-size: 26px; margin-bottom: 5px; }
+    h2 { font-size: 16px; margin-bottom: 5px; }
+    p { font-size: 14px; margin-bottom: 15px; }
+    
+    .btn { padding: 8px 20px; font-size: 16px; box-shadow: 0 4px 0 #E65100; margin-bottom: 5px; border-width: 3px;}
+    .btn:active { transform: translateY(4px); box-shadow: 0 0 0; }
+    
+    .btn-rotate { font-size: 14px; padding: 6px 15px; margin-top: 5px; box-shadow: 0 4px 0 #7B1FA2; border-width: 3px;}
+    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
+    
+    .dev-link { bottom: 5px; padding: 4px 12px; font-size: 10px; }
+    .dev-link strong { font-size: 11px; }
+  }
+
+  /* --- KONTROL ROTASI BISA KLIK --- */
+  #app-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transition: transform 0.4s ease;
+    transform-origin: center center;
+    overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg);
+    width: 100vh !important;
+    height: 100vw !important;
+    top: 50% !important;
+    left: 50% !important;
+    margin-top: -50vw !important;
+    margin-left: -50vh !important;
+  }
+</style>
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<div id="app-container">
+
+<!-- PEMANDANGAN ALAM / BACKGROUND BARU (LUAR ANGKASA) -->
+<div id="scenery">
+  <div class="moon"></div>
+  
+  <div class="star s1"></div>
+  <div class="star s2"></div>
+  <div class="star s3"></div>
+  <div class="star s4"></div>
+  <div class="star s5"></div>
+
+  <div class="hill hill-back"></div>
+  <div class="hill hill-middle"></div>
+  <div class="hill hill-front"></div>
+</div>
+
+<!-- Layar Sambutan -->
+<div id="welcome-screen" class="screen" style="display: flex;">
+  <h1>🚀 Kotak Huruf Besar & Kecil 🚀</h1>
+  <h2>Bermain & Belajar bersama MADASA!</h2>
+  <p>Tangkap kotak yang hurufnya sama dengan yang diminta ya! Hati-hati antara huruf besar dan kecil. Siap?</p>
+  
+  <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
+  <button class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+<!-- Layar Permainan -->
+<div id="top-bar" style="display: none;">
+  <div class="ui-box">⏱️ <span id="time-display">60</span>s</div>
+  <div id="target-container">
+    <div id="target-text">Tangkap:</div>
+    <div id="target-letter">A</div>
+  </div>
+  <div class="ui-box">⭐ <span id="score-display">0</span></div>
+</div>
+
+<!-- Area Tempat Kotak Muncul -->
+<div id="game-area"></div>
+
+<!-- Layar Hasil Akhir -->
+<div id="result-screen" class="screen">
+  <h1>Masya Allah, Hebat! 🎉</h1>
+  <p>Waktu habis! Kamu berhasil menangkap banyak kotak.</p>
+  <div class="ui-box" style="margin-bottom: 20px; font-size: 30px; padding: 15px 40px; border-width: 4px;">
+    Total Skor: <span id="final-score" style="color: #E91E63; font-size: 40px;">0</span> ⭐
+  </div>
+  
+  <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
+  <button class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+    Development <strong>Arom Kobama 😎</strong>
+  </a>
+</div>
+
+</div>
+
+<!-- --- MUSIK LATAR --- -->
+<audio id="bg-music" loop>
+  <source src="asset/lucu.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
+  // ARRAY HURUF BESAR DAN HURUF KECIL
+  const karakterBelajar = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+  ];
+  
+  const boxColors = ['#F44336', '#9C27B0', '#3F51B5', '#03A9F4', '#4CAF50', '#8BC34A', '#FFEB3B', '#FF9800', '#FF5722'];
+  const pujianBenar = ["Pintar!", "Hebat!", "Masya Allah!", "Bagus!", "Horeee!"];
+
+  let score = 0;
+  let timeLeft = 60;
+  let currentTarget = '';
+  let gameInterval;
+  let spawnInterval;
+  let isPlaying = false;
+
+  const gameArea = document.getElementById('game-area');
+  const targetLetterDisplay = document.getElementById('target-letter');
+  const scoreDisplay = document.getElementById('score-display');
+  const timeDisplay = document.getElementById('time-display');
+  
+  const bgMusic = document.getElementById('bg-music');
+
+  function setNewTarget() {
+    const randomIndex = Math.floor(Math.random() * karakterBelajar.length);
+    currentTarget = karakterBelajar[randomIndex];
+    targetLetterDisplay.innerText = currentTarget;
+  }
+
+  function createBox() {
+    if (!isPlaying) return;
+
+    const box = document.createElement('div');
+    box.className = 'modern-box';
+    
+    let posisiAkhir = Math.floor(Math.random() * 75) + 10;
+    box.style.left = posisiAkhir + '%';
+    
+    const randomColor = boxColors[Math.floor(Math.random() * boxColors.length)];
+    box.style.setProperty('--b-color', randomColor);
+
+    const randomSpeed = Math.random() * 4 + 6;
+    box.style.animationDuration = randomSpeed + 's';
+
+    let letterInside;
+    if (Math.random() < 0.3) {
+      letterInside = currentTarget;
+    } else {
+      letterInside = karakterBelajar[Math.floor(Math.random() * karakterBelajar.length)];
+    }
+    
+    box.innerText = letterInside;
+
+    box.addEventListener('pointerdown', (e) => {
+      if(box.style.opacity === '0') return; 
+      
+      let bX = box.offsetLeft + 50; 
+      let bY = box.offsetTop;
+
+      // Pencocokan bersifat case-sensitive
+      if (letterInside === currentTarget) {
+        score += 10;
+        scoreDisplay.innerText = score;
+        showPopText(bX, bY, pujianBenar[Math.floor(Math.random() * pujianBenar.length)], '#4CAF50');
+        
+        box.style.opacity = '0';
+        box.style.transform = 'scale(0)';
+        
+        setNewTarget();
+      } else {
+        showPopText(bX, bY, "Oops!", '#F44336');
+        box.style.opacity = '0';
+        box.style.transform = 'scale(0)';
+      }
+    });
+
+    gameArea.appendChild(box);
+
+    setTimeout(() => {
+      if (box.parentNode) {
+        box.remove();
+      }
+    }, randomSpeed * 1000);
+  }
+
+  function showPopText(x, y, text, color) {
+    const pop = document.createElement('div');
+    pop.className = 'pop-anim';
+    pop.innerText = text;
+    pop.style.left = (x - 40) + 'px';
+    pop.style.top = (y - 40) + 'px';
+    pop.style.color = color;
+    
+    document.getElementById('game-area').appendChild(pop);
+    
+    setTimeout(() => {
+      pop.remove();
+    }, 1000);
+  }
+
+  function startGame() {
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('top-bar').style.display = 'flex';
+    
+    if (bgMusic.paused) {
+      bgMusic.play().catch(error => {
+        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
+      });
+    }
+    
+    gameArea.innerHTML = '';
+    
+    score = 0;
+    timeLeft = 60;
+    scoreDisplay.innerText = score;
+    timeDisplay.innerText = timeLeft;
+    isPlaying = true;
+
+    setNewTarget();
+
+    gameInterval = setInterval(() => {
+      timeLeft--;
+      timeDisplay.innerText = timeLeft;
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+
+    spawnInterval = setInterval(createBox, 1000);
+  }
+
+  function endGame() {
+    isPlaying = false;
+    clearInterval(gameInterval);
+    clearInterval(spawnInterval);
+    
+    document.getElementById('top-bar').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'flex';
+    document.getElementById('final-score').innerText = score;
+  }
+</script>
+</body>
+</html>
