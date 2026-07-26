@@ -12,13 +12,13 @@
 <style>
   /* --- PENGATURAN DASAR & FIX RESPONSIVE --- */
   *, *::before, *::after {
-    box-sizing: border-box; /* Mencegah elemen melebihi batas wadahnya */
+    box-sizing: border-box; 
   }
 
   /* --- PENGATURAN DASAR TEMA ISLAMI --- */
   html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Nunito', 'Amiri', sans-serif; /* Menerapkan Nunito, dengan fallback Amiri untuk huruf Arab */
+    font-family: 'Nunito', 'Amiri', sans-serif; 
     background-color: #E8F5E9; 
     color: #333; overflow: hidden; touch-action: manipulation; 
     -webkit-user-select: none; user-select: none;
@@ -80,7 +80,7 @@
   #p1-zone .btn-option { border: 3px solid #4CAF50; }
   #p2-zone .btn-option { border: 3px solid #FBC02D; }
   
-  /* Tombol Lewati Dikembalikan ke Tengah */
+  /* Tombol Lewati Dibuat Tengah */
   .btn-next { 
     margin-top: 15px;
     padding: 8px 25px; 
@@ -176,13 +176,12 @@
     #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 4px 15px; border-width: 3px;}
     #p1-zone { transform: rotate(180deg); }
     
-    /* Mengoptimalkan ruang agar tombol "Lewati" muat di tengah tanpa tabrakan */
+    /* Tombol lewati di tengah & Jarak proporsional di HP */
     .player-zone { padding: 5px; justify-content: center; }
     .question-box { font-size: clamp(15px, 4vw, 20px); padding: 8px 15px; margin-bottom: 8px; border-width: 3px; }
     .options { gap: 5px; margin-bottom: 5px; }
     .btn-option { min-height: 38px; padding: 6px; font-size: clamp(14px, 3.5vw, 16px); border-width: 2px;}
-    
-    .btn-next { margin-top: 5px; padding: 6px 18px; font-size: 12px; border-width: 2px;}
+    .btn-next { margin-top: 5px; padding: 6px 18px; font-size: 12px; border-width: 2px; }
     
     .welcome-card { padding: 20px 15px; }
     #chat-wrapper { bottom: 85px; right: 15px; }
@@ -576,15 +575,24 @@
     document.getElementById('custom-alert-title').innerText = title;
     document.getElementById('custom-alert-message').innerText = message;
     alertCallback = callback;
-    history.pushState({ popup: 'alert' }, null, '');
+    
+    // FIX: Cegah error dari iframe (seperti pada web portal)
+    try {
+      history.pushState({ popup: 'alert' }, null, '');
+    } catch(e) {}
+    
     document.getElementById('custom-alert-overlay').style.display = 'flex';
   }
 
   function closeCustomAlert() {
     if (!isAlertOpen) return;
-    if (history.state && history.state.popup === 'alert') {
-      history.back(); 
-    } else {
+    try {
+      if (history.state && history.state.popup === 'alert') {
+        history.back(); 
+      } else {
+        executeCloseAlert();
+      }
+    } catch(e) {
       executeCloseAlert();
     }
   }
@@ -619,7 +627,7 @@
         audio.currentTime = 0;
         let playPromise = audio.play();
         if (playPromise !== undefined) {
-          playPromise.catch(error => { console.warn("Autoplay dicegah oleh browser.", error); });
+          playPromise.catch(error => {});
         }
       }
     } catch(e) {}
@@ -702,6 +710,8 @@
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+    
+    // Memberitahu firebase untuk menghapus kamar ketika P1 putus koneksi
     window.dbOnDisconnect(currentRoomRef).remove(); 
     
     window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
@@ -716,6 +726,9 @@
     if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
+    // FIX BUG: Daftarkan onDisconnect juga untuk P2 agar jika P2 close tab, P1 dapat notif!
+    window.dbOnDisconnect(currentRoomRef).remove();
+
     window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
@@ -734,12 +747,17 @@
       if (snapshot.exists()) {
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbRemove(antreanRef); 
+        
+        // FIX BUG: Daftarkan onDisconnect juga untuk P2
+        window.dbOnDisconnect(currentRoomRef).remove();
+
         window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
           document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 memilih mode...";
           document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
         });
       } else {
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+        
         window.dbOnDisconnect(currentRoomRef).remove(); 
 
         window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
@@ -778,7 +796,6 @@
       let bgm = document.getElementById('bg-music'); 
       bgm.volume = 0.4; 
       let playPromise = bgm.play();
-      if(playPromise !== undefined) playPromise.catch(e => console.warn("Musik terblokir browser"));
     } catch(e){}
 
     let finalQuestions = [];
@@ -910,9 +927,10 @@
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
       chatUI.style.display = 'none';
-      if (history.state && history.state.popup === 'chat') { history.back(); }
+      try { if (history.state && history.state.popup === 'chat') { history.back(); } } catch(e){}
     } else {
-      chatUI.style.display = 'flex'; history.pushState({ popup: 'chat' }, null, '');
+      chatUI.style.display = 'flex'; 
+      try { history.pushState({ popup: 'chat' }, null, ''); } catch(e){}
       const chatBox = document.getElementById('chat-box'); chatBox.scrollTop = chatBox.scrollHeight;
       document.getElementById('chat-input').focus();
       document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
@@ -933,22 +951,18 @@
     window.dbUpdate(currentRoomRef, updateData);
   }
 
-  function kembaliKeLobi() {
-    document.getElementById('result-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('p1-zone').classList.add('belum-mulai'); document.getElementById('p2-zone').classList.add('belum-mulai');
-    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 }; 
-    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
-    timeLeft = 60; timerDisplay.innerText = "60"; timerDisplay.classList.remove('waktu-kritis');
-    document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
-    document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
-    document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih Kategori...";
-    
-    try { let bgm = document.getElementById('bg-music'); bgm.pause(); bgm.currentTime = 0; } catch(e){}
-  }
-
   function akhiriGame() {
     isGameOver = true; 
-    if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
+    if (currentRoomRef) {
+      // FIX BUG: Tunggu sampai data benar-benar terhapus di database baru kemudian di-reload
+      window.dbRemove(currentRoomRef).then(() => {
+        location.reload(); 
+      }).catch((e) => {
+        location.reload();
+      });
+    } else {
+      location.reload(); 
+    }
   }
 </script>
 </body>
