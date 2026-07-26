@@ -52,12 +52,11 @@
     max-width: 500px; 
     box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
     word-wrap: break-word;
-    white-space: pre-wrap; /* PENTING: Agar baris teks Arab turun dengan rapi */
+    white-space: pre-wrap; 
   }
   #p1-zone .question-box { border: 4px dashed #2E7D32; color: #1B5E20; }
   #p2-zone .question-box { border: 4px dashed #F57F17; color: #E65100; }
   
-  /* Layout Opsi Dibuat Menurun (Column) agar rapi dan tidak tumpang tindih */
   .options { display: flex; flex-direction: column; gap: 8px; justify-content: center; width: 90%; max-width: 500px; }
   .btn-option { 
     font-size: clamp(14px, 3.5vw, 18px); 
@@ -79,7 +78,6 @@
   #p1-zone .btn-option { border: 3px solid #4CAF50; }
   #p2-zone .btn-option { border: 3px solid #FBC02D; }
   
-  /* Tombol Lewati Dibuat Absolute di Pojok Agar Hemat Tempat */
   .btn-next { 
     position: absolute;
     bottom: 15px;
@@ -127,26 +125,26 @@
   .room-input::-webkit-outer-spin-button, .room-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .room-input[type=number] { -moz-appearance: textfield; }
 
-  /* ANIMASI BENAR/SALAH YANG SUDAH DIPERBAIKI (Tengah Layar Kotak Soal) */
+  /* FIX BUG: ANIMASI BENAR/SALAH (Dipindahkan agar tidak terhapus) */
   .notif-lucu { 
     position: absolute; 
-    top: 50%; 
+    top: 40%; 
     left: 50%; 
-    transform: translate(-50%, -50%); 
-    font-size: clamp(28px, 6vw, 36px); 
+    transform: translateX(-50%); 
+    font-size: clamp(30px, 6vw, 45px); 
     font-weight: 900; 
-    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 10px rgba(255,255,255,1); 
+    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 10px rgba(255,255,255,0.8); 
     pointer-events: none; 
-    z-index: 1000; 
+    z-index: 9999; 
     animation: popUpAnim 1.2s forwards; 
     text-align: center; 
     white-space: nowrap;
   }
   @keyframes popUpAnim { 
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 
-    20% { transform: translate(-50%, -70%) scale(1.2); opacity: 1; } 
-    80% { transform: translate(-50%, -90%) scale(1); opacity: 1; } 
-    100% { transform: translate(-50%, -110%) scale(0.8); opacity: 0; } 
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 
+    20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; } 
+    80% { transform: translate(-50%, -40px) scale(1); opacity: 1; } 
+    100% { transform: translate(-50%, -60px) scale(0.8); opacity: 0; } 
   }
   @keyframes munculModal { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -685,13 +683,11 @@
       let selected = oppData.lastAction.selected; let isCorrect = oppData.lastAction.isCorrect;
 
       if (selected !== "SKIP") {
-        // MUNCULKAN NOTIFIKASI DI TENGAH KOTAK SOAL
-        let qBox = document.getElementById(prefix + '-q');
+        let zone = document.getElementById(prefix + '-zone');
         let notif = document.createElement('div'); notif.className = 'notif-lucu';
         notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
         notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
-        qBox.style.position = 'relative';
-        qBox.appendChild(notif); 
+        zone.appendChild(notif); 
         setTimeout(() => notif.remove(), 1200);
       }
       setTimeout(() => { localOppData.index = oppData.index; loadQuestion(oppRole); }, 150);
@@ -832,13 +828,11 @@
       }
     }
     
-    // MUNCULKAN NOTIFIKASI DI TENGAH KOTAK SOAL
-    let qBox = document.getElementById(prefix + '-q');
+    let zone = document.getElementById(prefix + '-zone');
     let notif = document.createElement('div'); notif.className = 'notif-lucu';
     notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
     notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
-    qBox.style.position = 'relative';
-    qBox.appendChild(notif); 
+    zone.appendChild(notif); 
     setTimeout(() => notif.remove(), 1200);
     
     if (isCorrect) { 
