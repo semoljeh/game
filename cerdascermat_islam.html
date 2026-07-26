@@ -827,16 +827,24 @@ function pantauDataKamar() {
       return; 
     }
 
-    let qData = pData.questions[pData.index];
+let qData = pData.questions[pData.index];
     let qBox = document.getElementById(`${prefix}-q`);
-    qBox.innerText = qData.q;
     
-    // FIX BUG OVERLAP TULISAN ARAB (Dihapus sistem paksa font besar di JS)
-    // Sekarang CSS yang murni mengatur agar responsif di HP
+    // FIX POSISI TITIK PADA TEKS ARAB & BUG OVERLAP
     if (isArabic(qData.q)) {
+        // Memisahkan teks Indonesia dan teks Arab (berdasarkan enter / \n)
+        let parts = qData.q.split('\n');
+        if (parts.length > 1) {
+            // Berikan atribut dir="rtl" khusus pada baris teks Arab
+            qBox.innerHTML = parts[0] + '<br><div dir="rtl" style="margin-top: 5px;">' + parts[1] + '</div>';
+        } else {
+            qBox.innerHTML = '<div dir="rtl">' + qData.q + '</div>';
+        }
+        
         qBox.style.fontFamily = "'Amiri', serif";
         qBox.style.lineHeight = "1.5";
     } else {
+        qBox.innerText = qData.q;
         qBox.style.fontFamily = "'Nunito', sans-serif";
         qBox.style.lineHeight = "normal";
     }
@@ -956,6 +964,37 @@ function pantauDataKamar() {
     let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() };
     window.dbUpdate(currentRoomRef, updateData);
   }
+
+
+// FUNGSI UNTUK MERESET GAME DAN KEMBALI KE LOBI
+  function kembaliKeLobi() {
+    // 1. Sembunyikan layar hasil (skor)
+    document.getElementById('result-screen').style.display = 'none';
+    
+    // 2. Tampilkan kembali layar lobi
+    document.getElementById('welcome-screen').style.display = 'flex';
+    
+    // 3. Reset data pemain secara lokal
+    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    
+    // 4. Blur / Kunci kembali area permainan
+    document.getElementById('p1-zone').classList.add('belum-mulai');
+    document.getElementById('p2-zone').classList.add('belum-mulai');
+    
+    // 5. Reset tampilan waktu di tengah
+    document.getElementById('timer-display').innerText = "60";
+    document.getElementById('timer-display').classList.remove('waktu-kritis');
+    
+    // 6. Atur ulang status teks di lobi
+    document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
+    
+    // Khusus Player 1 (Host) tampilkan kembali tombol pilihan kategori soal
+    if (myRole === 1) {
+      document.getElementById('host-controls').style.display = 'block';
+    }
+  }
+
 
   // FIX PENGHAPUSAN BUG: Mengakhiri game dengan layar loading halus, TIDAK ADA peringatan terputus bagi yg keluar.
 function akhiriGame() {
