@@ -40,7 +40,8 @@
   #p2-zone .question-box { border: 5px dashed #0288D1; color: #01579B; }
   
   .options { display: flex; gap: 15px; min-height: 70px; justify-content: center; flex-wrap: wrap; }
-  .btn-option { font-size: 35px; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 20px; background: #FFF; font-weight: 900; }
+  .btn-option { font-size: 35px; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 20px; background: #FFF; font-weight: 900; transition: transform 0.1s, background-color 0.2s;}
+  .btn-option:active { transform: scale(0.95); }
   #p1-zone .btn-option { border: 4px solid #F48FB1; }
   #p2-zone .btn-option { border: 4px solid #81D4FA; }
   .btn-next { margin-top: 50px; padding: 10px 30px; font-size: 16px; font-weight: 800; cursor: pointer; background: rgba(255, 255, 255, 0.8); border: 3px solid #FFF; border-radius: 30px; }
@@ -107,25 +108,15 @@
   #chat-input:focus { border-color: #673AB7; }
   #btn-send-chat { background: #673AB7; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
 
-  /* --- NOTIFIKASI CHAT (Titik Merah & Animasi Goyang) --- */
+  /* --- NOTIFIKASI CHAT --- */
   #chat-notif {
-    position: absolute; top: -5px; right: -5px;
-    background: #FF3D00; color: white;
-    border-radius: 50%; width: 22px; height: 22px;
-    font-size: 14px; font-weight: 900;
+    position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white;
+    border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900;
     display: none; justify-content: center; align-items: center;
     border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
-  .goyang {
-    animation: wiggle 0.5s infinite;
-  }
-  @keyframes wiggle {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(-15deg); }
-    50% { transform: rotate(0deg); }
-    75% { transform: rotate(15deg); }
-    100% { transform: rotate(0deg); }
-  }
+  .goyang { animation: wiggle 0.5s infinite; }
+  @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
 
   @media screen and (orientation: portrait) {
     #game-board { flex-direction: column; }
@@ -135,7 +126,6 @@
     .question-box { font-size: 38px; padding: 10px 20px; margin-bottom: 15px; border-width: 4px; min-width: 150px;}
     .btn-option { font-size: 26px; width: 70px; height: 70px; }
    
-    /* --- Perbaikan Kotak & Hasil Akhir di HP --- */
     .welcome-card { padding: 15px; max-width: 95%; max-height: 85vh; overflow-y: auto; }
     .welcome-card h1 { font-size: 22px; margin-top: 10px; }
     #waktu-akhir-display { font-size: 16px; padding: 8px 20px; margin-bottom: 10px; }
@@ -145,11 +135,9 @@
     .result-card h3 { font-size: 14px; margin: 5px 0; }
     .result-card p { font-size: 14px; margin: 5px 0; }
    
-    /* Penyesuaian Chat di HP */
     #chat-icon { bottom: 15px; right: 15px; width: 55px; height: 55px; font-size: 26px;}
     #chat-wrapper { bottom: 80px; right: 15px; width: 280px; }
 	
-	/* --- Perbaikan Lobi Host di Layar HP --- */
     #host-controls p { font-size: 14px; margin-bottom: 10px; }
     .mode-container { width: 100%; gap: 8px; }
     .btn-mode { flex: 1 1 45%; max-width: 48%; padding: 12px 5px; font-size: 14px; border-width: 2px; }
@@ -160,6 +148,8 @@
 <body>
 
 <audio id="bg-music" loop><source src="asset/musik.mp3" type="audio/mpeg"></audio>
+<audio id="sound-benar"><source src="asset/benar.mp3" type="audio/mpeg"></audio>
+<audio id="sound-salah"><source src="asset/salah.mp3" type="audio/mpeg"></audio>
 
 <div id="app-container">
 
@@ -169,13 +159,11 @@
       <h1>🚪 MADASA ROOM</h1>
       <h2>Main Bareng Teman / Acak</h2>
       
-      <!-- FITUR BARU: TOMBOL MATCHMAKING -->
       <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
         <p style="margin-bottom: 10px; font-weight: 800;">Bermain dengan lawan acak (Global):</p>
         <button class="btn-mode" style="background: #673AB7; width: 100%; padding: 12px; font-size: 18px;" onclick="cariLawanAcak()">🌍 CARI LAWAN ACAK</button>
       </div>
 
-      <!-- FITUR LAMA: MAIN PRIVAT PAKAI KODE -->
       <p style="margin-top: 0; font-weight: 800;">Bermain privat dengan teman (KODE):</p>
       <div class="mode-container" style="flex-direction: column; align-items: center; gap: 15px;">
         <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%;">+ Buat Kamar Baru (P1)</button>
@@ -249,10 +237,9 @@
     </div>
   </div>
 
-  <!-- IKON CHAT & POPUP CHAT (Di Luar Permainan) -->
+  <!-- IKON CHAT & POPUP CHAT -->
   <div id="chat-icon" onclick="toggleChat()">
-    💬
-    <div id="chat-notif">!</div>
+    💬<div id="chat-notif">!</div>
   </div>
   
   <div id="chat-wrapper">
@@ -287,9 +274,7 @@
   const app = initializeApp(firebaseConfig);
   window.db = getDatabase(app);
   window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
-  
-  window.dbGet = get; 
-  window.dbRemove = remove; 
+  window.dbGet = get; window.dbRemove = remove; 
 </script>
 
 <!-- === LOGIKA PERMAINAN === -->
@@ -297,34 +282,28 @@
   let myRole = 0; // 1 = P1, 2 = P2
   let roomId = "";
   let currentRoomRef = null;
-  const totalQuestions = 100;
+  const totalQuestions = 50;
   
-  let p1 = { correct: 0, wrong: 0, index: 0, questions: [] };
-  let p2 = { correct: 0, wrong: 0, index: 0, questions: [] };
+  let p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+  let p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
   
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
-  let lastChatCount = 0; // Menyimpan jumlah pesan untuk trigger notifikasi
-  let lastRestart = 0; // Melacak jika pemain klik Main Lagi
+  let lastChatCount = 0; 
+  let lastRestart = 0; 
+  let globalEndTime = 0; // Fitur Waktu Mutlak
 
-  // --- 1. FUNGSI SINKRONISASI REAL-TIME & CHAT ---
+  // --- 1. FUNGSI SINKRONISASI REAL-TIME ---
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
-      // LOGIKA JIKA KAMAR DIBUBARKAN (AKHIRI GAME)
       if (!data) {
-        if (roomId !== "") {
-          alert("Lawan telah keluar dari kamar. Permainan berakhir.");
-          location.reload();
-        }
-        return;
+        if (roomId !== "") { alert("Lawan telah keluar dari kamar. Permainan berakhir."); location.reload(); } return;
       }
 
-      // LOGIKA JIKA DIAJAK MAIN LAGI
       if (data.restart && data.restart !== lastRestart) {
-        lastRestart = data.restart;
-        kembaliKeLobi();
+        lastRestart = data.restart; kembaliKeLobi();
       }
 
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
@@ -334,34 +313,23 @@
         document.getElementById('host-controls').style.display = 'block';
       }
 
-      if (myRole === 2 && data.mode && data.mode !== "" && document.getElementById('welcome-screen').style.display === 'flex') {
-        mulaiPermainan(data.mode);
+      // Sync Permainan Dimulai dengan Soal dan Waktu yang Sama
+      if (data.mode && data.questions && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
+        mulaiPermainan(data.questions, data.endTime);
       }
 
-      // Sinkronisasi Skor Anti-Tabrakan
-      if (myRole === 1 && data.p2) { 
-        p2.correct = data.p2.correct; p2.wrong = data.p2.wrong; 
-        if (document.getElementById('result-screen').style.display === 'flex') {
-          document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
-          document.getElementById('p2-benar').innerText = p2.correct;
-        }
-      } else if (myRole === 2 && data.p1) { 
-        p1.correct = data.p1.correct; p1.wrong = data.p1.wrong; 
-        if (document.getElementById('result-screen').style.display === 'flex') {
-          document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
-          document.getElementById('p1-benar').innerText = p1.correct;
-        }
+      // Sync Papan Skor & Layar Lawan (Blind Mode)
+      if (document.getElementById('welcome-screen').style.display === 'none') {
+        if (myRole === 1 && data.p2) { syncOpponent(2, data.p2); } 
+        else if (myRole === 2 && data.p1) { syncOpponent(1, data.p1); }
       }
 
-      // Sinkronisasi Pesan Chat & Notifikasi
+      // Sync Chat
       if (data.chats) {
         const chatArray = Object.values(data.chats);
-        
-        // Logika memunculkan tanda seru merah dan animasi goyang
         if (chatArray.length > lastChatCount) {
           const pesanTerakhir = chatArray[chatArray.length - 1];
           const chatTertutup = document.getElementById('chat-wrapper').style.display !== 'flex';
-          
           if (pesanTerakhir.role !== myRole && chatTertutup) {
             document.getElementById('chat-notif').style.display = 'flex';
             document.getElementById('chat-icon').classList.add('goyang'); 
@@ -369,12 +337,10 @@
           lastChatCount = chatArray.length;
         }
 
-        // Tampilkan pesan di kotak obrolan
         const chatBox = document.getElementById('chat-box');
         chatBox.innerHTML = ''; 
         chatArray.forEach(chat => {
-          const div = document.createElement('div');
-          div.innerText = chat.msg;
+          const div = document.createElement('div'); div.innerText = chat.msg;
           div.className = chat.role === myRole ? 'pesan pesan-saya' : 'pesan pesan-lawan';
           chatBox.appendChild(div);
         });
@@ -383,43 +349,77 @@
     });
   }
 
-  // --- 2. LOGIKA KAMAR (ROOM) ---
+  function syncOpponent(oppRole, oppData) {
+    let localOppData = oppRole === 1 ? p1 : p2;
+    let prefix = oppRole === 1 ? 'p1' : 'p2';
+
+    localOppData.correct = oppData.correct || 0;
+    localOppData.wrong = oppData.wrong || 0;
+    
+    if (document.getElementById('result-screen').style.display === 'flex') {
+      document.getElementById(`${prefix}-dijawab`).innerText = localOppData.correct + localOppData.wrong;
+      document.getElementById(`${prefix}-benar`).innerText = localOppData.correct;
+    }
+
+    if (oppData.lastAction && oppData.lastAction.timestamp !== localOppData.lastTimestamp) {
+      localOppData.lastTimestamp = oppData.lastAction.timestamp;
+      let selected = oppData.lastAction.selected;
+      let isCorrect = oppData.lastAction.isCorrect;
+
+      if (selected !== "SKIP") {
+        let zone = document.getElementById(`${prefix}-zone`);
+        let notif = document.createElement('div'); notif.className = 'notif-lucu';
+        notif.innerText = isCorrect ? "🔥 Benar!" : "❌ Salah!";
+        notif.style.color = isCorrect ? "#4CAF50" : "#E91E63";
+        zone.appendChild(notif); 
+        setTimeout(() => notif.remove(), 1000);
+      }
+
+      setTimeout(() => {
+        localOppData.index = oppData.index;
+        loadQuestion(oppRole);
+      }, 100);
+
+    } else if (oppData.index !== undefined && oppData.index > localOppData.index) {
+       localOppData.index = oppData.index;
+       loadQuestion(oppRole);
+    }
+  }
+
+  // --- 2. LOGIKA KAMAR ANTI RACE-CONDITION ---
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString();
     myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
     window.dbSet(currentRoomRef, { 
-      mode: "", p2_ready: false, p1: { correct: 0, wrong: 0 }, p2: { correct: 0, wrong: 0 }
+      mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }
+    }).then(() => {
+      document.getElementById('room-screen').style.display = 'none';
+      document.getElementById('welcome-screen').style.display = 'flex';
+      document.getElementById('room-code-display').innerText = roomId;
+      document.getElementById('p2-zone').classList.add('terkunci');
+      document.getElementById('chat-icon').style.display = 'flex'; 
+      pantauDataKamar(); 
     });
-
-    document.getElementById('room-screen').style.display = 'none';
-    document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('room-code-display').innerText = roomId;
-    document.getElementById('p2-zone').classList.add('terkunci');
-    
-    document.getElementById('chat-icon').style.display = 'flex'; // Muncul di Lobi
-    pantauDataKamar(); 
   }
 
   function gabungKamar() {
     const input = document.getElementById('input-kode-kamar').value;
     if (input.length !== 4) { alert("Masukkan 4 digit kode dengan benar!"); return; }
     
-    roomId = input;
-    myRole = 2;
+    roomId = input; myRole = 2;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    window.dbUpdate(currentRoomRef, { p2_ready: true });
-
-    document.getElementById('room-screen').style.display = 'none';
-    document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('room-code-display').innerText = roomId;
-    document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
-    document.getElementById('p1-zone').classList.add('terkunci');
-
-    document.getElementById('chat-icon').style.display = 'flex'; // Muncul di Lobi
-    pantauDataKamar(); 
+    window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+      document.getElementById('room-screen').style.display = 'none';
+      document.getElementById('welcome-screen').style.display = 'flex';
+      document.getElementById('room-code-display').innerText = roomId;
+      document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
+      document.getElementById('p1-zone').classList.add('terkunci');
+      document.getElementById('chat-icon').style.display = 'flex'; 
+      pantauDataKamar(); 
+    });
   }
   
   function cariLawanAcak() {
@@ -427,76 +427,42 @@
     document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('room-code-display').innerText = "MENCARI...";
     document.getElementById('p2-status').innerText = "Mencari lawan yang tersedia di internet...";
-
     const antreanRef = window.dbRef(window.db, 'antrean_global');
 
-    // Cek apakah ada antrean di database
     window.dbGet(antreanRef).then((snapshot) => {
       if (snapshot.exists()) {
-        // SKENARIO 1: Ada lawan yang sedang menunggu! Kita gabung sebagai P2.
-        roomId = snapshot.val();
-        myRole = 2;
+        roomId = snapshot.val(); myRole = 2;
         currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-
-        // Langsung hapus room dari antrean agar tidak ada orang ke-3 masuk
         window.dbRemove(antreanRef);
-
-        // Kabari P1 bahwa kita sudah bergabung
-        window.dbUpdate(currentRoomRef, { p2_ready: true });
-
-        document.getElementById('room-code-display').innerText = "ACAK";
-        document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
-        document.getElementById('p1-zone').classList.add('terkunci');
-        document.getElementById('chat-icon').style.display = 'flex';
-        pantauDataKamar();
-
+        window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+          document.getElementById('room-code-display').innerText = "ACAK";
+          document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
+          document.getElementById('p1-zone').classList.add('terkunci');
+          document.getElementById('chat-icon').style.display = 'flex';
+          pantauDataKamar();
+        });
       } else {
-        // SKENARIO 2: Tidak ada yang antre. Kita buat room baru dan masuk antrean sebagai P1.
-        roomId = Math.floor(1000 + Math.random() * 9000).toString();
-        myRole = 1;
+        roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
         currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
         window.dbSet(currentRoomRef, { 
-          mode: "", p2_ready: false, p1: { correct: 0, wrong: 0 }, p2: { correct: 0, wrong: 0 }
+          mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }
+        }).then(() => {
+          window.dbSet(antreanRef, roomId).then(() => {
+            document.getElementById('room-code-display').innerText = "ACAK";
+            document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
+            document.getElementById('p2-zone').classList.add('terkunci');
+            document.getElementById('chat-icon').style.display = 'flex';
+            pantauDataKamar();
+          });
         });
-
-        // Daftarkan ID Kamar kita ke antrean global
-        window.dbSet(antreanRef, roomId);
-
-        document.getElementById('room-code-display').innerText = "ACAK";
-        document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
-        document.getElementById('p2-zone').classList.add('terkunci');
-        document.getElementById('chat-icon').style.display = 'flex';
-        pantauDataKamar();
       }
     }).catch((error) => {
-      alert("Gagal terhubung ke server. Silakan coba lagi.");
-      location.reload();
+      alert("Gagal terhubung ke server. Silakan coba lagi."); location.reload();
     });
   }
 
-  function hostPilihMode(modeDipilih) {
-    window.dbUpdate(currentRoomRef, { mode: modeDipilih });
-    mulaiPermainan(modeDipilih);
-  }
-
-  // --- 3. LOGIKA PERMAINAN ---
-  function mulaiPermainan(mode) {
-    document.getElementById('welcome-screen').style.display = 'none';
-    document.getElementById('p1-zone').classList.remove('belum-mulai');
-    document.getElementById('p2-zone').classList.remove('belum-mulai');
-    
-    // SEMBUNYIKAN Chat Saat Game Berlangsung
-    document.getElementById('chat-icon').style.display = 'none'; 
-    document.getElementById('chat-wrapper').style.display = 'none'; 
-
-    try { document.getElementById('bg-music').play(); } catch(e){}
-
-    generateQuestions(mode);
-    loadQuestion(1); loadQuestion(2);
-    startTimer();
-  }
-
+  // --- 3. GENERATOR SOAL OLEH HOST ---
   function generateQuestions(modePilihan) {
     let master = []; let operators = [];
     if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
@@ -520,14 +486,49 @@
       let opts = [ans, w1, w2].sort(() => Math.random() - 0.5);
       master.push({ q: `${a} ${op} ${b}`, ans: ans, opts: opts });
     }
-    p1.questions = [...master].sort(() => Math.random() - 0.5);
-    p2.questions = [...master].sort(() => Math.random() - 0.5);
+    return master;
+  }
+
+  function hostPilihMode(modeDipilih) {
+    let finalQuestions = generateQuestions(modeDipilih);
+    let targetWaktuSelesai = Date.now() + 60000; // 60 detik dari sekarang
+    
+    window.dbUpdate(currentRoomRef, { 
+      mode: modeDipilih, 
+      questions: finalQuestions, 
+      endTime: targetWaktuSelesai 
+    });
+  }
+
+  // --- 4. LOGIKA PERMAINAN ---
+  function mulaiPermainan(questionsArray, targetEndTime) {
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('p1-zone').classList.remove('belum-mulai');
+    document.getElementById('p2-zone').classList.remove('belum-mulai');
+    
+    document.getElementById('chat-icon').style.display = 'none'; 
+    document.getElementById('chat-wrapper').style.display = 'none'; 
+
+    try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
+
+    // P1 dan P2 menggunakan array soal yang sama persis dari Firebase
+    p1.questions = JSON.parse(JSON.stringify(questionsArray));
+    p2.questions = JSON.parse(JSON.stringify(questionsArray));
+
+    globalEndTime = targetEndTime;
+    loadQuestion(1); loadQuestion(2);
+    startTimer();
   }
 
   function loadQuestion(player) {
     let pData = player === 1 ? p1 : p2;
     let prefix = player === 1 ? 'p1' : 'p2';
-    if (pData.index >= totalQuestions) { document.getElementById(`${prefix}-q`).innerText = "SELESAI!"; return; }
+    
+    if (pData.index >= pData.questions.length) { 
+      document.getElementById(`${prefix}-q`).innerText = "SELESAI!"; 
+      document.getElementById(`${prefix}-options`).innerHTML = '';
+      return; 
+    }
 
     let qData = pData.questions[pData.index];
     document.getElementById(`${prefix}-q`).innerText = qData.q;
@@ -543,45 +544,76 @@
 
   function checkAnswer(player, selected, correct) {
     if (player !== myRole) return; 
-    
     let pData = player === 1 ? p1 : p2;
-    let isCorrect = (selected === correct);
+    let prefix = player === 1 ? 'p1' : 'p2';
+    let isCorrect = (String(selected) === String(correct));
     
-    let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+    let optsDiv = document.getElementById(`${prefix}-options`);
+    let buttons = optsDiv.getElementsByClassName('btn-option');
+    for (let btn of buttons) {
+      btn.style.pointerEvents = 'none';
+      if (String(btn.innerText) === String(selected)) {
+        btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336";
+        btn.style.color = "#FFF";
+      }
+    }
+    
+    let zone = document.getElementById(prefix + '-zone');
     let notif = document.createElement('div'); notif.className = 'notif-lucu';
     notif.innerText = isCorrect ? "🔥 Benar!" : "❌ Salah!";
     notif.style.color = isCorrect ? "#4CAF50" : "#E91E63";
     zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
     
-    if (isCorrect) { pData.correct++; } else { pData.wrong++; }
+    if (isCorrect) { 
+      pData.correct++; 
+      try { let sBenar = document.getElementById('sound-benar'); sBenar.currentTime = 0; sBenar.play(); } catch(e){}
+    } else { 
+      pData.wrong++; 
+      try { let sSalah = document.getElementById('sound-salah'); sSalah.currentTime = 0; sSalah.play(); } catch(e){}
+    }
     pData.index++; 
 
     let updateData = {};
-    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong };
+    updateData["p" + myRole] = { 
+      correct: pData.correct, 
+      wrong: pData.wrong,
+      index: pData.index,
+      lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() }
+    };
     window.dbUpdate(currentRoomRef, updateData);
-
-    loadQuestion(player);
+    
+    setTimeout(() => { loadQuestion(player); }, 400);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
-    
     let pData = player === 1 ? p1 : p2;
     pData.wrong++; pData.index++; 
 
     let updateData = {};
-    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong };
+    updateData["p" + myRole] = { 
+      correct: pData.correct, 
+      wrong: pData.wrong,
+      index: pData.index,
+      lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() }
+    };
     window.dbUpdate(currentRoomRef, updateData);
-
     loadQuestion(player);
   }
 
   function startTimer() {
     timerInterval = setInterval(() => {
-      timeLeft--; timerDisplay.innerText = timeLeft;
+      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
+      timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      
+      timerDisplay.innerText = timeLeft;
+
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) endGame();
-    }, 1000);
+      if (timeLeft <= 0) {
+        timerDisplay.innerText = "0";
+        endGame();
+      }
+    }, 100);
   }
 
   function endGame() {
@@ -589,37 +621,25 @@
     
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
     document.getElementById('p1-benar').innerText = p1.correct;
-    
     document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
     document.getElementById('p2-benar').innerText = p2.correct;
     
     document.getElementById('result-screen').style.display = 'flex';
-    
-    // MUNCULKAN KEMBALI Ikon Chat di Layar Hasil Akhir
     document.getElementById('chat-icon').style.display = 'flex';
   }
 
-  // --- 4. LOGIKA TOMBOL & PENGIRIMAN PESAN CHAT ---
+  // --- 5. LOGIKA TOMBOL & CHAT ---
   function toggleChat() {
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
       chatUI.style.display = 'none';
-      
-      // Bersihkan riwayat palsu jika ditutup manual (Tombol X)
-      if (history.state && history.state.popup === 'chat') {
-        history.back();
-      }
+      if (history.state && history.state.popup === 'chat') { history.back(); }
     } else {
       chatUI.style.display = 'flex';
-      
-      // Tambahkan riwayat palsu ke History HP untuk mencegat tombol Back
       history.pushState({ popup: 'chat' }, null, '');
-      
       const chatBox = document.getElementById('chat-box');
       chatBox.scrollTop = chatBox.scrollHeight;
       document.getElementById('chat-input').focus();
-      
-      // Matikan tanda seru merah dan animasi saat chat dibuka
       document.getElementById('chat-notif').style.display = 'none';
       document.getElementById('chat-icon').classList.remove('goyang');
     }
@@ -629,11 +649,9 @@
     const inputPesan = document.getElementById('chat-input');
     const teks = inputPesan.value.trim();
     if (teks === "") return;
-
     const timeKey = Date.now(); 
     let updateData = {};
     updateData["chats/" + timeKey] = { role: myRole, msg: teks };
-    
     window.dbUpdate(currentRoomRef, updateData);
     inputPesan.value = ""; 
   }
@@ -643,28 +661,24 @@
   });
   
   function mainLagi() {
-    // Reset data skor dan perintahkan Firebase untuk memulai ulang lobi
     let updateData = { 
       mode: "", 
-      p1: { correct: 0, wrong: 0 }, 
-      p2: { correct: 0, wrong: 0 },
+      questions: null, 
+      p1: { correct: 0, wrong: 0, index: 0 }, 
+      p2: { correct: 0, wrong: 0, index: 0 },
       restart: Date.now() 
     };
     window.dbUpdate(currentRoomRef, updateData);
   }
 
   function kembaliKeLobi() {
-    // Sembunyikan layar hasil akhir, tampilkan lobi
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'flex';
-    
-    // Beri efek blur pada zona permainan (mengunci game board)
     document.getElementById('p1-zone').classList.add('belum-mulai');
     document.getElementById('p2-zone').classList.add('belum-mulai');
 
-    // Reset Skor Lokal & UI ke 0
-    p1 = { correct: 0, wrong: 0, index: 0, questions: [] };
-    p2 = { correct: 0, wrong: 0, index: 0, questions: [] };
+    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
     timeLeft = 60;
     timerDisplay.innerText = "60";
     timerDisplay.classList.remove('waktu-kritis');
@@ -673,29 +687,20 @@
     document.getElementById('p2-q').innerText = "Soal";
     document.getElementById('p1-options').innerHTML = "";
     document.getElementById('p2-options').innerHTML = "";
-    
-    // Ubah teks status di lobi
     document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih mode...";
+    
+    try { let bgm = document.getElementById('bg-music'); bgm.pause(); bgm.currentTime = 0; } catch(e){}
   }
 
   function akhiriGame() {
-    // Hapus kamar di Firebase agar lawan otomatis mendapat notifikasi keluar
-    if (currentRoomRef) {
-      window.dbRemove(currentRoomRef);
-    }
-    location.reload(); // Muat ulang web ke menu utama
+    if (currentRoomRef) { window.dbRemove(currentRoomRef); }
+    location.reload(); 
   }
 
-  // --- 5. FUNGSI MENCEGAT TOMBOL BACK HP ---
   window.addEventListener('popstate', function(event) {
     const chatWrapper = document.getElementById('chat-wrapper');
-    
-    // Jika tombol Back HP ditekan dan popup chat sedang terbuka
     if (chatWrapper && chatWrapper.style.display === 'flex') {
-      // 1. Tutup kotak obrolannya
       chatWrapper.style.display = 'none';
-      
-      // 2. (Opsional) Matikan notifikasi merah jika masih menyala
       const chatNotif = document.getElementById('chat-notif');
       const chatIcon = document.getElementById('chat-icon');
       if (chatNotif) chatNotif.style.display = 'none';
