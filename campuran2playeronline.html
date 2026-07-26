@@ -70,7 +70,7 @@
   .notif-lucu { position: absolute; top: 35%; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
   @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 80% { transform: translateY(-60px) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(0.8); opacity: 0; } }
 
-  /* --- UI CHAT (IKON & POPUP) --- */
+  /* --- UI CHAT --- */
   #chat-icon {
     position: absolute; bottom: 20px; right: 20px; z-index: 100;
     width: 65px; height: 65px; background: #673AB7; color: #FFF;
@@ -108,7 +108,6 @@
   #chat-input:focus { border-color: #673AB7; }
   #btn-send-chat { background: #673AB7; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
 
-  /* --- NOTIFIKASI CHAT --- */
   #chat-notif {
     position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white;
     border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900;
@@ -282,7 +281,7 @@
   let myRole = 0; // 1 = P1, 2 = P2
   let roomId = "";
   let currentRoomRef = null;
-  const totalQuestions = 50;
+  const totalQuestions = 50; // DIJAMIN MENGHASILKAN TEPAT 50 SOAL PER GAME
   
   let p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
   let p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
@@ -291,7 +290,7 @@
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; 
   let lastRestart = 0; 
-  let globalEndTime = 0; // Fitur Waktu Mutlak
+  let globalEndTime = 0; 
 
   // --- 1. FUNGSI SINKRONISASI REAL-TIME ---
   function pantauDataKamar() {
@@ -313,7 +312,7 @@
         document.getElementById('host-controls').style.display = 'block';
       }
 
-      // Sync Permainan Dimulai dengan Soal dan Waktu yang Sama
+      // Sync Permainan Dimulai
       if (data.mode && data.questions && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
         mulaiPermainan(data.questions, data.endTime);
       }
@@ -431,30 +430,36 @@
 
     window.dbGet(antreanRef).then((snapshot) => {
       if (snapshot.exists()) {
+        // PERAN P2: Kalau ada yang antre, gabung
         roomId = snapshot.val(); myRole = 2;
         currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        window.dbRemove(antreanRef);
-        window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
-          document.getElementById('room-code-display').innerText = "ACAK";
-          document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
-          document.getElementById('p1-zone').classList.add('terkunci');
-          document.getElementById('chat-icon').style.display = 'flex';
-          pantauDataKamar();
+        
+        window.dbRemove(antreanRef).then(() => {
+          window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+            document.getElementById('room-code-display').innerText = "ACAK";
+            document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
+            document.getElementById('p1-zone').classList.add('terkunci');
+            document.getElementById('chat-icon').style.display = 'flex';
+            pantauDataKamar();
+          });
         });
       } else {
+        // PERAN P1: Kalau tidak ada yang antre, buat baru
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
         currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
         window.dbSet(currentRoomRef, { 
           mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }
         }).then(() => {
-          window.dbSet(antreanRef, roomId).then(() => {
-            document.getElementById('room-code-display').innerText = "ACAK";
-            document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
-            document.getElementById('p2-zone').classList.add('terkunci');
-            document.getElementById('chat-icon').style.display = 'flex';
-            pantauDataKamar();
-          });
+          // PERBAIKAN BUG: Ubah UI dulu, pasang radar (pantauDataKamar), BARU masukkan ke antrean!
+          document.getElementById('room-code-display').innerText = "ACAK";
+          document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
+          document.getElementById('p2-zone').classList.add('terkunci');
+          document.getElementById('chat-icon').style.display = 'flex';
+          
+          pantauDataKamar(); // Radar menyala dulu
+          
+          window.dbSet(antreanRef, roomId); // Baru pintu dibuka untuk P2
         });
       }
     }).catch((error) => {
@@ -471,6 +476,7 @@
     else if (modePilihan === 'perkalian') { operators = ['x']; } 
     else if (modePilihan === 'pembagian') { operators = ['÷']; }
     
+    // Looping dijamin 50 soal
     for(let i=0; i<totalQuestions; i++) {
       let op = operators[Math.floor(Math.random() * operators.length)];
       let a, b, ans;
@@ -491,7 +497,7 @@
 
   function hostPilihMode(modeDipilih) {
     let finalQuestions = generateQuestions(modeDipilih);
-    let targetWaktuSelesai = Date.now() + 60000; // 60 detik dari sekarang
+    let targetWaktuSelesai = Date.now() + 60000; // 60 detik mutlak
     
     window.dbUpdate(currentRoomRef, { 
       mode: modeDipilih, 
@@ -511,7 +517,7 @@
 
     try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
 
-    // P1 dan P2 menggunakan array soal yang sama persis dari Firebase
+    // P1 dan P2 menggunakan array soal 50 butir yang sama persis dari Firebase
     p1.questions = JSON.parse(JSON.stringify(questionsArray));
     p2.questions = JSON.parse(JSON.stringify(questionsArray));
 
