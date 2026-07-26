@@ -1,0 +1,28 @@
+Tolong perbaiki dan optimalkan kode HTML/CSS/JS game edukasi ini agar menjadi 100% responsif, elastis, dan bebas bug penumpukan elemen di semua ukuran layar HP (baik Portrait maupun Landscape). 
+
+Terapkan standar perbaikan berikut secara ketat:
+
+1. **Meta Viewport Stabil:** 
+Gunakan meta tag ini: `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">`
+
+2. **Responsivitas Elastis (CSS `clamp` & Flexbox):**
+- Jangan gunakan ukuran tetap (px) yang besar. Ganti semua ukuran `font-size`, `width`, `height`, `padding`, dan `margin` menggunakan fungsi `clamp()` dan satuan dinamis (`vmin`, `vw`, `vh`).
+- Gunakan `display: flex; justify-content: center; align-items: center;` pada *container* utama untuk memastikan elemen selalu berada di tengah layar.
+- Berikan `overflow-y: auto;` pada kotak konten utama atau *screen* (seperti menu welcome/result) agar konten bisa di-scroll jika layar HP terlalu kecil.
+
+3. **Optimasi Mode Miring / Landscape (`@media (orientation: landscape)`):**
+- Buat *media query* khusus untuk mode lanskap (`max-height: 600px`).
+- Perkecil ukuran teks (h1, h2, p), tombol (`.btn`, `.btn-rotate`), padding, dan margin agar tidak memakan banyak tempat.
+- Ubah tata letak elemen yang bersusun ke bawah (`flex-direction: column`) menjadi menyamping (`flex-direction: row`) jika itu membantu menghemat ruang vertikal (misalnya membagi area gambar di kiri, dan area tombol di kanan).
+
+4. **Pencegahan Penumpukan Elemen (Absolute Positioning Fix):**
+- Elemen yang diatur dengan `position: absolute; bottom: ...;` (seperti lencana Developer / Footer) SERING MENUMPUK di atas tombol saat mode landscape. 
+- Di dalam *media query* landscape, ubah elemen tersebut menjadi `position: relative; bottom: auto; left: auto; transform: none; display: inline-block; margin-top: 10px;` agar mengalir rapi di bawah tombol terakhir tanpa memaksakan diri melayang di dasar layar.
+
+5. **Pertahankan Fitur Tombol "Putar Layar":**
+- Biarkan tombol rotasi manual (`.layar-diputar` dengan `transform: rotate(90deg);`) tetap ada dan berfungsi di layar menu/hasil untuk mengakomodasi HP yang fitur rotasi otomatisnya terkunci.
+
+6. **Keamanan UX JavaScript:**
+- Pastikan ada logika pencegahan *double-click* cepat (misalnya mengecek `if (btn.style.visibility === 'hidden') return;` sebelum mengeksekusi klik).
+
+Ini adalah kodenya. Tolong perbaiki dan berikan kode utuhnya kembali:
