@@ -341,14 +341,35 @@
     setTimeout(() => { overlay.style.display = 'none'; overlay.style.visibility = 'hidden'; }, 300);
   }
 
-  function tampilkanPopupDonasi() {
+function tampilkanPopupDonasi() {
     const popup = document.getElementById('popup-donasi');
-    popup.style.display = 'flex'; popup.style.opacity = '1';
+    popup.style.display = 'flex'; 
+    popup.style.opacity = '1';
+    
+    // Mendaftarkan 'halaman semu' agar HP mencatat ada popup yang terbuka
+    try { history.pushState({ popup: 'donasi' }, null, ''); } catch(e) {}
   }
 
-  function tutupPopupDonasi() {
-    document.getElementById('popup-donasi').style.display = 'none';
+function tutupPopupDonasi() {
+    const popup = document.getElementById('popup-donasi');
+    popup.style.display = 'none';
+    
+    // Membersihkan riwayat 'halaman semu' jika tombol X ditekan manual
+    try {
+      if (history.state && history.state.popup === 'donasi') {
+        history.back();
+      }
+    } catch(e) {}
   }
+
+  // Mendeteksi saat tombol "Kembali/Back" di sistem HP ditekan
+  window.addEventListener('popstate', function(event) {
+    const popup = document.getElementById('popup-donasi');
+    // Jika popup sedang terbuka, maka tutup saja tanpa keluar dari aplikasi
+    if (popup && popup.style.display === 'flex') {
+      popup.style.display = 'none';
+    }
+  });
 
   function salinNomorDana() {
     navigator.clipboard.writeText("087846666636").then(() => {
