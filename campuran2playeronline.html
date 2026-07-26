@@ -255,10 +255,10 @@
 
 </div>
 
-<!-- === KODE FIREBASE === -->
+<!-- === KODE FIREBASE DENGAN FITUR ONDISCONNECT === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { getDatabase, ref, set, onValue, update, get, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
@@ -273,15 +273,15 @@
   const app = initializeApp(firebaseConfig);
   window.db = getDatabase(app);
   window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
-  window.dbGet = get; window.dbRemove = remove; 
+  window.dbGet = get; window.dbRemove = remove; window.dbOnDisconnect = onDisconnect;
 </script>
 
-<!-- === LOGIKA PERMAINAN === -->
+<!-- === LOGIKA PERMAINAN ANTI BENGONG === -->
 <script>
-  let myRole = 0; // 1 = P1, 2 = P2
+  let myRole = 0; 
   let roomId = "";
   let currentRoomRef = null;
-  const totalQuestions = 50; // DIJAMIN MENGHASILKAN TEPAT 50 SOAL PER GAME
+  const totalQuestions = 50; // DIJAMIN MENGHASILKAN TEPAT 50 SOAL PER GAME UNTUK MASING-MASING PEMAIN
   
   let p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
   let p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
@@ -292,13 +292,13 @@
   let lastRestart = 0; 
   let globalEndTime = 0; 
 
-  // --- 1. FUNGSI SINKRONISASI REAL-TIME ---
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
+      // Jika Host/Pemain Lain Putus, kamar akan otomatis dihapus oleh onDisconnect
       if (!data) {
-        if (roomId !== "") { alert("Lawan telah keluar dari kamar. Permainan berakhir."); location.reload(); } return;
+        if (roomId !== "") { alert("Lawan telah terputus atau keluar dari kamar. Permainan berakhir."); location.reload(); } return;
       }
 
       if (data.restart && data.restart !== lastRestart) {
@@ -312,18 +312,15 @@
         document.getElementById('host-controls').style.display = 'block';
       }
 
-      // Sync Permainan Dimulai
       if (data.mode && data.questions && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
         mulaiPermainan(data.questions, data.endTime);
       }
 
-      // Sync Papan Skor & Layar Lawan (Blind Mode)
       if (document.getElementById('welcome-screen').style.display === 'none') {
         if (myRole === 1 && data.p2) { syncOpponent(2, data.p2); } 
         else if (myRole === 2 && data.p1) { syncOpponent(1, data.p1); }
       }
 
-      // Sync Chat
       if (data.chats) {
         const chatArray = Object.values(data.chats);
         if (chatArray.length > lastChatCount) {
@@ -385,11 +382,11 @@
     }
   }
 
-  // --- 2. LOGIKA KAMAR ANTI RACE-CONDITION ---
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString();
     myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+    window.dbOnDisconnect(currentRoomRef).remove(); // Auto-hapus kamar kalau host kabur
 
     window.dbSet(currentRoomRef, { 
       mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }
@@ -410,14 +407,22 @@
     roomId = input; myRole = 2;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
-    window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
-      document.getElementById('room-screen').style.display = 'none';
-      document.getElementById('welcome-screen').style.display = 'flex';
-      document.getElementById('room-code-display').innerText = roomId;
-      document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
-      document.getElementById('p1-zone').classList.add('terkunci');
-      document.getElementById('chat-icon').style.display = 'flex'; 
-      pantauDataKamar(); 
+    // Cek dulu kamarnya aktif atau tidak
+    window.dbGet(currentRoomRef).then((snap) => {
+      if(snap.exists() && snap.val().p2_ready === false) {
+        window.dbOnDisconnect(currentRoomRef).remove(); // Auto-hapus kalau P2 kabur
+        window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+          document.getElementById('room-screen').style.display = 'none';
+          document.getElementById('welcome-screen').style.display = 'flex';
+          document.getElementById('room-code-display').innerText = roomId;
+          document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
+          document.getElementById('p1-zone').classList.add('terkunci');
+          document.getElementById('chat-icon').style.display = 'flex'; 
+          pantauDataKamar(); 
+        });
+      } else {
+        alert("Kamar tidak ditemukan atau sudah penuh!");
+      }
     });
   }
   
@@ -430,36 +435,51 @@
 
     window.dbGet(antreanRef).then((snapshot) => {
       if (snapshot.exists()) {
-        // PERAN P2: Kalau ada yang antre, gabung
-        roomId = snapshot.val(); myRole = 2;
-        currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        
-        window.dbRemove(antreanRef).then(() => {
-          window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
-            document.getElementById('room-code-display').innerText = "ACAK";
-            document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
-            document.getElementById('p1-zone').classList.add('terkunci');
-            document.getElementById('chat-icon').style.display = 'flex';
-            pantauDataKamar();
-          });
+        const foundRoomId = snapshot.val();
+        const tempRoomRef = window.dbRef(window.db, 'rooms/' + foundRoomId);
+
+        // CEK KAMAR HANTU: Apakah Host aslinya masih ada di dalam kamar ini?
+        window.dbGet(tempRoomRef).then((roomSnap) => {
+          if (roomSnap.exists() && roomSnap.val().p2_ready === false) {
+            // Kamar aman, gabung sebagai P2
+            roomId = foundRoomId; myRole = 2;
+            currentRoomRef = tempRoomRef;
+            window.dbOnDisconnect(currentRoomRef).remove(); 
+            
+            window.dbRemove(antreanRef).then(() => {
+              window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+                document.getElementById('room-code-display').innerText = "ACAK";
+                document.getElementById('p2-status').innerText = "Berhasil menemukan lawan! Menunggu Host (P1) memilih mode...";
+                document.getElementById('p1-zone').classList.add('terkunci');
+                document.getElementById('chat-icon').style.display = 'flex';
+                pantauDataKamar();
+              });
+            });
+          } else {
+            // Kamar hantu terdeteksi! Bersihkan antrean dan ulangi pencarian
+            window.dbRemove(antreanRef).then(() => {
+              cariLawanAcak(); 
+            });
+          }
         });
       } else {
-        // PERAN P1: Kalau tidak ada yang antre, buat baru
+        // PERAN P1: Buat kamar baru dan daftarkan ke antrean
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
         currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+        window.dbOnDisconnect(currentRoomRef).remove(); 
 
         window.dbSet(currentRoomRef, { 
           mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }
         }).then(() => {
-          // PERBAIKAN BUG: Ubah UI dulu, pasang radar (pantauDataKamar), BARU masukkan ke antrean!
           document.getElementById('room-code-display').innerText = "ACAK";
           document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
           document.getElementById('p2-zone').classList.add('terkunci');
           document.getElementById('chat-icon').style.display = 'flex';
           
-          pantauDataKamar(); // Radar menyala dulu
+          pantauDataKamar(); // Radar menyala duluan
           
-          window.dbSet(antreanRef, roomId); // Baru pintu dibuka untuk P2
+          window.dbOnDisconnect(antreanRef).remove(); // Auto-bersih antrean kalau P1 batal
+          window.dbSet(antreanRef, roomId); // Baru buka pintu untuk P2
         });
       }
     }).catch((error) => {
@@ -467,7 +487,6 @@
     });
   }
 
-  // --- 3. GENERATOR SOAL OLEH HOST ---
   function generateQuestions(modePilihan) {
     let master = []; let operators = [];
     if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
@@ -476,7 +495,7 @@
     else if (modePilihan === 'perkalian') { operators = ['x']; } 
     else if (modePilihan === 'pembagian') { operators = ['÷']; }
     
-    // Looping dijamin 50 soal
+    // Dijamin memproduksi tepat 50 soal yang akan dikerjakan masing-masing pemain
     for(let i=0; i<totalQuestions; i++) {
       let op = operators[Math.floor(Math.random() * operators.length)];
       let a, b, ans;
@@ -497,7 +516,7 @@
 
   function hostPilihMode(modeDipilih) {
     let finalQuestions = generateQuestions(modeDipilih);
-    let targetWaktuSelesai = Date.now() + 60000; // 60 detik mutlak
+    let targetWaktuSelesai = Date.now() + 60000; 
     
     window.dbUpdate(currentRoomRef, { 
       mode: modeDipilih, 
@@ -506,7 +525,6 @@
     });
   }
 
-  // --- 4. LOGIKA PERMAINAN ---
   function mulaiPermainan(questionsArray, targetEndTime) {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai');
@@ -517,7 +535,6 @@
 
     try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
 
-    // P1 dan P2 menggunakan array soal 50 butir yang sama persis dari Firebase
     p1.questions = JSON.parse(JSON.stringify(questionsArray));
     p2.questions = JSON.parse(JSON.stringify(questionsArray));
 
@@ -634,7 +651,6 @@
     document.getElementById('chat-icon').style.display = 'flex';
   }
 
-  // --- 5. LOGIKA TOMBOL & CHAT ---
   function toggleChat() {
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
