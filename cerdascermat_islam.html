@@ -68,8 +68,12 @@
   .room-input { font-size: 20px; padding: 12px; text-align: center; width: 100%; max-width: 200px; border-radius: 12px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none;}
   .room-input:focus { border-color: #4CAF50; }
 
+  /* ANIMASI UNTUK BENAR/SALAH (MENGHILANG DI AKHIR) */
   .notif-lucu { position: absolute; top: 30%; font-size: 40px; font-weight: 900; text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF; pointer-events: none; z-index: 100; animation: popUpAnim 1s forwards; text-align: center; }
   @keyframes popUpAnim { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-15px) scale(1.2); opacity: 1; } 80% { transform: translateY(-40px) scale(1); opacity: 1; } 100% { transform: translateY(-60px) scale(0.8); opacity: 0; } }
+
+  /* ANIMASI UNTUK POP-UP PERINGATAN (TETAP MUNCUL) */
+  @keyframes munculModal { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
   /* --- UI CHAT --- */
   #chat-icon { position: absolute; bottom: 20px; right: 20px; z-index: 100; width: 60px; height: 60px; background: #2E7D32; color: #FFF; border-radius: 50%; font-size: 28px; display: none; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 4px solid #FFF; transition: transform 0.2s; }
@@ -86,7 +90,7 @@
   #btn-send-chat { background: #2E7D32; color: white; border: none; border-radius: 8px; padding: 0 12px; font-weight: 900; cursor: pointer; }
   #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; }
   
-  /* ANIMASI SILANG & GOYANG */
+  /* TOMBOL SILANG & GOYANG */
   #custom-alert-close { position: absolute; top: -15px; right: -15px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; }
   #custom-alert-close:active { transform: scale(0.85); }
   .goyang { animation: wiggle 0.5s infinite; }
@@ -197,14 +201,14 @@
     </div>
   </div>
   
-  <!-- Popup Hasil Akhir -->
+  <!-- Popup Hasil Akhir (Sudah Ditambah Jumlah Salah) -->
   <div id="result-screen" class="screen-overlay">
     <div class="welcome-card">
       <h1>ALHAMDULILLAH Selesai! 🎉</h1>
       <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
       <div class="results-container">
         
-        <!-- KOTAK HASIL P1 -->
+        <!-- === KOTAK HASIL P1 === -->
         <div class="result-card" style="border-color: #4CAF50;">
           <h2 style="color: #2E7D32;">Player 1</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p1-dijawab">0</span></h3>
@@ -212,7 +216,7 @@
           <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p1-salah">0</span></p>
         </div>
         
-        <!-- KOTAK HASIL P2 -->
+        <!-- === KOTAK HASIL P2 === -->
         <div class="result-card" style="border-color: #FBC02D;">
           <h2 style="color: #F57F17;">Player 2</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p2-dijawab">0</span></h3>
@@ -230,7 +234,7 @@
 
   <!-- === POPUP NOTIFIKASI MODERN === -->
   <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 9999; background: rgba(0,0,0,0.8);">
-    <div class="welcome-card" style="max-width: 350px; padding: 25px 20px; text-align: center; border-color: #F44336; animation: popUpAnim 0.3s ease-out forwards; position: relative;">
+    <div class="welcome-card" style="max-width: 350px; padding: 25px 20px; text-align: center; border-color: #F44336; animation: munculModal 0.3s ease-out forwards; position: relative;">
       
       <!-- Tombol Silang (X) Sinkron -->
       <div id="custom-alert-close" onclick="closeCustomAlert()">✖</div>
@@ -517,24 +521,21 @@
   let isGameOver = false; // Mencegah looping infinite jika koneksi terputus
 
   function showCustomAlert(title, message, callback) {
-    if (isAlertOpen) return; // Mencegah pop-up tertimpa berkali-kali
+    if (isAlertOpen) return; // Mencegah pop-up ganda
     isAlertOpen = true;
     
     document.getElementById('custom-alert-title').innerText = title;
     document.getElementById('custom-alert-message').innerText = message;
     alertCallback = callback;
     
-    // Daftarkan pop-up ke history agar tombol Back HP berfungsi
     history.pushState({ popup: 'alert' }, null, '');
     document.getElementById('custom-alert-overlay').style.display = 'flex';
   }
 
   function closeCustomAlert() {
     if (!isAlertOpen) return;
-    
-    // Jika ditekan X atau Tutup, kita selaraskan state-nya dengan HP
     if (history.state && history.state.popup === 'alert') {
-      history.back(); // Memicu popstate event
+      history.back(); // Memicu event popstate untuk menutup
     } else {
       executeCloseAlert();
     }
@@ -550,7 +551,6 @@
     }
   }
 
-  // Menangkap event tombol Back dari HP
   window.addEventListener('popstate', function(event) {
     if (isAlertOpen) {
       executeCloseAlert();
@@ -569,6 +569,7 @@
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
+      
       if (!data) {
         if (roomId !== "" && !isGameOver) { 
           isGameOver = true;
@@ -577,6 +578,7 @@
         } 
         return;
       }
+      
       if (data.restart && data.restart !== lastRestart) { lastRestart = data.restart; kembaliKeLobi(); }
       
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
@@ -696,10 +698,15 @@
   function hostPilihMode(modeDipilih) { 
     let filteredIndices = [];
     for (let i = 0; i < bankSoal.length; i++) {
-      if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) { filteredIndices.push(i); }
+      if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) {
+        filteredIndices.push(i);
+      }
     }
-    filteredIndices.sort(() => Math.random() - 0.5); let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
+    filteredIndices.sort(() => Math.random() - 0.5);
+    let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
+
     let targetWaktuSelesai = Date.now() + 60000; 
+
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
   }
 
@@ -707,106 +714,173 @@
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
     document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
+    
     try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
 
-    let finalQuestions = []; order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
-    p1.questions = JSON.parse(JSON.stringify(finalQuestions)); p2.questions = JSON.parse(JSON.stringify(finalQuestions));
-    globalEndTime = targetEndTime; loadQuestion(1); loadQuestion(2); startTimer();
+    let finalQuestions = [];
+    order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
+    
+    p1.questions = JSON.parse(JSON.stringify(finalQuestions));
+    p2.questions = JSON.parse(JSON.stringify(finalQuestions));
+
+    globalEndTime = targetEndTime; 
+    loadQuestion(1); loadQuestion(2); startTimer();
   }
 
   function loadQuestion(player) {
-    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2';
-    if (pData.index >= pData.questions.length) { document.getElementById(`${prefix}-q`).innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; document.getElementById(`${prefix}-options`).innerHTML = ''; return; }
-    let qData = pData.questions[pData.index]; document.getElementById(`${prefix}-q`).innerText = qData.q;
-    let optsDiv = document.getElementById(`${prefix}-options`); optsDiv.innerHTML = '';
+    let pData = player === 1 ? p1 : p2;
+    let prefix = player === 1 ? 'p1' : 'p2';
+    
+    if (pData.index >= pData.questions.length) { 
+      document.getElementById(`${prefix}-q`).innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
+      document.getElementById(`${prefix}-options`).innerHTML = '';
+      return; 
+    }
+
+    let qData = pData.questions[pData.index];
+    document.getElementById(`${prefix}-q`).innerText = qData.q;
+    let optsDiv = document.getElementById(`${prefix}-options`);
+    optsDiv.innerHTML = '';
     
     let diacakOpts = [...qData.opts].sort(() => Math.random() - 0.5);
+
     diacakOpts.forEach(opt => {
       let btn = document.createElement('button'); btn.className = 'btn-option'; btn.innerText = opt;
-      btn.onclick = () => checkAnswer(player, opt, qData.ans); optsDiv.appendChild(btn);
+      btn.onclick = () => checkAnswer(player, opt, qData.ans);
+      optsDiv.appendChild(btn);
     });
   }
 
   function checkAnswer(player, selected, correct) {
     if (player !== myRole) return; 
-    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2'; let isCorrect = (selected === correct);
+    let pData = player === 1 ? p1 : p2;
+    let prefix = player === 1 ? 'p1' : 'p2';
+    let isCorrect = (selected === correct);
     
-    let optsDiv = document.getElementById(`${prefix}-options`); let buttons = optsDiv.getElementsByClassName('btn-option');
+    let optsDiv = document.getElementById(`${prefix}-options`);
+    let buttons = optsDiv.getElementsByClassName('btn-option');
     for (let btn of buttons) {
-      btn.style.pointerEvents = 'none'; if (btn.innerText === selected) { btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336"; btn.style.color = "#FFF"; }
+      btn.style.pointerEvents = 'none';
+      if (btn.innerText === selected) {
+        btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336";
+        btn.style.color = "#FFF";
+      }
     }
     
-    let zone = document.getElementById(prefix + '-zone'); let notif = document.createElement('div'); notif.className = 'notif-lucu';
-    notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!"; notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
+    let zone = document.getElementById(prefix + '-zone');
+    let notif = document.createElement('div'); notif.className = 'notif-lucu';
+    notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
+    notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
     zone.appendChild(notif); setTimeout(() => notif.remove(), 1000);
     
-    if (isCorrect) { pData.correct++; try { let sBenar = document.getElementById('sound-benar'); sBenar.currentTime = 0; sBenar.play(); } catch(e){} } 
-    else { pData.wrong++; try { let sSalah = document.getElementById('sound-salah'); sSalah.currentTime = 0; sSalah.play(); } catch(e){} }
+    if (isCorrect) { 
+      pData.correct++; 
+      try { let sBenar = document.getElementById('sound-benar'); sBenar.currentTime = 0; sBenar.play(); } catch(e){}
+    } else { 
+      pData.wrong++; 
+      try { let sSalah = document.getElementById('sound-salah'); sSalah.currentTime = 0; sSalah.play(); } catch(e){}
+    }
     pData.index++; 
 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
-    window.dbUpdate(currentRoomRef, updateData); setTimeout(() => { loadQuestion(player); }, 400);
+    let updateData = {}; 
+    updateData["p" + myRole] = { 
+      correct: pData.correct, 
+      wrong: pData.wrong,
+      index: pData.index,
+      lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() }
+    };
+    window.dbUpdate(currentRoomRef, updateData); 
+    
+    setTimeout(() => { loadQuestion(player); }, 400);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
-    let pData = player === 1 ? p1 : p2; pData.wrong++; pData.index++; 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
-    window.dbUpdate(currentRoomRef, updateData); loadQuestion(player);
+    let pData = player === 1 ? p1 : p2;
+    pData.wrong++; pData.index++; 
+    
+    let updateData = {}; 
+    updateData["p" + myRole] = { 
+      correct: pData.correct, 
+      wrong: pData.wrong,
+      index: pData.index,
+      lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() }
+    };
+    window.dbUpdate(currentRoomRef, updateData); 
+    loadQuestion(player);
   }
 
   function startTimer() {
     timerInterval = setInterval(() => {
-      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000); timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
+      timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      
       timerDisplay.innerText = timeLeft;
+
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
+      if (timeLeft <= 0) {
+        timerDisplay.innerText = "0";
+        endGame();
+      }
     }, 100);
   }
 
   function endGame() {
     clearInterval(timerInterval);
-    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; document.getElementById('p1-benar').innerText = p1.correct; document.getElementById('p1-salah').innerText = p1.wrong;
-    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; document.getElementById('p2-benar').innerText = p2.correct; document.getElementById('p2-salah').innerText = p2.wrong;
-    document.getElementById('result-screen').style.display = 'flex'; document.getElementById('chat-icon').style.display = 'flex';
+    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; 
+    document.getElementById('p1-benar').innerText = p1.correct;
+    document.getElementById('p1-salah').innerText = p1.wrong;
+
+    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; 
+    document.getElementById('p2-benar').innerText = p2.correct;
+    document.getElementById('p2-salah').innerText = p2.wrong;
+
+    document.getElementById('result-screen').style.display = 'flex';
+    document.getElementById('chat-icon').style.display = 'flex';
   }
 
   function toggleChat() {
     const chatUI = document.getElementById('chat-wrapper');
     if (chatUI.style.display === 'flex') {
-      chatUI.style.display = 'none'; if (history.state && history.state.popup === 'chat') { history.back(); }
+      chatUI.style.display = 'none';
+      if (history.state && history.state.popup === 'chat') { history.back(); }
     } else {
       chatUI.style.display = 'flex'; history.pushState({ popup: 'chat' }, null, '');
       const chatBox = document.getElementById('chat-box'); chatBox.scrollTop = chatBox.scrollHeight;
-      document.getElementById('chat-input').focus(); document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
+      document.getElementById('chat-input').focus();
+      document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
     }
   }
 
   function kirimPesan() {
     const inputPesan = document.getElementById('chat-input'); const teks = inputPesan.value.trim();
-    if (teks === "") return; const timeKey = Date.now(); let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks };
+    if (teks === "") return;
+    const timeKey = Date.now(); let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks };
     window.dbUpdate(currentRoomRef, updateData); inputPesan.value = ""; 
   }
 
   document.getElementById('chat-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') kirimPesan(); });
   
   function mainLagi() {
-    let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() }; window.dbUpdate(currentRoomRef, updateData);
+    let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() };
+    window.dbUpdate(currentRoomRef, updateData);
   }
 
   function kembaliKeLobi() {
     document.getElementById('result-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
     document.getElementById('p1-zone').classList.add('belum-mulai'); document.getElementById('p2-zone').classList.add('belum-mulai');
-    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 }; p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 }; 
+    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
     timeLeft = 60; timerDisplay.innerText = "60"; timerDisplay.classList.remove('waktu-kritis');
     document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
     document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
     document.getElementById('p2-status').innerText = "Pemain siap! Menunggu Host (P1) memilih Kategori...";
+    
     try { let bgm = document.getElementById('bg-music'); bgm.pause(); bgm.currentTime = 0; } catch(e){}
   }
 
   function akhiriGame() {
-    isGameOver = true; // Mencegah looping notif saat keluar sendiri
+    isGameOver = true; // Mencegah looping popup saat keluar sendiri
     if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
   }
 </script>
