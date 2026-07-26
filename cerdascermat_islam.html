@@ -6,7 +6,6 @@
 
 <title>Cerdas Cermat Islami - 2 Player Online</title>
 <meta name="description" content="Game edukasi Cerdas Cermat Agama Islam seru untuk anak TK & SD.">
-<!-- MENAMBAHKAN FONT AMIRI UNTUK TEKS ARAB & NUNITO -->
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -17,7 +16,6 @@
 
   html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%;
-    /* Font Amiri akan otomatis dipakai sistem hanya saat mendeteksi huruf Arab */
     font-family: 'Nunito', 'Amiri', sans-serif; 
     background-color: #E8F5E9; 
     color: #333; overflow: hidden; touch-action: manipulation; 
@@ -27,16 +25,7 @@
 
   /* --- ZONA PERMAINAN --- */
   #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
-  .player-zone { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    position: relative; 
-    transition: filter 0.3s; 
-    padding: 15px 10px; 
-  }
+  .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; padding: 15px 10px; }
   #p1-zone { background: linear-gradient(135deg, #A5D6A7 0%, #4CAF50 100%); }
   #p2-zone { background: linear-gradient(135deg, #FFF59D 0%, #FBC02D 100%); }
 
@@ -107,7 +96,7 @@
   .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 15px; backdrop-filter: blur(5px); }
   .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #4CAF50; border-radius: 30px; padding: 25px 20px; max-width: 600px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.2); position: relative; max-height: 95vh; overflow-y: auto;}
   
-  .alert-card { width: 85% !important; max-width: 340px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
+  .alert-card { width: 85% !important; max-width: 320px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
 
   .welcome-card h1 { font-size: clamp(26px, 5vw, 34px); color: #2E7D32; margin: 0 0 5px 0; }
   .welcome-card h2 { font-size: clamp(16px, 3vw, 20px); color: #F57F17; margin: 0 0 15px 0; }
@@ -133,15 +122,15 @@
   .room-input::-webkit-outer-spin-button, .room-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .room-input[type=number] { -moz-appearance: textfield; }
 
-  /* ANIMASI BENAR/SALAH (Tengah Layar Kotak Soal) */
+  /* ANIMASI BENAR/SALAH */
   .notif-lucu { 
     position: absolute; 
-    top: 35%; 
+    top: 40%; 
     left: 50%; 
     transform: translateX(-50%); 
     font-size: clamp(30px, 6vw, 45px); 
     font-weight: 900; 
-    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 15px rgba(255,255,255,1); 
+    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 10px rgba(255,255,255,0.8); 
     pointer-events: none; 
     z-index: 9999; 
     animation: popUpAnim 1.2s forwards; 
@@ -177,18 +166,13 @@
   .goyang { animation: wiggle 0.5s infinite; }
   @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
 
-  /* --- FIX RESPONSIVE MOBILE: TATA LETAK SANGAT AMAN --- */
+  /* --- PERBAIKAN RESPONSIVE LAYAR HP & ZONA AMAN --- */
   @media screen and (max-width: 768px) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 6px; }
     #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 4px 15px; border-width: 3px;}
     
-    /* Gunakan GAP agar elemen berjarak rapi secara otomatis tanpa bertumpuk */
-    .player-zone { 
-      padding: 10px; 
-      justify-content: center; 
-      gap: 8px; 
-    }
+    .player-zone { padding: 10px; justify-content: center; gap: 8px; }
     
     /* Zona aman agar tombol tidak ditabrak oleh timer tengah */
     #p1-zone { transform: rotate(180deg); padding-bottom: 45px; } 
@@ -199,8 +183,8 @@
       padding: 8px 12px; 
       margin-bottom: 0; 
       border-width: 3px; 
-      max-height: 38%; /* Cegah soal teks panjang memakan seluruh layar */
-      overflow-y: auto; /* Bisa digeser scroll kalau kepanjangan */
+      max-height: 38%; 
+      overflow-y: auto; 
     }
     
     .options { gap: 6px; margin-bottom: 0; }
@@ -593,7 +577,13 @@
   let isAlertOpen = false;
   let isGameOver = false;
 
-  // FITUR PENGHAPUSAN KAMAR OTOMATIS SAAT TAB DITUTUP
+  // MENDETEKSI HURUF ARAB
+  function isArabic(text) {
+    const arabicPattern = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return arabicPattern.test(text);
+  }
+
+  // MENGHAPUS KAMAR SAAT TAB DITUTUP
   window.addEventListener('beforeunload', function (e) {
     if (currentRoomRef && !isGameOver) {
       window.dbRemove(currentRoomRef);
@@ -606,11 +596,7 @@
     document.getElementById('custom-alert-title').innerText = title;
     document.getElementById('custom-alert-message').innerText = message;
     alertCallback = callback;
-    
-    try {
-      history.pushState({ popup: 'alert' }, null, '');
-    } catch(e) {}
-    
+    try { history.pushState({ popup: 'alert' }, null, ''); } catch(e) {}
     document.getElementById('custom-alert-overlay').style.display = 'flex';
   }
 
@@ -619,12 +605,8 @@
     try {
       if (history.state && history.state.popup === 'alert') {
         history.back(); 
-      } else {
-        executeCloseAlert();
-      }
-    } catch(e) {
-      executeCloseAlert();
-    }
+      } else { executeCloseAlert(); }
+    } catch(e) { executeCloseAlert(); }
   }
 
   function executeCloseAlert() {
@@ -656,9 +638,7 @@
       if(audio) {
         audio.currentTime = 0;
         let playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {});
-        }
+        if (playPromise !== undefined) { playPromise.catch(error => {}); }
       }
     } catch(e) {}
   }
@@ -667,19 +647,21 @@
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
-      // FIX BUG: MENAMPILKAN NOTIF SAAT LAWAN KELUAR / PUTUS KONEKSI
+      // FIX NOTIFIKASI PUTUS: Notifikasi dimunculkan untuk LAWAN
       if (!data) {
         if (roomId !== "" && !isGameOver) { 
-          isGameOver = true; 
+          isGameOver = true;
           clearInterval(timerInterval);
           
-          // Sembunyikan layar agar notifikasi tidak tertumpuk
+          // Pastikan notifikasi ini bisa terlihat dengan menyembunyikan layar lain
           const screens = document.querySelectorAll('.screen-overlay');
           screens.forEach(s => s.style.display = 'none');
           
-          showCustomAlert("Permainan Berakhir", "Lawan telah keluar dari kamar permainan. Silakan kembali ke menu utama.", () => { 
-            location.reload(); 
-          }); 
+          if (document.getElementById('result-screen').style.display === 'flex') {
+             showCustomAlert("Lawan Keluar", "Lawan Anda telah keluar dari lobi skor. Silakan kembali ke menu utama.", () => { window.location.replace(window.location.pathname); });
+          } else {
+             showCustomAlert("Terputus!", "Lawan telah keluar dari permainan atau koneksi terputus.", () => { window.location.replace(window.location.pathname); });
+          }
         } 
         return;
       }
@@ -748,9 +730,7 @@
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-    
     window.dbOnDisconnect(currentRoomRef).remove(); 
-    
     window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
@@ -762,9 +742,7 @@
     const input = document.getElementById('input-kode-kamar').value.toString();
     if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-    
     window.dbOnDisconnect(currentRoomRef).remove();
-
     window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
@@ -783,18 +761,14 @@
       if (snapshot.exists()) {
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbRemove(antreanRef); 
-        
         window.dbOnDisconnect(currentRoomRef).remove();
-
         window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
           document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 memilih mode...";
           document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
         });
       } else {
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        
         window.dbOnDisconnect(currentRoomRef).remove(); 
-
         window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
           window.dbSet(antreanRef, roomId).then(() => {
             document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
@@ -816,9 +790,7 @@
     }
     filteredIndices.sort(() => Math.random() - 0.5);
     let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
-
     let targetWaktuSelesai = Date.now() + 60000; 
-
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
   }
 
@@ -827,18 +799,13 @@
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
     document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
     
-    try { 
-      let bgm = document.getElementById('bg-music'); 
-      bgm.volume = 0.4; 
-      let playPromise = bgm.play();
-    } catch(e){}
+    try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
 
     let finalQuestions = [];
     order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
     
     p1.questions = JSON.parse(JSON.stringify(finalQuestions));
     p2.questions = JSON.parse(JSON.stringify(finalQuestions));
-
     globalEndTime = targetEndTime; 
     loadQuestion(1); loadQuestion(2); startTimer();
   }
@@ -850,16 +817,25 @@
     if (pData.index >= pData.questions.length) { 
       let qBox = document.getElementById(`${prefix}-q`);
       qBox.innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
+      qBox.style.fontFamily = "'Nunito', sans-serif";
       document.getElementById(`${prefix}-options`).innerHTML = '';
       return; 
     }
 
     let qData = pData.questions[pData.index];
     let qBox = document.getElementById(`${prefix}-q`);
-    
-    // FIX: Teks langsung dimasukkan, CSS akan otomatis menggunakan font Amiri jika berupa teks Arab
     qBox.innerText = qData.q;
     
+    // FIX BUG OVERLAP TULISAN ARAB (Dihapus sistem paksa font besar di JS)
+    // Sekarang CSS yang murni mengatur agar responsif di HP
+    if (isArabic(qData.q)) {
+        qBox.style.fontFamily = "'Amiri', serif";
+        qBox.style.lineHeight = "1.5";
+    } else {
+        qBox.style.fontFamily = "'Nunito', sans-serif";
+        qBox.style.lineHeight = "normal";
+    }
+
     let optsDiv = document.getElementById(`${prefix}-options`);
     optsDiv.innerHTML = '';
     
@@ -869,6 +845,11 @@
       let btn = document.createElement('button'); 
       btn.className = 'btn-option'; 
       btn.innerText = opt;
+      if (isArabic(opt)) {
+          btn.style.fontFamily = "'Amiri', serif";
+      } else {
+          btn.style.fontFamily = "'Nunito', sans-serif";
+      }
       btn.onclick = () => checkAnswer(player, opt, qData.ans);
       optsDiv.appendChild(btn);
     });
@@ -898,23 +879,15 @@
     setTimeout(() => notif.remove(), 1200);
     
     if (isCorrect) { 
-      pData.correct++; 
-      safePlayAudio('sound-benar');
+      pData.correct++; safePlayAudio('sound-benar');
     } else { 
-      pData.wrong++; 
-      safePlayAudio('sound-salah');
+      pData.wrong++; safePlayAudio('sound-salah');
     }
     pData.index++; 
 
     let updateData = {}; 
-    updateData["p" + myRole] = { 
-      correct: pData.correct, 
-      wrong: pData.wrong,
-      index: pData.index,
-      lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() }
-    };
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
     window.dbUpdate(currentRoomRef, updateData); 
-    
     setTimeout(() => { loadQuestion(player); }, 150);
   }
 
@@ -922,32 +895,20 @@
     if (player !== myRole) return;
     let pData = player === 1 ? p1 : p2;
     pData.wrong++; pData.index++; 
-    
     let updateData = {}; 
-    updateData["p" + myRole] = { 
-      correct: pData.correct, 
-      wrong: pData.wrong,
-      index: pData.index,
-      lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() }
-    };
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
     window.dbUpdate(currentRoomRef, updateData); 
     loadQuestion(player);
   }
 
   function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
-
     timerInterval = setInterval(() => {
       let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
       timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
-      
       timerDisplay.innerText = timeLeft;
-
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) {
-        timerDisplay.innerText = "0";
-        endGame();
-      }
+      if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
     }, 100);
   }
 
@@ -956,11 +917,9 @@
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; 
     document.getElementById('p1-benar').innerText = p1.correct;
     document.getElementById('p1-salah').innerText = p1.wrong;
-
     document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; 
     document.getElementById('p2-benar').innerText = p2.correct;
     document.getElementById('p2-salah').innerText = p2.wrong;
-
     document.getElementById('result-screen').style.display = 'flex';
     document.getElementById('chat-icon').style.display = 'flex';
   }
@@ -993,16 +952,23 @@
     window.dbUpdate(currentRoomRef, updateData);
   }
 
+  // FIX PENGHAPUSAN BUG: Mengakhiri game dengan layar loading halus, TIDAK ADA peringatan terputus bagi yg keluar.
   function akhiriGame() {
     isGameOver = true; 
-    if (currentRoomRef) {
-      window.dbRemove(currentRoomRef).then(() => {
-        location.reload(); 
+    let tempRef = currentRoomRef;
+    currentRoomRef = null; // Putuskan listener secara lokal
+
+    // Layar transisi agar pengguna yang mengakhiri game tidak melihat notifikasi "Terputus" atau "Reload" yang jelek.
+    document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background-color:#E8F5E9; font-family:Nunito,sans-serif;'><h2 style='color:#2E7D32;'>Keluar dari permainan...</h2></div>";
+
+    if (tempRef) {
+      window.dbRemove(tempRef).then(() => {
+        window.location.replace(window.location.pathname); 
       }).catch((e) => {
-        location.reload();
+        window.location.replace(window.location.pathname);
       });
     } else {
-      location.reload(); 
+      window.location.replace(window.location.pathname); 
     }
   }
 </script>
