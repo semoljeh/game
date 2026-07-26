@@ -17,7 +17,8 @@
 
   html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%;
-    font-family: 'Nunito', sans-serif; 
+    /* Font Amiri akan otomatis dipakai sistem hanya saat mendeteksi huruf Arab */
+    font-family: 'Nunito', 'Amiri', sans-serif; 
     background-color: #E8F5E9; 
     color: #333; overflow: hidden; touch-action: manipulation; 
     -webkit-user-select: none; user-select: none;
@@ -26,7 +27,16 @@
 
   /* --- ZONA PERMAINAN --- */
   #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
-  .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; padding: 15px 10px; }
+  .player-zone { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative; 
+    transition: filter 0.3s; 
+    padding: 15px 10px; 
+  }
   #p1-zone { background: linear-gradient(135deg, #A5D6A7 0%, #4CAF50 100%); }
   #p2-zone { background: linear-gradient(135deg, #FFF59D 0%, #FBC02D 100%); }
 
@@ -42,6 +52,7 @@
   @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
   
   .question-box { 
+    font-size: clamp(16px, 4vw, 24px); 
     font-weight: 900; 
     margin-bottom: 15px; 
     background: rgba(255,255,255,0.95); 
@@ -59,6 +70,7 @@
   
   .options { display: flex; flex-direction: column; gap: 8px; justify-content: center; width: 90%; max-width: 500px; }
   .btn-option { 
+    font-size: clamp(14px, 3.5vw, 18px); 
     padding: 10px; 
     width: 100%; 
     min-height: 48px;
@@ -77,7 +89,6 @@
   #p1-zone .btn-option { border: 3px solid #4CAF50; }
   #p2-zone .btn-option { border: 3px solid #FBC02D; }
   
-  /* Tombol Lewati Tetap di Tengah */
   .btn-next { 
     margin-top: 15px;
     padding: 8px 25px; 
@@ -96,7 +107,7 @@
   .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 15px; backdrop-filter: blur(5px); }
   .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #4CAF50; border-radius: 30px; padding: 25px 20px; max-width: 600px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.2); position: relative; max-height: 95vh; overflow-y: auto;}
   
-  .alert-card { width: 85% !important; max-width: 320px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
+  .alert-card { width: 85% !important; max-width: 340px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
 
   .welcome-card h1 { font-size: clamp(26px, 5vw, 34px); color: #2E7D32; margin: 0 0 5px 0; }
   .welcome-card h2 { font-size: clamp(16px, 3vw, 20px); color: #F57F17; margin: 0 0 15px 0; }
@@ -125,12 +136,12 @@
   /* ANIMASI BENAR/SALAH (Tengah Layar Kotak Soal) */
   .notif-lucu { 
     position: absolute; 
-    top: 40%; 
+    top: 35%; 
     left: 50%; 
     transform: translateX(-50%); 
     font-size: clamp(30px, 6vw, 45px); 
     font-weight: 900; 
-    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 10px rgba(255,255,255,0.8); 
+    text-shadow: 2px 2px 0 #FFF, -2px -2px 0 #FFF, 0px 0px 15px rgba(255,255,255,1); 
     pointer-events: none; 
     z-index: 9999; 
     animation: popUpAnim 1.2s forwards; 
@@ -156,7 +167,7 @@
   .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; border-bottom-right-radius: 3px; }
   .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; border-bottom-left-radius: 3px; }
   #chat-input-area { display: flex; border-top: 2px solid #ccc; background: #FFF; padding: 8px;}
-  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; margin-right: 8px; width: 100%;}
+  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', 'Amiri', sans-serif; font-weight: 700; margin-right: 8px; width: 100%;}
   #chat-input:focus { border-color: #2E7D32; }
   #btn-send-chat { background: #2E7D32; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; }
   #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -166,21 +177,35 @@
   .goyang { animation: wiggle 0.5s infinite; }
   @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
 
-  /* --- PERBAIKAN ZONA AMAN TIMER (MOBILE) --- */
+  /* --- FIX RESPONSIVE MOBILE: TATA LETAK SANGAT AMAN --- */
   @media screen and (max-width: 768px) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 6px; }
     #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 4px 15px; border-width: 3px;}
     
-    /* FIX: Mendorong konten menjauh dari Timer di tengah layar */
-    #p1-zone { transform: rotate(180deg); padding-bottom: 40px; } 
-    #p2-zone { padding-top: 40px; }
+    /* Gunakan GAP agar elemen berjarak rapi secara otomatis tanpa bertumpuk */
+    .player-zone { 
+      padding: 10px; 
+      justify-content: center; 
+      gap: 8px; 
+    }
     
-    .player-zone { justify-content: center; }
-    .question-box { padding: 8px 15px; margin-bottom: 8px; border-width: 3px; }
-    .options { gap: 5px; margin-bottom: 5px; }
-    .btn-option { min-height: 38px; padding: 6px; border-width: 2px;}
-    .btn-next { margin-top: 5px; padding: 6px 18px; font-size: 12px; border-width: 2px; }
+    /* Zona aman agar tombol tidak ditabrak oleh timer tengah */
+    #p1-zone { transform: rotate(180deg); padding-bottom: 45px; } 
+    #p2-zone { padding-top: 45px; }
+    
+    .question-box { 
+      font-size: clamp(14px, 4vw, 18px); 
+      padding: 8px 12px; 
+      margin-bottom: 0; 
+      border-width: 3px; 
+      max-height: 38%; /* Cegah soal teks panjang memakan seluruh layar */
+      overflow-y: auto; /* Bisa digeser scroll kalau kepanjangan */
+    }
+    
+    .options { gap: 6px; margin-bottom: 0; }
+    .btn-option { min-height: 38px; padding: 6px 10px; font-size: clamp(13px, 3.5vw, 16px); border-width: 2px;}
+    .btn-next { margin-top: 0; padding: 6px 20px; font-size: 12px; border-width: 2px; }
     
     .welcome-card { padding: 20px 15px; }
     #chat-wrapper { bottom: 85px; right: 15px; }
@@ -288,9 +313,8 @@
     </div>
   </div>
 
-  <!-- === POPUP NOTIFIKASI MODERN (TERPUTUS) === -->
-  <!-- FIX: z-index dinaikkan jadi 99999 agar selalu tampil teratas -->
-  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 99999; background: rgba(0,0,0,0.85);">
+  <!-- === POPUP NOTIFIKASI MODERN === -->
+  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 999999; background: rgba(0,0,0,0.85);">
     <div class="welcome-card alert-card" style="text-align: center; border-color: #F44336; animation: munculModal 0.3s ease-out forwards;">
       <div id="custom-alert-close" onclick="closeCustomAlert()">✖</div>
       <div id="custom-alert-icon" style="font-size: 55px; margin-bottom: 10px;">⚠️</div>
@@ -569,11 +593,12 @@
   let isAlertOpen = false;
   let isGameOver = false;
 
-  // DETEKSI TEKS ARAB AGAR FONT AMIRI TERAPLIKASI SEMPURNA
-  function isArabic(text) {
-    const arabicPattern = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
-    return arabicPattern.test(text);
-  }
+  // FITUR PENGHAPUSAN KAMAR OTOMATIS SAAT TAB DITUTUP
+  window.addEventListener('beforeunload', function (e) {
+    if (currentRoomRef && !isGameOver) {
+      window.dbRemove(currentRoomRef);
+    }
+  });
 
   function showCustomAlert(title, message, callback) {
     if (isAlertOpen) return; 
@@ -642,18 +667,17 @@
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
-      // FIX BUG: TAMPILKAN NOTIF JIKA KONEKSI LAWAN TERPUTUS (SEBELUM RELOAD)
+      // FIX BUG: MENAMPILKAN NOTIF SAAT LAWAN KELUAR / PUTUS KONEKSI
       if (!data) {
         if (roomId !== "" && !isGameOver) { 
-          isGameOver = true;
+          isGameOver = true; 
           clearInterval(timerInterval);
           
-          // Sembunyikan layar lain agar notifikasi tidak tertumpuk z-index
-          document.getElementById('result-screen').style.display = 'none';
-          document.getElementById('welcome-screen').style.display = 'none';
-          document.getElementById('room-screen').style.display = 'none';
+          // Sembunyikan layar agar notifikasi tidak tertumpuk
+          const screens = document.querySelectorAll('.screen-overlay');
+          screens.forEach(s => s.style.display = 'none');
           
-          showCustomAlert("Terputus!", "Lawan telah keluar dari permainan atau koneksi terputus.", () => { 
+          showCustomAlert("Permainan Berakhir", "Lawan telah keluar dari kamar permainan. Silakan kembali ke menu utama.", () => { 
             location.reload(); 
           }); 
         } 
@@ -826,26 +850,16 @@
     if (pData.index >= pData.questions.length) { 
       let qBox = document.getElementById(`${prefix}-q`);
       qBox.innerText = "ALHAMDULILLAH\nSelesai Menjawab!"; 
-      qBox.style.fontFamily = "'Nunito', sans-serif";
       document.getElementById(`${prefix}-options`).innerHTML = '';
       return; 
     }
 
     let qData = pData.questions[pData.index];
     let qBox = document.getElementById(`${prefix}-q`);
+    
+    // FIX: Teks langsung dimasukkan, CSS akan otomatis menggunakan font Amiri jika berupa teks Arab
     qBox.innerText = qData.q;
     
-    // MENERAPKAN FONT AMIRI UNTUK TEKS ARAB
-    if (isArabic(qData.q)) {
-        qBox.style.fontFamily = "'Amiri', serif";
-        qBox.style.fontSize = "clamp(20px, 6vw, 32px)";
-        qBox.style.lineHeight = "1.6";
-    } else {
-        qBox.style.fontFamily = "'Nunito', sans-serif";
-        qBox.style.fontSize = "clamp(16px, 4vw, 24px)";
-        qBox.style.lineHeight = "normal";
-    }
-
     let optsDiv = document.getElementById(`${prefix}-options`);
     optsDiv.innerHTML = '';
     
@@ -855,16 +869,6 @@
       let btn = document.createElement('button'); 
       btn.className = 'btn-option'; 
       btn.innerText = opt;
-      
-      // MENERAPKAN FONT AMIRI UNTUK OPSI JAWABAN ARAB
-      if (isArabic(opt)) {
-          btn.style.fontFamily = "'Amiri', serif";
-          btn.style.fontSize = "clamp(18px, 5vw, 24px)";
-      } else {
-          btn.style.fontFamily = "'Nunito', sans-serif";
-          btn.style.fontSize = "clamp(14px, 3.5vw, 18px)";
-      }
-
       btn.onclick = () => checkAnswer(player, opt, qData.ans);
       optsDiv.appendChild(btn);
     });
@@ -992,7 +996,6 @@
   function akhiriGame() {
     isGameOver = true; 
     if (currentRoomRef) {
-      // FIX BUG: Tunggu sampai Firebase selesai menghapus data sebelum melakukan reload
       window.dbRemove(currentRoomRef).then(() => {
         location.reload(); 
       }).catch((e) => {
