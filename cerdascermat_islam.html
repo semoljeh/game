@@ -573,10 +573,10 @@
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0;
 
-  let alertCallback = null;
-  let isAlertOpen = false;
-  let isGameOver = false;
-  let unsubscribeKamar = null;
+ let alertCallback = null;
+let isAlertOpen = false;
+let isGameOver = false;
+let sayaYangKeluar = false; // <-- TAMBAHKAN VARIABEL INI
 
   // MENDETEKSI HURUF ARAB
   function isArabic(text) {
@@ -585,7 +585,8 @@
   }
 
   // MENGHAPUS KAMAR SAAT TAB DITUTUP
-  window.addEventListener('beforeunload', function (e) {
+window.addEventListener('beforeunload', function (e) {
+    sayaYangKeluar = true; // <-- Tambahkan di sini juga
     if (currentRoomRef && !isGameOver) {
       window.dbRemove(currentRoomRef);
     }
@@ -645,16 +646,18 @@
   }
 
 function pantauDataKamar() {
-  unsubscribeKamar = window.dbOnValue(currentRoomRef, (snapshot) => {
+    window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       
-      // FIX NOTIFIKASI PUTUS: Notifikasi dimunculkan untuk LAWAN
+      // FIX NOTIFIKASI PUTUS
       if (!data) {
+        // JIKA KITA YANG KELUAR, JANGAN TAMPILKAN NOTIFIKASI
+        if (sayaYangKeluar) return; // <-- TAMBAHKAN BARIS INI
+
         if (roomId !== "" && !isGameOver) { 
           isGameOver = true;
           clearInterval(timerInterval);
           
-          // Pastikan notifikasi ini bisa terlihat dengan menyembunyikan layar lain
           const screens = document.querySelectorAll('.screen-overlay');
           screens.forEach(s => s.style.display = 'none');
           
@@ -955,21 +958,11 @@ function pantauDataKamar() {
 
   // FIX PENGHAPUSAN BUG: Mengakhiri game dengan layar loading halus, TIDAK ADA peringatan terputus bagi yg keluar.
 function akhiriGame() {
+    sayaYangKeluar = true; // <-- AKTIFKAN PENGAMAN DI SINI
     isGameOver = true; 
-    
-    // 1. Matikan pendengar Firebase agar pemain ini tidak kena notif saat menghapus kamar
-    if (typeof unsubscribeKamar === 'function') {
-      unsubscribeKamar();
-    }
-    
-    // 2. Tutup paksa popup notifikasi jika sempat terbuka
-    const alertOverlay = document.getElementById('custom-alert-overlay');
-    if (alertOverlay) alertOverlay.style.display = 'none';
-
     let tempRef = currentRoomRef;
-    currentRoomRef = null; // Putuskan listener secara lokal
+    currentRoomRef = null;
 
-    // Layar transisi agar pengguna yang mengakhiri game tidak melihat notifikasi
     document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background-color:#E8F5E9; font-family:Nunito,sans-serif;'><h2 style='color:#2E7D32;'>Keluar dari permainan...</h2></div>";
 
     if (tempRef) {
