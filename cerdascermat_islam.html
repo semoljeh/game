@@ -235,7 +235,7 @@
 
 </div>
 
-<!-- === KODE FIREBASE (YANG SEBELUMNYA HILANG) === -->
+<!-- === KODE FIREBASE === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
   import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
@@ -257,8 +257,6 @@
 </script>
 
 <script>
-
-
   const bankSoal = [
     { q: "Siapakah manusia dan Nabi pertama yang diciptakan Allah?", ans: "Nabi Adam", opts: ["Nabi Adam", "Nabi Muhammad", "Nabi Nuh"], cat: "nabi" },
     { q: "Nabi yang ditelan oleh ikan paus karena meninggalkan kaumnya adalah...", ans: "Nabi Yunus", opts: ["Nabi Yunus", "Nabi Musa", "Nabi Isa"], cat: "nabi" },
@@ -270,7 +268,7 @@
     { q: "Nabi yang bisa berbicara dengan hewan dan jin adalah Nabi...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Daud", "Nabi Nuh"], cat: "nabi" },
     { q: "Malaikat peniup sangkakala pada hari kiamat adalah...", ans: "Israfil", opts: ["Israfil", "Izrail", "Rakib"], cat: "nabi" },
     { q: "Nabi yang membuat kapal sangat besar saat banjir bandang adalah...", ans: "Nabi Nuh", opts: ["Nabi Nuh", "Nabi Adam", "Nabi Hud"], cat: "nabi" },
-    { q: "Malaikat yang bertugas mencabut nyawa adalah...", ans: "Izrail", opts: ["Izrail", "Mikail", "Ridwan"], cat: "nabi" },
+    { q: "Malaikat yang bertugas mencabut nyawa adalah...", Izrail: "Izrail", ans: "Izrail", opts: ["Izrail", "Mikail", "Ridwan"], cat: "nabi" },
     { q: "Nabi yang sangat tampan dan pernah dimasukkan ke sumur oleh saudaranya adalah...", ans: "Nabi Yusuf", opts: ["Nabi Yusuf", "Nabi Yaqub", "Nabi Yahya"], cat: "nabi" },
     { q: "Malaikat penjaga pintu surga adalah...", ans: "Ridwan", opts: ["Ridwan", "Malik", "Atid"], cat: "nabi" },
     { q: "Malaikat penjaga pintu neraka adalah...", ans: "Malik", opts: ["Malik", "Ridwan", "Munkar"], cat: "nabi" },
@@ -488,7 +486,7 @@
   let lastRestart = 0; 
   let globalEndTime = 0;
 
-function pantauDataKamar() {
+  function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -503,7 +501,6 @@ function pantauDataKamar() {
         document.getElementById('host-controls').style.display = 'block';
       }
       
-      // PERBAIKAN 1: Tambahkan data.endTime sebagai syarat game dimulai
       if (data.mode && data.questionOrder && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
         mulaiPermainan(data.questionOrder, data.endTime);
       }
@@ -546,9 +543,6 @@ function pantauDataKamar() {
       let isCorrect = oppData.lastAction.isCorrect;
 
       if (selected !== "SKIP") {
-        // --- KODE PEWARNAAN TOMBOL LAWAN SUDAH DIHAPUS DI SINI ---
-        
-        // HANYA MENAMPILKAN NOTIFIKASI
         let zone = document.getElementById(`${prefix}-zone`);
         let notif = document.createElement('div'); notif.className = 'notif-lucu';
         notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
@@ -557,11 +551,10 @@ function pantauDataKamar() {
         setTimeout(() => notif.remove(), 1000);
       }
 
-      // Langsung ganti soal teman tanpa jeda lama
       setTimeout(() => {
         localOppData.index = oppData.index;
         loadQuestion(oppRole);
-      }, 100); // Jedanya dikurangi jadi 0.1 detik biar langsung ganti soal
+      }, 100);
 
     } else if (oppData.index !== undefined && oppData.index > localOppData.index) {
        localOppData.index = oppData.index;
@@ -569,13 +562,10 @@ function pantauDataKamar() {
     }
   }
 
-// --- MENGUNCI BUG RACE CONDITION DENGAN .then() ---
-
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
-    // Tunggu kamar selesai dibuat, baru ganti layar UI
     window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
@@ -588,7 +578,6 @@ function pantauDataKamar() {
     if (input.length !== 4) { alert("Masukkan 4 digit kode dengan benar!"); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     
-    // Tunggu status 'ready' sukses terkirim ke P1, baru ganti layar
     window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
@@ -603,7 +592,6 @@ function pantauDataKamar() {
     
     window.dbGet(antreanRef).then((snapshot) => {
       if (snapshot.exists()) {
-        // PERAN SEBAGAI PLAYER 2
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbRemove(antreanRef); 
         window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
@@ -611,10 +599,8 @@ function pantauDataKamar() {
           document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
         });
       } else {
-        // PERAN SEBAGAI PLAYER 1 (HOST)
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         
-        // PERBAIKAN BUG BENGONG: P1 buat kamar dulu sampai TUNTAS (.then), BARU menaruh nomor kamar di antrean
         window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
           window.dbSet(antreanRef, roomId).then(() => {
             document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
@@ -625,7 +611,7 @@ function pantauDataKamar() {
     }).catch((error) => { alert("Gagal terhubung ke server."); location.reload(); });
   }
 
-function hostPilihMode(modeDipilih) { 
+  function hostPilihMode(modeDipilih) { 
     let filteredIndices = [];
     for (let i = 0; i < bankSoal.length; i++) {
       if (modeDipilih === 'campuran' || bankSoal[i].cat === modeDipilih) {
@@ -635,13 +621,12 @@ function hostPilihMode(modeDipilih) {
     filteredIndices.sort(() => Math.random() - 0.5);
     let finalOrder = filteredIndices.slice(0, maxQuestionsPerGame); 
 
-    // PERBAIKAN 2: Host menetapkan target waktu mutlak (60 detik dari saat tombol ditekan)
     let targetWaktuSelesai = Date.now() + 60000; 
 
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questionOrder: finalOrder, endTime: targetWaktuSelesai }); 
   }
 
-// PERBAIKAN: Gunakan SATU fungsi ini saja untuk mulai permainan
+  // INI ADALAH FUNGSI MULAI PERMAINAN YANG BENAR (TUNGGAL)
   function mulaiPermainan(order, targetEndTime) {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
@@ -655,24 +640,7 @@ function hostPilihMode(modeDipilih) {
     p1.questions = JSON.parse(JSON.stringify(finalQuestions));
     p2.questions = JSON.parse(JSON.stringify(finalQuestions));
 
-    globalEndTime = targetEndTime; // Ini kunci utamanya agar waktu tidak langsung 0
-    loadQuestion(1); loadQuestion(2); startTimer();
-  }
-
-// HAPUS SEMUA BARIS INI DARI KODE AKANG:
-  function mulaiPermainan(order) {
-    document.getElementById('welcome-screen').style.display = 'none';
-    document.getElementById('p1-zone').classList.remove('belum-mulai'); document.getElementById('p2-zone').classList.remove('belum-mulai');
-    document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
-    
-    try { let bgm = document.getElementById('bg-music'); bgm.volume = 0.4; bgm.play(); } catch(e){}
-
-    let finalQuestions = [];
-    order.forEach(idx => { finalQuestions.push(bankSoal[idx]); });
-    
-    p1.questions = JSON.parse(JSON.stringify(finalQuestions));
-    p2.questions = JSON.parse(JSON.stringify(finalQuestions));
-
+    globalEndTime = targetEndTime; 
     loadQuestion(1); loadQuestion(2); startTimer();
   }
 
@@ -759,8 +727,7 @@ function hostPilihMode(modeDipilih) {
     loadQuestion(player);
   }
 
-function startTimer() {
-    // Kita jalankan interval lebih cepat (tiap 100ms) agar layar lebih responsif dan akurat
+  function startTimer() {
     timerInterval = setInterval(() => {
       let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000);
       timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
