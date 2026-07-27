@@ -41,3 +41,8 @@ AUDIO:
 SETTING:
 - Pengaturan dipindah ke popup tombol ⚙️ SETTING.
 - Popup dapat ditutup dengan ×, Escape, atau tombol Back HP tanpa keluar dari halaman host.
+
+FIX10:
+- Semua tombol memiliki efek tekan/ripple dan suara klik.
+- Modal Setting dirapikan untuk laptop, HP portrait, dan landscape.
+- klik.mp3 opsional; tanpa file tersebut tetap ada efek klik sintetis.

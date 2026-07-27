@@ -1,3 +1,4 @@
-Letakkan file audio Anda di folder ini dengan nama persis:
-- musik.mp3  (musik latar)
-- lucu.mp3   (musik saat jawaban dibuka)
+Letakkan file audio:
+- musik.mp3 = musik latar
+- lucu.mp3 = musik saat jawaban dibuka
+- klik.mp3 = opsional, suara klik tombol. Jika tidak ada, sistem memakai efek klik bawaan browser/WebAudio.

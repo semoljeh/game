@@ -43,6 +43,52 @@ button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px
 .settings-body .field{min-width:0}.settings-body .green{min-height:43px}.settings-note{text-align:center;color:#718379;font-size:11px;font-weight:800;margin-top:12px}
 @media(max-width:560px){.settings-card{padding:14px;border-radius:20px}.settings-body .setup{grid-template-columns:1fr}.settings-body .counts{width:100%}.settings-body .count{flex:1}.settings-body .green{width:100%}}
 
+
+/* FIX10: polished responsive UI + tactile button effects */
+button{
+  position:relative;overflow:hidden;
+  transition:transform .12s ease,box-shadow .12s ease,filter .12s ease,background .12s ease;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+button:not(:disabled):hover{filter:brightness(1.035);box-shadow:0 7px 16px #163d2520}
+button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.965);box-shadow:inset 0 3px 7px #0002!important;filter:brightness(.94)}
+button::after{content:"";position:absolute;left:var(--rx,50%);top:var(--ry,50%);width:8px;height:8px;border-radius:50%;background:#fff8;transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none}
+button.fx-ripple::after{animation:madasaRipple .42s ease-out}
+@keyframes madasaRipple{0%{transform:translate(-50%,-50%) scale(0);opacity:.75}100%{transform:translate(-50%,-50%) scale(28);opacity:0}}
+.settings-modal{padding:clamp(8px,2vw,20px)}
+.settings-card{width:min(650px,96vw);max-height:92dvh;padding:clamp(14px,2.2vw,22px);overflow:auto;overscroll-behavior:contain}
+.settings-head{position:sticky;top:-1px;z-index:2;background:#fafffb;padding-top:2px}
+.settings-x{flex:0 0 42px;display:grid;place-items:center}
+.settings-body .setup{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.settings-body .field{display:grid;gap:6px}
+.settings-body .field label{font-size:11px;letter-spacing:1px}
+.settings-body .field select,.settings-body .field input{width:100%;min-height:45px;padding:10px 13px;border-radius:12px}
+.settings-body .counts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.settings-body .count{width:100%;min-height:45px}
+.settings-body .green{width:100%;min-height:46px;align-self:end}
+.settings-note{padding-top:3px}
+.top-actions{justify-content:flex-end}
+.controls{position:relative}
+@media(max-width:700px){
+  .top{padding:9px 10px;border-radius:15px}.top-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .room{grid-column:1/-1;text-align:center}.top-actions button{min-height:40px;padding:8px 7px}
+  .settings-card{width:min(96vw,520px);border-radius:20px}
+  .settings-body .setup{grid-template-columns:1fr;gap:9px}
+  .settings-body .green{margin-top:2px}
+}
+@media(max-width:420px){
+  .settings-modal{padding:6px}.settings-card{width:100%;max-height:96dvh;padding:12px;border-radius:17px}
+  .settings-head h2{font-size:20px}.settings-kicker{font-size:9px}.settings-x{width:38px;height:38px;font-size:25px}
+  .settings-body .field select,.settings-body .field input,.settings-body .count{min-height:42px}
+  .settings-note{font-size:10px}
+}
+@media(orientation:landscape) and (max-height:560px){
+  .settings-card{max-height:96dvh;width:min(780px,96vw)}
+  .settings-body .setup{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .settings-body .green{min-height:43px}
+  .settings-head{margin-bottom:7px;padding-bottom:7px}.settings-note{margin-top:6px}
+}
+
 </style>
 </head>
 <body>
@@ -93,6 +139,7 @@ button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px
 
 <audio id="bgMusic" src="asset/musik.mp3" loop preload="auto"></audio>
 <audio id="answerMusic" src="asset/lucu.mp3" preload="auto"></audio>
+<audio id="clickSound" src="asset/klik.mp3" preload="auto"></audio>
 
 <script type="module">
 
@@ -119,7 +166,30 @@ let connected={},scores={1:0,2:0,3:0,4:0},winner=null,current=null,questions=[],
 let timerLeft=30,timerId=null,roomUnsub=null;
 
 let settingsOpen=false, historyGuard=false;
-const bgMusic=document.getElementById("bgMusic"), answerMusic=document.getElementById("answerMusic");
+const bgMusic=document.getElementById("bgMusic"), answerMusic=document.getElementById("answerMusic"), clickSound=document.getElementById("clickSound");
+let clickCtx=null;
+function playClickFx(){
+  if(clickSound){
+    try{clickSound.currentTime=0;clickSound.volume=.32;const p=clickSound.play();if(p&&p.catch)p.catch(()=>webClick())}catch(e){webClick()}
+  }else webClick();
+}
+function webClick(){
+  try{
+    clickCtx=clickCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=clickCtx.createOscillator(),g=clickCtx.createGain();
+    o.type="sine";o.frequency.setValueAtTime(520,clickCtx.currentTime);o.frequency.exponentialRampToValueAtTime(310,clickCtx.currentTime+.045);
+    g.gain.setValueAtTime(.035,clickCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,clickCtx.currentTime+.05);
+    o.connect(g);g.connect(clickCtx.destination);o.start();o.stop(clickCtx.currentTime+.052);
+  }catch(e){}
+}
+document.addEventListener("pointerdown",e=>{
+  const b=e.target.closest("button");if(!b||b.disabled)return;
+  const r=b.getBoundingClientRect();b.style.setProperty("--rx",(e.clientX-r.left)+"px");b.style.setProperty("--ry",(e.clientY-r.top)+"px");
+  b.classList.remove("fx-ripple");void b.offsetWidth;b.classList.add("fx-ripple","fx-press");playClickFx();
+},{passive:true});
+document.addEventListener("pointerup",e=>{const b=e.target.closest("button");if(b)setTimeout(()=>b.classList.remove("fx-press"),70)},{passive:true});
+document.addEventListener("pointercancel",()=>document.querySelectorAll(".fx-press").forEach(b=>b.classList.remove("fx-press")));
+
 bgMusic.volume=.35; answerMusic.volume=.65;
 
 function safePlay(a){ if(!a)return; const p=a.play(); if(p&&p.catch)p.catch(()=>{}); }
