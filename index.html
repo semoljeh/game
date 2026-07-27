@@ -233,6 +233,187 @@
     .visitor-stats-mini span { padding: 2px 6px; font-size: 11px; }
   }
 </style>
+
+<style id="modern-redesign">
+:root{
+  --green:#1f7a3d; --green2:#2e9d55; --blue:#1687d9; --orange:#f57c00;
+  --ink:#18312a; --muted:#6b7d77; --surface:#ffffff; --line:#e5eee8;
+}
+html,body{background:#edf7f0!important;color:var(--ink)!important}
+#app-container{
+  background:
+    radial-gradient(circle at 8% 2%,rgba(72,187,120,.20),transparent 24%),
+    radial-gradient(circle at 92% 8%,rgba(41,182,246,.18),transparent 25%),
+    linear-gradient(180deg,#f8fffa 0%,#eff9f2 48%,#e8f5ec 100%)!important;
+  scroll-behavior:smooth;
+}
+#app-container::-webkit-scrollbar{width:7px}
+#app-container::-webkit-scrollbar-thumb{background:#a8d5b5;border-radius:99px}
+
+.header{
+  width:min(94%,1100px)!important;
+  margin-top:clamp(18px,4vh,42px)!important;
+  padding:clamp(22px,5vw,44px)!important;
+  border-radius:32px;
+  background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(240,252,244,.90));
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 18px 50px rgba(28,94,53,.10);
+  overflow:hidden;
+}
+.header:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(46,157,85,.08),transparent 45%,rgba(22,135,217,.07));pointer-events:none}
+.salam{font-size:clamp(21px,5vw,35px)!important;color:#23703b!important;position:relative}
+.header h1{font-size:clamp(30px,7vw,52px)!important;color:#145d34!important;text-shadow:none!important;letter-spacing:-1.2px!important;position:relative}
+.header p{margin:12px 0 0!important;background:#fff!important;border:1px solid #d8eadf!important;color:#e66b00!important;box-shadow:0 7px 20px rgba(26,89,50,.07);position:relative}
+
+.category-title{
+  margin-top:clamp(28px,5vh,50px)!important;
+  background:#fff!important;border:1px solid #dcebe1!important;color:#216d3b!important;
+  box-shadow:0 8px 24px rgba(28,94,53,.08)!important;
+  padding:10px 22px!important;font-size:clamp(16px,3.8vw,21px)!important;
+}
+.game-menu{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:16px!important;width:min(94%,1100px)!important;max-width:1100px!important;
+  margin:18px auto 10px!important;flex-grow:0!important;
+}
+.game-card{
+  min-width:0;position:relative;overflow:hidden;
+  padding:20px 14px 17px!important;border-radius:24px!important;
+  border:1px solid #e3eee6!important;
+  box-shadow:0 9px 25px rgba(29,83,48,.075)!important;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important;
+}
+.game-card:before{
+  content:"";position:absolute;left:0;right:0;top:0;height:5px;
+  background:linear-gradient(90deg,#34a853,#61c77d);
+}
+.game-card:hover{transform:translateY(-5px)!important;box-shadow:0 16px 35px rgba(29,83,48,.13)!important;border-color:#cce5d3!important}
+.game-card:active{transform:scale(.975)!important}
+.icon-container{
+  width:66px;height:66px;border-radius:20px;display:grid!important;place-items:center;
+  margin:0 auto 12px!important;font-size:36px!important;
+  background:linear-gradient(145deg,#f1fbf4,#e7f7ec);
+  box-shadow:inset 0 0 0 1px #e1eee5;
+}
+.game-card h2{font-size:16px!important;line-height:1.25!important;margin-bottom:5px!important}
+.game-card p{font-size:12px!important;line-height:1.35;min-height:32px;color:#718079!important}
+.play-btn{
+  margin-top:12px!important;padding:7px 15px!important;min-width:94px;
+  border-radius:999px!important;font-size:11px!important;box-shadow:0 5px 12px rgba(0,0,0,.09);
+}
+.play-btn:after{content:"  ›";font-size:15px}
+
+footer{
+  width:min(94%,1100px)!important;margin:45px auto 20px!important;border:1px solid #dfece3!important;
+  border-radius:28px!important;background:rgba(255,255,255,.92)!important;
+  box-shadow:0 12px 35px rgba(29,83,48,.08);padding:18px!important;
+}
+.footer-action-row{margin-bottom:10px!important}
+.visitor-stats-mini,.btn-dana-icon{box-shadow:none!important;border:1px solid #dce9e1!important}
+.dev-link{border:1px solid #f3c98b!important;background:#fffaf2!important}
+
+.screen-overlay{background:rgba(16,67,38,.55)!important;backdrop-filter:blur(12px)}
+.welcome-content{
+  border:1px solid rgba(255,255,255,.9)!important;border-radius:30px!important;
+  box-shadow:0 25px 70px rgba(0,0,0,.20)!important;
+}
+.welcome-icon{
+  width:72px;height:72px;display:grid;place-items:center;border-radius:22px;
+  background:linear-gradient(145deg,#e9f8ee,#fff8df);font-size:42px!important;margin-bottom:12px!important;
+}
+.btn-masuk,.btn-install,.btn-aksi{border-radius:16px!important;box-shadow:none!important}
+.btn-rotate-mini{border-color:#dceae1!important;color:#287747!important;background:#f7fcf8!important}
+
+@media(max-width:900px){
+  .game-menu{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:650px){
+  .header{width:92%!important;border-radius:25px;padding:24px 14px!important}
+  .game-menu{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:92%!important;gap:11px!important}
+  .game-card{padding:15px 8px 13px!important;border-radius:20px!important}
+  .icon-container{width:56px;height:56px;font-size:31px!important;border-radius:17px}
+  .game-card h2{font-size:14px!important}
+  .game-card p{font-size:10.5px!important;min-height:29px}
+  footer{width:92%!important;border-radius:22px!important}
+}
+@media(max-width:350px){
+  .game-menu{gap:8px!important}
+  .game-card{padding:12px 6px!important}
+  .icon-container{width:49px;height:49px;font-size:27px!important}
+  .game-card h2{font-size:12px!important}.play-btn{min-width:78px;padding:6px 10px!important}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .header{width:95%!important;padding:15px 20px!important;margin-top:12px!important}
+  .game-menu{grid-template-columns:repeat(4,minmax(0,1fr))!important;width:95%!important}
+  .game-card{padding:12px 8px!important}.icon-container{width:45px;height:45px;font-size:25px!important;margin-bottom:6px!important}
+  .game-card p{display:block}.category-title{margin-top:18px!important}
+}
+</style>
+
+
+<style id="center-incomplete-row">
+/* Grid fleksibel: baris terakhir yang tidak penuh otomatis berada di tengah */
+.game-menu{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  justify-content:center !important;
+  align-items:stretch !important;
+}
+.game-menu .game-card{
+  flex:0 0 calc((100% - 48px) / 4) !important;
+  max-width:calc((100% - 48px) / 4) !important;
+}
+@media(max-width:900px){
+  .game-menu .game-card{
+    flex-basis:calc((100% - 32px) / 3) !important;
+    max-width:calc((100% - 32px) / 3) !important;
+  }
+}
+@media(max-width:650px){
+  .game-menu .game-card{
+    flex-basis:calc((100% - 11px) / 2) !important;
+    max-width:calc((100% - 11px) / 2) !important;
+  }
+}
+@media(orientation:landscape) and (max-height:600px){
+  .game-menu .game-card{
+    flex-basis:calc((100% - 48px) / 4) !important;
+    max-width:calc((100% - 48px) / 4) !important;
+  }
+}
+</style>
+
+
+<style id="responsive-portal-description">
+.portal-description{
+  display:block !important;
+  width:fit-content;
+  max-width:min(92%,720px);
+  margin:14px auto 0 !important;
+  padding:10px 22px !important;
+  font-size:clamp(13px,2.2vw,17px) !important;
+  line-height:1.45 !important;
+  text-align:center;
+  white-space:normal !important;
+  overflow-wrap:break-word;
+  border-radius:22px !important;
+}
+@media(max-width:600px){
+  .portal-description{
+    max-width:94%;
+    padding:9px 14px !important;
+    font-size:13px !important;
+    line-height:1.4 !important;
+  }
+}
+@media(max-width:360px){
+  .portal-description{
+    font-size:12px !important;
+    padding:8px 11px !important;
+  }
+}
+</style>
+
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
@@ -258,7 +439,12 @@
   <div class="header">
     <div class="salam">اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</div>
     <h1>Portal Game MADASA</h1>
-    <p>Belajar Islami & Ceria !</p>
+    <p class="portal-description">Belajar, Bermain, dan Tumbuh Bersama dalam Permainan Edukatif Islami</p>
+<div class="portal-chips" style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:12px;position:relative">
+  <span style="background:#e9f7ed;color:#26733e;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:900">🎮 36+ Game</span>
+  <span style="background:#eaf5fd;color:#1473b5;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:900">📱 Responsif</span>
+  <span style="background:#fff4e5;color:#d76800;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:900">🌟 Belajar & Bermain</span>
+</div>
   </div>
 
   <!-- KATEGORI ISLAMI -->
