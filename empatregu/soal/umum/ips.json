@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "soal": "Ibu kota Indonesia adalah kota apa?",
+    "jawaban": "Jakarta"
+  },
+  {
+    "id": 2,
+    "soal": "Pulau terluas di Indonesia adalah pulau apa?",
+    "jawaban": "Kalimantan"
+  },
+  {
+    "id": 3,
+    "soal": "Kegiatan menghasilkan barang atau jasa disebut apa?",
+    "jawaban": "Produksi"
+  },
+  {
+    "id": 4,
+    "soal": "Kegiatan menyalurkan barang dari produsen kepada konsumen disebut apa?",
+    "jawaban": "Distribusi"
+  },
+  {
+    "id": 5,
+    "soal": "Orang yang menggunakan barang atau jasa disebut apa?",
+    "jawaban": "Konsumen"
+  },
+  {
+    "id": 6,
+    "soal": "Indonesia terletak di antara Benua Asia dan benua apa?",
+    "jawaban": "Australia"
+  },
+  {
+    "id": 7,
+    "soal": "Indonesia terletak di antara Samudra Hindia dan samudra apa?",
+    "jawaban": "Pasifik"
+  },
+  {
+    "id": 8,
+    "soal": "Garis khayal yang membagi bumi menjadi belahan utara dan selatan disebut apa?",
+    "jawaban": "Khatulistiwa"
+  },
+  {
+    "id": 9,
+    "soal": "Peta yang menggambarkan seluruh atau sebagian permukaan bumi disebut apa?",
+    "jawaban": "Peta"
+  },
+  {
+    "id": 10,
+    "soal": "Kegiatan jual beli yang dilakukan antarnegara disebut apa?",
+    "jawaban": "Perdagangan internasional"
+  }
+]

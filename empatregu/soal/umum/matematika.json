@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "soal": "Berapa hasil 15 × 8 dikurangi 25?",
+    "jawaban": "95"
+  },
+  {
+    "id": 2,
+    "soal": "Berapa hasil 144 ÷ 12?",
+    "jawaban": "12"
+  },
+  {
+    "id": 3,
+    "soal": "Berapa hasil 25 × 4?",
+    "jawaban": "100"
+  },
+  {
+    "id": 4,
+    "soal": "Berapa hasil 3/4 dari 100?",
+    "jawaban": "75"
+  },
+  {
+    "id": 5,
+    "soal": "Sebuah persegi memiliki sisi 9 cm. Berapa luasnya?",
+    "jawaban": "81 cm²"
+  },
+  {
+    "id": 6,
+    "soal": "Sebuah persegi panjang panjangnya 12 cm dan lebarnya 5 cm. Berapa luasnya?",
+    "jawaban": "60 cm²"
+  },
+  {
+    "id": 7,
+    "soal": "Berapa keliling persegi dengan sisi 7 cm?",
+    "jawaban": "28 cm"
+  },
+  {
+    "id": 8,
+    "soal": "Berapa hasil 2 pangkat 5?",
+    "jawaban": "32"
+  },
+  {
+    "id": 9,
+    "soal": "Bilangan prima terkecil adalah berapa?",
+    "jawaban": "2"
+  },
+  {
+    "id": 10,
+    "soal": "Berapa hasil 1.000 dikurangi 375?",
+    "jawaban": "625"
+  },
+  {
+    "id": 11,
+    "soal": "Jika 5 buku berharga Rp25.000, berapa harga satu buku?",
+    "jawaban": "Rp5.000"
+  },
+  {
+    "id": 12,
+    "soal": "Berapa 20 persen dari 250?",
+    "jawaban": "50"
+  },
+  {
+    "id": 13,
+    "soal": "Berapa hasil 7 × 9 + 8?",
+    "jawaban": "71"
+  },
+  {
+    "id": 14,
+    "soal": "Satu lusin berjumlah berapa?",
+    "jawaban": "12"
+  },
+  {
+    "id": 15,
+    "soal": "Sudut siku-siku besarnya berapa derajat?",
+    "jawaban": "90 derajat"
+  }
+]

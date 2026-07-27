@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "soal": "Apa arti kata 'book' dalam bahasa Indonesia?",
+    "jawaban": "Buku"
+  },
+  {
+    "id": 2,
+    "soal": "Apa bahasa Inggris dari 'sekolah'?",
+    "jawaban": "School"
+  },
+  {
+    "id": 3,
+    "soal": "Apa bentuk lampau dari kata 'go'?",
+    "jawaban": "Went"
+  },
+  {
+    "id": 4,
+    "soal": "Apa bentuk jamak dari 'child'?",
+    "jawaban": "Children"
+  },
+  {
+    "id": 5,
+    "soal": "Apa arti 'beautiful'?",
+    "jawaban": "Indah atau cantik"
+  },
+  {
+    "id": 6,
+    "soal": "Lengkapi: I ___ a student.",
+    "jawaban": "Am"
+  },
+  {
+    "id": 7,
+    "soal": "Lengkapi: She ___ my friend.",
+    "jawaban": "Is"
+  },
+  {
+    "id": 8,
+    "soal": "Apa bahasa Inggris dari 'air'?",
+    "jawaban": "Water"
+  },
+  {
+    "id": 9,
+    "soal": "Apa lawan kata 'big' dalam bahasa Inggris?",
+    "jawaban": "Small"
+  },
+  {
+    "id": 10,
+    "soal": "Apa arti 'teacher'?",
+    "jawaban": "Guru"
+  },
+  {
+    "id": 11,
+    "soal": "Apa bahasa Inggris dari 'hari Senin'?",
+    "jawaban": "Monday"
+  },
+  {
+    "id": 12,
+    "soal": "Apa arti kalimat 'How are you?'",
+    "jawaban": "Apa kabar?"
+  }
+]

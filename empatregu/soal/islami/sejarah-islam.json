@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "soal": "Di kota mana Nabi Muhammad dilahirkan?",
+    "jawaban": "Makkah"
+  },
+  {
+    "id": 2,
+    "soal": "Siapa nama ayah Nabi Muhammad?",
+    "jawaban": "Abdullah"
+  },
+  {
+    "id": 3,
+    "soal": "Siapa nama ibu Nabi Muhammad?",
+    "jawaban": "Aminah"
+  },
+  {
+    "id": 4,
+    "soal": "Siapa khalifah pertama setelah wafatnya Nabi Muhammad?",
+    "jawaban": "Abu Bakar Ash-Shiddiq"
+  },
+  {
+    "id": 5,
+    "soal": "Siapa khalifah kedua dari Khulafaur Rasyidin?",
+    "jawaban": "Umar bin Khattab"
+  },
+  {
+    "id": 6,
+    "soal": "Perpindahan Nabi Muhammad dari Makkah ke Madinah disebut apa?",
+    "jawaban": "Hijrah"
+  },
+  {
+    "id": 7,
+    "soal": "Gua tempat Nabi Muhammad menerima wahyu pertama bernama apa?",
+    "jawaban": "Gua Hira"
+  },
+  {
+    "id": 8,
+    "soal": "Perang besar pertama kaum Muslimin melawan Quraisy disebut apa?",
+    "jawaban": "Perang Badar"
+  },
+  {
+    "id": 9,
+    "soal": "Masjid yang pertama kali dibangun Nabi ketika hijrah adalah masjid apa?",
+    "jawaban": "Masjid Quba"
+  },
+  {
+    "id": 10,
+    "soal": "Tahun kelahiran Nabi Muhammad dikenal dengan sebutan tahun apa?",
+    "jawaban": "Tahun Gajah"
+  }
+]

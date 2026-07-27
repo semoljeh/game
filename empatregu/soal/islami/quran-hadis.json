@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "soal": "Surah pertama dalam Al-Qur'an adalah surah apa?",
+    "jawaban": "Al-Fatihah"
+  },
+  {
+    "id": 2,
+    "soal": "Surah terpanjang dalam Al-Qur'an adalah surah apa?",
+    "jawaban": "Al-Baqarah"
+  },
+  {
+    "id": 3,
+    "soal": "Berapa jumlah juz dalam Al-Qur'an?",
+    "jawaban": "30 juz"
+  },
+  {
+    "id": 4,
+    "soal": "Surah terakhir dalam urutan mushaf adalah surah apa?",
+    "jawaban": "An-Nas"
+  },
+  {
+    "id": 5,
+    "soal": "Ayat Kursi terdapat dalam surah apa?",
+    "jawaban": "Al-Baqarah"
+  },
+  {
+    "id": 6,
+    "soal": "Wahyu pertama yang turun diawali dengan perintah apa?",
+    "jawaban": "Iqra atau bacalah"
+  },
+  {
+    "id": 7,
+    "soal": "Surah Al-Ikhlas terdiri dari berapa ayat?",
+    "jawaban": "4 ayat"
+  },
+  {
+    "id": 8,
+    "soal": "Surah yang dikenal dengan Ummul Kitab adalah surah apa?",
+    "jawaban": "Al-Fatihah"
+  },
+  {
+    "id": 9,
+    "soal": "Hadis secara umum berisi perkataan, perbuatan, dan ketetapan siapa?",
+    "jawaban": "Nabi Muhammad"
+  },
+  {
+    "id": 10,
+    "soal": "Orang yang meriwayatkan hadis disebut apa?",
+    "jawaban": "Perawi"
+  }
+]

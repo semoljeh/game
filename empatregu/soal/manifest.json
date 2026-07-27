@@ -1,0 +1,30 @@
+{
+  "islami": {
+    "label": "Cerdas Cermat Islami",
+    "materi": {
+      "campuran": "Campuran Islami",
+      "tajwid": "Tajwid",
+      "nahwu": "Nahwu",
+      "sharaf": "Sharaf",
+      "kosakata-arab": "Kosakata Arab",
+      "fikih": "Fikih",
+      "akidah": "Akidah",
+      "akhlak": "Akhlak",
+      "sejarah-islam": "Sejarah Islam",
+      "quran-hadis": "Al-Qur'an & Hadis"
+    }
+  },
+  "umum": {
+    "label": "Cerdas Cermat Umum",
+    "materi": {
+      "campuran": "Campuran Umum",
+      "matematika": "Matematika",
+      "ipa": "IPA",
+      "ips": "IPS",
+      "bahasa-indonesia": "Bahasa Indonesia",
+      "bahasa-inggris": "Bahasa Inggris",
+      "ppkn": "PPKn",
+      "pengetahuan-umum": "Pengetahuan Umum"
+    }
+  }
+}

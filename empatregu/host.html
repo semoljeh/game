@@ -1,284 +1,74 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>MADASA Quiz Islami — Host</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MADASA Quiz - Host</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef8f1;color:#173b27}
-main{min-height:100vh;padding:18px;display:flex;flex-direction:column;gap:14px}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-h1{margin:0;font-size:clamp(22px,4vw,38px)}.room{background:#fff;padding:10px 16px;border-radius:14px;font-weight:900;box-shadow:0 5px 20px #0001}
-.question{background:#fff;border-radius:24px;padding:22px;text-align:center;box-shadow:0 10px 30px #0001}
-#q{font-size:clamp(22px,4.2vw,40px);font-weight:900;line-height:1.3;white-space:pre-wrap}
-#answer{display:none;margin-top:14px;background:#fff6d8;border:2px solid #ffc107;padding:12px;border-radius:14px;font-size:clamp(18px,3vw,28px);font-weight:900}
-.teams{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.team{background:#fff;border-radius:22px;padding:14px;text-align:center;border:5px solid transparent;transition:.15s;box-shadow:0 8px 20px #0001}
-.num{height:110px;border-radius:18px;display:grid;place-items:center;font-size:60px;font-weight:1000;color:#fff}
-.t1 .num{background:#ef4444}.t2 .num{background:#3b82f6}.t3 .num{background:#22c55e}.t4 .num{background:#f59e0b}
-.team.win{border-color:#111;transform:scale(1.04);box-shadow:0 0 0 7px #fff,0 0 30px #facc15}
-.team.eliminated{opacity:.42;filter:grayscale(.8);position:relative}
-.team.eliminated:after{content:"SALAH";position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(22px,4vw,40px);font-weight:1000;color:#dc2626;text-shadow:0 2px #fff;background:#ffffff66;border-radius:18px}
-.score{font-size:30px;font-weight:1000;margin-top:8px}.label{font-weight:800}
-.status{text-align:center;font-size:clamp(17px,2.5vw,25px);font-weight:900;min-height:34px}
-.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-button{border:0;border-radius:13px;padding:12px 16px;font-weight:900;font-size:15px;cursor:pointer}
-.primary{background:#176b39;color:#fff}.gold{background:#f59e0b;color:#fff}.good{background:#16a34a;color:#fff}.bad{background:#dc2626;color:#fff}.blue{background:#2563eb;color:#fff}
-.small{padding:7px 10px;font-size:12px}.scorectl{margin-top:7px;display:flex;justify-content:center;gap:5px}
-@media(max-width:650px){main{padding:9px}.teams{gap:6px}.team{padding:6px;border-radius:15px;border-width:3px}.num{height:72px;font-size:40px;border-radius:12px}.score{font-size:22px}.label{font-size:11px}.question{padding:14px}button{padding:10px 11px;font-size:12px}}
-
-.lobby-info{margin-top:14px;color:#61746a;font-size:clamp(14px,2vw,19px);font-weight:800}
-.team.connected{border:3px solid #20a653!important;box-shadow:0 0 0 5px #e9f9ee,0 10px 28px rgba(32,166,83,.18)!important}
-.team.connected .num{animation:connectedPulse 1.4s infinite}
-@keyframes connectedPulse{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(1.18);transform:scale(1.025)}}
-.team.testflash .num{animation:testFlash .22s 4}
-@keyframes testFlash{50%{filter:brightness(1.6);transform:scale(1.08);box-shadow:0 0 30px #fff,0 0 45px currentColor}}
-.startquiz{background:#7a8790;color:#fff}
-.startquiz.ready{background:#7c3aed;box-shadow:0 3px 0 #5521a7}
-.startquiz:disabled{cursor:not-allowed;opacity:.55}
-body.quiz-started .team.connected .num{animation:none}
-@media(max-width:760px){.lobby-info{font-size:13px}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#173c29;background:#edf8f0}
+body{min-height:100dvh;background:radial-gradient(circle at 10% 0,#cdeed8 0,transparent 25%),linear-gradient(#f9fffb,#eaf6ee)}
+main{width:min(1500px,100%);margin:auto;padding:12px;display:grid;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#ffffffdd;border:1px solid #dbe9df;border-radius:20px;padding:11px 15px;box-shadow:0 8px 25px #1e56320d}
+h1{font-size:clamp(19px,2.4vw,31px);margin:0;color:#176b39}.top-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.room{background:#fff;border:1px solid #d8e8dd;border-radius:12px;padding:9px 12px;font-weight:900}
+button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.blue{background:#2878e8;color:white}.green{background:#15803d;color:white}.purple{background:#7c3aed;color:white}.amber{background:#f59e0b;color:#3f2a00}.red{background:#dc2626;color:white}.gray{background:#64748b;color:white}
+.setup{background:#ffffffdd;border:1px solid #dbe9df;border-radius:20px;padding:10px;display:flex;justify-content:center;gap:9px;flex-wrap:wrap;align-items:end}
+.field{display:grid;gap:4px;min-width:150px}.field label{font-size:10px;font-weight:1000;letter-spacing:.8px;color:#61746a}
+.field select,.field input{border:1px solid #cfe1d5;background:#fff;border-radius:11px;padding:9px 10px;font-weight:800;color:#173c29}
+.counts{display:flex;gap:5px}.count{background:#fff;color:#176b39;border:1px solid #cfe1d5;padding:9px 12px}.count.active{background:#176b39;color:#fff}
+.question{position:relative;background:linear-gradient(145deg,#fff,#f5fcf7);border:1px solid #dcebe1;border-radius:27px;min-height:190px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 15px 40px #1b603414}
+.badge{font-size:10px;letter-spacing:1.2px;font-weight:1000;color:#17733d;background:#e7f7ec;border:1px solid #cde8d5;border-radius:999px;padding:6px 13px;margin-bottom:10px}
+#q{font-size:clamp(23px,3.6vw,44px);font-weight:1000;line-height:1.22;max-width:1200px;overflow-wrap:anywhere}
+#sub{margin-top:9px;color:#6c8075;font-weight:800;font-size:clamp(12px,1.6vw,17px)}
+.join{margin-top:13px;display:flex;gap:13px;align-items:center;justify-content:center;flex-wrap:wrap}.join[hidden]{display:none}
+.qr{width:105px;height:105px;background:#fff;border-radius:14px;padding:6px;border:1px solid #d7e7dc}.qr img,.qr canvas{max-width:100%;max-height:100%}
+.join strong{font-size:25px}#answer{display:none;margin-top:13px;background:#fff3c4;border:1px solid #efca61;border-radius:14px;padding:10px 18px;font-weight:1000;color:#704900}
+.timer{display:flex;align-items:center;justify-content:center;gap:9px}#timer{font-variant-numeric:tabular-nums;font-size:clamp(25px,4vw,44px);font-weight:1000;background:#173c29;color:white;border-radius:15px;padding:7px 17px;min-width:108px;text-align:center}#timer.danger{background:#b91c1c;animation:pulse .5s infinite alternate}@keyframes pulse{to{transform:scale(1.04)}}
+.teams{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.team{background:#fff;border:1px solid #dce8e0;border-radius:20px;padding:8px;text-align:center;min-width:0;box-shadow:0 7px 22px #1e56320d}.team.hide{display:none}.num{height:80px;border-radius:15px;display:grid;place-items:center;color:#fff;font-size:46px;font-weight:1000}.t1 .num{background:#ef4444}.t2 .num{background:#3b82f6}.t3 .num{background:#22c55e}.t4 .num{background:#f59e0b}.team.connected{outline:3px solid #22a65a}.team.pressed{transform:scale(1.025);box-shadow:0 0 0 4px #173c29,0 0 30px #facc15}.team.win{outline:5px solid #facc15;transform:scale(1.03)}.team.eliminated{opacity:.38;filter:grayscale(.8)}.label{font-size:11px;font-weight:900;color:#687b71;margin-top:6px}.score{font-size:27px;font-weight:1000}.scorectl{display:flex;justify-content:center;gap:4px}.scorectl button{padding:5px 8px;font-size:10px}
+.status{width:fit-content;max-width:100%;margin:auto;background:#fff;border:1px solid #dcebe1;border-radius:999px;padding:8px 17px;text-align:center;font-weight:1000;color:#176b39}
+.controls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#ffffffd9;border:1px solid #dcebe1;border-radius:18px;padding:8px}
+.controls button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:760px){main{padding:7px}.setup{align-items:stretch}.field{flex:1 1 140px;min-width:0}.teams{grid-template-columns:repeat(2,minmax(0,1fr))}.teams.c3 .team:nth-child(3){grid-column:1/-1;width:calc(50% - 4px);justify-self:center}.question{min-height:165px;padding:17px 10px}.num{height:65px;font-size:38px}.controls button{flex:1 1 125px}}
+@media(orientation:landscape) and (max-height:650px){main{gap:6px;padding:6px}.setup{padding:6px}.question{min-height:115px;padding:10px}#q{font-size:clamp(20px,2.8vw,30px)}.num{height:55px;font-size:34px}.score{font-size:20px}.teams{grid-template-columns:repeat(4,minmax(0,1fr))}.controls{padding:5px}.controls button{padding:6px 9px;font-size:10px}}
 </style>
-
-<style id="madasa-modern-host-v3">
-:root{
- --bg:#eef8f1;--surface:#fff;--ink:#153c2a;--muted:#6c8075;
- --green:#17733d;--green2:#24a35a;--gold:#f5a000;--red:#dc2f2f;--blue:#2878e8;
-}
-body{
- background:
- radial-gradient(circle at 10% 0%,rgba(70,190,112,.18),transparent 25%),
- radial-gradient(circle at 90% 5%,rgba(52,152,219,.12),transparent 27%),
- linear-gradient(180deg,#f8fffa,#eaf6ee)!important;
-}
-main{max-width:1440px;margin:auto;padding:clamp(12px,2vw,24px)!important;gap:16px!important}
-.top{
- background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);
- border-radius:22px;padding:12px 16px;box-shadow:0 10px 30px rgba(31,92,55,.08);
- backdrop-filter:blur(12px)
-}
-.top h1{color:#145d34;letter-spacing:-.5px}
-.room{border:1px solid #dcebe1;background:#fff!important;color:#176b39;box-shadow:none!important}
-.question{
- position:relative;overflow:hidden;
- min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;
- padding:clamp(24px,4vw,46px)!important;
- border:1px solid #dcebe1;border-radius:30px!important;
- background:linear-gradient(145deg,#ffffff 0%,#fbfffc 60%,#f0fbf4 100%)!important;
- box-shadow:0 18px 50px rgba(26,91,50,.10)!important;
-}
-.question:before{
- content:"SOAL";position:absolute;top:15px;left:18px;
- background:#e7f7ec;color:#237342;border:1px solid #cde8d5;
- padding:7px 13px;border-radius:999px;font-size:11px;font-weight:1000;letter-spacing:1.2px
-}
-.question:after{
- content:"";position:absolute;width:180px;height:180px;border-radius:50%;
- right:-70px;top:-90px;background:rgba(42,164,88,.08)
-}
-#q{
- max-width:1150px;font-size:clamp(25px,4vw,46px)!important;line-height:1.3!important;
- color:#173c29;letter-spacing:-.7px;text-wrap:balance;position:relative;z-index:1
-}
-#answer{
- width:min(94%,900px);margin-top:22px!important;padding:13px 20px!important;
- border:1px solid #f1c75b!important;background:linear-gradient(135deg,#fff9e7,#fff4c8)!important;
- color:#704900;border-radius:16px!important;font-size:clamp(17px,2.5vw,25px)!important;
- box-shadow:0 6px 18px rgba(196,139,0,.08)
-}
-.teams{gap:14px!important}
-.team{
- border:1px solid #e0ebe4!important;border-radius:24px!important;
- padding:12px!important;box-shadow:0 10px 28px rgba(29,82,48,.08)!important
-}
-.num{height:100px!important;border-radius:18px!important;box-shadow:inset 0 -5px 0 rgba(0,0,0,.08)}
-.team .label{margin-top:9px;color:#61746a;font-size:12px;letter-spacing:.7px}
-.score{font-size:34px!important;color:#173c29;margin:5px 0!important}
-.score:after{content:" POIN";font-size:10px;color:#7b8c83;margin-left:4px}
-.team.win{border:3px solid #202020!important;box-shadow:0 0 0 5px #fff,0 0 0 9px #f6c344,0 18px 40px rgba(246,195,68,.30)!important}
-.status{
- width:fit-content;max-width:95%;margin:0 auto;background:#fff;border:1px solid #dcebe1;
- border-radius:999px;padding:9px 20px;box-shadow:0 7px 20px rgba(30,85,49,.07);
- color:#176b39
-}
-.controls{
- background:rgba(255,255,255,.82);border:1px solid #dcebe1;border-radius:22px;
- padding:11px;box-shadow:0 10px 25px rgba(29,82,48,.07)
-}
-.controls button{
- border-radius:13px!important;padding:11px 15px!important;transition:.15s;
- box-shadow:0 3px 0 rgba(0,0,0,.10)
-}
-.controls button:hover{transform:translateY(-2px)}
-.controls button:active{transform:translateY(2px);box-shadow:none}
-.scorectl button{border-radius:999px!important}
-@media(max-width:760px){
- .question{min-height:150px;border-radius:22px!important}
- .teams{grid-template-columns:repeat(2,1fr)!important}
- .num{height:75px!important}
- .controls{border-radius:17px}
-}
-@media(orientation:landscape) and (max-height:650px){
- main{padding:8px!important;gap:8px!important}
- .top{padding:7px 12px}.top h1{font-size:22px!important}
- .question{min-height:115px;padding:24px 18px 12px!important;border-radius:20px!important}
- #q{font-size:clamp(21px,3vw,31px)!important}
- #answer{margin-top:8px!important;padding:7px 12px!important}
- .num{height:68px!important;font-size:42px!important}
- .team{padding:7px!important}.score{font-size:23px!important}
- .controls{padding:6px}.controls button{padding:7px 10px!important;font-size:11px!important}
- .status{padding:5px 14px;font-size:15px!important}
-}
-</style>
-
-
-<style id="madasa-final-layout">
-html,body{min-width:0;overflow-x:hidden}
-main{
- width:100%!important;max-width:1500px!important;min-height:100dvh!important;
- margin:0 auto!important;padding:clamp(8px,1.5vw,18px)!important;
- display:grid!important;grid-template-rows:auto minmax(135px,auto) auto auto auto!important;
- align-content:start!important;gap:clamp(8px,1.2vw,14px)!important;
-}
-.top{min-width:0!important}
-.question{min-width:0!important;min-height:clamp(145px,22vh,250px)!important}
-#q{max-width:1150px!important;font-size:clamp(22px,3.6vw,44px)!important;overflow-wrap:anywhere}
-.teams{
- width:100%!important;min-width:0!important;
- display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
- gap:clamp(7px,1vw,14px)!important
-}
-.team{min-width:0!important;overflow:hidden}
-.num{width:100%!important;height:clamp(72px,12vh,115px)!important;font-size:clamp(38px,6vw,68px)!important}
-.team.testpressed{
- border:4px solid #fff!important;
- transform:scale(1.025);
- box-shadow:0 0 0 4px #173c29,0 0 35px rgba(255,211,60,.95),0 14px 35px rgba(20,80,45,.18)!important;
-}
-.team.testpressed .num{
- filter:brightness(1.28)!important;
- animation:livePress .18s infinite alternate!important;
-}
-@keyframes livePress{
- from{transform:scale(1);box-shadow:inset 0 -5px 0 rgba(0,0,0,.08),0 0 8px rgba(255,255,255,.3)}
- to{transform:scale(1.035);box-shadow:inset 0 -2px 0 rgba(0,0,0,.04),0 0 25px rgba(255,255,255,.95)}
-}
-.status{min-width:0!important;text-align:center}
-.controls{min-width:0!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important}
-@media(max-width:760px){
- main{display:flex!important;flex-direction:column!important;min-height:100dvh!important}
- .top{padding:9px 11px!important;border-radius:17px!important}
- .top h1{font-size:clamp(18px,5vw,25px)!important}
- .room{padding:8px 10px!important;font-size:12px!important}
- .question{min-height:145px!important;padding:35px 12px 15px!important;border-radius:20px!important}
- #q{font-size:clamp(20px,6vw,31px)!important}
- .teams{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- .team{padding:7px!important;border-radius:18px!important}
- .num{height:72px!important;font-size:42px!important}
- .score{font-size:23px!important}
- .scorectl button{padding:6px 9px!important}
- .status{font-size:13px!important;padding:7px 11px!important}
- .controls{padding:7px!important;gap:6px!important}
- .controls button{flex:1 1 125px;max-width:210px}
-}
-@media(orientation:landscape) and (max-height:650px) and (min-width:700px){
- main{grid-template-rows:auto minmax(105px,auto) auto auto auto!important;gap:6px!important}
- .top{padding:6px 11px!important}.top h1{font-size:20px!important}
- .question{min-height:105px!important;padding:28px 14px 10px!important}
- #q{font-size:clamp(20px,2.7vw,30px)!important}
- .teams{grid-template-columns:repeat(4,minmax(0,1fr))!important}
- .num{height:60px!important;font-size:38px!important}
- .team{padding:6px!important}.team .label{margin-top:4px!important}.score{font-size:21px!important}
- .scorectl{margin-top:3px!important}.scorectl button{padding:4px 7px!important;font-size:10px!important}
- .status{padding:4px 12px!important;font-size:13px!important}
- .controls{padding:5px!important}.controls button{padding:6px 9px!important;font-size:10px!important}
-}
-</style>
-
-
-<style id="buzzer-link-and-host-fix">
-.host-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.buzzer-link-btn{
- border:0;border-radius:14px;padding:10px 14px;background:#2563eb;color:#fff;
- font-weight:900;cursor:pointer;box-shadow:0 4px 0 #1749ae;
-}
-.buzzer-link-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
-.buzzer-link-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #1749ae}
-@media(max-width:620px){
- .top{align-items:flex-start!important}
- .host-actions{gap:5px}
- .buzzer-link-btn{padding:8px 9px;font-size:11px}
-}
-</style>
-
-<style id="host-connected-final">
-body:not(.quiz-started) .team.connected .label::after{
- content:" • TERHUBUNG";color:#159447;font-weight:1000
-}
-body:not(.quiz-started) .team:not(.connected){opacity:.72}
-body:not(.quiz-started) .team.connected{opacity:1}
-</style>
-
-
-<style id="question-overlap-fix">
-.question{
- display:flex!important;flex-direction:column!important;align-items:center!important;
- justify-content:center!important;gap:10px!important;padding:22px 22px 18px!important;
- min-height:160px!important;
-}
-.question::before{display:none!important}
-.question>#q{
- position:relative!important;margin:0!important;padding:31px 8px 0!important;
- width:100%!important;text-align:center!important;line-height:1.22!important;
-}
-.question>#q::before{
- content:"SOAL";position:absolute;top:0;left:50%;transform:translateX(-50%);
- padding:6px 14px;border-radius:999px;background:#e7f7ec;border:1px solid #cde8d5;
- color:#17733d;font-size:11px;line-height:1;font-weight:1000;letter-spacing:1.2px;
- white-space:nowrap;
-}
-.lobby-info{margin:2px 0 0!important;line-height:1.35!important;text-align:center!important}
-@media(max-width:760px){
- .question{padding:18px 12px 15px!important;min-height:155px!important;gap:8px!important}
- .question>#q{padding-top:29px!important;font-size:clamp(20px,5.7vw,29px)!important}
- .question>#q::before{font-size:10px;padding:6px 13px}
-}
-@media(orientation:landscape) and (max-height:650px) and (min-width:700px){
- .question{padding:12px 14px 10px!important;min-height:118px!important;gap:5px!important}
- .question>#q{padding-top:24px!important;line-height:1.15!important}
- .question>#q::before{padding:5px 12px;font-size:9px}
- .lobby-info{font-size:12px!important}
-}
-</style>
-
-</head><body><main>
-<div class="top"><h1>🕌 MADASA Quiz Islami</h1><div class="host-actions">
-      <div class="room">ROOM: <span id="roomCode">----</span></div>
-      <button id="buzzerLinkBtn" class="buzzer-link-btn" onclick="openBuzzerPage()">📱 BUKA BUZZER</button>
-    </div></div>
-<div class="question">
-      <div id="q">Tekan <b>BUAT ROOM</b> untuk membuat ruang permainan.</div>
-      <div id="lobbyInfo" class="lobby-info">Setelah room dibuat, hubungkan 4 HP buzzer.</div>
-      <div id="answer"></div>
-    </div>
-<div class="teams">
-<div class="team t1" id="team1"><div class="num">1</div><div class="label">REGU 1</div><div class="score" id="s1">0</div><div class="scorectl"><button class="small good" onclick="adjust(1,10)">+10</button><button class="small bad" onclick="adjust(1,-10)">-10</button></div></div>
-<div class="team t2" id="team2"><div class="num">2</div><div class="label">REGU 2</div><div class="score" id="s2">0</div><div class="scorectl"><button class="small good" onclick="adjust(2,10)">+10</button><button class="small bad" onclick="adjust(2,-10)">-10</button></div></div>
-<div class="team t3" id="team3"><div class="num">3</div><div class="label">REGU 3</div><div class="score" id="s3">0</div><div class="scorectl"><button class="small good" onclick="adjust(3,10)">+10</button><button class="small bad" onclick="adjust(3,-10)">-10</button></div></div>
-<div class="team t4" id="team4"><div class="num">4</div><div class="label">REGU 4</div><div class="score" id="s4">0</div><div class="scorectl"><button class="small good" onclick="adjust(4,10)">+10</button><button class="small bad" onclick="adjust(4,-10)">-10</button></div></div>
-</div>
-<div class="status" id="status">Belum ada room.</div>
-<div class="controls">
-<button class="primary" onclick="createRoom()">BUAT ROOM</button>
-<button id="startBtn" class="startquiz" onclick="startQuiz()" disabled>▶ MULAI QUIZ</button>
-<button class="blue" onclick="nextQuestion()">SOAL BERIKUTNYA</button>
-<button class="gold" onclick="showAnswer()">LIHAT JAWABAN</button>
-<button class="good" onclick="markCorrect()">✓ BENAR +10</button>
-<button class="bad" onclick="markWrong()">✕ SALAH</button>
-<button class="primary" onclick="openBuzzer()">🔓 BUKA BUZZER</button>
-</div>
+</head>
+<body>
+<main>
+ <header class="top"><h1>🏆 MADASA QUIZ — CERDAS CERMAT</h1><div class="top-actions"><div class="room">ROOM: <span id="roomCode">----</span></div><button class="blue" onclick="openBuzzerPage()">📱 BUKA BUZZER</button></div></header>
+ <section class="setup" id="setup">
+   <div class="field"><label>JUMLAH REGU</label><div class="counts"><button class="count" data-n="2" onclick="pickCount(2)">2</button><button class="count" data-n="3" onclick="pickCount(3)">3</button><button class="count active" data-n="4" onclick="pickCount(4)">4</button></div></div>
+   <div class="field"><label>KATEGORI</label><select id="category" onchange="fillSubjects()"><option value="islami">Cerdas Cermat Islami</option><option value="umum">Cerdas Cermat Umum</option></select></div>
+   <div class="field"><label>MATERI</label><select id="subject"></select></div>
+   <div class="field"><label>WAKTU / SOAL</label><select id="seconds"><option>10</option><option>15</option><option>20</option><option selected>30</option><option>45</option><option>60</option></select></div>
+   <button class="green" onclick="createRoom()">BUAT ROOM</button>
+ </section>
+ <section class="question">
+   <div class="badge" id="badge">PERSIAPAN</div><div id="q">Pilih jumlah regu, kategori, materi, dan waktu.</div>
+   <div id="sub">Hanya juri yang membuat room. Regu cukup scan QR atau masukkan kode.</div>
+   <div class="join" id="join" hidden><div class="qr" id="qr"></div><div><b>SCAN UNTUK GABUNG</b><br>ROOM <strong id="joinCode">----</strong><br><small>Atau buka buzzer.html dan masukkan kode.</small></div></div>
+   <div id="answer"></div>
+ </section>
+ <div class="timer"><div id="timer">00:30</div></div>
+ <section class="teams" id="teams">
+   <article class="team t1" id="team1"><div class="num">1</div><div class="label">REGU 1</div><div class="score" id="s1">0</div><div class="scorectl"><button onclick="score(1,10)">+10</button><button onclick="score(1,-10)">-10</button></div></article>
+   <article class="team t2" id="team2"><div class="num">2</div><div class="label">REGU 2</div><div class="score" id="s2">0</div><div class="scorectl"><button onclick="score(2,10)">+10</button><button onclick="score(2,-10)">-10</button></div></article>
+   <article class="team t3" id="team3"><div class="num">3</div><div class="label">REGU 3</div><div class="score" id="s3">0</div><div class="scorectl"><button onclick="score(3,10)">+10</button><button onclick="score(3,-10)">-10</button></div></article>
+   <article class="team t4" id="team4"><div class="num">4</div><div class="label">REGU 4</div><div class="score" id="s4">0</div><div class="scorectl"><button onclick="score(4,10)">+10</button><button onclick="score(4,-10)">-10</button></div></article>
+ </section>
+ <div class="status" id="status">Belum ada room.</div>
+ <section class="controls">
+   <button id="startBtn" class="purple" onclick="startQuiz()" disabled>▶ MULAI QUIZ</button>
+   <button class="blue" onclick="nextQuestion()">SOAL BERIKUTNYA</button>
+   <button class="amber" onclick="showAnswer()">LIHAT JAWABAN</button>
+   <button class="green" onclick="correct()">✓ BENAR +10</button>
+   <button class="red" onclick="wrong()">✕ SALAH / LEMPAR</button>
+   <button class="gray" onclick="resumeBuzzer()">🔓 BUKA BUZZER</button>
+ </section>
 </main>
+
 <script type="module">
+
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import {getDatabase,ref,set,onValue,update,get,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 const firebaseConfig={
@@ -293,337 +83,116 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig), db=getDatabase(app);
 window.FB={db,ref,set,onValue,update,get,runTransaction};
 window.dispatchEvent(new Event("firebase-ready"));
+
 </script>
 <script>
-const bankSoal=[
-    { q: "Siapakah manusia dan Nabi pertama yang diciptakan Allah?", ans: "Nabi Adam", opts: ["Nabi Adam", "Nabi Muhammad", "Nabi Nuh"], cat: "nabi" },
-    { q: "Nabi yang ditelan oleh ikan paus karena meninggalkan kaumnya adalah...", ans: "Nabi Yunus", opts: ["Nabi Yunus", "Nabi Musa", "Nabi Isa"], cat: "nabi" },
-    { q: "Malaikat yang bertugas menyampaikan wahyu adalah...", ans: "Jibril", opts: ["Jibril", "Mikail", "Israfil"], cat: "nabi" },
-    { q: "Mukjizat tongkat berubah menjadi ular adalah milik Nabi...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Ibrahim", "Nabi Sulaiman"], cat: "nabi" },
-    { q: "Nabi yang tidak hangus dibakar api oleh Raja Namrud adalah...", ans: "Nabi Ibrahim", opts: ["Nabi Ibrahim", "Nabi Ismail", "Nabi Yusuf"], cat: "nabi" },
-    { q: "Nabi terakhir, penutup para Nabi dan Rasul adalah...", ans: "Nabi Muhammad", opts: ["Nabi Muhammad", "Nabi Isa", "Nabi Ibrahim"], cat: "nabi" },
-    { q: "Hewan apa yang menolak menghancurkan Ka'bah pada tahun gajah?", ans: "Gajah", opts: ["Gajah", "Burung Ababil", "Kuda"], cat: "nabi" },
-    { q: "Nabi yang bisa berbicara dengan hewan dan jin adalah Nabi...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Daud", "Nabi Nuh"], cat: "nabi" },
-    { q: "Malaikat peniup sangkakala pada hari kiamat adalah...", ans: "Israfil", opts: ["Israfil", "Izrail", "Rakib"], cat: "nabi" },
-    { q: "Nabi yang membuat kapal sangat besar saat banjir bandang adalah...", ans: "Nabi Nuh", opts: ["Nabi Nuh", "Nabi Adam", "Nabi Hud"], cat: "nabi" },
-    { q: "Malaikat yang bertugas mencabut nyawa adalah...", Izrail: "Izrail", ans: "Izrail", opts: ["Izrail", "Mikail", "Ridwan"], cat: "nabi" },
-    { q: "Nabi yang sangat tampan dan pernah dimasukkan ke sumur oleh saudaranya adalah...", ans: "Nabi Yusuf", opts: ["Nabi Yusuf", "Nabi Yaqub", "Nabi Yahya"], cat: "nabi" },
-    { q: "Malaikat penjaga pintu surga adalah...", ans: "Ridwan", opts: ["Ridwan", "Malik", "Atid"], cat: "nabi" },
-    { q: "Malaikat penjaga pintu neraka adalah...", ans: "Malik", opts: ["Malik", "Ridwan", "Munkar"], cat: "nabi" },
-    { q: "Nabi yang disembelih ayahnya lalu diganti domba oleh Allah adalah...", ans: "Nabi Ismail", opts: ["Nabi Ismail", "Nabi Ishaq", "Nabi Ibrahim"], cat: "nabi" },
-    { q: "Nabi yang menerima kitab Taurat adalah...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Daud", "Nabi Isa"], cat: "nabi" },
-    { q: "Nabi yang menerima kitab Zabur adalah...", ans: "Nabi Daud", opts: ["Nabi Daud", "Nabi Sulaiman", "Nabi Musa"], cat: "nabi" },
-    { q: "Nabi yang menerima kitab Injil adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Yahya", "Nabi Muhammad"], cat: "nabi" },
-    { q: "Nabi Muhammad SAW lahir di kota...", ans: "Makkah", opts: ["Makkah", "Madinah", "Palestina"], cat: "nabi" },
-    { q: "Malaikat yang bertugas membagi rezeki dan menurunkan hujan adalah...", Mikail: "Mikail", ans: "Mikail", opts: ["Mikail", "Jibril", "Israfil"], cat: "nabi" },
-    { q: "Nabi yang diberi mukjizat bisa menghidupkan orang mati atas izin Allah adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Musa", "Nabi Ibrahim"], cat: "nabi" },
-    { q: "Malaikat yang mencatat amal baik adalah...", ans: "Rakib", opts: ["Rakib", "Atid", "Nakir"], cat: "nabi" },
-    { q: "Malaikat yang mencatat amal buruk adalah...", ans: "Atid", opts: ["Atid", "Rakib", "Munkar"], cat: "nabi" },
-    { q: "Nabi yang bergelar Khalilullah (Kekasih Allah) adalah...", ans: "Nabi Ibrahim", opts: ["Nabi Ibrahim", "Nabi Muhammad", "Nabi Musa"], cat: "nabi" },
-    { q: "Burung yang menghancurkan tentara bergajah dengan batu panas adalah burung...", ans: "Ababil", opts: ["Ababil", "Hud-hud", "Buraq"], cat: "nabi" },
-    { q: "Kendaraan Nabi Muhammad SAW saat Isra' Mi'raj adalah...", ans: "Buraq", opts: ["Buraq", "Kuda", "Unta"], cat: "nabi" },
-    { q: "Ibu Nabi Muhammad SAW bernama...", ans: "Aminah", opts: ["Aminah", "Khadijah", "Aisyah"], cat: "nabi" },
-    { q: "Ayah Nabi Muhammad SAW bernama...", ans: "Abdullah", opts: ["Abdullah", "Abu Thalib", "Abdul Muthalib"], cat: "nabi" },
-    { q: "Nabi yang diuji dengan penyakit kulit yang lama namun tetap sabar adalah...", ans: "Nabi Ayyub", opts: ["Nabi Ayyub", "Nabi Zulkifli", "Nabi Yunus"], cat: "nabi" },
-    { q: "Paman Nabi Muhammad yang selalu melindunginya adalah...", ans: "Abu Thalib", opts: ["Abu Thalib", "Abu Lahab", "Abu Jahal"], cat: "nabi" },
-    { q: "Gua tempat Nabi Muhammad menerima wahyu pertama adalah...", ans: "Gua Hira", opts: ["Gua Hira", "Gua Tsur", "Gua Kahfi"], cat: "nabi" },
-    { q: "Istri pertama Nabi Muhammad SAW adalah...", ans: "Khadijah", opts: ["Khadijah", "Aisyah", "Fatimah"], cat: "nabi" },
-    { q: "Sahabat Nabi yang membenarkan peristiwa Isra' Mi'raj dan diberi gelar As-Siddiq adalah...", ans: "Abu Bakar", opts: ["Abu Bakar", "Umar bin Khattab", "Ali bin Abi Thalib"], cat: "nabi" },
-    { q: "Nabi yang tongkatnya bisa membelah lautan adalah...", ans: "Nabi Musa", opts: ["Nabi Musa", "Nabi Isa", "Nabi Nuh"], cat: "nabi" },
-    { q: "Siapakah raja zalim yang mengejar Nabi Musa ke Laut Merah?", ans: "Fir'aun", opts: ["Fir'aun", "Namrud", "Jalut"], cat: "nabi" },
-    { q: "Nabi yang diselamatkan oleh semut yang menuntun pasukannya adalah...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Daud", "Nabi Ibrahim"], cat: "nabi" },
-    { q: "Burung yang menjadi pembawa pesan Nabi Sulaiman kepada Ratu Balqis adalah...", ans: "Hud-hud", opts: ["Hud-hud", "Ababil", "Merpati"], cat: "nabi" },
-    { q: "Malaikat Munkar dan Nakir bertugas menanya manusia di...", ans: "Alam Kubur", opts: ["Alam Kubur", "Padang Mahsyar", "Jembatan Shirath"], cat: "nabi" },
-    { q: "Nabi yang lahir tanpa seorang ayah adalah...", ans: "Nabi Isa", opts: ["Nabi Isa", "Nabi Adam", "Nabi Yahya"], cat: "nabi" },
-    { q: "Anak Nabi Nuh yang tenggelam karena durhaka bernama...", ans: "Kan'an", opts: ["Kan'an", "Qabil", "Habil"], cat: "nabi" },
-    { q: "Putra Nabi Adam yang membunuh saudaranya karena iri hati adalah...", ans: "Qabil", opts: ["Qabil", "Habil", "Kan'an"], cat: "nabi" },
-    { q: "Nabi yang berdakwah kepada kaum Tsamud adalah...", ans: "Nabi Shaleh", opts: ["Nabi Shaleh", "Nabi Hud", "Nabi Luth"], cat: "nabi" },
-    { q: "Mukjizat Nabi Shaleh adalah...", ans: "Unta Betina", opts: ["Unta Betina", "Tongkat Ular", "Bulan Terbelah"], cat: "nabi" },
-    { q: "Nabi Muhammad SAW menerima wahyu saat berumur... tahun.", ans: "40", opts: ["40", "25", "63"], cat: "nabi" },
-    { q: "Tempat umat Islam melaksanakan ibadah Haji adalah di kota...", ans: "Makkah", opts: ["Makkah", "Madinah", "Yerusalem"], cat: "nabi" },
-    { q: "Nabi yang pernah menjadi raja yang sangat kaya raya adalah...", ans: "Nabi Sulaiman", opts: ["Nabi Sulaiman", "Nabi Ayyub", "Nabi Yunus"], cat: "nabi" },
-    { q: "Siapakah nama kakek Nabi Muhammad SAW?", ans: "Abdul Muthalib", opts: ["Abdul Muthalib", "Abu Thalib", "Hamzah"], cat: "nabi" },
-    { q: "Nabi yang memiliki suara sangat merdu saat membaca Zabur adalah...", ans: "Nabi Daud", opts: ["Nabi Daud", "Nabi Sulaiman", "Nabi Isa"], cat: "nabi" },
-    { q: "Kaum Nabi Luth diazab oleh Allah karena perbuatan mereka yang...", ans: "Menyimpang (Suka sesama jenis)", opts: ["Menyimpang (Suka sesama jenis)", "Kikir", "Suka Berkelahi"], cat: "nabi" },
-    { q: "Jumlah Nabi dan Rasul yang wajib kita imani ada...", ans: "25", opts: ["25", "99", "114"], cat: "nabi" },
+const MANIFEST={"islami": {"label": "Cerdas Cermat Islami", "materi": {"campuran": "Campuran Islami", "tajwid": "Tajwid", "nahwu": "Nahwu", "sharaf": "Sharaf", "kosakata-arab": "Kosakata Arab", "fikih": "Fikih", "akidah": "Akidah", "akhlak": "Akhlak", "sejarah-islam": "Sejarah Islam", "quran-hadis": "Al-Qur'an & Hadis"}}, "umum": {"label": "Cerdas Cermat Umum", "materi": {"campuran": "Campuran Umum", "matematika": "Matematika", "ipa": "IPA", "ips": "IPS", "bahasa-indonesia": "Bahasa Indonesia", "bahasa-inggris": "Bahasa Inggris", "ppkn": "PPKn", "pengetahuan-umum": "Pengetahuan Umum"}}};
+let room="",teamCount=4,category="islami",subject="campuran",seconds=30,mode="idle";
+let connected={},scores={1:0,2:0,3:0,4:0},winner=null,current=null,questions=[],qIndex=-1;
+let timerLeft=30,timerId=null,roomUnsub=null;
 
-    { q: "Rukun Islam ada berapa perkara?", ans: "5", opts: ["5", "6", "4"], cat: "fiqih" },
-    { q: "Rukun Iman ada berapa perkara?", ans: "6", opts: ["6", "5", "10"], cat: "fiqih" },
-    { q: "Rukun Islam yang pertama adalah mengucapkan...", ans: "Dua Kalimat Syahadat", opts: ["Dua Kalimat Syahadat", "Alhamdulillah", "Allahu Akbar"], cat: "fiqih" },
-    { q: "Salat wajib dalam sehari semalam dikerjakan sebanyak...", ans: "5 Waktu", opts: ["5 Waktu", "3 Waktu", "4 Waktu"], cat: "fiqih" },
-    { q: "Puasa wajib bagi umat Islam dilaksanakan sebulan penuh pada bulan...", ans: "Ramadhan", opts: ["Ramadhan", "Syawal", "Muharram"], cat: "fiqih" },
-    { q: "Membayar Zakat merupakan Rukun Islam yang ke-...", ans: "Tiga", opts: ["Tiga", "Empat", "Dua"], cat: "fiqih" },
-    { q: "Ibadah Haji wajib dilaksanakan bagi yang...", ans: "Mampu", opts: ["Mampu", "Miskin", "Sakit"], cat: "fiqih" },
-    { q: "Salat Subuh berjumlah... rakaat.", ans: "2", opts: ["2", "3", "4"], cat: "fiqih" },
-    { q: "Salat Maghrib berjumlah... rakaat.", ans: "3", opts: ["3", "4", "2"], cat: "fiqih" },
-    { q: "Salat Dzuhur, Ashar, dan Isya masing-masing berjumlah... rakaat.", ans: "4", opts: ["4", "3", "2"], cat: "fiqih" },
-    { q: "Kiblat umat Islam ketika salat menghadap ke...", ans: "Ka'bah", opts: ["Ka'bah", "Timur", "Masjid Nabawi"], cat: "fiqih" },
-    { q: "Sebelum melaksanakan salat, kita diwajibkan untuk...", ans: "Wudhu", opts: ["Wudhu", "Mandi Wajib", "Tayamum"], cat: "fiqih" },
-    { q: "Jika tidak ada air, wudhu bisa diganti dengan debu yang suci. Ini disebut...", ans: "Tayamum", opts: ["Tayamum", "Istinja", "Mandi Wajib"], cat: "fiqih" },
-    { q: "Anggota badan pertama yang dibasuh saat wudhu setelah niat adalah...", ans: "Muka/Wajah", opts: ["Muka/Wajah", "Tangan", "Kepala"], cat: "fiqih" },
-    { q: "Membasuh kaki saat wudhu wajib dilakukan sampai...", ans: "Mata Kaki", opts: ["Mata Kaki", "Lutut", "Paha"], cat: "fiqih" },
-    { q: "Suara panggilan untuk melaksanakan salat fardhu disebut...", ans: "Adzan", opts: ["Adzan", "Iqamah", "Tilawah"], cat: "fiqih" },
-    { q: "Panggilan kedua tanda salat berjamaah segera dimulai disebut...", ans: "Iqamah", opts: ["Iqamah", "Adzan", "Takbir"], cat: "fiqih" },
-    { q: "Membersihkan kotoran setelah buang air kecil atau besar disebut...", ans: "Istinja'", opts: ["Istinja'", "Tayamum", "Wudhu"], cat: "fiqih" },
-    { q: "Air liur anjing dan babi termasuk ke dalam najis...", ans: "Mughallazah (Berat)", opts: ["Mughallazah (Berat)", "Mukhaffafah (Ringan)", "Mutawassitah (Sedang)"], cat: "fiqih" },
-    { q: "Air kencing bayi laki-laki yang belum makan selain ASI termasuk najis...", ans: "Mukhaffafah (Ringan)", opts: ["Mukhaffafah (Ringan)", "Mughallazah (Berat)", "Mutawassitah (Sedang)"], cat: "fiqih" },
-    { q: "Kotoran ayam dan darah manusia termasuk najis...", ans: "Mutawassitah (Sedang)", opts: ["Mutawassitah (Sedang)", "Mughallazah (Berat)", "Mukhaffafah (Ringan)"], cat: "fiqih" },
-    { q: "Zakat yang wajib dikeluarkan di akhir bulan Ramadhan sebelum Idul Fitri adalah...", ans: "Zakat Fitrah", opts: ["Zakat Fitrah", "Zakat Mal", "Zakat Perniagaan"], cat: "fiqih" },
-    { q: "Salat sunnah yang dilaksanakan pada malam bulan Ramadhan adalah...", ans: "Salat Tarawih", opts: ["Salat Tarawih", "Salat Dhuha", "Salat Tahajud"], cat: "fiqih" },
-    { q: "Salat sunnah yang dilakukan sepertiga malam setelah tidur adalah...", ans: "Salat Tahajud", opts: ["Salat Tahajud", "Salat Dhuha", "Salat Witir"], cat: "fiqih" },
-    { q: "Salat sunnah dengan rakaat ganjil sebagai penutup salat malam adalah...", ans: "Salat Witir", opts: ["Salat Witir", "Salat Dhuha", "Salat Tahajud"], cat: "fiqih" },
-    { q: "Salat sunnah yang dilakukan di pagi hari setelah matahari naik adalah...", ans: "Salat Dhuha", opts: ["Salat Dhuha", "Salat Tarawih", "Salat Istisqa"], cat: "fiqih" },
-    { q: "Salat sunnah untuk meminta hujan disebut...", ans: "Salat Istisqa", opts: ["Salat Istisqa", "Salat Dhuha", "Salat Gerhana"], cat: "fiqih" },
-    { q: "Perkara yang apabila dikerjakan mendapat pahala, jika ditinggalkan berdosa disebut...", ans: "Wajib", opts: ["Wajib", "Sunnah", "Haram"], cat: "fiqih" },
-    { q: "Perkara yang apabila dikerjakan mendapat pahala, jika ditinggalkan tidak apa-apa disebut...", ans: "Sunnah", opts: ["Sunnah", "Mubah", "Makruh"], cat: "fiqih" },
-    { q: "Perkara yang dilarang keras, jika dikerjakan berdosa, jika ditinggalkan berpahala disebut...", ans: "Haram", opts: ["Haram", "Makruh", "Wajib"], cat: "fiqih" },
-    { q: "Daging babi dan darah hukumnya ... untuk dimakan.", ans: "Haram", opts: ["Haram", "Halal", "Makruh"], cat: "fiqih" },
-    { q: "Air suci yang bisa digunakan untuk wudhu (misal: air hujan, air sumur) disebut air...", ans: "Mutlak", opts: ["Mutlak", "Musyammas", "Musta'mal"], cat: "fiqih" },
-    { q: "Rukun Iman yang keenam adalah percaya kepada...", ans: "Qada dan Qadar (Takdir)", opts: ["Qada dan Qadar (Takdir)", "Hari Kiamat", "Rasul-Rasul"], cat: "fiqih" },
-    { q: "Rukun Iman yang ketiga adalah beriman kepada...", ans: "Kitab-kitab Allah", opts: ["Kitab-kitab Allah", "Malaikat", "Rasul"], cat: "fiqih" },
-    { q: "Berlari kecil antara bukit Shafa dan Marwah saat haji/umrah disebut...", ans: "Sa'i", opts: ["Sa'i", "Tawaf", "Tahallul"], cat: "fiqih" },
-    { q: "Berjalan mengelilingi Ka'bah sebanyak 7 kali disebut...", ans: "Tawaf", opts: ["Tawaf", "Sa'i", "Wukuf"], cat: "fiqih" },
-    { q: "Berdiam diri di padang Arafah pada tanggal 9 Dzulhijjah disebut...", ans: "Wukuf", opts: ["Wukuf", "Tahallul", "Sa'i"], cat: "fiqih" },
-    { q: "Mencukur rambut sebagai tanda selesainya haji/umrah disebut...", ans: "Tahallul", opts: ["Tahallul", "Wukuf", "Tawaf"], cat: "fiqih" },
-    { q: "Hari raya Idul Fitri jatuh pada tanggal 1...", ans: "Syawal", opts: ["Syawal", "Ramadhan", "Dzulhijjah"], cat: "fiqih" },
-    { q: "Hari raya Idul Adha jatuh pada tanggal 10...", ans: "Dzulhijjah", opts: ["Dzulhijjah", "Muharram", "Syawal"], cat: "fiqih" },
-    { q: "Menahan makan, minum, dan amarah dari terbit fajar hingga terbenam matahari disebut...", ans: "Puasa", opts: ["Puasa", "Zakat", "I'tikaf"], cat: "fiqih" },
-    { q: "Makan di waktu sebelum subuh bagi orang yang akan berpuasa disebut...", ans: "Sahur", opts: ["Sahur", "Imsak", "Buka"], cat: "fiqih" },
-    { q: "Batas waktu tanda dimulainya puasa dan berhentinya sahur disebut...", ans: "Imsak", opts: ["Imsak", "Iftar", "Adzan Subuh"], cat: "fiqih" },
-    { q: "Membatalkan puasa saat waktu maghrib tiba disebut...", ans: "Berbuka (Iftar)", opts: ["Berbuka (Iftar)", "Sahur", "Imsak"], cat: "fiqih" },
-    { q: "Berapa banyak takbir pada rakaat pertama Salat Idul Fitri?", ans: "7 Kali", opts: ["7 Kali", "5 Kali", "3 Kali"], cat: "fiqih" },
-    { q: "Berapa banyak takbir pada rakaat kedua Salat Idul Fitri?", ans: "5 Kali", opts: ["5 Kali", "7 Kali", "4 Kali"], cat: "fiqih" },
-    { q: "Surat pendek yang wajib dibaca pada setiap rakaat salat adalah...", ans: "Al-Fatihah", opts: ["Al-Fatihah", "Al-Ikhlas", "An-Nas"], cat: "fiqih" },
-    { q: "Gerakan membungkuk setelah membaca surat dalam salat disebut...", ans: "Ruku'", opts: ["Ruku'", "Sujud", "I'tidal"], cat: "fiqih" },
-    { q: "Gerakan menempelkan dahi dan hidung ke lantai dalam salat disebut...", ans: "Sujud", opts: ["Sujud", "Ruku'", "Tahiyat"], cat: "fiqih" },
-    { q: "Gerakan menengok ke kanan dan ke kiri di akhir salat disebut...", ans: "Salam", opts: ["Salam", "Sujud Sahwi", "Takbir"], cat: "fiqih" },
-
-    { q: "Doa sebelum makan diawali dengan...", ans: "Allahumma barik lana", opts: ["Allahumma barik lana", "Alhamdulillah", "Bismika allahumma"], cat: "doa" },
-    { q: "Doa sesudah makan diawali dengan...", ans: "Alhamdulillahilladzi ath'amana", opts: ["Alhamdulillahilladzi ath'amana", "Allahumma barik lana", "Bismillahi"], cat: "doa" },
-    { q: "Doa sebelum tidur adalah: Bismika allahumma ahya...", ans: "Wabismika amut", opts: ["Wabismika amut", "Wa barik lana", "Warzuqni fahman"], cat: "doa" },
-    { q: "Doa bangun tidur: Alhamdulillahilladzi ahyana ba'da ma amatana...", ans: "Wa ilaihin nusyur", opts: ["Wa ilaihin nusyur", "Wabismika amut", "Fil 'alamin"], cat: "doa" },
-    { q: "Doa masuk kamar mandi mendahulukan kaki...", ans: "Kiri", opts: ["Kiri", "Kanan", "Bebas"], cat: "doa" },
-    { q: "Doa masuk WC: Allahumma inni a'udzubika minal khubutsi...", ans: "Wal khaba-is", opts: ["Wal khaba-is", "Wa ilaihin nusyur", "Minal khathaya"], cat: "doa" },
-    { q: "Doa keluar kamar mandi: Ghufranaka alhamdulillahilladzi azhaba 'annil adza...", ans: "Wa 'afani", opts: ["Wa 'afani", "Wal khaba-is", "Fil 'alamin"], cat: "doa" },
-    { q: "Doa keluar kamar mandi mendahulukan kaki...", ans: "Kanan", opts: ["Kanan", "Kiri", "Bebas"], cat: "doa" },
-    { q: "Kalimat memohon ampunan kepada Allah adalah...", ans: "Astaghfirullah", opts: ["Astaghfirullah", "Subhanallah", "Allahu Akbar"], cat: "doa" },
-    { q: "Doa belajar: Rabbi zidni 'ilman, warzuqni...", ans: "Fahman", opts: ["Fahman", "Rahman", "Amalan"], cat: "doa" },
-    { q: "Jika melihat pemandangan indah atau menakjubkan, kita ucapkan...", ans: "Masya Allah", opts: ["Masya Allah", "Astaghfirullah", "Innalillahi"], cat: "doa" },
-    { q: "Jika mendengar kabar duka/kematian, kita ucapkan...", ans: "Innalillahi wa inna ilaihi raji'un", opts: ["Innalillahi wa inna ilaihi raji'un", "Alhamdulillah", "Subhanallah"], cat: "doa" },
-    { q: "Kalimat Tasbih berbunyi...", ans: "Subhanallah", opts: ["Subhanallah", "Alhamdulillah", "Allahu Akbar"], cat: "doa" },
-    { q: "Kalimat Tahmid berbunyi...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Subhanallah", "Allahu Akbar"], cat: "doa" },
-    { q: "Kalimat Takbir berbunyi...", ans: "Allahu Akbar", opts: ["Allahu Akbar", "Subhanallah", "Alhamdulillah"], cat: "doa" },
-    { q: "Kalimat Tahlil berbunyi...", ans: "La ilaha illallah", opts: ["La ilaha illallah", "Allahu Akbar", "Subhanallah"], cat: "doa" },
-    { q: "Doa untuk kedua orang tua: Rabbighfirli waliwalidayya warhamhuma kama...", ans: "Rabbayani shaghira", opts: ["Rabbayani shaghira", "Hasbiyallah", "Fil 'alamin"], cat: "doa" },
-    { q: "Doa sapu jagat: Rabbana atina fiddunya hasanah wafil akhirati hasanah...", ans: "Waqina 'adzabannar", opts: ["Waqina 'adzabannar", "Rabbayani shaghira", "Wal khaba-is"], cat: "doa" },
-    { q: "Doa masuk masjid mendahulukan kaki...", ans: "Kanan", opts: ["Kanan", "Kiri", "Bebas"], cat: "doa" },
-    { q: "Doa keluar masjid mendahulukan kaki...", ans: "Kiri", opts: ["Kiri", "Kanan", "Bebas"], cat: "doa" },
-    { q: "Doa masuk masjid: Allahummaftahli abwaba...", ans: "Rahmatik", opts: ["Rahmatik", "Fadlik", "Maghfiratik"], cat: "doa" },
-    { q: "Doa keluar masjid: Allahumma inni as-aluka min...", ans: "Fadlik", opts: ["Fadlik", "Rahmatik", "Maghfiratik"], cat: "doa" },
-    { q: "Doa bercermin: Allahumma kama hassanta khalqi, fahassin...", ans: "Khuluqi", opts: ["Khuluqi", "Wajhi", "Badani"], cat: "doa" },
-    { q: "Doa naik kendaraan: Subhanalladzi sakhara lana...", ans: "Hadza", opts: ["Hadza", "Minal khathaya", "Rahmatik"], cat: "doa" },
-    { q: "Doa keluar rumah: Bismillahi tawakkaltu 'alallah la haula wala...", ans: "Quwwata illa billah", opts: ["Quwwata illa billah", "Wa ilaihin nusyur", "Waqina adzabannar"], cat: "doa" },
-    { q: "Saat bersin kita dianjurkan mengucapkan...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Yarhamukallah", "Astaghfirullah"], cat: "doa" },
-    { q: "Orang yang mendengar orang lain bersin dan mengucapkan Alhamdulillah, membalasnya dengan...", ans: "Yarhamukallah", opts: ["Yarhamukallah", "Yahdikumullah", "Subhanallah"], cat: "doa" },
-    { q: "Doa saat turun hujan: Allahumma shayyiban...", ans: "Nafi'an", opts: ["Nafi'an", "Katsiran", "Mubarakan"], cat: "doa" },
-    { q: "Salam umat Islam adalah: Assalamu'alaikum...", ans: "Warahmatullahi Wabarakatuh", opts: ["Warahmatullahi Wabarakatuh", "Selesai", "Wa Maghfiratuh"], cat: "doa" },
-    { q: "Jika diucapkan Assalamu'alaikum, wajib menjawab dengan...", ans: "Wa'alaikumussalam", opts: ["Wa'alaikumussalam", "Sama-sama", "Terima kasih"], cat: "doa" },
-    { q: "Setiap melakukan perbuatan baik harus diawali dengan...", ans: "Bismillah", opts: ["Bismillah", "Alhamdulillah", "Takbir"], cat: "doa" },
-    { q: "Setelah selesai melakukan pekerjaan, kita mengucapkan...", ans: "Alhamdulillah", opts: ["Alhamdulillah", "Bismillah", "Subhanallah"], cat: "doa" },
-    { q: "Doa berpakaian: Allahumma inni as'aluka min khairihi...", ans: "Wa khairi ma huwa lah", opts: ["Wa khairi ma huwa lah", "Waqina adzabannar", "Rabbayani shaghira"], cat: "doa" },
-    { q: "Doa melepas pakaian: Bismillahi alladzi la ilaha...", ans: "Illahuwa", opts: ["Illahuwa", "Wallahu Akbar", "Subhanallah"], cat: "doa" },
-    { q: "Doa sebelum wudhu diawali dengan membaca...", ans: "Niat / Bismillah", opts: ["Niat / Bismillah", "Takbir", "Salam"], cat: "doa" },
-    { q: "Doa kesembuhan: Allahumma rabbannasi adzhibil ba'sa...", ans: "Isyfi antasy-syafi", opts: ["Isyfi antasy-syafi", "La syifa'a illa syifa'uka", "Rahmatik"], cat: "doa" },
-    { q: "Saat berjanji, kita wajib mengucapkan...", ans: "Insya Allah", opts: ["Insya Allah", "Subhanallah", "Alhamdulillah"], cat: "doa" },
-    { q: "Doa mohon kelapangan dada: Rabbisyrahli...", ans: "Shadri", opts: ["Shadri", "Amri", "Uqdatan"], cat: "doa" },
-    { q: "Doa kelancaran lisan: Wahlul 'uqdatan min lisani yafqahu...", ans: "Qauli", opts: ["Qauli", "Amri", "Shadri"], cat: "doa" },
-    { q: "Doa melihat keburukan: A'udzu billahi minasy-syaitani...", ans: "Ar-Rajim", opts: ["Ar-Rajim", "Ar-Rahim", "Al-Hakim"], cat: "doa" },
-    { q: "Senyum di hadapan saudaramu adalah...", ans: "Sedekah", opts: ["Sedekah", "Wajib", "Makruh"], cat: "doa" },
-    { q: "Kebersihan itu sebagian dari...", ans: "Iman", opts: ["Iman", "Islam", "Ihsan"], cat: "doa" },
-    { q: "Jika kita berbuat salah kepada teman, kita harus segera...", ans: "Meminta maaf", opts: ["Meminta maaf", "Lari", "Menangis"], cat: "doa" },
-    { q: "Jika ada orang tua yang sedang duduk, saat lewat kita harus...", ans: "Menunduk / Permisi", opts: ["Menunduk / Permisi", "Lari", "Melihat saja"], cat: "doa" },
-    { q: "Doa sebelum membaca Al-Qur'an (Ta'awudz) adalah...", ans: "A'udzubillahi minasy syaitani rrajim", opts: ["A'udzubillahi minasy syaitani rrajim", "Bismillahir rahmanir rahim", "Alhamdulillah"], cat: "doa" },
-    { q: "Surga berada di bawah telapak kaki...", ans: "Ibu", opts: ["Ibu", "Ayah", "Guru"], cat: "doa" },
-    { q: "Jika diberi hadiah atau dibantu orang lain, ucapkanlah...", ans: "Jazakallahu khairan", opts: ["Jazakallahu khairan", "Masya Allah", "Astaghfirullah"], cat: "doa" },
-    { q: "Balasan untuk ucapan Jazakallah adalah...", ans: "Waiyyaka", opts: ["Waiyyaka", "Amin", "Sama-sama"], cat: "doa" },
-    { q: "Doa agar husnul khatimah: Allahumma inni as-aluka husnal...", ans: "Khatimah", opts: ["Khatimah", "Rahmatik", "Fadlik"], cat: "doa" },
-    { q: "Tidur dianjurkan menghadap ke arah...", ans: "Kanan (Kiblat)", opts: ["Kanan (Kiblat)", "Kiri", "Atas"], cat: "doa" },
-
-    { q: "Kitab suci umat Islam adalah...", ans: "Al-Qur'an", opts: ["Al-Qur'an", "Taurat", "Injil"], cat: "quran" },
-    { q: "Surat pertama yang ada di dalam Al-Qur'an adalah...", ans: "Al-Fatihah", opts: ["Al-Fatihah", "Al-Baqarah", "An-Nas"], cat: "quran" },
-    { q: "Surat Al-Fatihah artinya...", ans: "Pembukaan", opts: ["Pembukaan", "Penutup", "Manusia"], cat: "quran" },
-    { q: "Hukum bacaan Nun Mati/Tanwin bertemu huruf 'Ba' disebut...", ans: "Iqlab", opts: ["Iqlab", "Idgham", "Ikhfa"], cat: "quran" },
-    { q: "Huruf Qalqalah (pantulan) berjumlah...", ans: "5 (Baju di toko)", opts: ["5 (Baju di toko)", "4", "6"], cat: "quran" },
-    { q: "Hukum bacaan jika Nun Mati bertemu huruf 'Ra' atau 'Lam' adalah...", ans: "Idgham Bilaghunnah", opts: ["Idgham Bilaghunnah", "Idgham Bighunnah", "Izhar"], cat: "quran" },
-    { q: "Membaca Al-Qur'an dinilai ibadah, dihitung pahalanya per-...", ans: "Huruf", opts: ["Huruf", "Kata", "Lembar"], cat: "quran" },
-    { q: "Al-Qur'an terdiri dari berapa Juz?", ans: "30 Juz", opts: ["30 Juz", "114 Juz", "10 Juz"], cat: "quran" },
-    { q: "Al-Qur'an terdiri dari berapa Surat?", ans: "114 Surat", opts: ["114 Surat", "30 Surat", "99 Surat"], cat: "quran" },
-    { q: "Malaikat yang menurunkan wahyu Al-Qur'an ke Nabi Muhammad adalah...", ans: "Malaikat Jibril", opts: ["Malaikat Jibril", "Malaikat Mikail", "Malaikat Israfil"], cat: "quran" },
-    { q: "Hukum membaca terang/jelas pada Nun mati/Tanwin disebut...", ans: "Izhar Halqi", opts: ["Izhar Halqi", "Ikhfa", "Iqlab"], cat: "quran" },
-    { q: "Surat terakhir di dalam Al-Qur'an adalah surat...", ans: "An-Nas", opts: ["An-Nas", "Al-Falaq", "Al-Ikhlas"], cat: "quran" },
-    { q: "Ayat pertama yang diturunkan kepada Nabi Muhammad adalah surat Al-'Alaq ayat 1, yang berbunyi...", ans: "Iqra' (Bacalah)", opts: ["Iqra' (Bacalah)", "Qul", "Alhamdulillah"], cat: "quran" },
-    { q: "Surat yang menceritakan tentang pasukan gajah adalah surat...", ans: "Al-Fiil", opts: ["Al-Fiil", "Al-Quraish", "Al-Ma'un"], cat: "quran" },
-    { q: "Surat Al-Kautsar memiliki arti...", ans: "Nikmat yang banyak", opts: ["Nikmat yang banyak", "Waktu Subuh", "Manusia"], cat: "quran" },
-    { q: "Panjang bacaan mad thabi'i adalah... harakat", ans: "2 Harakat", opts: ["2 Harakat", "4 Harakat", "6 Harakat"], cat: "quran" },
-    { q: "Nun atau Mim yang bertasydid hukum bacaannya disebut...", ans: "Ghunnah (Dengung)", opts: ["Ghunnah (Dengung)", "Qalqalah", "Mad"], cat: "quran" },
-    { q: "Surat terpendek dalam Al-Qur'an yang hanya terdiri dari 3 ayat adalah...", ans: "Al-Kautsar", opts: ["Al-Kautsar", "Al-Ikhlas", "An-Nas"], cat: "quran" },
-    { q: "Surat terpanjang dalam Al-Qur'an adalah...", ans: "Al-Baqarah", opts: ["Al-Baqarah", "Yasin", "Al-Fatihah"], cat: "quran" },
-    { q: "Ayat Kursi terdapat di dalam surat...", ans: "Al-Baqarah", opts: ["Al-Baqarah", "Ali Imran", "Al-Ikhlas"], cat: "quran" },
-
-    { q: "Sambung ayat berikut (Al-Fatihah):\nبِسْمِ اللَّهِ ...", ans: "الرَّحْمَٰنِ الرَّحِيمِ", opts: ["الرَّحْمَٰنِ الرَّحِيمِ", "الْعَالَمِينَ", "مَالِكِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Fatihah):\nالْحَمْدُ لِلَّهِ رَبِّ ...", ans: "الْعَالَمِينَ", opts: ["الْعَالَمِينَ", "الدِّينِ", "نَسْتَعِينُ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Fatihah):\nمَالِكِ يَوْمِ ...", ans: "الدِّينِ", opts: ["الدِّينِ", "الرَّحِيمِ", "الصِّرَاطَ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Fatihah):\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ ...", ans: "نَسْتَعِينُ", opts: ["نَسْتَعِينُ", "الْمُسْتَقِيمَ", "عَلَيْهِمْ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Fatihah):\nاهْدِنَا الصِّرَاطَ ...", ans: "الْمُسْتَقِيمَ", opts: ["الْمُسْتَقِيمَ", "الْعَالَمِينَ", "نَسْتَعِينُ"], cat: "quran" },
-    
-    { q: "Sambung ayat berikut (An-Nas):\nقُلْ أَعُوذُ بِرَبِّ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "الْفَلَقِ", "الصَّمَدِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (An-Nas):\nمَلِكِ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "يَوْمِ الدِّينِ", "الْخَنَّاسِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (An-Nas):\nإِلَٰهِ ...", ans: "النَّاسِ", opts: ["النَّاسِ", "الْعَالَمِينَ", "خَلَقَ"], cat: "quran" },
-    { q: "Sambung ayat berikut (An-Nas):\nمِن شَرِّ الْوَسْوَاسِ ...", ans: "الْخَنَّاسِ", opts: ["الْخَنَّاسِ", "النَّاسِ", "الْجِنَّةِ"], cat: "quran" },
-    
-    { q: "Sambung ayat berikut (Al-Falaq):\nقُلْ أَعُوذُ بِرَبِّ ...", ans: "الْفَلَقِ", opts: ["الْفَلَقِ", "النَّاسِ", "الْخَنَّاسِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Falaq):\nمِن شَرِّ مَا ...", ans: "خَلَقَ", opts: ["خَلَقَ", "وَقَبَ", "حَسَدَ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Falaq):\nوَمِن شَرِّ غَاسِقٍ إِذَا ...", ans: "وَقَبَ", opts: ["وَقَبَ", "خَلَقَ", "عُقَدِ"], cat: "quran" },
-    
-    { q: "Sambung ayat berikut (Al-Ikhlas):\nقُلْ هُوَ اللَّهُ ...", ans: "أَحَدٌ", opts: ["أَحَدٌ", "الصَّمَدُ", "كُفُوًا"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Ikhlas):\nاللَّهُ ...", ans: "الصَّمَدُ", opts: ["الصَّمَدُ", "أَحَدٌ", "يَلِدْ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Ikhlas):\nلَمْ يَلِدْ وَلَمْ ...", ans: "يُولَدْ", opts: ["يُولَدْ", "يَكُنْ", "أَحَدٌ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Ikhlas):\nوَلَمْ يَكُن لَّهُ كُفُوًا ...", ans: "أَحَدٌ", opts: ["أَحَدٌ", "الصَّمَدُ", "يُولَدْ"], cat: "quran" },
-
-    { q: "Sambung ayat berikut (Al-Lahab):\nتَبَّتْ يَدَا أَبِي لَهَبٍ ...", ans: "وَتَبَّ", opts: ["وَتَبَّ", "كَسَبَ", "لَهَبٍ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Lahab):\nمَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا ...", ans: "كَسَبَ", opts: ["كَسَبَ", "وَتَبَّ", "حَطَبَ"], cat: "quran" },
-    
-    { q: "Sambung ayat berikut (An-Nasr):\nإِذَا جَاءَ نَصْرُ اللَّهِ ...", ans: "وَالْفَتْحُ", opts: ["وَالْفَتْحُ", "أَفْوَاجًا", "تَوَّابًا"], cat: "quran" },
-    { q: "Sambung ayat berikut (An-Nasr):\nوَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ ...", ans: "أَفْوَاجًا", opts: ["أَفْوَاجًا", "وَالْفَتْحُ", "تَوَّابًا"], cat: "quran" },
-    { q: "Sambung ayat berikut (An-Nasr):\nفَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ ...", ans: "تَوَّابًا", opts: ["تَوَّابًا", "أَفْوَاجًا", "وَالْفَتْحُ"], cat: "quran" },
-
-    { q: "Sambung ayat berikut (Al-Kafirun):\nقُلْ يَا أَيُّهَا ...", ans: "الْكَافِرُونَ", opts: ["الْكَافِرُونَ", "الْمُسْلِمُونَ", "النَّاسُ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Kafirun):\nلَا أَعْبُدُ مَا ...", ans: "تَعْبُدُونَ", opts: ["تَعْبُدُونَ", "عَبَدْتُمْ", "دِينِكُمْ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Kafirun):\nلَكُمْ دِينُكُمْ وَلِيَ ...", ans: "دِينِ", opts: ["دِينِ", "عَبَدْتُمْ", "تَعْبُدُونَ"], cat: "quran" },
-
-    { q: "Sambung ayat berikut (Al-Kautsar):\nإِنَّا أَعْطَيْنَاكَ ...", ans: "الْكَوْثَرَ", opts: ["الْكَوْثَرَ", "الْأَبْتَرُ", "وَانْحَرْ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Kautsar):\nفَصَلِّ لِرَبِّكَ ...", ans: "وَانْحَرْ", opts: ["وَانْحَرْ", "الْكَوْثَرَ", "الْأَبْتَرُ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Kautsar):\nإِنَّ شَانِئَكَ هُوَ ...", ans: "الْأَبْتَرُ", opts: ["الْأَبْتَرُ", "الْكَوْثَرَ", "وَانْحَرْ"], cat: "quran" },
-
-    { q: "Sambung ayat berikut (Al-Ma'un):\nأَرَأَيْتَ الَّذِي يُكَذِّبُ ...", ans: "بِالدِّينِ", opts: ["بِالدِّينِ", "الْيَتِيمَ", "الْمِسْكِينِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Ma'un):\nفَذَٰلِكَ الَّذِي يَدُعُّ ...", ans: "الْيَتِيمَ", opts: ["الْيَتِيمَ", "الْمِسْكِينِ", "بِالدِّينِ"], cat: "quran" },
-    { q: "Sambung ayat berikut (Al-Ma'un):\nوَلَا يَحُضُّ عَلَىٰ طَعَامِ ...", ans: "الْمِسْكِينِ", opts: ["الْمِسْكِينِ", "الْيَتِيمَ", "لِّلْمُصَلِّينَ"], cat: "quran" }
-  ];
-let room="", winner=null, current=null, qIndex=-1, scores={1:0,2:0,3:0,4:0}, mode="idle", connected={};
-function code(){return String(Math.floor(1000+Math.random()*9000))}
-
-function openBuzzerPage(){
- if(!room)return alert("Buat room terlebih dahulu.");
- const url=new URL("buzzer.html",window.location.href);
- url.searchParams.set("room",room);
- window.open(url.toString(),"_blank");
+const activeTeams=()=>Array.from({length:teamCount},(_,i)=>i+1);
+function pickCount(n){if(room)return;teamCount=n;document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n));renderTeams()}
+function renderTeams(){document.getElementById("teams").className="teams c"+teamCount;for(let i=1;i<=4;i++)document.getElementById("team"+i).classList.toggle("hide",i>teamCount)}
+function fillSubjects(){
+ category=document.getElementById("category").value;const s=document.getElementById("subject");s.innerHTML="";
+ Object.entries(MANIFEST[category].materi).forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;s.appendChild(o)})
 }
-
+function code(){return String(Math.floor(1000+Math.random()*9000))}
+function buzzerUrl(){const u=new URL("buzzer.html",location.href);if(room)u.searchParams.set("room",room);return u.toString()}
+function openBuzzerPage(){window.open(buzzerUrl(),"_blank")}
+function renderQR(){
+ const j=document.getElementById("join");j.hidden=!room;if(!room)return;
+ document.getElementById("joinCode").textContent=room;const q=document.getElementById("qr");q.innerHTML="";
+ if(window.QRCode)new QRCode(q,{text:buzzerUrl(),width:92,height:92,correctLevel:QRCode.CorrectLevel.M});
+}
+async function loadQuestions(){
+ category=document.getElementById("category").value;subject=document.getElementById("subject").value;
+ const keys=Object.keys(MANIFEST[category].materi).filter(k=>k!=="campuran");
+ const wanted=subject==="campuran"?keys:[subject];let all=[];
+ for(const key of wanted){
+   const r=await fetch("soal/"+category+"/"+key+".json",{cache:"no-store"});
+   if(!r.ok)throw new Error("Gagal memuat soal "+key);
+   const a=await r.json();all.push(...a.map(x=>({...x,materi:key})));
+ }
+ // Fisher-Yates shuffle
+ for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
+ questions=all;qIndex=-1;
+}
 async function createRoom(){
- if(!window.FB)return;
- room=code(); winner=null; scores={1:0,2:0,3:0,4:0}; mode="lobby"; connected={};
- await FB.set(FB.ref(FB.db,"quiz4/"+room),{
-   mode:"lobby",
-   buzzer:{open:false,winner:null,excluded:{}},
-   connected:{},
-   pressed:{1:false,2:false,3:false,4:false},
-   scores,
-   createdAt:Date.now()
- });
- document.getElementById("roomCode").textContent=room;
- document.getElementById("q").innerHTML='Masukkan kode <b style="color:#7c3aed;font-size:1.2em">'+room+'</b> di HP buzzer';
- document.getElementById("lobbyInfo").innerHTML='Pilih nomor regu yang masih kosong. Setelah terhubung, tekan angka di HP untuk <b>tes koneksi</b>.';
- document.getElementById("answer").style.display="none";
- const sb=document.getElementById("startBtn");sb.disabled=true;sb.classList.remove("ready");
- listen();
+ if(!window.FB)return alert("Firebase belum siap.");
+ category=document.getElementById("category").value;subject=document.getElementById("subject").value;seconds=+document.getElementById("seconds").value||30;
+ try{await loadQuestions()}catch(e){return alert("Bank soal gagal dimuat. Jalankan game melalui GitHub/hosting, bukan file://.\n"+e.message)}
+ room=code();mode="lobby";connected={};scores={1:0,2:0,3:0,4:0};timerLeft=seconds;renderTimer();
+ await FB.set(FB.ref(FB.db,"quiz4/"+room),{mode:"lobby",teamCount,category,subject,seconds,connected:{},pressed:{1:false,2:false,3:false,4:false},buzzer:{open:false,winner:null,excluded:{}},scores,createdAt:Date.now()});
+ document.getElementById("roomCode").textContent=room;document.getElementById("badge").textContent="GABUNG ROOM";
+ document.getElementById("q").innerHTML='Masukkan kode <b style="color:#7c3aed">'+room+'</b> atau scan QR';
+ document.getElementById("sub").textContent="Pilih nomor regu yang masih kosong, lalu tes tombol buzzer.";
+ renderQR();listen();
 }
 function listen(){
- FB.onValue(FB.ref(FB.db,"quiz4/"+room),snap=>{
-  const d=snap.val()||{};
-  mode=d.mode||"lobby"; winner=d.buzzer?.winner??null; scores=d.scores||scores; connected=d.connected||{};
-  const excluded=d.buzzer?.excluded||{};
-  for(let i=1;i<=4;i++){
-    const card=document.getElementById("team"+i);
-    document.getElementById("s"+i).textContent=scores[i]||0;
-    card.classList.toggle("connected",connected[i]===true && mode==="lobby");
-    card.classList.toggle("win",Number(winner)===i && mode==="quiz");
-    card.classList.toggle("eliminated",excluded[i]===true && mode==="quiz");
-  }
-
-  if(mode==="lobby"){
-    document.body.classList.remove("quiz-started");
-    const count=[1,2,3,4].filter(i=>connected[i]===true).length;
-    document.getElementById("status").textContent=count===4
-      ?"✅ SEMUA REGU TERHUBUNG — SILAKAN TES TOMBOL / MULAI QUIZ"
-      :"📱 MENUNGGU REGU — "+count+"/4 TERHUBUNG";
-    const sb=document.getElementById("startBtn");
-    sb.disabled=count!==4; sb.classList.toggle("ready",count===4);
-
-    const pressed=d.pressed||{};
-    for(let i=1;i<=4;i++){
-      document.getElementById("team"+i).classList.toggle("testpressed",pressed[i]===true);
-    }
-    return;
-  }
-
-  document.body.classList.add("quiz-started");
-  for(let i=1;i<=4;i++)document.getElementById("team"+i).classList.remove("testpressed");
-  const left=[1,2,3,4].filter(i=>excluded[i]!==true);
-  document.getElementById("status").textContent=winner
-    ?("⚡ REGU "+winner+" PALING CEPAT!")
-    :((d.buzzer?.open)?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI");
+ if(roomUnsub)roomUnsub();
+ roomUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+room),snap=>{
+   const d=snap.val()||{};mode=d.mode||"lobby";teamCount=+d.teamCount||teamCount;connected=d.connected||{};scores=d.scores||scores;winner=d.buzzer?.winner??null;renderTeams();
+   const excluded=d.buzzer?.excluded||{},pressed=d.pressed||{};
+   for(let i=1;i<=4;i++){
+     const el=document.getElementById("team"+i);document.getElementById("s"+i).textContent=scores[i]||0;
+     el.classList.toggle("connected",mode==="lobby"&&connected[i]===true);
+     el.classList.toggle("pressed",mode==="lobby"&&pressed[i]===true);
+     el.classList.toggle("win",mode==="quiz"&&+winner===i);
+     el.classList.toggle("eliminated",mode==="quiz"&&excluded[i]===true);
+   }
+   if(mode==="lobby"){
+     const n=activeTeams().filter(i=>connected[i]===true).length;
+     document.getElementById("status").textContent=n===teamCount?"✅ SEMUA REGU TERHUBUNG — SIAP MULAI":"📱 MENUNGGU REGU — "+n+"/"+teamCount+" TERHUBUNG";
+     document.getElementById("startBtn").disabled=n!==teamCount;document.getElementById("join").hidden=n===teamCount;
+   }else{
+     const left=activeTeams().filter(i=>excluded[i]!==true);
+     document.getElementById("status").textContent=winner?"⚡ REGU "+winner+" PALING CEPAT!":(d.buzzer?.open?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI");
+     if(winner)pauseTimer();
+   }
  });
 }
 async function startQuiz(){
- if(!room)return alert("Buat room dahulu.");
- const snap=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/connected"));
- const c=snap.val()||{};
- if(![1,2,3,4].every(i=>c[i]===true))return alert("Semua 4 regu harus terhubung dahulu.");
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{"mode":"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{},"pressed/1":false,"pressed/2":false,"pressed/3":false,"pressed/4":false});
- qIndex=-1;
+ const s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/connected")),c=s.val()||{};
+ if(!activeTeams().every(i=>c[i]===true))return alert("Semua "+teamCount+" regu harus terhubung.");
+ document.getElementById("join").hidden=true;await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}});
  await nextQuestion();
 }
 async function nextQuestion(){
- if(!room)return alert("Buat room dahulu.");
- if(mode!=="quiz")return alert("Hubungkan semua regu lalu tekan MULAI QUIZ.");
- qIndex=(qIndex+1)%bankSoal.length; current=bankSoal[qIndex];
- document.getElementById("q").textContent=current.q;
- const li=document.getElementById("lobbyInfo"); if(li)li.textContent="";
- document.getElementById("answer").style.display="none";
- document.getElementById("answer").innerHTML="<span style=\"font-size:11px;letter-spacing:1px;display:block;color:#9a6b00;margin-bottom:3px\">JAWABAN</span>"+current.ans;
+ if(!room||mode!=="quiz")return;
+ if(!questions.length)return alert("Bank soal kosong.");
+ qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
+ document.getElementById("badge").textContent=(MANIFEST[category].materi[subject]||subject).toUpperCase();
+ document.getElementById("q").textContent=current.soal;document.getElementById("sub").textContent="Soal "+(qIndex+1)+" • Tekan buzzer jika sudah siap menjawab.";
+ document.getElementById("answer").style.display="none";document.getElementById("answer").textContent="JAWABAN: "+current.jawaban;
+ timerLeft=seconds;renderTimer();
  await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,excluded:{},openedAt:Date.now()});
+ startTimer();
 }
-function showAnswer(){if(mode!=="quiz")return;if(current)document.getElementById("answer").style.display="block"}
-async function openBuzzer(){
- if(!room)return;
- if(mode!=="quiz")return alert("Quiz belum dimulai.");
- winner=null;
- await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()});
+function renderTimer(){const t=document.getElementById("timer");t.textContent="00:"+String(Math.max(0,timerLeft)).padStart(2,"0");t.classList.toggle("danger",timerLeft<=5)}
+function startTimer(){
+ clearInterval(timerId);renderTimer();
+ timerId=setInterval(async()=>{timerLeft--;renderTimer();if(timerLeft<=0){pauseTimer();await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null});document.getElementById("status").textContent="⏰ WAKTU HABIS — LIHAT JAWABAN / SOAL BERIKUTNYA";}},1000);
 }
-async function markCorrect(){
- if(mode!=="quiz")return;
- if(!winner)return alert("Belum ada regu yang menekan buzzer.");
- const n=Number(winner), val=(Number(scores[n])||0)+10;
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:val,"buzzer/open":false});
+function pauseTimer(){clearInterval(timerId);timerId=null}
+function showAnswer(){if(!current)return;const a=document.getElementById("answer");a.style.display="block";pauseTimer()}
+async function correct(){
+ if(!winner)return alert("Belum ada regu yang memenangkan buzzer.");pauseTimer();
+ const n=+winner;scores[n]=(scores[n]||0)+10;await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n],"buzzer/open":false});
+ document.getElementById("status").textContent="✅ REGU "+n+" BENAR +10 — LANJUT SOAL";
 }
-async function markWrong(){
- if(mode!=="quiz")return;
- if(!winner)return alert("Belum ada regu yang menekan buzzer.");
- const n=Number(winner);
- const snap=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/buzzer"));
- const b=snap.val()||{};
- const excluded={...(b.excluded||{}),[n]:true};
- const remaining=[1,2,3,4].filter(i=>excluded[i]!==true);
- if(remaining.length===0){
-   await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:false,winner:null,excluded});
-   document.getElementById("status").textContent="⛔ SEMUA REGU SUDAH SALAH — LIHAT JAWABAN / LANJUT SOAL";
- }else{
-   await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:true,winner:null,excluded,openedAt:Date.now()});
- }
+async function wrong(){
+ if(!winner)return alert("Belum ada regu yang memenangkan buzzer.");
+ const n=+winner,s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/buzzer")),b=s.val()||{},excluded={...(b.excluded||{}),[n]:true};
+ const remaining=activeTeams().filter(i=>excluded[i]!==true);
+ if(!remaining.length){pauseTimer();await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:false,winner:null,excluded});document.getElementById("status").textContent="⛔ SEMUA REGU SUDAH SALAH";return}
+ await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:true,winner:null,excluded,openedAt:Date.now()});
+ if(timerLeft>0)startTimer();
 }
-async function adjust(n,delta){
- if(!room)return; const val=Math.max(0,(Number(scores[n])||0)+delta);
- await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),val);
-}
-window.openBuzzerPage=openBuzzerPage;window.createRoom=createRoom;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.openBuzzer=openBuzzer;window.markCorrect=markCorrect;window.markWrong=markWrong;window.adjust=adjust;
-</script></body></html>
+async function resumeBuzzer(){if(!room||mode!=="quiz")return;await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()});if(timerLeft>0)startTimer()}
+async function score(n,d){if(!room)return;scores[n]=(scores[n]||0)+d;await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),scores[n])}
+window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.resumeBuzzer=resumeBuzzer;window.score=score;
+fillSubjects();renderTeams();renderTimer();
+</script>
+</body></html>

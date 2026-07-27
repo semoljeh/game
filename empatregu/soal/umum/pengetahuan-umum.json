@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "soal": "Benua terbesar di dunia adalah benua apa?",
+    "jawaban": "Asia"
+  },
+  {
+    "id": 2,
+    "soal": "Samudra terluas di dunia adalah samudra apa?",
+    "jawaban": "Pasifik"
+  },
+  {
+    "id": 3,
+    "soal": "Alat untuk mengukur suhu disebut apa?",
+    "jawaban": "Termometer"
+  },
+  {
+    "id": 4,
+    "soal": "Berapa jumlah hari dalam satu minggu?",
+    "jawaban": "7 hari"
+  },
+  {
+    "id": 5,
+    "soal": "Berapa jumlah bulan dalam satu tahun?",
+    "jawaban": "12 bulan"
+  },
+  {
+    "id": 6,
+    "soal": "Warna hasil campuran merah dan kuning adalah apa?",
+    "jawaban": "Oranye"
+  },
+  {
+    "id": 7,
+    "soal": "Hewan darat terbesar adalah apa?",
+    "jawaban": "Gajah"
+  },
+  {
+    "id": 8,
+    "soal": "Alat untuk melihat benda yang sangat kecil disebut apa?",
+    "jawaban": "Mikroskop"
+  },
+  {
+    "id": 9,
+    "soal": "Satelit alami bumi adalah apa?",
+    "jawaban": "Bulan"
+  },
+  {
+    "id": 10,
+    "soal": "Negara yang terkenal dengan piramida Giza adalah negara apa?",
+    "jawaban": "Mesir"
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "soal": "Apa arti كِتَابٌ?",
+    "jawaban": "Buku"
+  },
+  {
+    "id": 2,
+    "soal": "Apa arti قَلَمٌ?",
+    "jawaban": "Pena"
+  },
+  {
+    "id": 3,
+    "soal": "Apa arti مَدْرَسَةٌ?",
+    "jawaban": "Sekolah"
+  },
+  {
+    "id": 4,
+    "soal": "Apa arti مُدَرِّسٌ?",
+    "jawaban": "Guru laki-laki"
+  },
+  {
+    "id": 5,
+    "soal": "Apa arti طَالِبٌ?",
+    "jawaban": "Siswa laki-laki"
+  },
+  {
+    "id": 6,
+    "soal": "Apa bahasa Arab dari rumah?",
+    "jawaban": "بَيْتٌ"
+  },
+  {
+    "id": 7,
+    "soal": "Apa bahasa Arab dari masjid?",
+    "jawaban": "مَسْجِدٌ"
+  },
+  {
+    "id": 8,
+    "soal": "Apa bahasa Arab dari pintu?",
+    "jawaban": "بَابٌ"
+  },
+  {
+    "id": 9,
+    "soal": "Apa bahasa Arab dari meja?",
+    "jawaban": "مَكْتَبٌ"
+  },
+  {
+    "id": 10,
+    "soal": "Apa arti مَاءٌ?",
+    "jawaban": "Air"
+  },
+  {
+    "id": 11,
+    "soal": "Apa arti سَمَاءٌ?",
+    "jawaban": "Langit"
+  },
+  {
+    "id": 12,
+    "soal": "Apa arti أَرْضٌ?",
+    "jawaban": "Bumi"
+  },
+  {
+    "id": 13,
+    "soal": "Apa bahasa Arab dari ibu?",
+    "jawaban": "أُمٌّ"
+  },
+  {
+    "id": 14,
+    "soal": "Apa bahasa Arab dari ayah?",
+    "jawaban": "أَبٌ"
+  },
+  {
+    "id": 15,
+    "soal": "Apa arti صَدِيقٌ?",
+    "jawaban": "Teman"
+  }
+]

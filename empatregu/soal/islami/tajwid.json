@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "soal": "Apa hukum nun sukun atau tanwin apabila bertemu huruf ba?",
+    "jawaban": "Iqlab"
+  },
+  {
+    "id": 2,
+    "soal": "Apa hukum nun sukun atau tanwin apabila bertemu huruf ya, nun, mim, atau wau?",
+    "jawaban": "Idgham bighunnah"
+  },
+  {
+    "id": 3,
+    "soal": "Apa hukum nun sukun atau tanwin apabila bertemu huruf lam atau ra?",
+    "jawaban": "Idgham bilaghunnah"
+  },
+  {
+    "id": 4,
+    "soal": "Apa hukum nun sukun atau tanwin apabila bertemu salah satu huruf halqi?",
+    "jawaban": "Izhar halqi"
+  },
+  {
+    "id": 5,
+    "soal": "Apa hukum mim sukun apabila bertemu huruf ba?",
+    "jawaban": "Ikhfa syafawi"
+  },
+  {
+    "id": 6,
+    "soal": "Apa hukum mim sukun apabila bertemu huruf mim?",
+    "jawaban": "Idgham mimi"
+  },
+  {
+    "id": 7,
+    "soal": "Apa hukum mim sukun apabila bertemu selain mim dan ba?",
+    "jawaban": "Izhar syafawi"
+  },
+  {
+    "id": 8,
+    "soal": "Berapa harakat panjang mad thabi'i?",
+    "jawaban": "2 harakat"
+  },
+  {
+    "id": 9,
+    "soal": "Apa nama mad ketika huruf mad bertemu hamzah dalam satu kata?",
+    "jawaban": "Mad wajib muttasil"
+  },
+  {
+    "id": 10,
+    "soal": "Apa nama mad ketika huruf mad berada di akhir kata dan hamzah di awal kata berikutnya?",
+    "jawaban": "Mad jaiz munfasil"
+  },
+  {
+    "id": 11,
+    "soal": "Huruf qalqalah dirangkum dalam kalimat apa?",
+    "jawaban": "Quthbu jaddin"
+  },
+  {
+    "id": 12,
+    "soal": "Apa hukum bacaan alif lam pada kata yang huruf setelah lam dibaca jelas?",
+    "jawaban": "Alif lam qamariyah"
+  },
+  {
+    "id": 13,
+    "soal": "Apa hukum bacaan alif lam ketika lam tidak dibaca karena bertemu huruf syamsiyah?",
+    "jawaban": "Alif lam syamsiyah"
+  },
+  {
+    "id": 14,
+    "soal": "Apa nama tanda berhenti dalam membaca Al-Qur'an?",
+    "jawaban": "Waqaf"
+  },
+  {
+    "id": 15,
+    "soal": "Apa nama memulai kembali bacaan Al-Qur'an setelah berhenti?",
+    "jawaban": "Ibtida"
+  }
+]

@@ -1,102 +1,16 @@
-<!doctype html><html lang="id"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>MADASA Buzzer</title><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;overflow:hidden;background:#111}
-.setup{position:fixed;inset:0;background:#eef8f1;display:flex;align-items:center;justify-content:center;padding:20px;z-index:5}
-.card{background:#fff;width:min(430px,100%);padding:25px;border-radius:25px;text-align:center}.card input{width:100%;font-size:30px;text-align:center;padding:12px;border:3px solid #ddd;border-radius:14px;font-weight:900;letter-spacing:6px}
-.teams{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.teams button{padding:15px;border:0;border-radius:14px;color:#fff;font-size:22px;font-weight:900}
-.t1{background:#ef4444}.t2{background:#3b82f6}.t3{background:#22c55e}.t4{background:#f59e0b}.teams button.taken{
-      filter:grayscale(1)!important;opacity:.25!important;pointer-events:none!important;
-      cursor:not-allowed!important;box-shadow:none!important;transform:none!important;
-    }
-    .teams button.taken::after{content:" TERISI";font-size:10px;display:block;margin-top:2px}
-    .teams button:disabled{pointer-events:none!important}
-#buzz{position:fixed;inset:0;border:0;color:#fff;font-size:min(55vw,55vh);font-weight:1000;display:none;align-items:center;justify-content:center;touch-action:manipulation}
-#buzz:active{transform:scale(.98)}#buzz.locked{filter:grayscale(.75);opacity:.45}
-</style>
-<style id="madasa-modern-buzzer-v3">
-#buzz{
- text-shadow:0 8px 20px rgba(0,0,0,.18);
- transition:filter .15s,opacity .15s,transform .08s;
-}
-#buzz:before{
- content:"";position:absolute;inset:18px;border:5px solid rgba(255,255,255,.55);
- border-radius:36px;pointer-events:none;
-}
-#buzz.locked{filter:grayscale(.85) brightness(.65)!important;opacity:1!important}
-.setup{background:linear-gradient(145deg,#effaf2,#dff2e5)!important}
-.card{box-shadow:0 20px 60px rgba(25,86,48,.16);border:1px solid #fff}
-</style>
-
-
-<style id="madasa-final-buzzer-layout">
-html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;overscroll-behavior:none}
-#buzz{
- inset:0!important;width:100vw!important;height:100dvh!important;
- padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right))
- max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))!important;
- border-radius:0!important;line-height:1!important;
- font-size:min(58vw,58vh)!important;user-select:none;-webkit-user-select:none;
- -webkit-tap-highlight-color:transparent;
-}
-#buzz:before{
- inset:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right))
- max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
- border-radius:clamp(22px,7vw,48px)!important;
-}
-#buzz.lobby-down{filter:brightness(1.2)}
-.setup{min-height:100dvh!important;overflow:auto!important}
-.card{margin:auto!important;max-height:calc(100dvh - 24px);overflow:auto}
-@media(max-width:420px){
- .card{padding:18px!important;border-radius:20px!important}
- .card h1{font-size:24px}
- .card input{font-size:25px!important}
- .teams button{font-size:20px!important;padding:13px!important}
-}
-</style>
-
-
-<style id="occupied-final-fix">
-.teams button{position:relative;transition:opacity .15s,filter .15s,transform .15s}
-.teams button.taken,.teams button:disabled{
-  background:#aeb7b1!important;color:#eef1ef!important;
-  opacity:.48!important;filter:grayscale(1)!important;
-  cursor:not-allowed!important;pointer-events:none!important;
-  box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)!important;
-}
-.teams button.taken::after,.teams button:disabled::after{
-  content:"TERISI";display:block;font-size:9px;line-height:1;margin-top:3px;letter-spacing:.8px
-}
-</style>
-
-
-<style id="occupied-fix5">
-.teams button[data-state="taken"],
-.teams button.taken,
-.teams button:disabled{
- background:#c8ceca!important;
- color:#7d8881!important;
- opacity:.58!important;
- filter:grayscale(1)!important;
- box-shadow:none!important;
- border:2px dashed #9da7a1!important;
- cursor:not-allowed!important;
- pointer-events:none!important;
- transform:none!important;
-}
-.teams button[data-state="taken"]::after,
-.teams button.taken::after,
-.teams button:disabled::after{
- content:"TERISI";display:block;font-size:10px;font-weight:1000;
- letter-spacing:1px;margin-top:4px;color:#657069;
-}
-</style>
-
-</head><body>
-<div class="setup" id="setup"><div class="card"><h1>Masuk Buzzer</h1><input id="room" inputmode="numeric" maxlength="4" placeholder="KODE"><p style="font-weight:800;color:#61746a">Pilih nomor regu yang masih kosong</p><div class="teams">
-<button class="t1" onclick="join(1)">1</button><button class="t2" onclick="join(2)">2</button><button class="t3" onclick="join(3)">3</button><button class="t4" onclick="join(4)">4</button>
-</div></div></div><button id="buzz"></button>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MADASA Buzzer</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,Arial;background:#eaf6ee;overflow:hidden}
+.setup{min-height:100dvh;display:grid;place-items:center;padding:14px;background:linear-gradient(145deg,#effaf2,#dff2e5)}.card{width:min(440px,100%);background:#fff;border-radius:25px;padding:22px;box-shadow:0 20px 60px #19563029;text-align:center}h1{color:#176b39;margin:0 0 5px}p{color:#64786d;font-weight:700;font-size:13px}input{width:100%;font-size:30px;text-align:center;letter-spacing:7px;font-weight:1000;border:2px solid #d7e7dc;border-radius:15px;padding:11px}
+.status{margin:10px 0;padding:9px;border-radius:11px;background:#eef7f1;color:#557066;font-size:12px;font-weight:900}.status.ok{background:#e6f8ec;color:#14743a}.status.bad{background:#fff0f0;color:#b42323}
+.teams{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.teams button{border:0;border-radius:15px;padding:15px;color:#fff;font-size:24px;font-weight:1000;cursor:pointer}.t1{background:#ef4444}.t2{background:#3b82f6}.t3{background:#22c55e}.t4{background:#f59e0b}.teams button.hide{display:none}.teams button.taken,.teams button:disabled{background:#c8ceca!important;color:#78827c!important;opacity:.58;filter:grayscale(1);cursor:not-allowed;pointer-events:none}.teams button.taken:after{content:"  TERISI";display:block;font-size:9px;letter-spacing:1px}
+#buzz{display:none;position:fixed;inset:0;width:100vw;height:100dvh;border:0;color:#fff;align-items:center;justify-content:center;font-size:min(58vw,58vh);font-weight:1000;user-select:none;-webkit-user-select:none;touch-action:none;text-shadow:0 8px 20px #0003}#buzz:after{content:"";position:absolute;inset:15px;border:5px solid #ffffff99;border-radius:40px}#buzz.down{filter:brightness(1.28)}#buzz.locked{filter:grayscale(.8) brightness(.65)}
+</style></head><body>
+<div class="setup" id="setup"><div class="card"><h1>⚡ Gabung Buzzer</h1><p>Masukkan kode ROOM dari layar juri. Regu tidak perlu membuat room.</p><input id="room" inputmode="numeric" maxlength="4" placeholder="0000"><div id="status" class="status">Masukkan 4 digit kode ROOM.</div><div class="teams"><button class="t1" onclick="join(1)">1</button><button class="t2" onclick="join(2)">2</button><button class="t3" onclick="join(3)">3</button><button class="t4" onclick="join(4)">4</button></div></div></div>
+<button id="buzz"></button>
 <script type="module">
+
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import {getDatabase,ref,get,onValue,runTransaction,set,onDisconnect} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 const firebaseConfig={
@@ -110,152 +24,39 @@ const firebaseConfig={
   };
 const app=initializeApp(firebaseConfig),db=getDatabase(app);
 window.FB={db,ref,get,onValue,runTransaction,set,onDisconnect};window.__FB_READY__=true;window.dispatchEvent(new Event("firebase-ready"));
-</script>
 
+</script>
 <script>
-
-let room="", team=0, mode="idle", canBuzz=false;
-let availabilityUnsub=null, gameUnsub=null;
+let room="",team=0,mode="idle",teamCount=4,canBuzz=false,availabilityUnsub=null,gameUnsub=null;
+const input=document.getElementById("room"),statusEl=document.getElementById("status"),buzz=document.getElementById("buzz"),buttons=[...document.querySelectorAll(".teams button")];
 const colors={1:"#ef4444",2:"#3b82f6",3:"#22c55e",4:"#f59e0b"};
-const roomInput=document.getElementById("room");
-const buzzBtn=document.getElementById("buzz");
-const teamButtons=[...document.querySelectorAll(".teams button")];
-
-function occupiedValue(obj,n){
-  return obj && (obj[n]===true || obj[String(n)]===true);
+function used(o,n){return !!o&&(o[n]===true||o[String(n)]===true)}
+function paint(c={}){buttons.forEach((b,i)=>{const n=i+1;b.classList.toggle("hide",n>teamCount);const x=n<=teamCount&&used(c,n);b.disabled=x;b.classList.toggle("taken",x)})}
+async function watch(){
+ if(!window.FB)return;const r=input.value.replace(/\D/g,"").slice(0,4);input.value=r;if(availabilityUnsub)availabilityUnsub();paint({});
+ if(r.length!==4){statusEl.className="status";statusEl.textContent="Masukkan 4 digit kode ROOM.";return}
+ const rs=await FB.get(FB.ref(FB.db,"quiz4/"+r));if(!rs.exists()){statusEl.className="status bad";statusEl.textContent="ROOM "+r+" tidak ditemukan.";return}
+ const d=rs.val()||{};teamCount=+d.teamCount||4;paint(d.connected||{});statusEl.className="status ok";statusEl.textContent="✓ ROOM "+r+" ditemukan — pilih regu.";
+ availabilityUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+r+"/connected"),s=>paint(s.val()||{}));
 }
-function paintAvailability(connected){
-  teamButtons.forEach((btn,index)=>{
-    const n=index+1, used=occupiedValue(connected,n);
-    btn.disabled=used;
-    btn.classList.toggle("taken",used);
-    btn.dataset.state=used?"taken":"free";
-    btn.title=used?("Regu "+n+" sudah terisi"):("Pilih Regu "+n);
-  });
-}
-function stopAvailability(){
-  if(typeof availabilityUnsub==="function"){availabilityUnsub();availabilityUnsub=null;}
-}
-async function subscribeAvailability(){
-  if(!window.FB)return;
-  const r=roomInput.value.replace(/\D/g,"").slice(0,4);
-  roomInput.value=r;
-  stopAvailability();
-  paintAvailability({});
-  if(r.length!==4)return;
-
-  // Validate room first, then listen directly to /connected.
-  const roomSnap=await FB.get(FB.ref(FB.db,"quiz4/"+r));
-  if(!roomSnap.exists()){ paintAvailability({}); return; }
-
-  const connectedRef=FB.ref(FB.db,"quiz4/"+r+"/connected");
-  availabilityUnsub=FB.onValue(connectedRef,snap=>{
-    const connected=snap.exists() ? (snap.val()||{}) : {};
-    paintAvailability(connected);
-  },err=>console.error("Listener connected gagal:",err));
-}
-
 async function join(n){
-  if(!window.FB)return alert("Firebase belum siap.");
-  room=roomInput.value.replace(/\D/g,"").slice(0,4);
-  if(room.length!==4)return alert("Masukkan kode room 4 angka.");
-
-  const roomRef=FB.ref(FB.db,"quiz4/"+room);
-  const roomSnap=await FB.get(roomRef);
-  if(!roomSnap.exists())return alert("Room tidak ditemukan.");
-  const data=roomSnap.val()||{};
-  if((data.mode||"lobby")!=="lobby")return alert("Quiz sudah dimulai.");
-
-  // Read current availability immediately before transaction.
-  paintAvailability(data.connected||{});
-  if(occupiedValue(data.connected||{},n)){
-    return alert("Regu "+n+" sudah terisi. Pilih regu lain.");
-  }
-
-  // Final server-side atomic protection.
-  const claimRef=FB.ref(FB.db,"quiz4/"+room+"/connected/"+n);
-  const result=await FB.runTransaction(claimRef,current=>{
-    if(current===true)return;
-    return true;
-  },{applyLocally:false});
-
-  if(!result.committed){
-    await subscribeAvailability();
-    return alert("Regu "+n+" baru saja dipakai HP lain.");
-  }
-
-  team=n;
-  stopAvailability();
-  FB.onDisconnect(claimRef).set(false);
-  FB.onDisconnect(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team)).set(false);
-
-  buzzBtn.textContent=team;
-  buzzBtn.style.background=colors[team];
-  buzzBtn.style.display="flex";
-  document.getElementById("setup").style.display="none";
-
-  gameUnsub=FB.onValue(roomRef,snap=>{
-    const d=snap.val()||{};
-    mode=d.mode||"lobby";
-    const bz=d.buzzer||{}, excluded=bz.excluded||{};
-    canBuzz=mode==="quiz" && bz.open===true &&
-      (bz.winner===null||bz.winner===undefined) &&
-      !occupiedValue(excluded,team);
-    buzzBtn.classList.toggle("locked",mode==="quiz" && !canBuzz);
-  });
+ if(!window.FB)return;if(n>teamCount)return;room=input.value.replace(/\D/g,"").slice(0,4);if(room.length!==4)return alert("Masukkan kode room.");
+ const rs=await FB.get(FB.ref(FB.db,"quiz4/"+room)),d=rs.val()||{};if(!rs.exists())return alert("Room tidak ditemukan.");if((d.mode||"lobby")!=="lobby")return alert("Quiz sudah dimulai.");teamCount=+d.teamCount||4;if(n>teamCount)return;
+ const claim=FB.ref(FB.db,"quiz4/"+room+"/connected/"+n);const tr=await FB.runTransaction(claim,c=>c===true?undefined:true,{applyLocally:false});
+ if(!tr.committed){watch();return alert("Regu "+n+" sudah terisi.")}
+ team=n;if(availabilityUnsub)availabilityUnsub();FB.onDisconnect(claim).set(false);FB.onDisconnect(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team)).set(false);
+ buzz.textContent=team;buzz.style.background=colors[team];buzz.style.display="flex";document.getElementById("setup").style.display="none";
+ gameUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+room),s=>{const x=s.val()||{};mode=x.mode||"lobby";const bz=x.buzzer||{},ex=bz.excluded||{};canBuzz=mode==="quiz"&&bz.open===true&&(bz.winner==null)&&!used(ex,team);buzz.classList.toggle("locked",mode==="quiz"&&!canBuzz)});
 }
-
-async function pressDown(){
-  if(!window.FB||!room||!team)return;
-  if(mode==="lobby"){
-    buzzBtn.classList.add("lobby-down");
-    await FB.set(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team),true);
-    return;
-  }
-  if(!canBuzz)return;
-  canBuzz=false;
-  await FB.runTransaction(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),current=>{
-    if(!current || current.open!==true ||
-      (current.winner!==null && current.winner!==undefined))return;
-    const excluded=current.excluded||{};
-    if(occupiedValue(excluded,team))return;
-    return {...current,winner:team,open:false,pressedAt:Date.now()};
-  },{applyLocally:false});
+async function down(){
+ if(!window.FB||!room||!team)return;buzz.classList.add("down");
+ if(mode==="lobby")return FB.set(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team),true);
+ if(!canBuzz)return;canBuzz=false;
+ await FB.runTransaction(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),c=>{if(!c||c.open!==true||c.winner!=null)return;const ex=c.excluded||{};if(used(ex,team))return;return {...c,winner:team,open:false,pressedAt:Date.now()}},{applyLocally:false});
 }
-async function pressUp(){
-  buzzBtn.classList.remove("lobby-down");
-  if(window.FB && mode==="lobby" && room && team){
-    try{await FB.set(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team),false)}catch(_){}
-  }
-}
-
-let inputTimer=null;
-roomInput.addEventListener("input",()=>{
-  clearTimeout(inputTimer);
-  inputTimer=setTimeout(subscribeAvailability,80);
-});
-roomInput.addEventListener("change",subscribeAvailability);
-
-buzzBtn.addEventListener("pointerdown",e=>{
-  e.preventDefault();
-  try{buzzBtn.setPointerCapture(e.pointerId)}catch(_){}
-  pressDown();
-},{passive:false});
-buzzBtn.addEventListener("pointerup",e=>{e.preventDefault();pressUp()},{passive:false});
-buzzBtn.addEventListener("pointercancel",pressUp);
-buzzBtn.addEventListener("lostpointercapture",pressUp);
-window.addEventListener("blur",pressUp);
-document.addEventListener("visibilitychange",()=>{if(document.hidden)pressUp()});
+async function up(){buzz.classList.remove("down");if(window.FB&&mode==="lobby"&&room&&team)try{await FB.set(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team),false)}catch(e){}}
+input.addEventListener("input",()=>setTimeout(watch,70));buzz.addEventListener("pointerdown",e=>{e.preventDefault();try{buzz.setPointerCapture(e.pointerId)}catch(x){}down()},{passive:false});buzz.addEventListener("pointerup",e=>{e.preventDefault();up()},{passive:false});buzz.addEventListener("pointercancel",up);buzz.addEventListener("lostpointercapture",up);window.addEventListener("blur",up);document.addEventListener("visibilitychange",()=>{if(document.hidden)up()});
 window.join=join;
-
-function startBuzzerPage(){
-  const params=new URLSearchParams(location.search);
-  const r=(params.get("room")||"").replace(/\D/g,"").slice(0,4);
-  if(r.length===4)roomInput.value=r;
-  subscribeAvailability();
-}
-if(window.__FB_READY__ && window.FB) startBuzzerPage();
-else window.addEventListener("firebase-ready",startBuzzerPage,{once:true});
-
-</script>
-</body></html>
+function init(){const r=(new URLSearchParams(location.search).get("room")||"").replace(/\D/g,"").slice(0,4);if(r.length===4)input.value=r;watch()}
+if(window.FB)init();else window.addEventListener("firebase-ready",init,{once:true});
+</script></body></html>

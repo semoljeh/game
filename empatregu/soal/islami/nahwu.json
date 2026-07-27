@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "soal": "Dalam nahwu, kalimat dibagi menjadi tiga. Sebutkan!",
+    "jawaban": "Isim, fi'il, dan huruf"
+  },
+  {
+    "id": 2,
+    "soal": "Kata yang menunjukkan makna pada dirinya dan tidak terikat waktu disebut apa?",
+    "jawaban": "Isim"
+  },
+  {
+    "id": 3,
+    "soal": "Kata yang menunjukkan pekerjaan dan terikat waktu disebut apa?",
+    "jawaban": "Fi'il"
+  },
+  {
+    "id": 4,
+    "soal": "Isim yang dibaca rafa' dan menjadi pelaku pekerjaan disebut apa?",
+    "jawaban": "Fa'il"
+  },
+  {
+    "id": 5,
+    "soal": "Isim yang dikenai pekerjaan dan biasanya dibaca nashab disebut apa?",
+    "jawaban": "Maf'ul bih"
+  },
+  {
+    "id": 6,
+    "soal": "Apa tanda rafa' asli pada isim mufrad?",
+    "jawaban": "Dhammah"
+  },
+  {
+    "id": 7,
+    "soal": "Apa tanda nashab asli pada isim mufrad?",
+    "jawaban": "Fathah"
+  },
+  {
+    "id": 8,
+    "soal": "Apa tanda jar asli pada isim mufrad?",
+    "jawaban": "Kasrah"
+  },
+  {
+    "id": 9,
+    "soal": "Fi'il yang menunjukkan pekerjaan masa lampau disebut apa?",
+    "jawaban": "Fi'il madhi"
+  },
+  {
+    "id": 10,
+    "soal": "Fi'il yang menunjukkan pekerjaan sekarang atau akan datang disebut apa?",
+    "jawaban": "Fi'il mudhari'"
+  },
+  {
+    "id": 11,
+    "soal": "Fi'il yang menunjukkan perintah disebut apa?",
+    "jawaban": "Fi'il amr"
+  },
+  {
+    "id": 12,
+    "soal": "Susunan yang dimulai dengan isim disebut jumlah apa?",
+    "jawaban": "Jumlah ismiyah"
+  },
+  {
+    "id": 13,
+    "soal": "Susunan yang dimulai dengan fi'il disebut jumlah apa?",
+    "jawaban": "Jumlah fi'liyah"
+  },
+  {
+    "id": 14,
+    "soal": "Dalam jumlah ismiyah, dua unsur pokoknya adalah apa?",
+    "jawaban": "Mubtada dan khabar"
+  },
+  {
+    "id": 15,
+    "soal": "Isim yang didahului huruf jar dibaca apa?",
+    "jawaban": "Jar atau majrur"
+  }
+]
