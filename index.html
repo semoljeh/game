@@ -121,10 +121,18 @@
   .header h1 { font-size: clamp(28px, 8vmin, 46px); font-weight: 900; margin: 0; color: #01579B; text-shadow: 1px 1px 0px #FFF; letter-spacing: -0.5px; }
   .header p { font-size: clamp(12px, 3.4vmin, 17px); font-weight: 800; margin-top: 10px; color: #E65100; background: #ffffff; display: inline-block; padding: 8px 24px; border-radius: 25px; border: 2px solid #FFF; }
 
+  /* TEMA JUDUL KATEGORI */
+  .category-title {
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #0288D1; border-radius: 25px;
+    padding: 8px 24px; color: #0277BD; font-weight: 900; font-size: clamp(16px, 4vmin, 22px);
+    margin: clamp(25px, 4vh, 35px) auto 0 auto; display: inline-block;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; z-index: 1; text-align: center;
+  }
+
   .game-menu {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(12px, 3vmin, 20px); 
     max-width: 900px; width: min(92%, 900px); 
-    margin: clamp(20px, 3vh, 35px) auto clamp(30px, 6vh, 60px) auto; 
+    margin: clamp(15px, 2.5vh, 25px) auto clamp(20px, 4vh, 40px) auto; 
     flex-grow: 1; position: relative; z-index: 1;
   }
 
@@ -151,6 +159,7 @@
   .c-kurang h2 { color: #EF6C00; } .c-kali h2 { color: #7B1FA2; } .c-bagi h2 { color: #0277BD; }
   .c-campuran h2 { color: #C2185B; } .c-2player h2 { color: #C62828; } .c-tebakbuah h2 { color: #2E7D32; }
   .c-bintang h2 { color: #F57F17; } .c-hurufawal h2 { color: #1565C0; } .c-susunkata h2 { color: #827717; } .c-warna h2 { color: #512DA8; }
+  .c-kosakata h2 { color: #00695C; } .c-nahwu h2 { color: #3949AB; } .c-inggris h2 { color: #E65100; } .c-wuduk h2 { color: #0288D1; }
 
   .play-btn {
     display: inline-block; margin-top: clamp(8px, 1.5vh, 12px); 
@@ -168,6 +177,7 @@
   .c-kurang .play-btn { background: #EF6C00; } .c-kali .play-btn { background: #7B1FA2; } .c-bagi .play-btn { background: #0277BD; }
   .c-campuran .play-btn { background: #C2185B; } .c-2player .play-btn { background: #C62828; } .c-bacaangka .play-btn { background: #1565C0; }
   .c-tebakbuah .play-btn { background: #2E7D32; }
+  .c-kosakata .play-btn { background: #004D40; } .c-nahwu .play-btn { background: #283593; } .c-inggris .play-btn { background: #EF6C00; } .c-wuduk .play-btn { background: #0277BD; }
 
   /* FOOTER DIPERBARUI: SATU BARIS */
   footer {
@@ -210,7 +220,8 @@
 
   @media (orientation: landscape) and (max-height: 600px) {
     .header { margin-top: 15px; } .salam { font-size: 18px; } .header h1 { font-size: 22px; } .header p { font-size: 11px; padding: 4px 12px; margin-top: 4px; }
-    .game-menu { gap: 10px; margin: 15px auto; width: 95%; } .game-card { padding: 10px 6px; border-radius: 14px; }
+    .category-title { margin-top: 15px; font-size: 14px; padding: 4px 16px; }
+    .game-menu { gap: 10px; margin: 10px auto; width: 95%; } .game-card { padding: 10px 6px; border-radius: 14px; }
     .icon-container { font-size: 28px; margin-bottom: 2px; } .game-card h2 { font-size: 12px; margin-bottom: 2px; }
     .play-btn { font-size: 9px; padding: 4px 8px; margin-top: 6px; }
     .welcome-content { padding: 12px 15px; width: 85%; max-width: 320px; }
@@ -250,15 +261,10 @@
     <p>Belajar Islami & Ceria !</p>
   </div>
 
-  <!-- GRID MENU PERMAINAN -->
+  <!-- KATEGORI ISLAMI -->
+  <div class="category-title">🕌 Kategori Islami</div>
   <div class="game-menu">
     <a href="balon.html" class="game-card c-balon"><div class="icon-container">🎈</div><h2>Tangkap Balon</h2><p>Belajar Huruf Hijaiyah</p><div class="play-btn">Mainkan</div></a>
-    
-    <!-- === GAME BARU DITAMBAHKAN DI URUTAN KE 2 & 3 === -->
-    <a href="gelembung.html" class="game-card c-bayangan"><div class="icon-container">🔠</div><h2>Tangkap Kotak</h2><p>Huruf Besar & Kecil</p><div class="play-btn">Mainkan</div></a>
-    <a href="angkalatin.html" class="game-card c-angka"><div class="icon-container">🔢</div><h2>Gelembung Angka</h2><p>Belajar Angka 1-22</p><div class="play-btn">Mainkan</div></a>
-    <!-- ================================================ -->
-
     <a href="hijaiyah.html" class="game-card c-hijaiyah"><div class="icon-container">📖</div><h2>Kenal Hijaiyah</h2><p>Cari Huruf yang Tepat</p><div class="play-btn">Mainkan</div></a>
     <a href="harakat.html" class="game-card c-harakat"><div class="icon-container">✨</div><h2>Pintar Harakat</h2><p>Belajar Membaca Iqra</p><div class="play-btn">Mainkan</div></a>
     <a href="cari-beda.html" class="game-card c-caribeda"><div class="icon-container">🦅</div><h2>Cari Huruf Beda</h2><p>Latih Fokus Hijaiyah</p><div class="play-btn">Mainkan</div></a>
@@ -273,7 +279,18 @@
     <a href="ciptaan.html" class="game-card c-ciptaan"><div class="icon-container">🌍</div><h2>Ciptaan Siapa?</h2><p>Belajar Bersyukur</p><div class="play-btn">Mainkan</div></a>
     <a href="bayangan.html" class="game-card c-bayangan"><div class="icon-container">🕌</div><h2>Tebak Bayangan</h2><p>Mengenal Benda Islami</p><div class="play-btn">Mainkan</div></a>
     <a href="memori.html" class="game-card c-memori"><div class="icon-container">🃏</div><h2>Memori Islami</h2><p>Latih Daya Ingatmu</p><div class="play-btn">Mainkan</div></a>
+    <a href="kosakata.html" class="game-card c-kosakata"><div class="icon-container">📚</div><h2>Kosa Kata 2 Arah</h2><p>Belajar Bahasa Arab</p><div class="play-btn">Mainkan</div></a>
+    <a href="nahwu.html" class="game-card c-nahwu"><div class="icon-container">📝</div><h2>Pintar Nahwu</h2><p>Tata Bahasa Arab</p><div class="play-btn">Mainkan</div></a>
+    
+    <!-- TAMBAHAN GAME BELAJAR WUDHU -->
+    <a href="wuduk.html" class="game-card c-wuduk"><div class="icon-container">💧</div><h2>Belajar Wudhu</h2><p>Tata Cara Wudhu</p><div class="play-btn">Mainkan</div></a>
+  </div>
 
+  <!-- KATEGORI UMUM -->
+  <div class="category-title">🎨 Kategori Umum</div>
+  <div class="game-menu">
+    <a href="gelembung.html" class="game-card c-bayangan"><div class="icon-container">🔠</div><h2>Tangkap Kotak</h2><p>Huruf Besar & Kecil</p><div class="play-btn">Mainkan</div></a>
+    <a href="angkalatin.html" class="game-card c-angka"><div class="icon-container">🔢</div><h2>Gelembung Angka</h2><p>Belajar Angka 1-22</p><div class="play-btn">Mainkan</div></a>
     <a href="bacaangka.html" class="game-card c-bacaangka"><div class="icon-container">🔢</div><h2>Cara Baca Angka</h2><p>Belajar Membaca Angka</p><div class="play-btn">Mainkan</div></a>
     <a href="hitung.html" class="game-card c-hitung"><div class="icon-container">🖐️</div><h2>Hitung Ceria</h2><p>Belajar Berhitung 1-10</p><div class="play-btn">Mainkan</div></a>
     <a href="penjumlahan.html" class="game-card c-tambah"><div class="icon-container">🍎</div><h2>Penjumlahan</h2><p>Belajar Menjumlah</p><div class="play-btn">Mainkan</div></a>
@@ -282,14 +299,17 @@
     <a href="pembagian.html" class="game-card c-bagi"><div class="icon-container">🍪</div><h2>Pembagian</h2><p>Berbagi Sama Rata</p><div class="play-btn">Mainkan</div></a>
     <a href="campuran.html" class="game-card c-campuran"><div class="icon-container">🌟</div><h2>Ujian Campuran</h2><p>Tambah, Kurang, Kali, Bagi!</p><div class="play-btn">Mainkan</div></a>
     <a href="campuran%202%20player.html" class="game-card c-2player"><div class="icon-container">⚔️</div><h2>Mode 2 Player</h2><p>Adu Cepat Matematika!</p><div class="play-btn">Mainkan</div></a>
-    
     <a href="tebaknamabuah.html" class="game-card c-tebakbuah"><div class="icon-container">🍉</div><h2>Tebak Nama Buah</h2><p>Mengenal Berbagai Buah</p><div class="play-btn">Mainkan</div></a>
     <a href="bintang.html" class="game-card c-bintang"><div class="icon-container">⭐</div><h2>Tangkap Bintang</h2><p>Kumpulkan Kebaikan</p><div class="play-btn">Mainkan</div></a>
     <a href="huruf-awal.html" class="game-card c-hurufawal"><div class="icon-container">🔤</div><h2>Tebak Huruf Awal</h2><p>Mengenal Huruf Abjad</p><div class="play-btn">Mainkan</div></a>
     <a href="susun-kata.html" class="game-card c-susunkata"><div class="icon-container">🔠</div><h2>Susun Kata</h2><p>Belajar Membaca</p><div class="play-btn">Mainkan</div></a>
     <a href="warna.html" class="game-card c-warna"><div class="icon-container">🎨</div><h2>Tebak Warna</h2><p>Mengenal Macam Warna</p><div class="play-btn">Mainkan</div></a>
-    
-    <!-- GAME BARU DITAMBAHKAN DI BAWAH INI -->
+    <a href="inggris.html" class="game-card c-inggris"><div class="icon-container">💬</div><h2>Pintar Inggris</h2><p>Belajar Kosa Kata</p><div class="play-btn">Mainkan</div></a>
+  </div>
+
+  <!-- KATEGORI ONLINE (MABAR) -->
+  <div class="category-title">🌐 Kategori Online (Mabar)</div>
+  <div class="game-menu">
     <a href="cerdascermat_islam.html" class="game-card c-tajwid"><div class="icon-container">🕌</div><h2>C. Cermat Islami</h2><p>Mode 2 Player Online</p><div class="play-btn">Mainkan</div></a>
     <a href="campuran2playeronline.html" class="game-card c-2player"><div class="icon-container">⚔️</div><h2>Matematika Online</h2><p>Mode 2 Player Online</p><div class="play-btn">Mainkan</div></a>
   </div>

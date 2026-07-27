@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<!-- Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>MADASA - Game Bahasa Inggris</title>
+<meta name="description" content="Game edukasi Bahasa Arab untuk anak TK/RA.">
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background-color: #000; 
+    color: #333; overflow: hidden; touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KONTROL ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #A5D6A7 0%, #2E7D32 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* KOTAK GAME & SCREEN UTAMA */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh; 
+    max-width: 900px; max-height: 900px;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: clamp(4px, 1vmin, 8px) solid #FFF; 
+    border-radius: clamp(20px, 4vmin, 40px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
+    z-index: 10;
+    overflow-y: auto; 
+  }
+  #game-container { display: none; } 
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; justify-content: center; z-index: 50; text-align: center;
+  }
+  .screen-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+  }
+
+  .screen h1 { font-size: clamp(24px, 7vmin, 45px); color: #1B5E20; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 24px); color: #F57C00; margin-bottom: 5px; font-weight: 800; }
+  .screen p { font-size: clamp(14px, 3.5vmin, 20px); color: #555; margin-bottom: 25px; font-weight: 700; max-width: 90%; line-height: 1.4; }
+  
+  #welcome-level-text {
+    font-size: clamp(16px, 4.5vmin, 24px);
+    color: #2E7D32;
+    background: #E8F5E9;
+    padding: 5px 20px;
+    border-radius: 20px;
+    border: 2px dashed #4CAF50;
+    margin-bottom: 15px;
+    font-weight: 900;
+  }
+
+  .btn {
+    padding: clamp(12px, 3vmin, 20px) clamp(25px, 6vmin, 50px); 
+    font-size: clamp(16px, 4.5vmin, 24px); font-weight: 900;
+    background-color: #2E7D32; color: white; border: clamp(3px, 1vmin, 6px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #1B5E20, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; margin-bottom: 10px; outline: none; -webkit-tap-highlight-color: transparent; text-decoration: none; display: inline-block;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  
+  .btn-rotate {
+    background: #00BCD4; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px); 
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 6px 0 #00838F, 0 10px 15px rgba(0,0,0,0.3); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  .btn-reset {
+    background: #F57C00; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF;
+    border-radius: 30px; padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px);
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer;
+    box-shadow: 0 6px 0 #E65100, 0 10px 15px rgba(0,0,0,0.3);
+    font-family: inherit; transition: 0.1s; display: inline-flex;
+    align-items: center; justify-content: center; gap: 8px; outline: none;
+    -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-reset:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+
+
+  /* --- TOMBOL MENU UTAMA RESPONSIVE --- */
+  .welcome-actions {
+    width: min(92%, 360px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(7px, 1.4vh, 11px);
+    margin: 0 auto 12px;
+  }
+
+  .welcome-actions .btn,
+  .welcome-actions .btn-reset,
+  .welcome-actions .btn-rotate {
+    margin: 0;
+  }
+
+  .btn-main-responsive,
+  .btn-reset-responsive {
+    width: 100%;
+    min-height: 52px;
+    padding: clamp(10px, 2vh, 15px) clamp(16px, 4vw, 28px);
+    white-space: nowrap;
+    font-size: clamp(15px, 3.8vmin, 21px);
+  }
+
+  /* Tombol putar sengaja dibuat kecil/mungil */
+  .btn-rotate-mini {
+    width: auto !important;
+    min-width: 120px;
+    min-height: 34px;
+    padding: 6px 15px !important;
+    font-size: clamp(11px, 2.7vmin, 14px) !important;
+    border-width: 2px !important;
+    box-shadow: 0 4px 0 #00838F, 0 6px 10px rgba(0,0,0,0.18) !important;
+  }
+
+  /* Beri ruang agar label Development tidak menabrak tombol */
+  #welcome-screen .screen-content {
+    padding-bottom: clamp(42px, 8vh, 64px);
+  }
+
+  @media (max-height: 700px) {
+    #welcome-screen .screen-content {
+      justify-content: flex-start;
+      padding-top: 12px;
+      padding-bottom: 44px;
+    }
+    #welcome-screen .screen h1 {
+      font-size: clamp(22px, 5.5vmin, 36px);
+      margin-bottom: 5px;
+    }
+    #welcome-screen .screen h2 {
+      font-size: clamp(14px, 3.4vmin, 20px);
+      margin: 4px 0;
+    }
+    #welcome-screen #welcome-level-text {
+      margin-bottom: 8px;
+    }
+    #welcome-screen .screen p {
+      margin: 8px 0 12px;
+      font-size: clamp(12px, 2.8vmin, 17px);
+    }
+    .welcome-actions {
+      gap: 7px;
+      margin-bottom: 5px;
+    }
+    .btn-main-responsive,
+    .btn-reset-responsive {
+      min-height: 44px;
+      padding: 8px 15px;
+      font-size: clamp(14px, 3.2vmin, 18px);
+    }
+    .btn-rotate-mini {
+      min-height: 30px;
+      padding: 4px 12px !important;
+      font-size: 12px !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .welcome-actions { width: 94%; }
+    .btn-main-responsive,
+    .btn-reset-responsive {
+      white-space: normal;
+      line-height: 1.15;
+    }
+  }
+
+
+  /* --- MODAL KONFIRMASI MODERN --- */
+  .modern-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 35, 18, 0.58);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    animation: modalFade .2s ease;
+  }
+  .modern-modal-overlay.show { display: flex; }
+
+  .modern-modal {
+    width: min(92vw, 390px);
+    background: rgba(255,255,255,.98);
+    border: 3px solid rgba(255,255,255,.9);
+    border-radius: 26px;
+    padding: 24px 22px 20px;
+    text-align: center;
+    box-shadow: 0 22px 60px rgba(0,0,0,.28);
+    animation: modalPop .25s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .modern-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: -2px auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFF3E0;
+    border: 3px solid #FFB74D;
+    font-size: 30px;
+  }
+  .modern-modal h3 {
+    margin: 0 0 8px;
+    color: #1B5E20;
+    font-size: clamp(21px, 5vw, 27px);
+    font-weight: 900;
+  }
+  .modern-modal p {
+    margin: 0 auto 20px;
+    color: #555;
+    font-size: clamp(14px, 3.5vw, 17px);
+    line-height: 1.45;
+    font-weight: 700;
+  }
+  .modern-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .modal-btn {
+    min-height: 48px;
+    border: 0;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .modal-btn:active { transform: scale(.96); }
+  .modal-cancel {
+    background: #ECEFF1;
+    color: #455A64;
+  }
+  .modal-confirm {
+    background: #F57C00;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(245,124,0,.28);
+  }
+  @keyframes modalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(.88) translateY(12px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* --- HEADER SOAL (GAME AREA) --- */
+  .header-area {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; flex-shrink: 0;
+  }
+
+  .level-badge {
+    background: #2E7D32; color: white; border-radius: 20px;
+    padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
+    text-align: center;
+  }
+  .level-badge span { color: #FFF59D; }
+
+  /* --- TATA LETAK GAME --- */
+  .game-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; flex-grow: 1; gap: clamp(8px, 1.5vh, 15px);
+  }
+  .game-layout-left, .game-layout-right {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%;
+  }
+
+  /* --- AREA KOSAKATA DINAMIS --- */
+  #question-box {
+    background: rgba(255, 255, 255, 0.9); 
+    border: clamp(3px, 1vmin, 5px) dashed #4CAF50; 
+    border-radius: clamp(15px, 3.5vmin, 25px);
+    padding: clamp(20px, 4vh, 30px) clamp(15px, 3vw, 25px); 
+    width: 100%; box-sizing: border-box; margin-bottom: clamp(5px, 1vh, 10px);
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+    min-height: clamp(120px, 25vh, 200px); 
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .question-instruction {
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; color: #F57C00; margin-bottom: clamp(5px, 1vh, 10px); text-align: center; line-height: 1.3;
+  }
+
+  /* Font untuk pertanyaan */
+  .q-arab { font-family: 'Amiri', serif; font-size: clamp(50px, 14vmin, 90px); font-weight: bold; color: #1B5E20; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin: 0; padding: 10px 0; text-align: center; }
+  .q-indo { font-family: 'Nunito', sans-serif; font-size: clamp(30px, 9vmin, 50px); font-weight: 900; color: #1B5E20; line-height: 1.4; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin: 0; padding: 10px 0; text-align: center; }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 2.5vw, 20px); width: 100%;
+  }
+
+  .option-btn {
+    background: #FFF; border: clamp(3px, 1vmin, 5px) solid #81C784; border-radius: clamp(12px, 3.5vmin, 20px);
+    width: 100%; min-height: clamp(60px, 12vmin, 90px); padding: 10px; box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center; text-align: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    outline: none; -webkit-tap-highlight-color: transparent; font-weight: 900; color: #333; 
+    /* Dihapus line-height: 1.2 dari sini agar bisa diatur terpisah per bahasa */
+  }
+
+  .option-btn:active { transform: translateY(4px) scale(0.95) !important; box-shadow: 0 0 0 rgba(0,0,0,0) !important; }
+
+  /* Font dinamis untuk opsi jawaban (DIPERBAIKI) */
+  .opt-arab { 
+    font-family: 'Amiri', serif; 
+    font-size: clamp(24px, 7vmin, 40px); 
+    line-height: 1.8; /* Ruang bernafas untuk harakat */
+    padding-bottom: 5px; /* Menyesuaikan visual agar di tengah */
+  }
+  .opt-indo { 
+    font-family: 'Nunito', sans-serif; 
+    font-size: clamp(16px, 4.5vmin, 24px); 
+    line-height: 1.3; 
+  }
+
+  /* Animasi */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important; color: #D32F2F !important;}
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; background: #E8F5E9 !important; color: #2E7D32 !important; }
+  @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1.05); } }
+  .correct-highlight { border-color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05) !important; color: #2E7D32 !important; }
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: clamp(14px, 4vmin, 22px); font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: 20px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #E91E63 !important; }
+
+  /* --- KOTAK EVALUASI HASIL --- */
+  .eval-box { display: flex; justify-content: center; gap: clamp(10px, 3vw, 30px); margin-bottom: 20px; }
+  .eval-item { background: #FFF; padding: clamp(10px, 2vmin, 20px); border-radius: 20px; border: clamp(3px, 1vmin, 5px) solid; width: clamp(90px, 25vmin, 150px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: clamp(30px, 8vmin, 50px); margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: clamp(14px, 3.5vmin, 20px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(24px, 6vmin, 40px); font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { 
+    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(10px, 2vh, 25px); flex-shrink: 0;
+    overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+  }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    padding: 4px 15px; font-size: clamp(10px, 2.5vmin, 14px); color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 3vmin, 15px); font-weight: 900; margin-left: 4px; }
+
+  /* RESPONSIVE LANDSCAPE */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    .game-layout { flex-direction: row; gap: 15px; }
+    .game-layout-left { width: 50%; }
+    .game-layout-right { width: 50%; }
+    .question-instruction { margin: 2px 0; font-size: clamp(11px, 2.5vmin, 14px); }
+    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
+    #progress-bar { margin-top: 5px; }
+    #question-box { min-height: 100px; padding: 6px; margin-bottom: 5px; }
+    .screen h1 { font-size: 24px; margin-bottom: 2px; }
+    .screen h2 { font-size: 16px; margin-bottom: 5px; }
+    #welcome-level-text { font-size: 14px; margin-bottom: 10px; padding: 4px 12px; }
+    .screen p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
+    .btn { padding: 6px 20px; font-size: 16px; margin-bottom: 6px; border-width: 3px; box-shadow: 0 4px 0 #1B5E20; }
+    .btn-rotate { padding: 6px 15px; font-size: 14px; border-width: 2px; box-shadow: 0 4px 0 #00838F; }
+    .dev-link { position: relative; bottom: auto; left: auto; transform: none; margin-top: 10px; margin-bottom: 10px; display: inline-block; }
+  }
+</style>
+</head>
+
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<div id="app-container">
+
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1>🕌 English Game • 100 Level 🕌</h1>
+      <h2 style="color: #F57C00;">100 Level • 1000 Kosakata Inggris</h2>
+      <div id="welcome-level-text">Misi Kamu: Level 1</div>
+      <p>Terjemahkan kosakata Inggris ↔ Indonesia. Pengecoh berasal dari kategori yang sama. <strong>Wajib 10 BENAR (Sempurna)</strong> untuk naik level!</p>
+      
+      <div class="welcome-actions">
+        <button type="button" class="btn btn-main-responsive" id="btn-start-main" onclick="startGame()">▶️ MULAI BERMAIN</button>
+        <button type="button" class="btn-reset btn-reset-responsive" onclick="resetKeLevelSatu()">↩️ ULANG DARI AWAL</button>
+        <button type="button" class="btn-rotate btn-rotate-mini" onclick="putarLayar()" title="Putar layar">🔄 PUTAR LAYAR</button>
+      </div>
+      
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div id="feedback-msg">Pintar!</div>
+    
+    <div class="header-area">
+      <div class="level-badge">Level <span id="current-lvl-display">1</span> &nbsp;|&nbsp; Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+    </div>
+    
+    <div class="game-layout">
+      <!-- Kiri saat Landscape, Atas saat Portrait -->
+      <div class="game-layout-left">
+        <div class="question-instruction" id="q-text">Instruksi akan muncul di sini...</div>
+        <div id="question-box">
+          <!-- Diisi oleh JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Kanan saat Landscape, Bawah saat Portrait -->
+      <div class="game-layout-right">
+        <!-- Area Pilihan Ganda -->
+        <div id="options-area"></div>
+      </div>
+    </div>
+
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Hebat Sekali! 🎉</h1>
+      <p id="result-message">Masya Allah! Kamu berhasil menyelesaikan level ini.</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="btn-result-action">▶️ LANJUT LEVEL</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- MODAL RESET LEVEL MODERN -->
+  <div id="reset-modal" class="modern-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="modern-modal">
+      <div class="modern-modal-icon">↩️</div>
+      <h3 id="reset-modal-title">Mulai dari Awal?</h3>
+      <p>Progres level saat ini akan dihapus dan permainan akan kembali ke <strong>Level 1</strong>.</p>
+      <div class="modern-modal-actions">
+        <button type="button" class="modal-btn modal-cancel" onclick="tutupResetModal()">Batal</button>
+        <button type="button" class="modal-btn modal-confirm" onclick="konfirmasiResetLevel()">Ya, Mulai Ulang</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MUSIK LATAR -->
+<audio id="bg-music" loop>
+  <source src="asset/lucu.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
+  function resetKeLevelSatu() {
+    document.getElementById('reset-modal').classList.add('show');
+  }
+
+  function tutupResetModal() {
+    document.getElementById('reset-modal').classList.remove('show');
+  }
+
+  function konfirmasiResetLevel() {
+    currentLevel = 1;
+    localStorage.setItem('madasa_english_2way_level', '1');
+
+    const welcomeLevel = document.getElementById('welcome-level-text');
+    if (welcomeLevel) welcomeLevel.innerText = "Misi Kamu: Level 1";
+
+    const lvlDisplay = document.getElementById('current-lvl-display');
+    if (lvlDisplay) lvlDisplay.innerText = "1";
+
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    tutupResetModal();
+  }
+
+  // Tutup modal jika area gelap di luar kotak ditekan
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('reset-modal');
+    if (e.target === modal) tutupResetModal();
+  });
+
+  // BANK KOSAKATA (Angka, Hewan, Benda)
+  const kosakataList = [{"en": "cat", "id": "Kucing", "cat": "Animals"}, {"en": "dog", "id": "Anjing", "cat": "Animals"}, {"en": "bird", "id": "Burung", "cat": "Animals"}, {"en": "fish", "id": "Ikan", "cat": "Animals"}, {"en": "cow", "id": "Sapi", "cat": "Animals"}, {"en": "horse", "id": "Kuda", "cat": "Animals"}, {"en": "goat", "id": "Kambing", "cat": "Animals"}, {"en": "chicken", "id": "Ayam", "cat": "Animals"}, {"en": "duck", "id": "Bebek", "cat": "Animals"}, {"en": "rabbit", "id": "Kelinci", "cat": "Animals"}, {"en": "book", "id": "Buku", "cat": "School"}, {"en": "pen", "id": "Pulpen", "cat": "School"}, {"en": "pencil", "id": "Pensil", "cat": "School"}, {"en": "table", "id": "Meja", "cat": "School"}, {"en": "chair", "id": "Kursi", "cat": "School"}, {"en": "board", "id": "Papan tulis", "cat": "School"}, {"en": "bag", "id": "Tas", "cat": "School"}, {"en": "ruler", "id": "Penggaris", "cat": "School"}, {"en": "eraser", "id": "Penghapus", "cat": "School"}, {"en": "paper", "id": "Kertas", "cat": "School"}, {"en": "red", "id": "Merah", "cat": "Colors"}, {"en": "blue", "id": "Biru", "cat": "Colors"}, {"en": "green", "id": "Hijau", "cat": "Colors"}, {"en": "yellow", "id": "Kuning", "cat": "Colors"}, {"en": "white", "id": "Putih", "cat": "Colors"}, {"en": "black", "id": "Hitam", "cat": "Colors"}, {"en": "brown", "id": "Cokelat", "cat": "Colors"}, {"en": "orange", "id": "Oranye", "cat": "Colors"}, {"en": "purple", "id": "Ungu", "cat": "Colors"}, {"en": "pink", "id": "Merah muda", "cat": "Colors"}, {"en": "head", "id": "Kepala", "cat": "Body"}, {"en": "eye", "id": "Mata", "cat": "Body"}, {"en": "ear", "id": "Telinga", "cat": "Body"}, {"en": "nose", "id": "Hidung", "cat": "Body"}, {"en": "mouth", "id": "Mulut", "cat": "Body"}, {"en": "hand", "id": "Tangan", "cat": "Body"}, {"en": "foot", "id": "Kaki", "cat": "Body"}, {"en": "hair", "id": "Rambut", "cat": "Body"}, {"en": "tooth", "id": "Gigi", "cat": "Body"}, {"en": "tongue", "id": "Lidah", "cat": "Body"}, {"en": "father", "id": "Ayah", "cat": "Family"}, {"en": "mother", "id": "Ibu", "cat": "Family"}, {"en": "brother", "id": "Saudara laki-laki", "cat": "Family"}, {"en": "sister", "id": "Saudara perempuan", "cat": "Family"}, {"en": "grandfather", "id": "Kakek", "cat": "Family"}, {"en": "grandmother", "id": "Nenek", "cat": "Family"}, {"en": "uncle", "id": "Paman", "cat": "Family"}, {"en": "aunt", "id": "Bibi", "cat": "Family"}, {"en": "son", "id": "Anak laki-laki", "cat": "Family"}, {"en": "daughter", "id": "Anak perempuan", "cat": "Family"}, {"en": "rice", "id": "Nasi", "cat": "Food"}, {"en": "bread", "id": "Roti", "cat": "Food"}, {"en": "egg", "id": "Telur", "cat": "Food"}, {"en": "meat", "id": "Daging", "cat": "Food"}, {"en": "soup", "id": "Sup", "cat": "Food"}, {"en": "sugar", "id": "Gula", "cat": "Food"}, {"en": "salt", "id": "Garam", "cat": "Food"}, {"en": "cake", "id": "Kue", "cat": "Food"}, {"en": "noodle", "id": "Mi", "cat": "Food"}, {"en": "vegetable", "id": "Sayur", "cat": "Food"}, {"en": "water", "id": "Air", "cat": "Fruit & Drinks"}, {"en": "milk", "id": "Susu", "cat": "Fruit & Drinks"}, {"en": "tea", "id": "Teh", "cat": "Fruit & Drinks"}, {"en": "coffee", "id": "Kopi", "cat": "Fruit & Drinks"}, {"en": "juice", "id": "Jus", "cat": "Fruit & Drinks"}, {"en": "apple", "id": "Apel", "cat": "Fruit & Drinks"}, {"en": "banana", "id": "Pisang", "cat": "Fruit & Drinks"}, {"en": "orange fruit", "id": "Jeruk", "cat": "Fruit & Drinks"}, {"en": "grape", "id": "Anggur", "cat": "Fruit & Drinks"}, {"en": "mango", "id": "Mangga", "cat": "Fruit & Drinks"}, {"en": "house", "id": "Rumah", "cat": "Home"}, {"en": "door", "id": "Pintu", "cat": "Home"}, {"en": "window", "id": "Jendela", "cat": "Home"}, {"en": "bed", "id": "Tempat tidur", "cat": "Home"}, {"en": "kitchen", "id": "Dapur", "cat": "Home"}, {"en": "bathroom", "id": "Kamar mandi", "cat": "Home"}, {"en": "lamp", "id": "Lampu", "cat": "Home"}, {"en": "fan", "id": "Kipas", "cat": "Home"}, {"en": "cupboard", "id": "Lemari", "cat": "Home"}, {"en": "roof", "id": "Atap", "cat": "Home"}, {"en": "school", "id": "Sekolah", "cat": "Places"}, {"en": "mosque", "id": "Masjid", "cat": "Places"}, {"en": "market", "id": "Pasar", "cat": "Places"}, {"en": "hospital", "id": "Rumah sakit", "cat": "Places"}, {"en": "garden", "id": "Taman", "cat": "Places"}, {"en": "office", "id": "Kantor", "cat": "Places"}, {"en": "library", "id": "Perpustakaan", "cat": "Places"}, {"en": "station", "id": "Stasiun", "cat": "Places"}, {"en": "airport", "id": "Bandara", "cat": "Places"}, {"en": "restaurant", "id": "Restoran", "cat": "Places"}, {"en": "eat", "id": "Makan", "cat": "Verbs"}, {"en": "drink", "id": "Minum", "cat": "Verbs"}, {"en": "read", "id": "Membaca", "cat": "Verbs"}, {"en": "write", "id": "Menulis", "cat": "Verbs"}, {"en": "sleep", "id": "Tidur", "cat": "Verbs"}, {"en": "sit", "id": "Duduk", "cat": "Verbs"}, {"en": "stand", "id": "Berdiri", "cat": "Verbs"}, {"en": "walk", "id": "Berjalan", "cat": "Verbs"}, {"en": "run", "id": "Berlari", "cat": "Verbs"}, {"en": "study", "id": "Belajar", "cat": "Verbs"}, {"en": "big", "id": "Besar", "cat": "Adjectives"}, {"en": "small", "id": "Kecil", "cat": "Adjectives"}, {"en": "long", "id": "Panjang", "cat": "Adjectives"}, {"en": "short", "id": "Pendek", "cat": "Adjectives"}, {"en": "good", "id": "Baik", "cat": "Adjectives"}, {"en": "bad", "id": "Buruk", "cat": "Adjectives"}, {"en": "clean", "id": "Bersih", "cat": "Adjectives"}, {"en": "dirty", "id": "Kotor", "cat": "Adjectives"}, {"en": "hot", "id": "Panas", "cat": "Adjectives"}, {"en": "cold", "id": "Dingin", "cat": "Adjectives"}, {"en": "sun", "id": "Matahari", "cat": "Nature"}, {"en": "moon", "id": "Bulan", "cat": "Nature"}, {"en": "star", "id": "Bintang", "cat": "Nature"}, {"en": "sky", "id": "Langit", "cat": "Nature"}, {"en": "cloud", "id": "Awan", "cat": "Nature"}, {"en": "rain", "id": "Hujan", "cat": "Nature"}, {"en": "wind", "id": "Angin", "cat": "Nature"}, {"en": "river", "id": "Sungai", "cat": "Nature"}, {"en": "mountain", "id": "Gunung", "cat": "Nature"}, {"en": "sea", "id": "Laut", "cat": "Nature"}, {"en": "car", "id": "Mobil", "cat": "Transport"}, {"en": "bus", "id": "Bus", "cat": "Transport"}, {"en": "train", "id": "Kereta", "cat": "Transport"}, {"en": "bicycle", "id": "Sepeda", "cat": "Transport"}, {"en": "motorcycle", "id": "Sepeda motor", "cat": "Transport"}, {"en": "airplane", "id": "Pesawat", "cat": "Transport"}, {"en": "ship", "id": "Kapal", "cat": "Transport"}, {"en": "boat", "id": "Perahu", "cat": "Transport"}, {"en": "truck", "id": "Truk", "cat": "Transport"}, {"en": "taxi", "id": "Taksi", "cat": "Transport"}, {"en": "teacher", "id": "Guru", "cat": "Jobs"}, {"en": "doctor", "id": "Dokter", "cat": "Jobs"}, {"en": "farmer", "id": "Petani", "cat": "Jobs"}, {"en": "driver", "id": "Sopir", "cat": "Jobs"}, {"en": "police officer", "id": "Polisi", "cat": "Jobs"}, {"en": "nurse", "id": "Perawat", "cat": "Jobs"}, {"en": "chef", "id": "Koki", "cat": "Jobs"}, {"en": "seller", "id": "Penjual", "cat": "Jobs"}, {"en": "student", "id": "Pelajar", "cat": "Jobs"}, {"en": "fisherman", "id": "Nelayan", "cat": "Jobs"}, {"en": "one", "id": "Satu (1)", "cat": "Numbers"}, {"en": "two", "id": "Dua (2)", "cat": "Numbers"}, {"en": "three", "id": "Tiga (3)", "cat": "Numbers"}, {"en": "four", "id": "Empat (4)", "cat": "Numbers"}, {"en": "five", "id": "Lima (5)", "cat": "Numbers"}, {"en": "six", "id": "Enam (6)", "cat": "Numbers"}, {"en": "seven", "id": "Tujuh (7)", "cat": "Numbers"}, {"en": "eight", "id": "Delapan (8)", "cat": "Numbers"}, {"en": "nine", "id": "Sembilan (9)", "cat": "Numbers"}, {"en": "ten", "id": "Sepuluh (10)", "cat": "Numbers"}, {"en": "eleven", "id": "Sebelas (11)", "cat": "Numbers"}, {"en": "twelve", "id": "Dua Belas (12)", "cat": "Numbers"}, {"en": "thirteen", "id": "Tiga Belas (13)", "cat": "Numbers"}, {"en": "fourteen", "id": "Empat Belas (14)", "cat": "Numbers"}, {"en": "fifteen", "id": "Lima Belas (15)", "cat": "Numbers"}, {"en": "sixteen", "id": "Enam Belas (16)", "cat": "Numbers"}, {"en": "seventeen", "id": "Tujuh Belas (17)", "cat": "Numbers"}, {"en": "eighteen", "id": "Delapan Belas (18)", "cat": "Numbers"}, {"en": "nineteen", "id": "Sembilan Belas (19)", "cat": "Numbers"}, {"en": "twenty", "id": "Dua Puluh (20)", "cat": "Numbers"}, {"en": "twenty-one", "id": "Dua Puluh Satu (21)", "cat": "Numbers"}, {"en": "twenty-two", "id": "Dua Puluh Dua (22)", "cat": "Numbers"}, {"en": "twenty-three", "id": "Dua Puluh Tiga (23)", "cat": "Numbers"}, {"en": "twenty-four", "id": "Dua Puluh Empat (24)", "cat": "Numbers"}, {"en": "twenty-five", "id": "Dua Puluh Lima (25)", "cat": "Numbers"}, {"en": "twenty-six", "id": "Dua Puluh Enam (26)", "cat": "Numbers"}, {"en": "twenty-seven", "id": "Dua Puluh Tujuh (27)", "cat": "Numbers"}, {"en": "twenty-eight", "id": "Dua Puluh Delapan (28)", "cat": "Numbers"}, {"en": "twenty-nine", "id": "Dua Puluh Sembilan (29)", "cat": "Numbers"}, {"en": "thirty", "id": "Tiga Puluh (30)", "cat": "Numbers"}, {"en": "thirty-one", "id": "Tiga Puluh Satu (31)", "cat": "Numbers"}, {"en": "thirty-two", "id": "Tiga Puluh Dua (32)", "cat": "Numbers"}, {"en": "thirty-three", "id": "Tiga Puluh Tiga (33)", "cat": "Numbers"}, {"en": "thirty-four", "id": "Tiga Puluh Empat (34)", "cat": "Numbers"}, {"en": "thirty-five", "id": "Tiga Puluh Lima (35)", "cat": "Numbers"}, {"en": "thirty-six", "id": "Tiga Puluh Enam (36)", "cat": "Numbers"}, {"en": "thirty-seven", "id": "Tiga Puluh Tujuh (37)", "cat": "Numbers"}, {"en": "thirty-eight", "id": "Tiga Puluh Delapan (38)", "cat": "Numbers"}, {"en": "thirty-nine", "id": "Tiga Puluh Sembilan (39)", "cat": "Numbers"}, {"en": "forty", "id": "Empat Puluh (40)", "cat": "Numbers"}, {"en": "forty-one", "id": "Empat Puluh Satu (41)", "cat": "Numbers"}, {"en": "forty-two", "id": "Empat Puluh Dua (42)", "cat": "Numbers"}, {"en": "forty-three", "id": "Empat Puluh Tiga (43)", "cat": "Numbers"}, {"en": "forty-four", "id": "Empat Puluh Empat (44)", "cat": "Numbers"}, {"en": "forty-five", "id": "Empat Puluh Lima (45)", "cat": "Numbers"}, {"en": "forty-six", "id": "Empat Puluh Enam (46)", "cat": "Numbers"}, {"en": "forty-seven", "id": "Empat Puluh Tujuh (47)", "cat": "Numbers"}, {"en": "forty-eight", "id": "Empat Puluh Delapan (48)", "cat": "Numbers"}, {"en": "forty-nine", "id": "Empat Puluh Sembilan (49)", "cat": "Numbers"}, {"en": "fifty", "id": "Lima Puluh (50)", "cat": "Numbers"}, {"en": "fifty-one", "id": "Lima Puluh Satu (51)", "cat": "Numbers"}, {"en": "fifty-two", "id": "Lima Puluh Dua (52)", "cat": "Numbers"}, {"en": "fifty-three", "id": "Lima Puluh Tiga (53)", "cat": "Numbers"}, {"en": "fifty-four", "id": "Lima Puluh Empat (54)", "cat": "Numbers"}, {"en": "fifty-five", "id": "Lima Puluh Lima (55)", "cat": "Numbers"}, {"en": "fifty-six", "id": "Lima Puluh Enam (56)", "cat": "Numbers"}, {"en": "fifty-seven", "id": "Lima Puluh Tujuh (57)", "cat": "Numbers"}, {"en": "fifty-eight", "id": "Lima Puluh Delapan (58)", "cat": "Numbers"}, {"en": "fifty-nine", "id": "Lima Puluh Sembilan (59)", "cat": "Numbers"}, {"en": "sixty", "id": "Enam Puluh (60)", "cat": "Numbers"}, {"en": "sixty-one", "id": "Enam Puluh Satu (61)", "cat": "Numbers"}, {"en": "sixty-two", "id": "Enam Puluh Dua (62)", "cat": "Numbers"}, {"en": "sixty-three", "id": "Enam Puluh Tiga (63)", "cat": "Numbers"}, {"en": "sixty-four", "id": "Enam Puluh Empat (64)", "cat": "Numbers"}, {"en": "sixty-five", "id": "Enam Puluh Lima (65)", "cat": "Numbers"}, {"en": "sixty-six", "id": "Enam Puluh Enam (66)", "cat": "Numbers"}, {"en": "sixty-seven", "id": "Enam Puluh Tujuh (67)", "cat": "Numbers"}, {"en": "sixty-eight", "id": "Enam Puluh Delapan (68)", "cat": "Numbers"}, {"en": "sixty-nine", "id": "Enam Puluh Sembilan (69)", "cat": "Numbers"}, {"en": "seventy", "id": "Tujuh Puluh (70)", "cat": "Numbers"}, {"en": "seventy-one", "id": "Tujuh Puluh Satu (71)", "cat": "Numbers"}, {"en": "seventy-two", "id": "Tujuh Puluh Dua (72)", "cat": "Numbers"}, {"en": "seventy-three", "id": "Tujuh Puluh Tiga (73)", "cat": "Numbers"}, {"en": "seventy-four", "id": "Tujuh Puluh Empat (74)", "cat": "Numbers"}, {"en": "seventy-five", "id": "Tujuh Puluh Lima (75)", "cat": "Numbers"}, {"en": "seventy-six", "id": "Tujuh Puluh Enam (76)", "cat": "Numbers"}, {"en": "seventy-seven", "id": "Tujuh Puluh Tujuh (77)", "cat": "Numbers"}, {"en": "seventy-eight", "id": "Tujuh Puluh Delapan (78)", "cat": "Numbers"}, {"en": "seventy-nine", "id": "Tujuh Puluh Sembilan (79)", "cat": "Numbers"}, {"en": "eighty", "id": "Delapan Puluh (80)", "cat": "Numbers"}, {"en": "eighty-one", "id": "Delapan Puluh Satu (81)", "cat": "Numbers"}, {"en": "eighty-two", "id": "Delapan Puluh Dua (82)", "cat": "Numbers"}, {"en": "eighty-three", "id": "Delapan Puluh Tiga (83)", "cat": "Numbers"}, {"en": "eighty-four", "id": "Delapan Puluh Empat (84)", "cat": "Numbers"}, {"en": "eighty-five", "id": "Delapan Puluh Lima (85)", "cat": "Numbers"}, {"en": "eighty-six", "id": "Delapan Puluh Enam (86)", "cat": "Numbers"}, {"en": "eighty-seven", "id": "Delapan Puluh Tujuh (87)", "cat": "Numbers"}, {"en": "eighty-eight", "id": "Delapan Puluh Delapan (88)", "cat": "Numbers"}, {"en": "eighty-nine", "id": "Delapan Puluh Sembilan (89)", "cat": "Numbers"}, {"en": "ninety", "id": "Sembilan Puluh (90)", "cat": "Numbers"}, {"en": "ninety-one", "id": "Sembilan Puluh Satu (91)", "cat": "Numbers"}, {"en": "ninety-two", "id": "Sembilan Puluh Dua (92)", "cat": "Numbers"}, {"en": "ninety-three", "id": "Sembilan Puluh Tiga (93)", "cat": "Numbers"}, {"en": "ninety-four", "id": "Sembilan Puluh Empat (94)", "cat": "Numbers"}, {"en": "ninety-five", "id": "Sembilan Puluh Lima (95)", "cat": "Numbers"}, {"en": "ninety-six", "id": "Sembilan Puluh Enam (96)", "cat": "Numbers"}, {"en": "ninety-seven", "id": "Sembilan Puluh Tujuh (97)", "cat": "Numbers"}, {"en": "ninety-eight", "id": "Sembilan Puluh Delapan (98)", "cat": "Numbers"}, {"en": "ninety-nine", "id": "Sembilan Puluh Sembilan (99)", "cat": "Numbers"}, {"en": "one hundred", "id": "Seratus (100)", "cat": "Numbers"}, {"en": "one hundred one", "id": "Seratus Satu (101)", "cat": "Numbers"}, {"en": "one hundred two", "id": "Seratus Dua (102)", "cat": "Numbers"}, {"en": "one hundred three", "id": "Seratus Tiga (103)", "cat": "Numbers"}, {"en": "one hundred four", "id": "Seratus Empat (104)", "cat": "Numbers"}, {"en": "one hundred five", "id": "Seratus Lima (105)", "cat": "Numbers"}, {"en": "one hundred six", "id": "Seratus Enam (106)", "cat": "Numbers"}, {"en": "one hundred seven", "id": "Seratus Tujuh (107)", "cat": "Numbers"}, {"en": "one hundred eight", "id": "Seratus Delapan (108)", "cat": "Numbers"}, {"en": "one hundred nine", "id": "Seratus Sembilan (109)", "cat": "Numbers"}, {"en": "one hundred ten", "id": "Seratus Sepuluh (110)", "cat": "Numbers"}, {"en": "one hundred eleven", "id": "Seratus Sebelas (111)", "cat": "Numbers"}, {"en": "one hundred twelve", "id": "Seratus Dua Belas (112)", "cat": "Numbers"}, {"en": "one hundred thirteen", "id": "Seratus Tiga Belas (113)", "cat": "Numbers"}, {"en": "one hundred fourteen", "id": "Seratus Empat Belas (114)", "cat": "Numbers"}, {"en": "one hundred fifteen", "id": "Seratus Lima Belas (115)", "cat": "Numbers"}, {"en": "one hundred sixteen", "id": "Seratus Enam Belas (116)", "cat": "Numbers"}, {"en": "one hundred seventeen", "id": "Seratus Tujuh Belas (117)", "cat": "Numbers"}, {"en": "one hundred eighteen", "id": "Seratus Delapan Belas (118)", "cat": "Numbers"}, {"en": "one hundred nineteen", "id": "Seratus Sembilan Belas (119)", "cat": "Numbers"}, {"en": "one hundred twenty", "id": "Seratus Dua Puluh (120)", "cat": "Numbers"}, {"en": "one hundred twenty-one", "id": "Seratus Dua Puluh Satu (121)", "cat": "Numbers"}, {"en": "one hundred twenty-two", "id": "Seratus Dua Puluh Dua (122)", "cat": "Numbers"}, {"en": "one hundred twenty-three", "id": "Seratus Dua Puluh Tiga (123)", "cat": "Numbers"}, {"en": "one hundred twenty-four", "id": "Seratus Dua Puluh Empat (124)", "cat": "Numbers"}, {"en": "one hundred twenty-five", "id": "Seratus Dua Puluh Lima (125)", "cat": "Numbers"}, {"en": "one hundred twenty-six", "id": "Seratus Dua Puluh Enam (126)", "cat": "Numbers"}, {"en": "one hundred twenty-seven", "id": "Seratus Dua Puluh Tujuh (127)", "cat": "Numbers"}, {"en": "one hundred twenty-eight", "id": "Seratus Dua Puluh Delapan (128)", "cat": "Numbers"}, {"en": "one hundred twenty-nine", "id": "Seratus Dua Puluh Sembilan (129)", "cat": "Numbers"}, {"en": "one hundred thirty", "id": "Seratus Tiga Puluh (130)", "cat": "Numbers"}, {"en": "one hundred thirty-one", "id": "Seratus Tiga Puluh Satu (131)", "cat": "Numbers"}, {"en": "one hundred thirty-two", "id": "Seratus Tiga Puluh Dua (132)", "cat": "Numbers"}, {"en": "one hundred thirty-three", "id": "Seratus Tiga Puluh Tiga (133)", "cat": "Numbers"}, {"en": "one hundred thirty-four", "id": "Seratus Tiga Puluh Empat (134)", "cat": "Numbers"}, {"en": "one hundred thirty-five", "id": "Seratus Tiga Puluh Lima (135)", "cat": "Numbers"}, {"en": "one hundred thirty-six", "id": "Seratus Tiga Puluh Enam (136)", "cat": "Numbers"}, {"en": "one hundred thirty-seven", "id": "Seratus Tiga Puluh Tujuh (137)", "cat": "Numbers"}, {"en": "one hundred thirty-eight", "id": "Seratus Tiga Puluh Delapan (138)", "cat": "Numbers"}, {"en": "one hundred thirty-nine", "id": "Seratus Tiga Puluh Sembilan (139)", "cat": "Numbers"}, {"en": "one hundred forty", "id": "Seratus Empat Puluh (140)", "cat": "Numbers"}, {"en": "one hundred forty-one", "id": "Seratus Empat Puluh Satu (141)", "cat": "Numbers"}, {"en": "one hundred forty-two", "id": "Seratus Empat Puluh Dua (142)", "cat": "Numbers"}, {"en": "one hundred forty-three", "id": "Seratus Empat Puluh Tiga (143)", "cat": "Numbers"}, {"en": "one hundred forty-four", "id": "Seratus Empat Puluh Empat (144)", "cat": "Numbers"}, {"en": "one hundred forty-five", "id": "Seratus Empat Puluh Lima (145)", "cat": "Numbers"}, {"en": "one hundred forty-six", "id": "Seratus Empat Puluh Enam (146)", "cat": "Numbers"}, {"en": "one hundred forty-seven", "id": "Seratus Empat Puluh Tujuh (147)", "cat": "Numbers"}, {"en": "one hundred forty-eight", "id": "Seratus Empat Puluh Delapan (148)", "cat": "Numbers"}, {"en": "one hundred forty-nine", "id": "Seratus Empat Puluh Sembilan (149)", "cat": "Numbers"}, {"en": "one hundred fifty", "id": "Seratus Lima Puluh (150)", "cat": "Numbers"}, {"en": "one hundred fifty-one", "id": "Seratus Lima Puluh Satu (151)", "cat": "Numbers"}, {"en": "one hundred fifty-two", "id": "Seratus Lima Puluh Dua (152)", "cat": "Numbers"}, {"en": "one hundred fifty-three", "id": "Seratus Lima Puluh Tiga (153)", "cat": "Numbers"}, {"en": "one hundred fifty-four", "id": "Seratus Lima Puluh Empat (154)", "cat": "Numbers"}, {"en": "one hundred fifty-five", "id": "Seratus Lima Puluh Lima (155)", "cat": "Numbers"}, {"en": "one hundred fifty-six", "id": "Seratus Lima Puluh Enam (156)", "cat": "Numbers"}, {"en": "one hundred fifty-seven", "id": "Seratus Lima Puluh Tujuh (157)", "cat": "Numbers"}, {"en": "one hundred fifty-eight", "id": "Seratus Lima Puluh Delapan (158)", "cat": "Numbers"}, {"en": "one hundred fifty-nine", "id": "Seratus Lima Puluh Sembilan (159)", "cat": "Numbers"}, {"en": "one hundred sixty", "id": "Seratus Enam Puluh (160)", "cat": "Numbers"}, {"en": "one hundred sixty-one", "id": "Seratus Enam Puluh Satu (161)", "cat": "Numbers"}, {"en": "one hundred sixty-two", "id": "Seratus Enam Puluh Dua (162)", "cat": "Numbers"}, {"en": "one hundred sixty-three", "id": "Seratus Enam Puluh Tiga (163)", "cat": "Numbers"}, {"en": "one hundred sixty-four", "id": "Seratus Enam Puluh Empat (164)", "cat": "Numbers"}, {"en": "one hundred sixty-five", "id": "Seratus Enam Puluh Lima (165)", "cat": "Numbers"}, {"en": "one hundred sixty-six", "id": "Seratus Enam Puluh Enam (166)", "cat": "Numbers"}, {"en": "one hundred sixty-seven", "id": "Seratus Enam Puluh Tujuh (167)", "cat": "Numbers"}, {"en": "one hundred sixty-eight", "id": "Seratus Enam Puluh Delapan (168)", "cat": "Numbers"}, {"en": "one hundred sixty-nine", "id": "Seratus Enam Puluh Sembilan (169)", "cat": "Numbers"}, {"en": "one hundred seventy", "id": "Seratus Tujuh Puluh (170)", "cat": "Numbers"}, {"en": "one hundred seventy-one", "id": "Seratus Tujuh Puluh Satu (171)", "cat": "Numbers"}, {"en": "one hundred seventy-two", "id": "Seratus Tujuh Puluh Dua (172)", "cat": "Numbers"}, {"en": "one hundred seventy-three", "id": "Seratus Tujuh Puluh Tiga (173)", "cat": "Numbers"}, {"en": "one hundred seventy-four", "id": "Seratus Tujuh Puluh Empat (174)", "cat": "Numbers"}, {"en": "one hundred seventy-five", "id": "Seratus Tujuh Puluh Lima (175)", "cat": "Numbers"}, {"en": "one hundred seventy-six", "id": "Seratus Tujuh Puluh Enam (176)", "cat": "Numbers"}, {"en": "one hundred seventy-seven", "id": "Seratus Tujuh Puluh Tujuh (177)", "cat": "Numbers"}, {"en": "one hundred seventy-eight", "id": "Seratus Tujuh Puluh Delapan (178)", "cat": "Numbers"}, {"en": "one hundred seventy-nine", "id": "Seratus Tujuh Puluh Sembilan (179)", "cat": "Numbers"}, {"en": "one hundred eighty", "id": "Seratus Delapan Puluh (180)", "cat": "Numbers"}, {"en": "one hundred eighty-one", "id": "Seratus Delapan Puluh Satu (181)", "cat": "Numbers"}, {"en": "one hundred eighty-two", "id": "Seratus Delapan Puluh Dua (182)", "cat": "Numbers"}, {"en": "one hundred eighty-three", "id": "Seratus Delapan Puluh Tiga (183)", "cat": "Numbers"}, {"en": "one hundred eighty-four", "id": "Seratus Delapan Puluh Empat (184)", "cat": "Numbers"}, {"en": "one hundred eighty-five", "id": "Seratus Delapan Puluh Lima (185)", "cat": "Numbers"}, {"en": "one hundred eighty-six", "id": "Seratus Delapan Puluh Enam (186)", "cat": "Numbers"}, {"en": "one hundred eighty-seven", "id": "Seratus Delapan Puluh Tujuh (187)", "cat": "Numbers"}, {"en": "one hundred eighty-eight", "id": "Seratus Delapan Puluh Delapan (188)", "cat": "Numbers"}, {"en": "one hundred eighty-nine", "id": "Seratus Delapan Puluh Sembilan (189)", "cat": "Numbers"}, {"en": "one hundred ninety", "id": "Seratus Sembilan Puluh (190)", "cat": "Numbers"}, {"en": "one hundred ninety-one", "id": "Seratus Sembilan Puluh Satu (191)", "cat": "Numbers"}, {"en": "one hundred ninety-two", "id": "Seratus Sembilan Puluh Dua (192)", "cat": "Numbers"}, {"en": "one hundred ninety-three", "id": "Seratus Sembilan Puluh Tiga (193)", "cat": "Numbers"}, {"en": "one hundred ninety-four", "id": "Seratus Sembilan Puluh Empat (194)", "cat": "Numbers"}, {"en": "one hundred ninety-five", "id": "Seratus Sembilan Puluh Lima (195)", "cat": "Numbers"}, {"en": "one hundred ninety-six", "id": "Seratus Sembilan Puluh Enam (196)", "cat": "Numbers"}, {"en": "one hundred ninety-seven", "id": "Seratus Sembilan Puluh Tujuh (197)", "cat": "Numbers"}, {"en": "one hundred ninety-eight", "id": "Seratus Sembilan Puluh Delapan (198)", "cat": "Numbers"}, {"en": "one hundred ninety-nine", "id": "Seratus Sembilan Puluh Sembilan (199)", "cat": "Numbers"}, {"en": "two hundred", "id": "Dua Ratus (200)", "cat": "Numbers"}, {"en": "two hundred one", "id": "Dua Ratus Satu (201)", "cat": "Numbers"}, {"en": "two hundred two", "id": "Dua Ratus Dua (202)", "cat": "Numbers"}, {"en": "two hundred three", "id": "Dua Ratus Tiga (203)", "cat": "Numbers"}, {"en": "two hundred four", "id": "Dua Ratus Empat (204)", "cat": "Numbers"}, {"en": "two hundred five", "id": "Dua Ratus Lima (205)", "cat": "Numbers"}, {"en": "two hundred six", "id": "Dua Ratus Enam (206)", "cat": "Numbers"}, {"en": "two hundred seven", "id": "Dua Ratus Tujuh (207)", "cat": "Numbers"}, {"en": "two hundred eight", "id": "Dua Ratus Delapan (208)", "cat": "Numbers"}, {"en": "two hundred nine", "id": "Dua Ratus Sembilan (209)", "cat": "Numbers"}, {"en": "two hundred ten", "id": "Dua Ratus Sepuluh (210)", "cat": "Numbers"}, {"en": "two hundred eleven", "id": "Dua Ratus Sebelas (211)", "cat": "Numbers"}, {"en": "two hundred twelve", "id": "Dua Ratus Dua Belas (212)", "cat": "Numbers"}, {"en": "two hundred thirteen", "id": "Dua Ratus Tiga Belas (213)", "cat": "Numbers"}, {"en": "two hundred fourteen", "id": "Dua Ratus Empat Belas (214)", "cat": "Numbers"}, {"en": "two hundred fifteen", "id": "Dua Ratus Lima Belas (215)", "cat": "Numbers"}, {"en": "two hundred sixteen", "id": "Dua Ratus Enam Belas (216)", "cat": "Numbers"}, {"en": "two hundred seventeen", "id": "Dua Ratus Tujuh Belas (217)", "cat": "Numbers"}, {"en": "two hundred eighteen", "id": "Dua Ratus Delapan Belas (218)", "cat": "Numbers"}, {"en": "two hundred nineteen", "id": "Dua Ratus Sembilan Belas (219)", "cat": "Numbers"}, {"en": "two hundred twenty", "id": "Dua Ratus Dua Puluh (220)", "cat": "Numbers"}, {"en": "two hundred twenty-one", "id": "Dua Ratus Dua Puluh Satu (221)", "cat": "Numbers"}, {"en": "two hundred twenty-two", "id": "Dua Ratus Dua Puluh Dua (222)", "cat": "Numbers"}, {"en": "two hundred twenty-three", "id": "Dua Ratus Dua Puluh Tiga (223)", "cat": "Numbers"}, {"en": "two hundred twenty-four", "id": "Dua Ratus Dua Puluh Empat (224)", "cat": "Numbers"}, {"en": "two hundred twenty-five", "id": "Dua Ratus Dua Puluh Lima (225)", "cat": "Numbers"}, {"en": "two hundred twenty-six", "id": "Dua Ratus Dua Puluh Enam (226)", "cat": "Numbers"}, {"en": "two hundred twenty-seven", "id": "Dua Ratus Dua Puluh Tujuh (227)", "cat": "Numbers"}, {"en": "two hundred twenty-eight", "id": "Dua Ratus Dua Puluh Delapan (228)", "cat": "Numbers"}, {"en": "two hundred twenty-nine", "id": "Dua Ratus Dua Puluh Sembilan (229)", "cat": "Numbers"}, {"en": "two hundred thirty", "id": "Dua Ratus Tiga Puluh (230)", "cat": "Numbers"}, {"en": "two hundred thirty-one", "id": "Dua Ratus Tiga Puluh Satu (231)", "cat": "Numbers"}, {"en": "two hundred thirty-two", "id": "Dua Ratus Tiga Puluh Dua (232)", "cat": "Numbers"}, {"en": "two hundred thirty-three", "id": "Dua Ratus Tiga Puluh Tiga (233)", "cat": "Numbers"}, {"en": "two hundred thirty-four", "id": "Dua Ratus Tiga Puluh Empat (234)", "cat": "Numbers"}, {"en": "two hundred thirty-five", "id": "Dua Ratus Tiga Puluh Lima (235)", "cat": "Numbers"}, {"en": "two hundred thirty-six", "id": "Dua Ratus Tiga Puluh Enam (236)", "cat": "Numbers"}, {"en": "two hundred thirty-seven", "id": "Dua Ratus Tiga Puluh Tujuh (237)", "cat": "Numbers"}, {"en": "two hundred thirty-eight", "id": "Dua Ratus Tiga Puluh Delapan (238)", "cat": "Numbers"}, {"en": "two hundred thirty-nine", "id": "Dua Ratus Tiga Puluh Sembilan (239)", "cat": "Numbers"}, {"en": "two hundred forty", "id": "Dua Ratus Empat Puluh (240)", "cat": "Numbers"}, {"en": "two hundred forty-one", "id": "Dua Ratus Empat Puluh Satu (241)", "cat": "Numbers"}, {"en": "two hundred forty-two", "id": "Dua Ratus Empat Puluh Dua (242)", "cat": "Numbers"}, {"en": "two hundred forty-three", "id": "Dua Ratus Empat Puluh Tiga (243)", "cat": "Numbers"}, {"en": "two hundred forty-four", "id": "Dua Ratus Empat Puluh Empat (244)", "cat": "Numbers"}, {"en": "two hundred forty-five", "id": "Dua Ratus Empat Puluh Lima (245)", "cat": "Numbers"}, {"en": "two hundred forty-six", "id": "Dua Ratus Empat Puluh Enam (246)", "cat": "Numbers"}, {"en": "two hundred forty-seven", "id": "Dua Ratus Empat Puluh Tujuh (247)", "cat": "Numbers"}, {"en": "two hundred forty-eight", "id": "Dua Ratus Empat Puluh Delapan (248)", "cat": "Numbers"}, {"en": "two hundred forty-nine", "id": "Dua Ratus Empat Puluh Sembilan (249)", "cat": "Numbers"}, {"en": "two hundred fifty", "id": "Dua Ratus Lima Puluh (250)", "cat": "Numbers"}, {"en": "two hundred fifty-one", "id": "Dua Ratus Lima Puluh Satu (251)", "cat": "Numbers"}, {"en": "two hundred fifty-two", "id": "Dua Ratus Lima Puluh Dua (252)", "cat": "Numbers"}, {"en": "two hundred fifty-three", "id": "Dua Ratus Lima Puluh Tiga (253)", "cat": "Numbers"}, {"en": "two hundred fifty-four", "id": "Dua Ratus Lima Puluh Empat (254)", "cat": "Numbers"}, {"en": "two hundred fifty-five", "id": "Dua Ratus Lima Puluh Lima (255)", "cat": "Numbers"}, {"en": "two hundred fifty-six", "id": "Dua Ratus Lima Puluh Enam (256)", "cat": "Numbers"}, {"en": "two hundred fifty-seven", "id": "Dua Ratus Lima Puluh Tujuh (257)", "cat": "Numbers"}, {"en": "two hundred fifty-eight", "id": "Dua Ratus Lima Puluh Delapan (258)", "cat": "Numbers"}, {"en": "two hundred fifty-nine", "id": "Dua Ratus Lima Puluh Sembilan (259)", "cat": "Numbers"}, {"en": "two hundred sixty", "id": "Dua Ratus Enam Puluh (260)", "cat": "Numbers"}, {"en": "two hundred sixty-one", "id": "Dua Ratus Enam Puluh Satu (261)", "cat": "Numbers"}, {"en": "two hundred sixty-two", "id": "Dua Ratus Enam Puluh Dua (262)", "cat": "Numbers"}, {"en": "two hundred sixty-three", "id": "Dua Ratus Enam Puluh Tiga (263)", "cat": "Numbers"}, {"en": "two hundred sixty-four", "id": "Dua Ratus Enam Puluh Empat (264)", "cat": "Numbers"}, {"en": "two hundred sixty-five", "id": "Dua Ratus Enam Puluh Lima (265)", "cat": "Numbers"}, {"en": "two hundred sixty-six", "id": "Dua Ratus Enam Puluh Enam (266)", "cat": "Numbers"}, {"en": "two hundred sixty-seven", "id": "Dua Ratus Enam Puluh Tujuh (267)", "cat": "Numbers"}, {"en": "two hundred sixty-eight", "id": "Dua Ratus Enam Puluh Delapan (268)", "cat": "Numbers"}, {"en": "two hundred sixty-nine", "id": "Dua Ratus Enam Puluh Sembilan (269)", "cat": "Numbers"}, {"en": "two hundred seventy", "id": "Dua Ratus Tujuh Puluh (270)", "cat": "Numbers"}, {"en": "two hundred seventy-one", "id": "Dua Ratus Tujuh Puluh Satu (271)", "cat": "Numbers"}, {"en": "two hundred seventy-two", "id": "Dua Ratus Tujuh Puluh Dua (272)", "cat": "Numbers"}, {"en": "two hundred seventy-three", "id": "Dua Ratus Tujuh Puluh Tiga (273)", "cat": "Numbers"}, {"en": "two hundred seventy-four", "id": "Dua Ratus Tujuh Puluh Empat (274)", "cat": "Numbers"}, {"en": "two hundred seventy-five", "id": "Dua Ratus Tujuh Puluh Lima (275)", "cat": "Numbers"}, {"en": "two hundred seventy-six", "id": "Dua Ratus Tujuh Puluh Enam (276)", "cat": "Numbers"}, {"en": "two hundred seventy-seven", "id": "Dua Ratus Tujuh Puluh Tujuh (277)", "cat": "Numbers"}, {"en": "two hundred seventy-eight", "id": "Dua Ratus Tujuh Puluh Delapan (278)", "cat": "Numbers"}, {"en": "two hundred seventy-nine", "id": "Dua Ratus Tujuh Puluh Sembilan (279)", "cat": "Numbers"}, {"en": "two hundred eighty", "id": "Dua Ratus Delapan Puluh (280)", "cat": "Numbers"}, {"en": "two hundred eighty-one", "id": "Dua Ratus Delapan Puluh Satu (281)", "cat": "Numbers"}, {"en": "two hundred eighty-two", "id": "Dua Ratus Delapan Puluh Dua (282)", "cat": "Numbers"}, {"en": "two hundred eighty-three", "id": "Dua Ratus Delapan Puluh Tiga (283)", "cat": "Numbers"}, {"en": "two hundred eighty-four", "id": "Dua Ratus Delapan Puluh Empat (284)", "cat": "Numbers"}, {"en": "two hundred eighty-five", "id": "Dua Ratus Delapan Puluh Lima (285)", "cat": "Numbers"}, {"en": "two hundred eighty-six", "id": "Dua Ratus Delapan Puluh Enam (286)", "cat": "Numbers"}, {"en": "two hundred eighty-seven", "id": "Dua Ratus Delapan Puluh Tujuh (287)", "cat": "Numbers"}, {"en": "two hundred eighty-eight", "id": "Dua Ratus Delapan Puluh Delapan (288)", "cat": "Numbers"}, {"en": "two hundred eighty-nine", "id": "Dua Ratus Delapan Puluh Sembilan (289)", "cat": "Numbers"}, {"en": "two hundred ninety", "id": "Dua Ratus Sembilan Puluh (290)", "cat": "Numbers"}, {"en": "two hundred ninety-one", "id": "Dua Ratus Sembilan Puluh Satu (291)", "cat": "Numbers"}, {"en": "two hundred ninety-two", "id": "Dua Ratus Sembilan Puluh Dua (292)", "cat": "Numbers"}, {"en": "two hundred ninety-three", "id": "Dua Ratus Sembilan Puluh Tiga (293)", "cat": "Numbers"}, {"en": "two hundred ninety-four", "id": "Dua Ratus Sembilan Puluh Empat (294)", "cat": "Numbers"}, {"en": "two hundred ninety-five", "id": "Dua Ratus Sembilan Puluh Lima (295)", "cat": "Numbers"}, {"en": "two hundred ninety-six", "id": "Dua Ratus Sembilan Puluh Enam (296)", "cat": "Numbers"}, {"en": "two hundred ninety-seven", "id": "Dua Ratus Sembilan Puluh Tujuh (297)", "cat": "Numbers"}, {"en": "two hundred ninety-eight", "id": "Dua Ratus Sembilan Puluh Delapan (298)", "cat": "Numbers"}, {"en": "two hundred ninety-nine", "id": "Dua Ratus Sembilan Puluh Sembilan (299)", "cat": "Numbers"}, {"en": "three hundred", "id": "Tiga Ratus (300)", "cat": "Numbers"}, {"en": "three hundred one", "id": "Tiga Ratus Satu (301)", "cat": "Numbers"}, {"en": "three hundred two", "id": "Tiga Ratus Dua (302)", "cat": "Numbers"}, {"en": "three hundred three", "id": "Tiga Ratus Tiga (303)", "cat": "Numbers"}, {"en": "three hundred four", "id": "Tiga Ratus Empat (304)", "cat": "Numbers"}, {"en": "three hundred five", "id": "Tiga Ratus Lima (305)", "cat": "Numbers"}, {"en": "three hundred six", "id": "Tiga Ratus Enam (306)", "cat": "Numbers"}, {"en": "three hundred seven", "id": "Tiga Ratus Tujuh (307)", "cat": "Numbers"}, {"en": "three hundred eight", "id": "Tiga Ratus Delapan (308)", "cat": "Numbers"}, {"en": "three hundred nine", "id": "Tiga Ratus Sembilan (309)", "cat": "Numbers"}, {"en": "three hundred ten", "id": "Tiga Ratus Sepuluh (310)", "cat": "Numbers"}, {"en": "three hundred eleven", "id": "Tiga Ratus Sebelas (311)", "cat": "Numbers"}, {"en": "three hundred twelve", "id": "Tiga Ratus Dua Belas (312)", "cat": "Numbers"}, {"en": "three hundred thirteen", "id": "Tiga Ratus Tiga Belas (313)", "cat": "Numbers"}, {"en": "three hundred fourteen", "id": "Tiga Ratus Empat Belas (314)", "cat": "Numbers"}, {"en": "three hundred fifteen", "id": "Tiga Ratus Lima Belas (315)", "cat": "Numbers"}, {"en": "three hundred sixteen", "id": "Tiga Ratus Enam Belas (316)", "cat": "Numbers"}, {"en": "three hundred seventeen", "id": "Tiga Ratus Tujuh Belas (317)", "cat": "Numbers"}, {"en": "three hundred eighteen", "id": "Tiga Ratus Delapan Belas (318)", "cat": "Numbers"}, {"en": "three hundred nineteen", "id": "Tiga Ratus Sembilan Belas (319)", "cat": "Numbers"}, {"en": "three hundred twenty", "id": "Tiga Ratus Dua Puluh (320)", "cat": "Numbers"}, {"en": "three hundred twenty-one", "id": "Tiga Ratus Dua Puluh Satu (321)", "cat": "Numbers"}, {"en": "three hundred twenty-two", "id": "Tiga Ratus Dua Puluh Dua (322)", "cat": "Numbers"}, {"en": "three hundred twenty-three", "id": "Tiga Ratus Dua Puluh Tiga (323)", "cat": "Numbers"}, {"en": "three hundred twenty-four", "id": "Tiga Ratus Dua Puluh Empat (324)", "cat": "Numbers"}, {"en": "three hundred twenty-five", "id": "Tiga Ratus Dua Puluh Lima (325)", "cat": "Numbers"}, {"en": "three hundred twenty-six", "id": "Tiga Ratus Dua Puluh Enam (326)", "cat": "Numbers"}, {"en": "three hundred twenty-seven", "id": "Tiga Ratus Dua Puluh Tujuh (327)", "cat": "Numbers"}, {"en": "three hundred twenty-eight", "id": "Tiga Ratus Dua Puluh Delapan (328)", "cat": "Numbers"}, {"en": "three hundred twenty-nine", "id": "Tiga Ratus Dua Puluh Sembilan (329)", "cat": "Numbers"}, {"en": "three hundred thirty", "id": "Tiga Ratus Tiga Puluh (330)", "cat": "Numbers"}, {"en": "three hundred thirty-one", "id": "Tiga Ratus Tiga Puluh Satu (331)", "cat": "Numbers"}, {"en": "three hundred thirty-two", "id": "Tiga Ratus Tiga Puluh Dua (332)", "cat": "Numbers"}, {"en": "three hundred thirty-three", "id": "Tiga Ratus Tiga Puluh Tiga (333)", "cat": "Numbers"}, {"en": "three hundred thirty-four", "id": "Tiga Ratus Tiga Puluh Empat (334)", "cat": "Numbers"}, {"en": "three hundred thirty-five", "id": "Tiga Ratus Tiga Puluh Lima (335)", "cat": "Numbers"}, {"en": "three hundred thirty-six", "id": "Tiga Ratus Tiga Puluh Enam (336)", "cat": "Numbers"}, {"en": "three hundred thirty-seven", "id": "Tiga Ratus Tiga Puluh Tujuh (337)", "cat": "Numbers"}, {"en": "three hundred thirty-eight", "id": "Tiga Ratus Tiga Puluh Delapan (338)", "cat": "Numbers"}, {"en": "three hundred thirty-nine", "id": "Tiga Ratus Tiga Puluh Sembilan (339)", "cat": "Numbers"}, {"en": "three hundred forty", "id": "Tiga Ratus Empat Puluh (340)", "cat": "Numbers"}, {"en": "three hundred forty-one", "id": "Tiga Ratus Empat Puluh Satu (341)", "cat": "Numbers"}, {"en": "three hundred forty-two", "id": "Tiga Ratus Empat Puluh Dua (342)", "cat": "Numbers"}, {"en": "three hundred forty-three", "id": "Tiga Ratus Empat Puluh Tiga (343)", "cat": "Numbers"}, {"en": "three hundred forty-four", "id": "Tiga Ratus Empat Puluh Empat (344)", "cat": "Numbers"}, {"en": "three hundred forty-five", "id": "Tiga Ratus Empat Puluh Lima (345)", "cat": "Numbers"}, {"en": "three hundred forty-six", "id": "Tiga Ratus Empat Puluh Enam (346)", "cat": "Numbers"}, {"en": "three hundred forty-seven", "id": "Tiga Ratus Empat Puluh Tujuh (347)", "cat": "Numbers"}, {"en": "three hundred forty-eight", "id": "Tiga Ratus Empat Puluh Delapan (348)", "cat": "Numbers"}, {"en": "three hundred forty-nine", "id": "Tiga Ratus Empat Puluh Sembilan (349)", "cat": "Numbers"}, {"en": "three hundred fifty", "id": "Tiga Ratus Lima Puluh (350)", "cat": "Numbers"}, {"en": "three hundred fifty-one", "id": "Tiga Ratus Lima Puluh Satu (351)", "cat": "Numbers"}, {"en": "three hundred fifty-two", "id": "Tiga Ratus Lima Puluh Dua (352)", "cat": "Numbers"}, {"en": "three hundred fifty-three", "id": "Tiga Ratus Lima Puluh Tiga (353)", "cat": "Numbers"}, {"en": "three hundred fifty-four", "id": "Tiga Ratus Lima Puluh Empat (354)", "cat": "Numbers"}, {"en": "three hundred fifty-five", "id": "Tiga Ratus Lima Puluh Lima (355)", "cat": "Numbers"}, {"en": "three hundred fifty-six", "id": "Tiga Ratus Lima Puluh Enam (356)", "cat": "Numbers"}, {"en": "three hundred fifty-seven", "id": "Tiga Ratus Lima Puluh Tujuh (357)", "cat": "Numbers"}, {"en": "three hundred fifty-eight", "id": "Tiga Ratus Lima Puluh Delapan (358)", "cat": "Numbers"}, {"en": "three hundred fifty-nine", "id": "Tiga Ratus Lima Puluh Sembilan (359)", "cat": "Numbers"}, {"en": "three hundred sixty", "id": "Tiga Ratus Enam Puluh (360)", "cat": "Numbers"}, {"en": "three hundred sixty-one", "id": "Tiga Ratus Enam Puluh Satu (361)", "cat": "Numbers"}, {"en": "three hundred sixty-two", "id": "Tiga Ratus Enam Puluh Dua (362)", "cat": "Numbers"}, {"en": "three hundred sixty-three", "id": "Tiga Ratus Enam Puluh Tiga (363)", "cat": "Numbers"}, {"en": "three hundred sixty-four", "id": "Tiga Ratus Enam Puluh Empat (364)", "cat": "Numbers"}, {"en": "three hundred sixty-five", "id": "Tiga Ratus Enam Puluh Lima (365)", "cat": "Numbers"}, {"en": "three hundred sixty-six", "id": "Tiga Ratus Enam Puluh Enam (366)", "cat": "Numbers"}, {"en": "three hundred sixty-seven", "id": "Tiga Ratus Enam Puluh Tujuh (367)", "cat": "Numbers"}, {"en": "three hundred sixty-eight", "id": "Tiga Ratus Enam Puluh Delapan (368)", "cat": "Numbers"}, {"en": "three hundred sixty-nine", "id": "Tiga Ratus Enam Puluh Sembilan (369)", "cat": "Numbers"}, {"en": "three hundred seventy", "id": "Tiga Ratus Tujuh Puluh (370)", "cat": "Numbers"}, {"en": "three hundred seventy-one", "id": "Tiga Ratus Tujuh Puluh Satu (371)", "cat": "Numbers"}, {"en": "three hundred seventy-two", "id": "Tiga Ratus Tujuh Puluh Dua (372)", "cat": "Numbers"}, {"en": "three hundred seventy-three", "id": "Tiga Ratus Tujuh Puluh Tiga (373)", "cat": "Numbers"}, {"en": "three hundred seventy-four", "id": "Tiga Ratus Tujuh Puluh Empat (374)", "cat": "Numbers"}, {"en": "three hundred seventy-five", "id": "Tiga Ratus Tujuh Puluh Lima (375)", "cat": "Numbers"}, {"en": "three hundred seventy-six", "id": "Tiga Ratus Tujuh Puluh Enam (376)", "cat": "Numbers"}, {"en": "three hundred seventy-seven", "id": "Tiga Ratus Tujuh Puluh Tujuh (377)", "cat": "Numbers"}, {"en": "three hundred seventy-eight", "id": "Tiga Ratus Tujuh Puluh Delapan (378)", "cat": "Numbers"}, {"en": "three hundred seventy-nine", "id": "Tiga Ratus Tujuh Puluh Sembilan (379)", "cat": "Numbers"}, {"en": "three hundred eighty", "id": "Tiga Ratus Delapan Puluh (380)", "cat": "Numbers"}, {"en": "three hundred eighty-one", "id": "Tiga Ratus Delapan Puluh Satu (381)", "cat": "Numbers"}, {"en": "three hundred eighty-two", "id": "Tiga Ratus Delapan Puluh Dua (382)", "cat": "Numbers"}, {"en": "three hundred eighty-three", "id": "Tiga Ratus Delapan Puluh Tiga (383)", "cat": "Numbers"}, {"en": "three hundred eighty-four", "id": "Tiga Ratus Delapan Puluh Empat (384)", "cat": "Numbers"}, {"en": "three hundred eighty-five", "id": "Tiga Ratus Delapan Puluh Lima (385)", "cat": "Numbers"}, {"en": "three hundred eighty-six", "id": "Tiga Ratus Delapan Puluh Enam (386)", "cat": "Numbers"}, {"en": "three hundred eighty-seven", "id": "Tiga Ratus Delapan Puluh Tujuh (387)", "cat": "Numbers"}, {"en": "three hundred eighty-eight", "id": "Tiga Ratus Delapan Puluh Delapan (388)", "cat": "Numbers"}, {"en": "three hundred eighty-nine", "id": "Tiga Ratus Delapan Puluh Sembilan (389)", "cat": "Numbers"}, {"en": "three hundred ninety", "id": "Tiga Ratus Sembilan Puluh (390)", "cat": "Numbers"}, {"en": "three hundred ninety-one", "id": "Tiga Ratus Sembilan Puluh Satu (391)", "cat": "Numbers"}, {"en": "three hundred ninety-two", "id": "Tiga Ratus Sembilan Puluh Dua (392)", "cat": "Numbers"}, {"en": "three hundred ninety-three", "id": "Tiga Ratus Sembilan Puluh Tiga (393)", "cat": "Numbers"}, {"en": "three hundred ninety-four", "id": "Tiga Ratus Sembilan Puluh Empat (394)", "cat": "Numbers"}, {"en": "three hundred ninety-five", "id": "Tiga Ratus Sembilan Puluh Lima (395)", "cat": "Numbers"}, {"en": "three hundred ninety-six", "id": "Tiga Ratus Sembilan Puluh Enam (396)", "cat": "Numbers"}, {"en": "three hundred ninety-seven", "id": "Tiga Ratus Sembilan Puluh Tujuh (397)", "cat": "Numbers"}, {"en": "three hundred ninety-eight", "id": "Tiga Ratus Sembilan Puluh Delapan (398)", "cat": "Numbers"}, {"en": "three hundred ninety-nine", "id": "Tiga Ratus Sembilan Puluh Sembilan (399)", "cat": "Numbers"}, {"en": "four hundred", "id": "Empat Ratus (400)", "cat": "Numbers"}, {"en": "four hundred one", "id": "Empat Ratus Satu (401)", "cat": "Numbers"}, {"en": "four hundred two", "id": "Empat Ratus Dua (402)", "cat": "Numbers"}, {"en": "four hundred three", "id": "Empat Ratus Tiga (403)", "cat": "Numbers"}, {"en": "four hundred four", "id": "Empat Ratus Empat (404)", "cat": "Numbers"}, {"en": "four hundred five", "id": "Empat Ratus Lima (405)", "cat": "Numbers"}, {"en": "four hundred six", "id": "Empat Ratus Enam (406)", "cat": "Numbers"}, {"en": "four hundred seven", "id": "Empat Ratus Tujuh (407)", "cat": "Numbers"}, {"en": "four hundred eight", "id": "Empat Ratus Delapan (408)", "cat": "Numbers"}, {"en": "four hundred nine", "id": "Empat Ratus Sembilan (409)", "cat": "Numbers"}, {"en": "four hundred ten", "id": "Empat Ratus Sepuluh (410)", "cat": "Numbers"}, {"en": "four hundred eleven", "id": "Empat Ratus Sebelas (411)", "cat": "Numbers"}, {"en": "four hundred twelve", "id": "Empat Ratus Dua Belas (412)", "cat": "Numbers"}, {"en": "four hundred thirteen", "id": "Empat Ratus Tiga Belas (413)", "cat": "Numbers"}, {"en": "four hundred fourteen", "id": "Empat Ratus Empat Belas (414)", "cat": "Numbers"}, {"en": "four hundred fifteen", "id": "Empat Ratus Lima Belas (415)", "cat": "Numbers"}, {"en": "four hundred sixteen", "id": "Empat Ratus Enam Belas (416)", "cat": "Numbers"}, {"en": "four hundred seventeen", "id": "Empat Ratus Tujuh Belas (417)", "cat": "Numbers"}, {"en": "four hundred eighteen", "id": "Empat Ratus Delapan Belas (418)", "cat": "Numbers"}, {"en": "four hundred nineteen", "id": "Empat Ratus Sembilan Belas (419)", "cat": "Numbers"}, {"en": "four hundred twenty", "id": "Empat Ratus Dua Puluh (420)", "cat": "Numbers"}, {"en": "four hundred twenty-one", "id": "Empat Ratus Dua Puluh Satu (421)", "cat": "Numbers"}, {"en": "four hundred twenty-two", "id": "Empat Ratus Dua Puluh Dua (422)", "cat": "Numbers"}, {"en": "four hundred twenty-three", "id": "Empat Ratus Dua Puluh Tiga (423)", "cat": "Numbers"}, {"en": "four hundred twenty-four", "id": "Empat Ratus Dua Puluh Empat (424)", "cat": "Numbers"}, {"en": "four hundred twenty-five", "id": "Empat Ratus Dua Puluh Lima (425)", "cat": "Numbers"}, {"en": "four hundred twenty-six", "id": "Empat Ratus Dua Puluh Enam (426)", "cat": "Numbers"}, {"en": "four hundred twenty-seven", "id": "Empat Ratus Dua Puluh Tujuh (427)", "cat": "Numbers"}, {"en": "four hundred twenty-eight", "id": "Empat Ratus Dua Puluh Delapan (428)", "cat": "Numbers"}, {"en": "four hundred twenty-nine", "id": "Empat Ratus Dua Puluh Sembilan (429)", "cat": "Numbers"}, {"en": "four hundred thirty", "id": "Empat Ratus Tiga Puluh (430)", "cat": "Numbers"}, {"en": "four hundred thirty-one", "id": "Empat Ratus Tiga Puluh Satu (431)", "cat": "Numbers"}, {"en": "four hundred thirty-two", "id": "Empat Ratus Tiga Puluh Dua (432)", "cat": "Numbers"}, {"en": "four hundred thirty-three", "id": "Empat Ratus Tiga Puluh Tiga (433)", "cat": "Numbers"}, {"en": "four hundred thirty-four", "id": "Empat Ratus Tiga Puluh Empat (434)", "cat": "Numbers"}, {"en": "four hundred thirty-five", "id": "Empat Ratus Tiga Puluh Lima (435)", "cat": "Numbers"}, {"en": "four hundred thirty-six", "id": "Empat Ratus Tiga Puluh Enam (436)", "cat": "Numbers"}, {"en": "four hundred thirty-seven", "id": "Empat Ratus Tiga Puluh Tujuh (437)", "cat": "Numbers"}, {"en": "four hundred thirty-eight", "id": "Empat Ratus Tiga Puluh Delapan (438)", "cat": "Numbers"}, {"en": "four hundred thirty-nine", "id": "Empat Ratus Tiga Puluh Sembilan (439)", "cat": "Numbers"}, {"en": "four hundred forty", "id": "Empat Ratus Empat Puluh (440)", "cat": "Numbers"}, {"en": "four hundred forty-one", "id": "Empat Ratus Empat Puluh Satu (441)", "cat": "Numbers"}, {"en": "four hundred forty-two", "id": "Empat Ratus Empat Puluh Dua (442)", "cat": "Numbers"}, {"en": "four hundred forty-three", "id": "Empat Ratus Empat Puluh Tiga (443)", "cat": "Numbers"}, {"en": "four hundred forty-four", "id": "Empat Ratus Empat Puluh Empat (444)", "cat": "Numbers"}, {"en": "four hundred forty-five", "id": "Empat Ratus Empat Puluh Lima (445)", "cat": "Numbers"}, {"en": "four hundred forty-six", "id": "Empat Ratus Empat Puluh Enam (446)", "cat": "Numbers"}, {"en": "four hundred forty-seven", "id": "Empat Ratus Empat Puluh Tujuh (447)", "cat": "Numbers"}, {"en": "four hundred forty-eight", "id": "Empat Ratus Empat Puluh Delapan (448)", "cat": "Numbers"}, {"en": "four hundred forty-nine", "id": "Empat Ratus Empat Puluh Sembilan (449)", "cat": "Numbers"}, {"en": "four hundred fifty", "id": "Empat Ratus Lima Puluh (450)", "cat": "Numbers"}, {"en": "four hundred fifty-one", "id": "Empat Ratus Lima Puluh Satu (451)", "cat": "Numbers"}, {"en": "four hundred fifty-two", "id": "Empat Ratus Lima Puluh Dua (452)", "cat": "Numbers"}, {"en": "four hundred fifty-three", "id": "Empat Ratus Lima Puluh Tiga (453)", "cat": "Numbers"}, {"en": "four hundred fifty-four", "id": "Empat Ratus Lima Puluh Empat (454)", "cat": "Numbers"}, {"en": "four hundred fifty-five", "id": "Empat Ratus Lima Puluh Lima (455)", "cat": "Numbers"}, {"en": "four hundred fifty-six", "id": "Empat Ratus Lima Puluh Enam (456)", "cat": "Numbers"}, {"en": "four hundred fifty-seven", "id": "Empat Ratus Lima Puluh Tujuh (457)", "cat": "Numbers"}, {"en": "four hundred fifty-eight", "id": "Empat Ratus Lima Puluh Delapan (458)", "cat": "Numbers"}, {"en": "four hundred fifty-nine", "id": "Empat Ratus Lima Puluh Sembilan (459)", "cat": "Numbers"}, {"en": "four hundred sixty", "id": "Empat Ratus Enam Puluh (460)", "cat": "Numbers"}, {"en": "four hundred sixty-one", "id": "Empat Ratus Enam Puluh Satu (461)", "cat": "Numbers"}, {"en": "four hundred sixty-two", "id": "Empat Ratus Enam Puluh Dua (462)", "cat": "Numbers"}, {"en": "four hundred sixty-three", "id": "Empat Ratus Enam Puluh Tiga (463)", "cat": "Numbers"}, {"en": "four hundred sixty-four", "id": "Empat Ratus Enam Puluh Empat (464)", "cat": "Numbers"}, {"en": "four hundred sixty-five", "id": "Empat Ratus Enam Puluh Lima (465)", "cat": "Numbers"}, {"en": "four hundred sixty-six", "id": "Empat Ratus Enam Puluh Enam (466)", "cat": "Numbers"}, {"en": "four hundred sixty-seven", "id": "Empat Ratus Enam Puluh Tujuh (467)", "cat": "Numbers"}, {"en": "four hundred sixty-eight", "id": "Empat Ratus Enam Puluh Delapan (468)", "cat": "Numbers"}, {"en": "four hundred sixty-nine", "id": "Empat Ratus Enam Puluh Sembilan (469)", "cat": "Numbers"}, {"en": "four hundred seventy", "id": "Empat Ratus Tujuh Puluh (470)", "cat": "Numbers"}, {"en": "four hundred seventy-one", "id": "Empat Ratus Tujuh Puluh Satu (471)", "cat": "Numbers"}, {"en": "four hundred seventy-two", "id": "Empat Ratus Tujuh Puluh Dua (472)", "cat": "Numbers"}, {"en": "four hundred seventy-three", "id": "Empat Ratus Tujuh Puluh Tiga (473)", "cat": "Numbers"}, {"en": "four hundred seventy-four", "id": "Empat Ratus Tujuh Puluh Empat (474)", "cat": "Numbers"}, {"en": "four hundred seventy-five", "id": "Empat Ratus Tujuh Puluh Lima (475)", "cat": "Numbers"}, {"en": "four hundred seventy-six", "id": "Empat Ratus Tujuh Puluh Enam (476)", "cat": "Numbers"}, {"en": "four hundred seventy-seven", "id": "Empat Ratus Tujuh Puluh Tujuh (477)", "cat": "Numbers"}, {"en": "four hundred seventy-eight", "id": "Empat Ratus Tujuh Puluh Delapan (478)", "cat": "Numbers"}, {"en": "four hundred seventy-nine", "id": "Empat Ratus Tujuh Puluh Sembilan (479)", "cat": "Numbers"}, {"en": "four hundred eighty", "id": "Empat Ratus Delapan Puluh (480)", "cat": "Numbers"}, {"en": "four hundred eighty-one", "id": "Empat Ratus Delapan Puluh Satu (481)", "cat": "Numbers"}, {"en": "four hundred eighty-two", "id": "Empat Ratus Delapan Puluh Dua (482)", "cat": "Numbers"}, {"en": "four hundred eighty-three", "id": "Empat Ratus Delapan Puluh Tiga (483)", "cat": "Numbers"}, {"en": "four hundred eighty-four", "id": "Empat Ratus Delapan Puluh Empat (484)", "cat": "Numbers"}, {"en": "four hundred eighty-five", "id": "Empat Ratus Delapan Puluh Lima (485)", "cat": "Numbers"}, {"en": "four hundred eighty-six", "id": "Empat Ratus Delapan Puluh Enam (486)", "cat": "Numbers"}, {"en": "four hundred eighty-seven", "id": "Empat Ratus Delapan Puluh Tujuh (487)", "cat": "Numbers"}, {"en": "four hundred eighty-eight", "id": "Empat Ratus Delapan Puluh Delapan (488)", "cat": "Numbers"}, {"en": "four hundred eighty-nine", "id": "Empat Ratus Delapan Puluh Sembilan (489)", "cat": "Numbers"}, {"en": "four hundred ninety", "id": "Empat Ratus Sembilan Puluh (490)", "cat": "Numbers"}, {"en": "four hundred ninety-one", "id": "Empat Ratus Sembilan Puluh Satu (491)", "cat": "Numbers"}, {"en": "four hundred ninety-two", "id": "Empat Ratus Sembilan Puluh Dua (492)", "cat": "Numbers"}, {"en": "four hundred ninety-three", "id": "Empat Ratus Sembilan Puluh Tiga (493)", "cat": "Numbers"}, {"en": "four hundred ninety-four", "id": "Empat Ratus Sembilan Puluh Empat (494)", "cat": "Numbers"}, {"en": "four hundred ninety-five", "id": "Empat Ratus Sembilan Puluh Lima (495)", "cat": "Numbers"}, {"en": "four hundred ninety-six", "id": "Empat Ratus Sembilan Puluh Enam (496)", "cat": "Numbers"}, {"en": "four hundred ninety-seven", "id": "Empat Ratus Sembilan Puluh Tujuh (497)", "cat": "Numbers"}, {"en": "four hundred ninety-eight", "id": "Empat Ratus Sembilan Puluh Delapan (498)", "cat": "Numbers"}, {"en": "four hundred ninety-nine", "id": "Empat Ratus Sembilan Puluh Sembilan (499)", "cat": "Numbers"}, {"en": "five hundred", "id": "Lima Ratus (500)", "cat": "Numbers"}, {"en": "five hundred one", "id": "Lima Ratus Satu (501)", "cat": "Numbers"}, {"en": "five hundred two", "id": "Lima Ratus Dua (502)", "cat": "Numbers"}, {"en": "five hundred three", "id": "Lima Ratus Tiga (503)", "cat": "Numbers"}, {"en": "five hundred four", "id": "Lima Ratus Empat (504)", "cat": "Numbers"}, {"en": "five hundred five", "id": "Lima Ratus Lima (505)", "cat": "Numbers"}, {"en": "five hundred six", "id": "Lima Ratus Enam (506)", "cat": "Numbers"}, {"en": "five hundred seven", "id": "Lima Ratus Tujuh (507)", "cat": "Numbers"}, {"en": "five hundred eight", "id": "Lima Ratus Delapan (508)", "cat": "Numbers"}, {"en": "five hundred nine", "id": "Lima Ratus Sembilan (509)", "cat": "Numbers"}, {"en": "five hundred ten", "id": "Lima Ratus Sepuluh (510)", "cat": "Numbers"}, {"en": "five hundred eleven", "id": "Lima Ratus Sebelas (511)", "cat": "Numbers"}, {"en": "five hundred twelve", "id": "Lima Ratus Dua Belas (512)", "cat": "Numbers"}, {"en": "five hundred thirteen", "id": "Lima Ratus Tiga Belas (513)", "cat": "Numbers"}, {"en": "five hundred fourteen", "id": "Lima Ratus Empat Belas (514)", "cat": "Numbers"}, {"en": "five hundred fifteen", "id": "Lima Ratus Lima Belas (515)", "cat": "Numbers"}, {"en": "five hundred sixteen", "id": "Lima Ratus Enam Belas (516)", "cat": "Numbers"}, {"en": "five hundred seventeen", "id": "Lima Ratus Tujuh Belas (517)", "cat": "Numbers"}, {"en": "five hundred eighteen", "id": "Lima Ratus Delapan Belas (518)", "cat": "Numbers"}, {"en": "five hundred nineteen", "id": "Lima Ratus Sembilan Belas (519)", "cat": "Numbers"}, {"en": "five hundred twenty", "id": "Lima Ratus Dua Puluh (520)", "cat": "Numbers"}, {"en": "five hundred twenty-one", "id": "Lima Ratus Dua Puluh Satu (521)", "cat": "Numbers"}, {"en": "five hundred twenty-two", "id": "Lima Ratus Dua Puluh Dua (522)", "cat": "Numbers"}, {"en": "five hundred twenty-three", "id": "Lima Ratus Dua Puluh Tiga (523)", "cat": "Numbers"}, {"en": "five hundred twenty-four", "id": "Lima Ratus Dua Puluh Empat (524)", "cat": "Numbers"}, {"en": "five hundred twenty-five", "id": "Lima Ratus Dua Puluh Lima (525)", "cat": "Numbers"}, {"en": "five hundred twenty-six", "id": "Lima Ratus Dua Puluh Enam (526)", "cat": "Numbers"}, {"en": "five hundred twenty-seven", "id": "Lima Ratus Dua Puluh Tujuh (527)", "cat": "Numbers"}, {"en": "five hundred twenty-eight", "id": "Lima Ratus Dua Puluh Delapan (528)", "cat": "Numbers"}, {"en": "five hundred twenty-nine", "id": "Lima Ratus Dua Puluh Sembilan (529)", "cat": "Numbers"}, {"en": "five hundred thirty", "id": "Lima Ratus Tiga Puluh (530)", "cat": "Numbers"}, {"en": "five hundred thirty-one", "id": "Lima Ratus Tiga Puluh Satu (531)", "cat": "Numbers"}, {"en": "five hundred thirty-two", "id": "Lima Ratus Tiga Puluh Dua (532)", "cat": "Numbers"}, {"en": "five hundred thirty-three", "id": "Lima Ratus Tiga Puluh Tiga (533)", "cat": "Numbers"}, {"en": "five hundred thirty-four", "id": "Lima Ratus Tiga Puluh Empat (534)", "cat": "Numbers"}, {"en": "five hundred thirty-five", "id": "Lima Ratus Tiga Puluh Lima (535)", "cat": "Numbers"}, {"en": "five hundred thirty-six", "id": "Lima Ratus Tiga Puluh Enam (536)", "cat": "Numbers"}, {"en": "five hundred thirty-seven", "id": "Lima Ratus Tiga Puluh Tujuh (537)", "cat": "Numbers"}, {"en": "five hundred thirty-eight", "id": "Lima Ratus Tiga Puluh Delapan (538)", "cat": "Numbers"}, {"en": "five hundred thirty-nine", "id": "Lima Ratus Tiga Puluh Sembilan (539)", "cat": "Numbers"}, {"en": "five hundred forty", "id": "Lima Ratus Empat Puluh (540)", "cat": "Numbers"}, {"en": "five hundred forty-one", "id": "Lima Ratus Empat Puluh Satu (541)", "cat": "Numbers"}, {"en": "five hundred forty-two", "id": "Lima Ratus Empat Puluh Dua (542)", "cat": "Numbers"}, {"en": "five hundred forty-three", "id": "Lima Ratus Empat Puluh Tiga (543)", "cat": "Numbers"}, {"en": "five hundred forty-four", "id": "Lima Ratus Empat Puluh Empat (544)", "cat": "Numbers"}, {"en": "five hundred forty-five", "id": "Lima Ratus Empat Puluh Lima (545)", "cat": "Numbers"}, {"en": "five hundred forty-six", "id": "Lima Ratus Empat Puluh Enam (546)", "cat": "Numbers"}, {"en": "five hundred forty-seven", "id": "Lima Ratus Empat Puluh Tujuh (547)", "cat": "Numbers"}, {"en": "five hundred forty-eight", "id": "Lima Ratus Empat Puluh Delapan (548)", "cat": "Numbers"}, {"en": "five hundred forty-nine", "id": "Lima Ratus Empat Puluh Sembilan (549)", "cat": "Numbers"}, {"en": "five hundred fifty", "id": "Lima Ratus Lima Puluh (550)", "cat": "Numbers"}, {"en": "five hundred fifty-one", "id": "Lima Ratus Lima Puluh Satu (551)", "cat": "Numbers"}, {"en": "five hundred fifty-two", "id": "Lima Ratus Lima Puluh Dua (552)", "cat": "Numbers"}, {"en": "five hundred fifty-three", "id": "Lima Ratus Lima Puluh Tiga (553)", "cat": "Numbers"}, {"en": "five hundred fifty-four", "id": "Lima Ratus Lima Puluh Empat (554)", "cat": "Numbers"}, {"en": "five hundred fifty-five", "id": "Lima Ratus Lima Puluh Lima (555)", "cat": "Numbers"}, {"en": "five hundred fifty-six", "id": "Lima Ratus Lima Puluh Enam (556)", "cat": "Numbers"}, {"en": "five hundred fifty-seven", "id": "Lima Ratus Lima Puluh Tujuh (557)", "cat": "Numbers"}, {"en": "five hundred fifty-eight", "id": "Lima Ratus Lima Puluh Delapan (558)", "cat": "Numbers"}, {"en": "five hundred fifty-nine", "id": "Lima Ratus Lima Puluh Sembilan (559)", "cat": "Numbers"}, {"en": "five hundred sixty", "id": "Lima Ratus Enam Puluh (560)", "cat": "Numbers"}, {"en": "five hundred sixty-one", "id": "Lima Ratus Enam Puluh Satu (561)", "cat": "Numbers"}, {"en": "five hundred sixty-two", "id": "Lima Ratus Enam Puluh Dua (562)", "cat": "Numbers"}, {"en": "five hundred sixty-three", "id": "Lima Ratus Enam Puluh Tiga (563)", "cat": "Numbers"}, {"en": "five hundred sixty-four", "id": "Lima Ratus Enam Puluh Empat (564)", "cat": "Numbers"}, {"en": "five hundred sixty-five", "id": "Lima Ratus Enam Puluh Lima (565)", "cat": "Numbers"}, {"en": "five hundred sixty-six", "id": "Lima Ratus Enam Puluh Enam (566)", "cat": "Numbers"}, {"en": "five hundred sixty-seven", "id": "Lima Ratus Enam Puluh Tujuh (567)", "cat": "Numbers"}, {"en": "five hundred sixty-eight", "id": "Lima Ratus Enam Puluh Delapan (568)", "cat": "Numbers"}, {"en": "five hundred sixty-nine", "id": "Lima Ratus Enam Puluh Sembilan (569)", "cat": "Numbers"}, {"en": "five hundred seventy", "id": "Lima Ratus Tujuh Puluh (570)", "cat": "Numbers"}, {"en": "five hundred seventy-one", "id": "Lima Ratus Tujuh Puluh Satu (571)", "cat": "Numbers"}, {"en": "five hundred seventy-two", "id": "Lima Ratus Tujuh Puluh Dua (572)", "cat": "Numbers"}, {"en": "five hundred seventy-three", "id": "Lima Ratus Tujuh Puluh Tiga (573)", "cat": "Numbers"}, {"en": "five hundred seventy-four", "id": "Lima Ratus Tujuh Puluh Empat (574)", "cat": "Numbers"}, {"en": "five hundred seventy-five", "id": "Lima Ratus Tujuh Puluh Lima (575)", "cat": "Numbers"}, {"en": "five hundred seventy-six", "id": "Lima Ratus Tujuh Puluh Enam (576)", "cat": "Numbers"}, {"en": "five hundred seventy-seven", "id": "Lima Ratus Tujuh Puluh Tujuh (577)", "cat": "Numbers"}, {"en": "five hundred seventy-eight", "id": "Lima Ratus Tujuh Puluh Delapan (578)", "cat": "Numbers"}, {"en": "five hundred seventy-nine", "id": "Lima Ratus Tujuh Puluh Sembilan (579)", "cat": "Numbers"}, {"en": "five hundred eighty", "id": "Lima Ratus Delapan Puluh (580)", "cat": "Numbers"}, {"en": "five hundred eighty-one", "id": "Lima Ratus Delapan Puluh Satu (581)", "cat": "Numbers"}, {"en": "five hundred eighty-two", "id": "Lima Ratus Delapan Puluh Dua (582)", "cat": "Numbers"}, {"en": "five hundred eighty-three", "id": "Lima Ratus Delapan Puluh Tiga (583)", "cat": "Numbers"}, {"en": "five hundred eighty-four", "id": "Lima Ratus Delapan Puluh Empat (584)", "cat": "Numbers"}, {"en": "five hundred eighty-five", "id": "Lima Ratus Delapan Puluh Lima (585)", "cat": "Numbers"}, {"en": "five hundred eighty-six", "id": "Lima Ratus Delapan Puluh Enam (586)", "cat": "Numbers"}, {"en": "five hundred eighty-seven", "id": "Lima Ratus Delapan Puluh Tujuh (587)", "cat": "Numbers"}, {"en": "five hundred eighty-eight", "id": "Lima Ratus Delapan Puluh Delapan (588)", "cat": "Numbers"}, {"en": "five hundred eighty-nine", "id": "Lima Ratus Delapan Puluh Sembilan (589)", "cat": "Numbers"}, {"en": "five hundred ninety", "id": "Lima Ratus Sembilan Puluh (590)", "cat": "Numbers"}, {"en": "five hundred ninety-one", "id": "Lima Ratus Sembilan Puluh Satu (591)", "cat": "Numbers"}, {"en": "five hundred ninety-two", "id": "Lima Ratus Sembilan Puluh Dua (592)", "cat": "Numbers"}, {"en": "five hundred ninety-three", "id": "Lima Ratus Sembilan Puluh Tiga (593)", "cat": "Numbers"}, {"en": "five hundred ninety-four", "id": "Lima Ratus Sembilan Puluh Empat (594)", "cat": "Numbers"}, {"en": "five hundred ninety-five", "id": "Lima Ratus Sembilan Puluh Lima (595)", "cat": "Numbers"}, {"en": "five hundred ninety-six", "id": "Lima Ratus Sembilan Puluh Enam (596)", "cat": "Numbers"}, {"en": "five hundred ninety-seven", "id": "Lima Ratus Sembilan Puluh Tujuh (597)", "cat": "Numbers"}, {"en": "five hundred ninety-eight", "id": "Lima Ratus Sembilan Puluh Delapan (598)", "cat": "Numbers"}, {"en": "five hundred ninety-nine", "id": "Lima Ratus Sembilan Puluh Sembilan (599)", "cat": "Numbers"}, {"en": "six hundred", "id": "Enam Ratus (600)", "cat": "Numbers"}, {"en": "six hundred one", "id": "Enam Ratus Satu (601)", "cat": "Numbers"}, {"en": "six hundred two", "id": "Enam Ratus Dua (602)", "cat": "Numbers"}, {"en": "six hundred three", "id": "Enam Ratus Tiga (603)", "cat": "Numbers"}, {"en": "six hundred four", "id": "Enam Ratus Empat (604)", "cat": "Numbers"}, {"en": "six hundred five", "id": "Enam Ratus Lima (605)", "cat": "Numbers"}, {"en": "six hundred six", "id": "Enam Ratus Enam (606)", "cat": "Numbers"}, {"en": "six hundred seven", "id": "Enam Ratus Tujuh (607)", "cat": "Numbers"}, {"en": "six hundred eight", "id": "Enam Ratus Delapan (608)", "cat": "Numbers"}, {"en": "six hundred nine", "id": "Enam Ratus Sembilan (609)", "cat": "Numbers"}, {"en": "six hundred ten", "id": "Enam Ratus Sepuluh (610)", "cat": "Numbers"}, {"en": "six hundred eleven", "id": "Enam Ratus Sebelas (611)", "cat": "Numbers"}, {"en": "six hundred twelve", "id": "Enam Ratus Dua Belas (612)", "cat": "Numbers"}, {"en": "six hundred thirteen", "id": "Enam Ratus Tiga Belas (613)", "cat": "Numbers"}, {"en": "six hundred fourteen", "id": "Enam Ratus Empat Belas (614)", "cat": "Numbers"}, {"en": "six hundred fifteen", "id": "Enam Ratus Lima Belas (615)", "cat": "Numbers"}, {"en": "six hundred sixteen", "id": "Enam Ratus Enam Belas (616)", "cat": "Numbers"}, {"en": "six hundred seventeen", "id": "Enam Ratus Tujuh Belas (617)", "cat": "Numbers"}, {"en": "six hundred eighteen", "id": "Enam Ratus Delapan Belas (618)", "cat": "Numbers"}, {"en": "six hundred nineteen", "id": "Enam Ratus Sembilan Belas (619)", "cat": "Numbers"}, {"en": "six hundred twenty", "id": "Enam Ratus Dua Puluh (620)", "cat": "Numbers"}, {"en": "six hundred twenty-one", "id": "Enam Ratus Dua Puluh Satu (621)", "cat": "Numbers"}, {"en": "six hundred twenty-two", "id": "Enam Ratus Dua Puluh Dua (622)", "cat": "Numbers"}, {"en": "six hundred twenty-three", "id": "Enam Ratus Dua Puluh Tiga (623)", "cat": "Numbers"}, {"en": "six hundred twenty-four", "id": "Enam Ratus Dua Puluh Empat (624)", "cat": "Numbers"}, {"en": "six hundred twenty-five", "id": "Enam Ratus Dua Puluh Lima (625)", "cat": "Numbers"}, {"en": "six hundred twenty-six", "id": "Enam Ratus Dua Puluh Enam (626)", "cat": "Numbers"}, {"en": "six hundred twenty-seven", "id": "Enam Ratus Dua Puluh Tujuh (627)", "cat": "Numbers"}, {"en": "six hundred twenty-eight", "id": "Enam Ratus Dua Puluh Delapan (628)", "cat": "Numbers"}, {"en": "six hundred twenty-nine", "id": "Enam Ratus Dua Puluh Sembilan (629)", "cat": "Numbers"}, {"en": "six hundred thirty", "id": "Enam Ratus Tiga Puluh (630)", "cat": "Numbers"}, {"en": "six hundred thirty-one", "id": "Enam Ratus Tiga Puluh Satu (631)", "cat": "Numbers"}, {"en": "six hundred thirty-two", "id": "Enam Ratus Tiga Puluh Dua (632)", "cat": "Numbers"}, {"en": "six hundred thirty-three", "id": "Enam Ratus Tiga Puluh Tiga (633)", "cat": "Numbers"}, {"en": "six hundred thirty-four", "id": "Enam Ratus Tiga Puluh Empat (634)", "cat": "Numbers"}, {"en": "six hundred thirty-five", "id": "Enam Ratus Tiga Puluh Lima (635)", "cat": "Numbers"}, {"en": "six hundred thirty-six", "id": "Enam Ratus Tiga Puluh Enam (636)", "cat": "Numbers"}, {"en": "six hundred thirty-seven", "id": "Enam Ratus Tiga Puluh Tujuh (637)", "cat": "Numbers"}, {"en": "six hundred thirty-eight", "id": "Enam Ratus Tiga Puluh Delapan (638)", "cat": "Numbers"}, {"en": "six hundred thirty-nine", "id": "Enam Ratus Tiga Puluh Sembilan (639)", "cat": "Numbers"}, {"en": "six hundred forty", "id": "Enam Ratus Empat Puluh (640)", "cat": "Numbers"}, {"en": "six hundred forty-one", "id": "Enam Ratus Empat Puluh Satu (641)", "cat": "Numbers"}, {"en": "six hundred forty-two", "id": "Enam Ratus Empat Puluh Dua (642)", "cat": "Numbers"}, {"en": "six hundred forty-three", "id": "Enam Ratus Empat Puluh Tiga (643)", "cat": "Numbers"}, {"en": "six hundred forty-four", "id": "Enam Ratus Empat Puluh Empat (644)", "cat": "Numbers"}, {"en": "six hundred forty-five", "id": "Enam Ratus Empat Puluh Lima (645)", "cat": "Numbers"}, {"en": "six hundred forty-six", "id": "Enam Ratus Empat Puluh Enam (646)", "cat": "Numbers"}, {"en": "six hundred forty-seven", "id": "Enam Ratus Empat Puluh Tujuh (647)", "cat": "Numbers"}, {"en": "six hundred forty-eight", "id": "Enam Ratus Empat Puluh Delapan (648)", "cat": "Numbers"}, {"en": "six hundred forty-nine", "id": "Enam Ratus Empat Puluh Sembilan (649)", "cat": "Numbers"}, {"en": "six hundred fifty", "id": "Enam Ratus Lima Puluh (650)", "cat": "Numbers"}, {"en": "six hundred fifty-one", "id": "Enam Ratus Lima Puluh Satu (651)", "cat": "Numbers"}, {"en": "six hundred fifty-two", "id": "Enam Ratus Lima Puluh Dua (652)", "cat": "Numbers"}, {"en": "six hundred fifty-three", "id": "Enam Ratus Lima Puluh Tiga (653)", "cat": "Numbers"}, {"en": "six hundred fifty-four", "id": "Enam Ratus Lima Puluh Empat (654)", "cat": "Numbers"}, {"en": "six hundred fifty-five", "id": "Enam Ratus Lima Puluh Lima (655)", "cat": "Numbers"}, {"en": "six hundred fifty-six", "id": "Enam Ratus Lima Puluh Enam (656)", "cat": "Numbers"}, {"en": "six hundred fifty-seven", "id": "Enam Ratus Lima Puluh Tujuh (657)", "cat": "Numbers"}, {"en": "six hundred fifty-eight", "id": "Enam Ratus Lima Puluh Delapan (658)", "cat": "Numbers"}, {"en": "six hundred fifty-nine", "id": "Enam Ratus Lima Puluh Sembilan (659)", "cat": "Numbers"}, {"en": "six hundred sixty", "id": "Enam Ratus Enam Puluh (660)", "cat": "Numbers"}, {"en": "six hundred sixty-one", "id": "Enam Ratus Enam Puluh Satu (661)", "cat": "Numbers"}, {"en": "six hundred sixty-two", "id": "Enam Ratus Enam Puluh Dua (662)", "cat": "Numbers"}, {"en": "six hundred sixty-three", "id": "Enam Ratus Enam Puluh Tiga (663)", "cat": "Numbers"}, {"en": "six hundred sixty-four", "id": "Enam Ratus Enam Puluh Empat (664)", "cat": "Numbers"}, {"en": "six hundred sixty-five", "id": "Enam Ratus Enam Puluh Lima (665)", "cat": "Numbers"}, {"en": "six hundred sixty-six", "id": "Enam Ratus Enam Puluh Enam (666)", "cat": "Numbers"}, {"en": "six hundred sixty-seven", "id": "Enam Ratus Enam Puluh Tujuh (667)", "cat": "Numbers"}, {"en": "six hundred sixty-eight", "id": "Enam Ratus Enam Puluh Delapan (668)", "cat": "Numbers"}, {"en": "six hundred sixty-nine", "id": "Enam Ratus Enam Puluh Sembilan (669)", "cat": "Numbers"}, {"en": "six hundred seventy", "id": "Enam Ratus Tujuh Puluh (670)", "cat": "Numbers"}, {"en": "six hundred seventy-one", "id": "Enam Ratus Tujuh Puluh Satu (671)", "cat": "Numbers"}, {"en": "six hundred seventy-two", "id": "Enam Ratus Tujuh Puluh Dua (672)", "cat": "Numbers"}, {"en": "six hundred seventy-three", "id": "Enam Ratus Tujuh Puluh Tiga (673)", "cat": "Numbers"}, {"en": "six hundred seventy-four", "id": "Enam Ratus Tujuh Puluh Empat (674)", "cat": "Numbers"}, {"en": "six hundred seventy-five", "id": "Enam Ratus Tujuh Puluh Lima (675)", "cat": "Numbers"}, {"en": "six hundred seventy-six", "id": "Enam Ratus Tujuh Puluh Enam (676)", "cat": "Numbers"}, {"en": "six hundred seventy-seven", "id": "Enam Ratus Tujuh Puluh Tujuh (677)", "cat": "Numbers"}, {"en": "six hundred seventy-eight", "id": "Enam Ratus Tujuh Puluh Delapan (678)", "cat": "Numbers"}, {"en": "six hundred seventy-nine", "id": "Enam Ratus Tujuh Puluh Sembilan (679)", "cat": "Numbers"}, {"en": "six hundred eighty", "id": "Enam Ratus Delapan Puluh (680)", "cat": "Numbers"}, {"en": "six hundred eighty-one", "id": "Enam Ratus Delapan Puluh Satu (681)", "cat": "Numbers"}, {"en": "six hundred eighty-two", "id": "Enam Ratus Delapan Puluh Dua (682)", "cat": "Numbers"}, {"en": "six hundred eighty-three", "id": "Enam Ratus Delapan Puluh Tiga (683)", "cat": "Numbers"}, {"en": "six hundred eighty-four", "id": "Enam Ratus Delapan Puluh Empat (684)", "cat": "Numbers"}, {"en": "six hundred eighty-five", "id": "Enam Ratus Delapan Puluh Lima (685)", "cat": "Numbers"}, {"en": "six hundred eighty-six", "id": "Enam Ratus Delapan Puluh Enam (686)", "cat": "Numbers"}, {"en": "six hundred eighty-seven", "id": "Enam Ratus Delapan Puluh Tujuh (687)", "cat": "Numbers"}, {"en": "six hundred eighty-eight", "id": "Enam Ratus Delapan Puluh Delapan (688)", "cat": "Numbers"}, {"en": "six hundred eighty-nine", "id": "Enam Ratus Delapan Puluh Sembilan (689)", "cat": "Numbers"}, {"en": "six hundred ninety", "id": "Enam Ratus Sembilan Puluh (690)", "cat": "Numbers"}, {"en": "six hundred ninety-one", "id": "Enam Ratus Sembilan Puluh Satu (691)", "cat": "Numbers"}, {"en": "six hundred ninety-two", "id": "Enam Ratus Sembilan Puluh Dua (692)", "cat": "Numbers"}, {"en": "six hundred ninety-three", "id": "Enam Ratus Sembilan Puluh Tiga (693)", "cat": "Numbers"}, {"en": "six hundred ninety-four", "id": "Enam Ratus Sembilan Puluh Empat (694)", "cat": "Numbers"}, {"en": "six hundred ninety-five", "id": "Enam Ratus Sembilan Puluh Lima (695)", "cat": "Numbers"}, {"en": "six hundred ninety-six", "id": "Enam Ratus Sembilan Puluh Enam (696)", "cat": "Numbers"}, {"en": "six hundred ninety-seven", "id": "Enam Ratus Sembilan Puluh Tujuh (697)", "cat": "Numbers"}, {"en": "six hundred ninety-eight", "id": "Enam Ratus Sembilan Puluh Delapan (698)", "cat": "Numbers"}, {"en": "six hundred ninety-nine", "id": "Enam Ratus Sembilan Puluh Sembilan (699)", "cat": "Numbers"}, {"en": "seven hundred", "id": "Tujuh Ratus (700)", "cat": "Numbers"}, {"en": "seven hundred one", "id": "Tujuh Ratus Satu (701)", "cat": "Numbers"}, {"en": "seven hundred two", "id": "Tujuh Ratus Dua (702)", "cat": "Numbers"}, {"en": "seven hundred three", "id": "Tujuh Ratus Tiga (703)", "cat": "Numbers"}, {"en": "seven hundred four", "id": "Tujuh Ratus Empat (704)", "cat": "Numbers"}, {"en": "seven hundred five", "id": "Tujuh Ratus Lima (705)", "cat": "Numbers"}, {"en": "seven hundred six", "id": "Tujuh Ratus Enam (706)", "cat": "Numbers"}, {"en": "seven hundred seven", "id": "Tujuh Ratus Tujuh (707)", "cat": "Numbers"}, {"en": "seven hundred eight", "id": "Tujuh Ratus Delapan (708)", "cat": "Numbers"}, {"en": "seven hundred nine", "id": "Tujuh Ratus Sembilan (709)", "cat": "Numbers"}, {"en": "seven hundred ten", "id": "Tujuh Ratus Sepuluh (710)", "cat": "Numbers"}, {"en": "seven hundred eleven", "id": "Tujuh Ratus Sebelas (711)", "cat": "Numbers"}, {"en": "seven hundred twelve", "id": "Tujuh Ratus Dua Belas (712)", "cat": "Numbers"}, {"en": "seven hundred thirteen", "id": "Tujuh Ratus Tiga Belas (713)", "cat": "Numbers"}, {"en": "seven hundred fourteen", "id": "Tujuh Ratus Empat Belas (714)", "cat": "Numbers"}, {"en": "seven hundred fifteen", "id": "Tujuh Ratus Lima Belas (715)", "cat": "Numbers"}, {"en": "seven hundred sixteen", "id": "Tujuh Ratus Enam Belas (716)", "cat": "Numbers"}, {"en": "seven hundred seventeen", "id": "Tujuh Ratus Tujuh Belas (717)", "cat": "Numbers"}, {"en": "seven hundred eighteen", "id": "Tujuh Ratus Delapan Belas (718)", "cat": "Numbers"}, {"en": "seven hundred nineteen", "id": "Tujuh Ratus Sembilan Belas (719)", "cat": "Numbers"}, {"en": "seven hundred twenty", "id": "Tujuh Ratus Dua Puluh (720)", "cat": "Numbers"}, {"en": "seven hundred twenty-one", "id": "Tujuh Ratus Dua Puluh Satu (721)", "cat": "Numbers"}, {"en": "seven hundred twenty-two", "id": "Tujuh Ratus Dua Puluh Dua (722)", "cat": "Numbers"}, {"en": "seven hundred twenty-three", "id": "Tujuh Ratus Dua Puluh Tiga (723)", "cat": "Numbers"}, {"en": "seven hundred twenty-four", "id": "Tujuh Ratus Dua Puluh Empat (724)", "cat": "Numbers"}, {"en": "seven hundred twenty-five", "id": "Tujuh Ratus Dua Puluh Lima (725)", "cat": "Numbers"}, {"en": "seven hundred twenty-six", "id": "Tujuh Ratus Dua Puluh Enam (726)", "cat": "Numbers"}, {"en": "seven hundred twenty-seven", "id": "Tujuh Ratus Dua Puluh Tujuh (727)", "cat": "Numbers"}, {"en": "seven hundred twenty-eight", "id": "Tujuh Ratus Dua Puluh Delapan (728)", "cat": "Numbers"}, {"en": "seven hundred twenty-nine", "id": "Tujuh Ratus Dua Puluh Sembilan (729)", "cat": "Numbers"}, {"en": "seven hundred thirty", "id": "Tujuh Ratus Tiga Puluh (730)", "cat": "Numbers"}, {"en": "seven hundred thirty-one", "id": "Tujuh Ratus Tiga Puluh Satu (731)", "cat": "Numbers"}, {"en": "seven hundred thirty-two", "id": "Tujuh Ratus Tiga Puluh Dua (732)", "cat": "Numbers"}, {"en": "seven hundred thirty-three", "id": "Tujuh Ratus Tiga Puluh Tiga (733)", "cat": "Numbers"}, {"en": "seven hundred thirty-four", "id": "Tujuh Ratus Tiga Puluh Empat (734)", "cat": "Numbers"}, {"en": "seven hundred thirty-five", "id": "Tujuh Ratus Tiga Puluh Lima (735)", "cat": "Numbers"}, {"en": "seven hundred thirty-six", "id": "Tujuh Ratus Tiga Puluh Enam (736)", "cat": "Numbers"}, {"en": "seven hundred thirty-seven", "id": "Tujuh Ratus Tiga Puluh Tujuh (737)", "cat": "Numbers"}, {"en": "seven hundred thirty-eight", "id": "Tujuh Ratus Tiga Puluh Delapan (738)", "cat": "Numbers"}, {"en": "seven hundred thirty-nine", "id": "Tujuh Ratus Tiga Puluh Sembilan (739)", "cat": "Numbers"}, {"en": "seven hundred forty", "id": "Tujuh Ratus Empat Puluh (740)", "cat": "Numbers"}, {"en": "seven hundred forty-one", "id": "Tujuh Ratus Empat Puluh Satu (741)", "cat": "Numbers"}, {"en": "seven hundred forty-two", "id": "Tujuh Ratus Empat Puluh Dua (742)", "cat": "Numbers"}, {"en": "seven hundred forty-three", "id": "Tujuh Ratus Empat Puluh Tiga (743)", "cat": "Numbers"}, {"en": "seven hundred forty-four", "id": "Tujuh Ratus Empat Puluh Empat (744)", "cat": "Numbers"}, {"en": "seven hundred forty-five", "id": "Tujuh Ratus Empat Puluh Lima (745)", "cat": "Numbers"}, {"en": "seven hundred forty-six", "id": "Tujuh Ratus Empat Puluh Enam (746)", "cat": "Numbers"}, {"en": "seven hundred forty-seven", "id": "Tujuh Ratus Empat Puluh Tujuh (747)", "cat": "Numbers"}, {"en": "seven hundred forty-eight", "id": "Tujuh Ratus Empat Puluh Delapan (748)", "cat": "Numbers"}, {"en": "seven hundred forty-nine", "id": "Tujuh Ratus Empat Puluh Sembilan (749)", "cat": "Numbers"}, {"en": "seven hundred fifty", "id": "Tujuh Ratus Lima Puluh (750)", "cat": "Numbers"}, {"en": "seven hundred fifty-one", "id": "Tujuh Ratus Lima Puluh Satu (751)", "cat": "Numbers"}, {"en": "seven hundred fifty-two", "id": "Tujuh Ratus Lima Puluh Dua (752)", "cat": "Numbers"}, {"en": "seven hundred fifty-three", "id": "Tujuh Ratus Lima Puluh Tiga (753)", "cat": "Numbers"}, {"en": "seven hundred fifty-four", "id": "Tujuh Ratus Lima Puluh Empat (754)", "cat": "Numbers"}, {"en": "seven hundred fifty-five", "id": "Tujuh Ratus Lima Puluh Lima (755)", "cat": "Numbers"}, {"en": "seven hundred fifty-six", "id": "Tujuh Ratus Lima Puluh Enam (756)", "cat": "Numbers"}, {"en": "seven hundred fifty-seven", "id": "Tujuh Ratus Lima Puluh Tujuh (757)", "cat": "Numbers"}, {"en": "seven hundred fifty-eight", "id": "Tujuh Ratus Lima Puluh Delapan (758)", "cat": "Numbers"}, {"en": "seven hundred fifty-nine", "id": "Tujuh Ratus Lima Puluh Sembilan (759)", "cat": "Numbers"}, {"en": "seven hundred sixty", "id": "Tujuh Ratus Enam Puluh (760)", "cat": "Numbers"}, {"en": "seven hundred sixty-one", "id": "Tujuh Ratus Enam Puluh Satu (761)", "cat": "Numbers"}, {"en": "seven hundred sixty-two", "id": "Tujuh Ratus Enam Puluh Dua (762)", "cat": "Numbers"}, {"en": "seven hundred sixty-three", "id": "Tujuh Ratus Enam Puluh Tiga (763)", "cat": "Numbers"}, {"en": "seven hundred sixty-four", "id": "Tujuh Ratus Enam Puluh Empat (764)", "cat": "Numbers"}, {"en": "seven hundred sixty-five", "id": "Tujuh Ratus Enam Puluh Lima (765)", "cat": "Numbers"}, {"en": "seven hundred sixty-six", "id": "Tujuh Ratus Enam Puluh Enam (766)", "cat": "Numbers"}, {"en": "seven hundred sixty-seven", "id": "Tujuh Ratus Enam Puluh Tujuh (767)", "cat": "Numbers"}, {"en": "seven hundred sixty-eight", "id": "Tujuh Ratus Enam Puluh Delapan (768)", "cat": "Numbers"}, {"en": "seven hundred sixty-nine", "id": "Tujuh Ratus Enam Puluh Sembilan (769)", "cat": "Numbers"}, {"en": "seven hundred seventy", "id": "Tujuh Ratus Tujuh Puluh (770)", "cat": "Numbers"}, {"en": "seven hundred seventy-one", "id": "Tujuh Ratus Tujuh Puluh Satu (771)", "cat": "Numbers"}, {"en": "seven hundred seventy-two", "id": "Tujuh Ratus Tujuh Puluh Dua (772)", "cat": "Numbers"}, {"en": "seven hundred seventy-three", "id": "Tujuh Ratus Tujuh Puluh Tiga (773)", "cat": "Numbers"}, {"en": "seven hundred seventy-four", "id": "Tujuh Ratus Tujuh Puluh Empat (774)", "cat": "Numbers"}, {"en": "seven hundred seventy-five", "id": "Tujuh Ratus Tujuh Puluh Lima (775)", "cat": "Numbers"}, {"en": "seven hundred seventy-six", "id": "Tujuh Ratus Tujuh Puluh Enam (776)", "cat": "Numbers"}, {"en": "seven hundred seventy-seven", "id": "Tujuh Ratus Tujuh Puluh Tujuh (777)", "cat": "Numbers"}, {"en": "seven hundred seventy-eight", "id": "Tujuh Ratus Tujuh Puluh Delapan (778)", "cat": "Numbers"}, {"en": "seven hundred seventy-nine", "id": "Tujuh Ratus Tujuh Puluh Sembilan (779)", "cat": "Numbers"}, {"en": "seven hundred eighty", "id": "Tujuh Ratus Delapan Puluh (780)", "cat": "Numbers"}, {"en": "seven hundred eighty-one", "id": "Tujuh Ratus Delapan Puluh Satu (781)", "cat": "Numbers"}, {"en": "seven hundred eighty-two", "id": "Tujuh Ratus Delapan Puluh Dua (782)", "cat": "Numbers"}, {"en": "seven hundred eighty-three", "id": "Tujuh Ratus Delapan Puluh Tiga (783)", "cat": "Numbers"}, {"en": "seven hundred eighty-four", "id": "Tujuh Ratus Delapan Puluh Empat (784)", "cat": "Numbers"}, {"en": "seven hundred eighty-five", "id": "Tujuh Ratus Delapan Puluh Lima (785)", "cat": "Numbers"}, {"en": "seven hundred eighty-six", "id": "Tujuh Ratus Delapan Puluh Enam (786)", "cat": "Numbers"}, {"en": "seven hundred eighty-seven", "id": "Tujuh Ratus Delapan Puluh Tujuh (787)", "cat": "Numbers"}, {"en": "seven hundred eighty-eight", "id": "Tujuh Ratus Delapan Puluh Delapan (788)", "cat": "Numbers"}, {"en": "seven hundred eighty-nine", "id": "Tujuh Ratus Delapan Puluh Sembilan (789)", "cat": "Numbers"}, {"en": "seven hundred ninety", "id": "Tujuh Ratus Sembilan Puluh (790)", "cat": "Numbers"}, {"en": "seven hundred ninety-one", "id": "Tujuh Ratus Sembilan Puluh Satu (791)", "cat": "Numbers"}, {"en": "seven hundred ninety-two", "id": "Tujuh Ratus Sembilan Puluh Dua (792)", "cat": "Numbers"}, {"en": "seven hundred ninety-three", "id": "Tujuh Ratus Sembilan Puluh Tiga (793)", "cat": "Numbers"}, {"en": "seven hundred ninety-four", "id": "Tujuh Ratus Sembilan Puluh Empat (794)", "cat": "Numbers"}, {"en": "seven hundred ninety-five", "id": "Tujuh Ratus Sembilan Puluh Lima (795)", "cat": "Numbers"}, {"en": "seven hundred ninety-six", "id": "Tujuh Ratus Sembilan Puluh Enam (796)", "cat": "Numbers"}, {"en": "seven hundred ninety-seven", "id": "Tujuh Ratus Sembilan Puluh Tujuh (797)", "cat": "Numbers"}, {"en": "seven hundred ninety-eight", "id": "Tujuh Ratus Sembilan Puluh Delapan (798)", "cat": "Numbers"}, {"en": "seven hundred ninety-nine", "id": "Tujuh Ratus Sembilan Puluh Sembilan (799)", "cat": "Numbers"}, {"en": "eight hundred", "id": "Delapan Ratus (800)", "cat": "Numbers"}, {"en": "eight hundred one", "id": "Delapan Ratus Satu (801)", "cat": "Numbers"}, {"en": "eight hundred two", "id": "Delapan Ratus Dua (802)", "cat": "Numbers"}, {"en": "eight hundred three", "id": "Delapan Ratus Tiga (803)", "cat": "Numbers"}, {"en": "eight hundred four", "id": "Delapan Ratus Empat (804)", "cat": "Numbers"}, {"en": "eight hundred five", "id": "Delapan Ratus Lima (805)", "cat": "Numbers"}, {"en": "eight hundred six", "id": "Delapan Ratus Enam (806)", "cat": "Numbers"}, {"en": "eight hundred seven", "id": "Delapan Ratus Tujuh (807)", "cat": "Numbers"}, {"en": "eight hundred eight", "id": "Delapan Ratus Delapan (808)", "cat": "Numbers"}, {"en": "eight hundred nine", "id": "Delapan Ratus Sembilan (809)", "cat": "Numbers"}, {"en": "eight hundred ten", "id": "Delapan Ratus Sepuluh (810)", "cat": "Numbers"}, {"en": "eight hundred eleven", "id": "Delapan Ratus Sebelas (811)", "cat": "Numbers"}, {"en": "eight hundred twelve", "id": "Delapan Ratus Dua Belas (812)", "cat": "Numbers"}, {"en": "eight hundred thirteen", "id": "Delapan Ratus Tiga Belas (813)", "cat": "Numbers"}, {"en": "eight hundred fourteen", "id": "Delapan Ratus Empat Belas (814)", "cat": "Numbers"}, {"en": "eight hundred fifteen", "id": "Delapan Ratus Lima Belas (815)", "cat": "Numbers"}, {"en": "eight hundred sixteen", "id": "Delapan Ratus Enam Belas (816)", "cat": "Numbers"}, {"en": "eight hundred seventeen", "id": "Delapan Ratus Tujuh Belas (817)", "cat": "Numbers"}, {"en": "eight hundred eighteen", "id": "Delapan Ratus Delapan Belas (818)", "cat": "Numbers"}, {"en": "eight hundred nineteen", "id": "Delapan Ratus Sembilan Belas (819)", "cat": "Numbers"}, {"en": "eight hundred twenty", "id": "Delapan Ratus Dua Puluh (820)", "cat": "Numbers"}, {"en": "eight hundred twenty-one", "id": "Delapan Ratus Dua Puluh Satu (821)", "cat": "Numbers"}, {"en": "eight hundred twenty-two", "id": "Delapan Ratus Dua Puluh Dua (822)", "cat": "Numbers"}, {"en": "eight hundred twenty-three", "id": "Delapan Ratus Dua Puluh Tiga (823)", "cat": "Numbers"}, {"en": "eight hundred twenty-four", "id": "Delapan Ratus Dua Puluh Empat (824)", "cat": "Numbers"}, {"en": "eight hundred twenty-five", "id": "Delapan Ratus Dua Puluh Lima (825)", "cat": "Numbers"}, {"en": "eight hundred twenty-six", "id": "Delapan Ratus Dua Puluh Enam (826)", "cat": "Numbers"}, {"en": "eight hundred twenty-seven", "id": "Delapan Ratus Dua Puluh Tujuh (827)", "cat": "Numbers"}, {"en": "eight hundred twenty-eight", "id": "Delapan Ratus Dua Puluh Delapan (828)", "cat": "Numbers"}, {"en": "eight hundred twenty-nine", "id": "Delapan Ratus Dua Puluh Sembilan (829)", "cat": "Numbers"}, {"en": "eight hundred thirty", "id": "Delapan Ratus Tiga Puluh (830)", "cat": "Numbers"}, {"en": "eight hundred thirty-one", "id": "Delapan Ratus Tiga Puluh Satu (831)", "cat": "Numbers"}, {"en": "eight hundred thirty-two", "id": "Delapan Ratus Tiga Puluh Dua (832)", "cat": "Numbers"}, {"en": "eight hundred thirty-three", "id": "Delapan Ratus Tiga Puluh Tiga (833)", "cat": "Numbers"}, {"en": "eight hundred thirty-four", "id": "Delapan Ratus Tiga Puluh Empat (834)", "cat": "Numbers"}, {"en": "eight hundred thirty-five", "id": "Delapan Ratus Tiga Puluh Lima (835)", "cat": "Numbers"}, {"en": "eight hundred thirty-six", "id": "Delapan Ratus Tiga Puluh Enam (836)", "cat": "Numbers"}, {"en": "eight hundred thirty-seven", "id": "Delapan Ratus Tiga Puluh Tujuh (837)", "cat": "Numbers"}, {"en": "eight hundred thirty-eight", "id": "Delapan Ratus Tiga Puluh Delapan (838)", "cat": "Numbers"}, {"en": "eight hundred thirty-nine", "id": "Delapan Ratus Tiga Puluh Sembilan (839)", "cat": "Numbers"}, {"en": "eight hundred forty", "id": "Delapan Ratus Empat Puluh (840)", "cat": "Numbers"}, {"en": "eight hundred forty-one", "id": "Delapan Ratus Empat Puluh Satu (841)", "cat": "Numbers"}, {"en": "eight hundred forty-two", "id": "Delapan Ratus Empat Puluh Dua (842)", "cat": "Numbers"}, {"en": "eight hundred forty-three", "id": "Delapan Ratus Empat Puluh Tiga (843)", "cat": "Numbers"}, {"en": "eight hundred forty-four", "id": "Delapan Ratus Empat Puluh Empat (844)", "cat": "Numbers"}, {"en": "eight hundred forty-five", "id": "Delapan Ratus Empat Puluh Lima (845)", "cat": "Numbers"}, {"en": "eight hundred forty-six", "id": "Delapan Ratus Empat Puluh Enam (846)", "cat": "Numbers"}, {"en": "eight hundred forty-seven", "id": "Delapan Ratus Empat Puluh Tujuh (847)", "cat": "Numbers"}, {"en": "eight hundred forty-eight", "id": "Delapan Ratus Empat Puluh Delapan (848)", "cat": "Numbers"}, {"en": "eight hundred forty-nine", "id": "Delapan Ratus Empat Puluh Sembilan (849)", "cat": "Numbers"}, {"en": "eight hundred fifty", "id": "Delapan Ratus Lima Puluh (850)", "cat": "Numbers"}, {"en": "eight hundred fifty-one", "id": "Delapan Ratus Lima Puluh Satu (851)", "cat": "Numbers"}, {"en": "eight hundred fifty-two", "id": "Delapan Ratus Lima Puluh Dua (852)", "cat": "Numbers"}, {"en": "eight hundred fifty-three", "id": "Delapan Ratus Lima Puluh Tiga (853)", "cat": "Numbers"}, {"en": "eight hundred fifty-four", "id": "Delapan Ratus Lima Puluh Empat (854)", "cat": "Numbers"}, {"en": "eight hundred fifty-five", "id": "Delapan Ratus Lima Puluh Lima (855)", "cat": "Numbers"}, {"en": "eight hundred fifty-six", "id": "Delapan Ratus Lima Puluh Enam (856)", "cat": "Numbers"}, {"en": "eight hundred fifty-seven", "id": "Delapan Ratus Lima Puluh Tujuh (857)", "cat": "Numbers"}, {"en": "eight hundred fifty-eight", "id": "Delapan Ratus Lima Puluh Delapan (858)", "cat": "Numbers"}, {"en": "eight hundred fifty-nine", "id": "Delapan Ratus Lima Puluh Sembilan (859)", "cat": "Numbers"}, {"en": "eight hundred sixty", "id": "Delapan Ratus Enam Puluh (860)", "cat": "Numbers"}];
+
+  const JUMLAH_SOAL_PER_LEVEL = 10;
+  const MAX_LEVEL = 100; // 100 Level * 10 Soal = 1000 Soal
+
+  let currentLevel = parseInt(localStorage.getItem('madasa_english_2way_level')) || 1;
+  if (currentLevel > MAX_LEVEL) currentLevel = 1;
+
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  
+  const gameContainer = document.getElementById('game-container');
+  const questionBox = document.getElementById('question-box');
+  const instructionText = document.getElementById('q-text');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const currentLvlDisplay = document.getElementById('current-lvl-display');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+
+  document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+
+  // GENERATOR SOAL (Acak 2 Arah: Arab->Indo & Indo->Arab)
+  function generateQuizData() {
+    const startIndex=(currentLevel-1)*JUMLAH_SOAL_PER_LEVEL;
+    const levelItems=kosakataList.slice(startIndex,startIndex+JUMLAH_SOAL_PER_LEVEL);
+    function num(i){const m=i.id.match(/\((\d+)\)$/);return m?+m[1]:null;}
+    function wrongs(cur,toIndo){
+      let pool=kosakataList.filter(x=>x!==cur&&x.cat===cur.cat);
+      if(cur.cat==="Numbers"){
+        const t=num(cur);
+        pool=pool.map(x=>({x,d:Math.abs(num(x)-t)})).sort((a,b)=>a.d-b.d).slice(0,20).sort(()=>Math.random()-.5).map(z=>z.x);
+      } else pool.sort(()=>Math.random()-.5);
+      return pool.slice(0,3).map(x=>toIndo?x.id:x.en);
+    }
+    return [...levelItems].sort(()=>Math.random()-.5).map(cur=>{
+      const toIndo=Math.random()>.5, correct=toIndo?cur.id:cur.en;
+      const opts=[{val:correct,isCorrect:true},...wrongs(cur,toIndo).map(val=>({val,isCorrect:false}))].sort(()=>Math.random()-.5);
+      return {type:toIndo?"english-indo":"indo-english",questionText:toIndo?cur.en:cur.id,opts};
+    });
+  }
+
+  function startGame() {
+    try {
+      if (bgMusic.paused) bgMusic.play().catch(e => console.log(e));
+    } catch(err) {}
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    currentLvlDisplay.innerText = currentLevel;
+    activeQuiz = generateQuizData();
+    totalQDisplay.innerText = JUMLAH_SOAL_PER_LEVEL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+
+    // Menentukan Instruksi, Font Soal, dan Font Pilihan Jawaban
+    let qClass = '';
+    let optClass = '';
+
+    if (currentQuiz.type === 'english-indo') {
+      instructionText.innerText = "Apa arti kata bahasa Inggris ini?";
+      qClass = 'q-indo';
+      optClass = 'opt-indo';
+    } else {
+      instructionText.innerText = "Apa bahasa Inggris dari kata ini?";
+      qClass = 'q-indo';
+      optClass = 'opt-indo';
+    }
+
+    questionBox.innerHTML = `<div class="${qClass}">${currentQuiz.questionText}</div>`;
+    questionBox.style.animation = 'none';
+    questionBox.offsetHeight;
+    questionBox.style.animation = 'popIn 0.4s forwards';
+
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL_PER_LEVEL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    optionsArea.innerHTML = '';
+    
+    currentQuiz.opts.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.className = `option-btn ${optClass}`; // Font menyesuaikan bahasa
+      btn.type = 'button';
+      btn.innerText = opt.val;
+      btn.dataset.correct = opt.isCorrect;
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.15}s both`;
+      
+      btn.addEventListener('click', function() {
+        checkAnswer(this, opt.isCorrect);
+      });
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, isCorrect) {
+    if (isWaiting || btn.style.pointerEvents === 'none') return; 
+    
+    isWaiting = true;
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Pintar Sekali! 🌟", true);
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Oops, kurang tepat! 😉", false);
+      
+      allBtns.forEach(b => {
+        if(b.dataset.correct === "true") b.classList.add('correct-highlight');
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL_PER_LEVEL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) feedbackMsg.classList.remove('feedback-wrong');
+    else feedbackMsg.classList.add('feedback-wrong');
+    
+    feedbackMsg.classList.add('feedback-show');
+    setTimeout(() => feedbackMsg.classList.remove('feedback-show'), 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const btnAction = document.getElementById('btn-result-action');
+
+    // SYARAT LULUS LEVEL DIPERKETAT: WAJIB BENAR 10
+    if (skorBenar === 10) {
+      if (currentLevel < MAX_LEVEL) {
+        title.innerText = "Level Selesai! 🎉";
+        message.innerText = `Luar biasa sempurna! Kamu berhasil lulus dari Level ${currentLevel}.`;
+        btnAction.innerText = `▶️ LANJUT LEVEL ${currentLevel + 1}`;
+        btnAction.style.backgroundColor = "#0288D1";
+        btnAction.style.boxShadow = "0 8px 0 #01579B, 0 15px 20px rgba(0,0,0,0.3)";
+        
+        btnAction.onclick = () => {
+          currentLevel++;
+          localStorage.setItem('madasa_english_2way_level', currentLevel);
+          document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+          startGame();
+        };
+      } 
+      else {
+        title.innerText = "TAMAT! MASYA ALLAH! 🏆";
+        message.innerText = "Luar biasa! Kamu sudah menaklukkan 1000 Soal dengan Sempurna!";
+        btnAction.innerText = "🔄 ULANG DARI LEVEL 1";
+        btnAction.style.backgroundColor = "#E91E63"; 
+        btnAction.style.boxShadow = "0 8px 0 #AD1457, 0 15px 20px rgba(0,0,0,0.3)";
+        
+        btnAction.onclick = () => {
+          currentLevel = 1;
+          localStorage.setItem('madasa_english_2way_level', currentLevel);
+          document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+          startGame();
+        };
+      }
+    } 
+    else {
+      title.innerText = "Tetap Semangat! 💪";
+      message.innerText = `Kamu harus menjawab 10 dengan benar (Sempurna) untuk naik level. Coba lagi ya!`;
+      btnAction.innerText = `🔄 ULANGI LEVEL ${currentLevel}`;
+      btnAction.style.backgroundColor = "#F57C00";
+      btnAction.style.boxShadow = "0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3)";
+      
+      btnAction.onclick = () => { startGame(); };
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<!-- Meta Viewport Stabil -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>MADASA - Kosa Kata Dua Arah</title>
+<meta name="description" content="Game edukasi Bahasa Arab untuk anak TK/RA.">
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR --- */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background-color: #000; 
+    color: #333; overflow: hidden; touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* --- KONTROL ROTASI & BACKGROUND UTAMA --- */
+  #app-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    background: linear-gradient(to bottom, #A5D6A7 0%, #2E7D32 100%);
+    transition: transform 0.4s ease; transform-origin: center center; overflow: hidden;
+  }
+  .layar-diputar {
+    transform: rotate(90deg); width: 100vh !important; height: 100vw !important;
+    top: 50% !important; left: 50% !important;
+    margin-top: -50vw !important; margin-left: -50vh !important;
+  }
+
+  /* KOTAK GAME & SCREEN UTAMA */
+  #game-container, .screen {
+    position: absolute;
+    width: 95vw; height: 95vh; 
+    max-width: 900px; max-height: 900px;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: clamp(4px, 1vmin, 8px) solid #FFF; 
+    border-radius: clamp(20px, 4vmin, 40px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: clamp(15px, 3vh, 30px) clamp(10px, 3vw, 30px); 
+    z-index: 10;
+    overflow-y: auto; 
+  }
+  #game-container { display: none; } 
+
+  /* --- LAYAR MENU & HASIL --- */
+  .screen {
+    display: none; justify-content: center; z-index: 50; text-align: center;
+  }
+  .screen-content {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; min-height: 100%;
+  }
+
+  .screen h1 { font-size: clamp(24px, 7vmin, 45px); color: #1B5E20; margin: 0 0 10px 0; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); line-height: 1.2; }
+  .screen h2 { font-size: clamp(16px, 4.5vmin, 24px); color: #F57C00; margin-bottom: 5px; font-weight: 800; }
+  .screen p { font-size: clamp(14px, 3.5vmin, 20px); color: #555; margin-bottom: 25px; font-weight: 700; max-width: 90%; line-height: 1.4; }
+  
+  #welcome-level-text {
+    font-size: clamp(16px, 4.5vmin, 24px);
+    color: #2E7D32;
+    background: #E8F5E9;
+    padding: 5px 20px;
+    border-radius: 20px;
+    border: 2px dashed #4CAF50;
+    margin-bottom: 15px;
+    font-weight: 900;
+  }
+
+  .btn {
+    padding: clamp(12px, 3vmin, 20px) clamp(25px, 6vmin, 50px); 
+    font-size: clamp(16px, 4.5vmin, 24px); font-weight: 900;
+    background-color: #2E7D32; color: white; border: clamp(3px, 1vmin, 6px) solid #FFF; border-radius: 40px;
+    cursor: pointer; box-shadow: 0 8px 0 #1B5E20, 0 15px 20px rgba(0,0,0,0.3);
+    transition: 0.1s; font-family: inherit; margin-bottom: 10px; outline: none; -webkit-tap-highlight-color: transparent; text-decoration: none; display: inline-block;
+  }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  
+  .btn-rotate {
+    background: #00BCD4; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF; border-radius: 30px; 
+    padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px); 
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer; 
+    box-shadow: 0 6px 0 #00838F, 0 10px 15px rgba(0,0,0,0.3); font-family: inherit; transition: 0.1s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; outline: none; -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+  .btn-reset {
+    background: #F57C00; color: white; border: clamp(2px, 1vmin, 4px) solid #FFF;
+    border-radius: 30px; padding: clamp(10px, 2.5vmin, 16px) clamp(20px, 6vmin, 40px);
+    font-size: clamp(14px, 4vmin, 18px); font-weight: 900; cursor: pointer;
+    box-shadow: 0 6px 0 #E65100, 0 10px 15px rgba(0,0,0,0.3);
+    font-family: inherit; transition: 0.1s; display: inline-flex;
+    align-items: center; justify-content: center; gap: 8px; outline: none;
+    -webkit-tap-highlight-color: transparent; margin-bottom: 15px;
+  }
+  .btn-reset:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+
+
+  /* --- TOMBOL MENU UTAMA RESPONSIVE --- */
+  .welcome-actions {
+    width: min(92%, 360px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(7px, 1.4vh, 11px);
+    margin: 0 auto 12px;
+  }
+
+  .welcome-actions .btn,
+  .welcome-actions .btn-reset,
+  .welcome-actions .btn-rotate {
+    margin: 0;
+  }
+
+  .btn-main-responsive,
+  .btn-reset-responsive {
+    width: 100%;
+    min-height: 52px;
+    padding: clamp(10px, 2vh, 15px) clamp(16px, 4vw, 28px);
+    white-space: nowrap;
+    font-size: clamp(15px, 3.8vmin, 21px);
+  }
+
+  /* Tombol putar sengaja dibuat kecil/mungil */
+  .btn-rotate-mini {
+    width: auto !important;
+    min-width: 120px;
+    min-height: 34px;
+    padding: 6px 15px !important;
+    font-size: clamp(11px, 2.7vmin, 14px) !important;
+    border-width: 2px !important;
+    box-shadow: 0 4px 0 #00838F, 0 6px 10px rgba(0,0,0,0.18) !important;
+  }
+
+  /* Beri ruang agar label Development tidak menabrak tombol */
+  #welcome-screen .screen-content {
+    padding-bottom: clamp(42px, 8vh, 64px);
+  }
+
+  @media (max-height: 700px) {
+    #welcome-screen .screen-content {
+      justify-content: flex-start;
+      padding-top: 12px;
+      padding-bottom: 44px;
+    }
+    #welcome-screen .screen h1 {
+      font-size: clamp(22px, 5.5vmin, 36px);
+      margin-bottom: 5px;
+    }
+    #welcome-screen .screen h2 {
+      font-size: clamp(14px, 3.4vmin, 20px);
+      margin: 4px 0;
+    }
+    #welcome-screen #welcome-level-text {
+      margin-bottom: 8px;
+    }
+    #welcome-screen .screen p {
+      margin: 8px 0 12px;
+      font-size: clamp(12px, 2.8vmin, 17px);
+    }
+    .welcome-actions {
+      gap: 7px;
+      margin-bottom: 5px;
+    }
+    .btn-main-responsive,
+    .btn-reset-responsive {
+      min-height: 44px;
+      padding: 8px 15px;
+      font-size: clamp(14px, 3.2vmin, 18px);
+    }
+    .btn-rotate-mini {
+      min-height: 30px;
+      padding: 4px 12px !important;
+      font-size: 12px !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .welcome-actions { width: 94%; }
+    .btn-main-responsive,
+    .btn-reset-responsive {
+      white-space: normal;
+      line-height: 1.15;
+    }
+  }
+
+
+  /* --- MODAL KONFIRMASI MODERN --- */
+  .modern-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 35, 18, 0.58);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    animation: modalFade .2s ease;
+  }
+  .modern-modal-overlay.show { display: flex; }
+
+  .modern-modal {
+    width: min(92vw, 390px);
+    background: rgba(255,255,255,.98);
+    border: 3px solid rgba(255,255,255,.9);
+    border-radius: 26px;
+    padding: 24px 22px 20px;
+    text-align: center;
+    box-shadow: 0 22px 60px rgba(0,0,0,.28);
+    animation: modalPop .25s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .modern-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: -2px auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFF3E0;
+    border: 3px solid #FFB74D;
+    font-size: 30px;
+  }
+  .modern-modal h3 {
+    margin: 0 0 8px;
+    color: #1B5E20;
+    font-size: clamp(21px, 5vw, 27px);
+    font-weight: 900;
+  }
+  .modern-modal p {
+    margin: 0 auto 20px;
+    color: #555;
+    font-size: clamp(14px, 3.5vw, 17px);
+    line-height: 1.45;
+    font-weight: 700;
+  }
+  .modern-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .modal-btn {
+    min-height: 48px;
+    border: 0;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .modal-btn:active { transform: scale(.96); }
+  .modal-cancel {
+    background: #ECEFF1;
+    color: #455A64;
+  }
+  .modal-confirm {
+    background: #F57C00;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(245,124,0,.28);
+  }
+  @keyframes modalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(.88) translateY(12px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* --- HEADER SOAL (GAME AREA) --- */
+  .header-area {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; flex-shrink: 0;
+  }
+
+  .level-badge {
+    background: #2E7D32; color: white; border-radius: 20px;
+    padding: clamp(4px, 1vh, 8px) clamp(15px, 4vw, 30px);
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; 
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4); border: 2px solid #FFF; margin-bottom: 10px;
+    text-align: center;
+  }
+  .level-badge span { color: #FFF59D; }
+
+  /* --- TATA LETAK GAME --- */
+  .game-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; flex-grow: 1; gap: clamp(8px, 1.5vh, 15px);
+  }
+  .game-layout-left, .game-layout-right {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%;
+  }
+
+  /* --- AREA KOSAKATA DINAMIS --- */
+  #question-box {
+    background: rgba(255, 255, 255, 0.9); 
+    border: clamp(3px, 1vmin, 5px) dashed #4CAF50; 
+    border-radius: clamp(15px, 3.5vmin, 25px);
+    padding: clamp(20px, 4vh, 30px) clamp(15px, 3vw, 25px); 
+    width: 100%; box-sizing: border-box; margin-bottom: clamp(5px, 1vh, 10px);
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+    min-height: clamp(120px, 25vh, 200px); 
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .question-instruction {
+    font-size: clamp(14px, 3.5vmin, 22px); font-weight: 900; color: #F57C00; margin-bottom: clamp(5px, 1vh, 10px); text-align: center; line-height: 1.3;
+  }
+
+  /* Font untuk pertanyaan */
+  .q-arab { font-family: 'Amiri', serif; font-size: clamp(50px, 14vmin, 90px); font-weight: bold; color: #1B5E20; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin: 0; padding: 10px 0; text-align: center; }
+  .q-indo { font-family: 'Nunito', sans-serif; font-size: clamp(30px, 9vmin, 50px); font-weight: 900; color: #1B5E20; line-height: 1.4; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin: 0; padding: 10px 0; text-align: center; }
+
+  /* --- TOMBOL PILIHAN JAWABAN --- */
+  #options-area {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 2.5vw, 20px); width: 100%;
+  }
+
+  .option-btn {
+    background: #FFF; border: clamp(3px, 1vmin, 5px) solid #81C784; border-radius: clamp(12px, 3.5vmin, 20px);
+    width: 100%; min-height: clamp(60px, 12vmin, 90px); padding: 10px; box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center; text-align: center;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    outline: none; -webkit-tap-highlight-color: transparent; font-weight: 900; color: #333; 
+    /* Dihapus line-height: 1.2 dari sini agar bisa diatur terpisah per bahasa */
+  }
+
+  .option-btn:active { transform: translateY(4px) scale(0.95) !important; box-shadow: 0 0 0 rgba(0,0,0,0) !important; }
+
+  /* Font dinamis untuk opsi jawaban (DIPERBAIKI) */
+  .opt-arab { 
+    font-family: 'Amiri', serif; 
+    font-size: clamp(24px, 7vmin, 40px); 
+    line-height: 1.8; /* Ruang bernafas untuk harakat */
+    padding-bottom: 5px; /* Menyesuaikan visual agar di tengah */
+  }
+  .opt-indo { 
+    font-family: 'Nunito', sans-serif; 
+    font-size: clamp(16px, 4.5vmin, 24px); 
+    line-height: 1.3; 
+  }
+
+  /* Animasi */
+  .shake { animation: shakeAnim 0.4s; border-color: #F44336 !important; background: #FFEBEE !important; color: #D32F2F !important;}
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+  .pop { animation: popAnim 0.5s forwards; border-color: #4CAF50 !important; background: #E8F5E9 !important; color: #2E7D32 !important; }
+  @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1.05); } }
+  .correct-highlight { border-color: #4CAF50 !important; background: #E8F5E9 !important; transform: scale(1.05) !important; color: #2E7D32 !important; }
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* --- NOTIFIKASI --- */
+  #feedback-msg {
+    position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    background: #4CAF50; color: white; padding: 10px 25px; border-radius: 30px;
+    font-size: clamp(14px, 4vmin, 22px); font-weight: 900; opacity: 0; pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s;
+    white-space: nowrap; border: 4px solid #FFF; z-index: 20;
+  }
+  .feedback-show { top: 20px !important; opacity: 1 !important; }
+  .feedback-wrong { background: #E91E63 !important; }
+
+  /* --- KOTAK EVALUASI HASIL --- */
+  .eval-box { display: flex; justify-content: center; gap: clamp(10px, 3vw, 30px); margin-bottom: 20px; }
+  .eval-item { background: #FFF; padding: clamp(10px, 2vmin, 20px); border-radius: 20px; border: clamp(3px, 1vmin, 5px) solid; width: clamp(90px, 25vmin, 150px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+  .eval-benar { border-color: #4CAF50; }
+  .eval-salah { border-color: #F44336; }
+  .eval-item span { display: block; font-size: clamp(30px, 8vmin, 50px); margin-bottom: 5px; }
+  .eval-item h3 { margin: 0; font-size: clamp(14px, 3.5vmin, 20px); color: #555; font-weight: 800; }
+  .eval-item p { margin: 0; font-size: clamp(24px, 6vmin, 40px); font-weight: 900; color: #333; }
+
+  /* --- PROGRESS BAR --- */
+  #progress-bar { 
+    width: 90%; height: clamp(8px, 1.5vh, 15px); background: #E0E0E0; 
+    border-radius: 10px; margin-top: clamp(10px, 2vh, 25px); flex-shrink: 0;
+    overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+  }
+  #progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.4s ease-out; }
+
+  /* LENCANA DEV */
+  .dev-link {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    padding: 4px 15px; font-size: clamp(10px, 2.5vmin, 14px); color: #555; text-decoration: none;
+    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700;
+    border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    white-space: nowrap; z-index: 60; font-weight: 700;
+  }
+  .dev-link strong { color: #FF9800; font-size: clamp(11px, 3vmin, 15px); font-weight: 900; margin-left: 4px; }
+
+  /* RESPONSIVE LANDSCAPE */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #game-container, .screen { padding: 10px; height: 98vh; width: 98vw; }
+    .game-layout { flex-direction: row; gap: 15px; }
+    .game-layout-left { width: 50%; }
+    .game-layout-right { width: 50%; }
+    .question-instruction { margin: 2px 0; font-size: clamp(11px, 2.5vmin, 14px); }
+    .level-badge { padding: 2px 15px; margin-bottom: 2px; }
+    #progress-bar { margin-top: 5px; }
+    #question-box { min-height: 100px; padding: 6px; margin-bottom: 5px; }
+    .screen h1 { font-size: 24px; margin-bottom: 2px; }
+    .screen h2 { font-size: 16px; margin-bottom: 5px; }
+    #welcome-level-text { font-size: 14px; margin-bottom: 10px; padding: 4px 12px; }
+    .screen p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
+    .btn { padding: 6px 20px; font-size: 16px; margin-bottom: 6px; border-width: 3px; box-shadow: 0 4px 0 #1B5E20; }
+    .btn-rotate { padding: 6px 15px; font-size: 14px; border-width: 2px; box-shadow: 0 4px 0 #00838F; }
+    .dev-link { position: relative; bottom: auto; left: auto; transform: none; margin-top: 10px; margin-bottom: 10px; display: inline-block; }
+  }
+</style>
+</head>
+
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<div id="app-container">
+
+  <!-- LAYAR MENU AWAL -->
+  <div id="welcome-screen" class="screen" style="display: flex;">
+    <div class="screen-content">
+      <h1>🕌 1000 Soal • 100 Level 🕌</h1>
+      <h2 style="color: #F57C00;">100 Level • 1000 Soal Menantang</h2>
+      <div id="welcome-level-text">Misi Kamu: Level 1</div>
+      <p>Pilih jawaban paling tepat. Pengecoh dibuat dari kategori yang sama. <strong>Wajib 10 BENAR (Sempurna)</strong> untuk naik level!</p>
+      
+      <div class="welcome-actions">
+        <button type="button" class="btn btn-main-responsive" id="btn-start-main" onclick="startGame()">▶️ MULAI BERMAIN</button>
+        <button type="button" class="btn-reset btn-reset-responsive" onclick="resetKeLevelSatu()">↩️ ULANG DARI AWAL</button>
+        <button type="button" class="btn-rotate btn-rotate-mini" onclick="putarLayar()" title="Putar layar">🔄 PUTAR LAYAR</button>
+      </div>
+      
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- AREA GAME -->
+  <div id="game-container">
+    <div id="feedback-msg">Pintar!</div>
+    
+    <div class="header-area">
+      <div class="level-badge">Level <span id="current-lvl-display">1</span> &nbsp;|&nbsp; Soal <span id="current-q">1</span>/<span id="total-q">10</span></div>
+    </div>
+    
+    <div class="game-layout">
+      <!-- Kiri saat Landscape, Atas saat Portrait -->
+      <div class="game-layout-left">
+        <div class="question-instruction" id="q-text">Instruksi akan muncul di sini...</div>
+        <div id="question-box">
+          <!-- Diisi oleh JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Kanan saat Landscape, Bawah saat Portrait -->
+      <div class="game-layout-right">
+        <!-- Area Pilihan Ganda -->
+        <div id="options-area"></div>
+      </div>
+    </div>
+
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+
+  <!-- LAYAR HASIL & EVALUASI -->
+  <div id="result-screen" class="screen">
+    <div class="screen-content">
+      <h1 id="result-title">Hebat Sekali! 🎉</h1>
+      <p id="result-message">Masya Allah! Kamu berhasil menyelesaikan level ini.</p>
+      
+      <div class="eval-box">
+        <div class="eval-item eval-benar">
+          <span>✅</span>
+          <h3>Benar</h3>
+          <p id="score-benar">0</p>
+        </div>
+        <div class="eval-item eval-salah">
+          <span>❌</span>
+          <h3>Salah</h3>
+          <p id="score-salah">0</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="btn-result-action">▶️ LANJUT LEVEL</button>
+      <button type="button" class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+
+      <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
+        Development <strong>Arom Kobama 😎</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- MODAL RESET LEVEL MODERN -->
+  <div id="reset-modal" class="modern-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="modern-modal">
+      <div class="modern-modal-icon">↩️</div>
+      <h3 id="reset-modal-title">Mulai dari Awal?</h3>
+      <p>Progres level saat ini akan dihapus dan permainan akan kembali ke <strong>Level 1</strong>.</p>
+      <div class="modern-modal-actions">
+        <button type="button" class="modal-btn modal-cancel" onclick="tutupResetModal()">Batal</button>
+        <button type="button" class="modal-btn modal-confirm" onclick="konfirmasiResetLevel()">Ya, Mulai Ulang</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MUSIK LATAR -->
+<audio id="bg-music" loop>
+  <source src="asset/lucu.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  function putarLayar() {
+    document.getElementById('app-container').classList.toggle('layar-diputar');
+  }
+
+  function resetKeLevelSatu() {
+    document.getElementById('reset-modal').classList.add('show');
+  }
+
+  function tutupResetModal() {
+    document.getElementById('reset-modal').classList.remove('show');
+  }
+
+  function konfirmasiResetLevel() {
+    currentLevel = 1;
+    localStorage.setItem('madasa_mix_2way_level', '1');
+
+    const welcomeLevel = document.getElementById('welcome-level-text');
+    if (welcomeLevel) welcomeLevel.innerText = "Misi Kamu: Level 1";
+
+    const lvlDisplay = document.getElementById('current-lvl-display');
+    if (lvlDisplay) lvlDisplay.innerText = "1";
+
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    tutupResetModal();
+  }
+
+  // Tutup modal jika area gelap di luar kotak ditekan
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('reset-modal');
+    if (e.target === modal) tutupResetModal();
+  });
+
+  // BANK KOSAKATA (Angka, Hewan, Benda)
+  const kosakataList = [
+    {"ar": "وَاحِدٌ", "id": "Satu (1)", "cat": "angka"},
+    {"ar": "اِثْنَانِ", "id": "Dua (2)", "cat": "angka"},
+    {"ar": "ثَلَاثَةٌ", "id": "Tiga (3)", "cat": "angka"},
+    {"ar": "أَرْبَعَةٌ", "id": "Empat (4)", "cat": "angka"},
+    {"ar": "خَمْسَةٌ", "id": "Lima (5)", "cat": "angka"},
+    {"ar": "سِتَّةٌ", "id": "Enam (6)", "cat": "angka"},
+    {"ar": "سَبْعَةٌ", "id": "Tujuh (7)", "cat": "angka"},
+    {"ar": "ثَمَانِيَةٌ", "id": "Delapan (8)", "cat": "angka"},
+    {"ar": "تِسْعَةٌ", "id": "Sembilan (9)", "cat": "angka"},
+    {"ar": "عَشَرَةٌ", "id": "Sepuluh (10)", "cat": "angka"},
+    {"ar": "أَسَدٌ", "id": "Singa", "cat": "hewan"},
+    {"ar": "قِطٌّ", "id": "Kucing", "cat": "hewan"},
+    {"ar": "كَلْبٌ", "id": "Anjing", "cat": "hewan"},
+    {"ar": "طَائِرٌ", "id": "Burung", "cat": "hewan"},
+    {"ar": "سَمَكٌ", "id": "Ikan", "cat": "hewan"},
+    {"ar": "بَقَرَةٌ", "id": "Sapi", "cat": "hewan"},
+    {"ar": "حِصَانٌ", "id": "Kuda", "cat": "hewan"},
+    {"ar": "جَمَلٌ", "id": "Unta", "cat": "hewan"},
+    {"ar": "نَمْلَةٌ", "id": "Semut", "cat": "hewan"},
+    {"ar": "فِيلٌ", "id": "Gajah", "cat": "hewan"},
+    {"ar": "بَطَّةٌ", "id": "Bebek", "cat": "hewan"},
+    {"ar": "قِرْدٌ", "id": "Monyet", "cat": "hewan"},
+    {"ar": "ثُعْبَانٌ", "id": "Ular", "cat": "hewan"},
+    {"ar": "فَرَاشَةٌ", "id": "Kupu-kupu", "cat": "hewan"},
+    {"ar": "نَحْلَةٌ", "id": "Lebah", "cat": "hewan"},
+    {"ar": "دَجَاجَةٌ", "id": "Ayam", "cat": "hewan"},
+    {"ar": "غَنَمٌ", "id": "Kambing", "cat": "hewan"},
+    {"ar": "فَأْرٌ", "id": "Tikus", "cat": "hewan"},
+    {"ar": "نَمِرٌ", "id": "Harimau", "cat": "hewan"},
+    {"ar": "تِمْسَاحٌ", "id": "Buaya", "cat": "hewan"},
+    {"ar": "كِتَابٌ", "id": "Buku", "cat": "benda"},
+    {"ar": "قَلَمٌ", "id": "Pulpen", "cat": "benda"},
+    {"ar": "مَكْتَبٌ", "id": "Meja", "cat": "benda"},
+    {"ar": "كُرْسِيٌّ", "id": "Kursi", "cat": "benda"},
+    {"ar": "بَابٌ", "id": "Pintu", "cat": "benda"},
+    {"ar": "نَافِذَةٌ", "id": "Jendela", "cat": "benda"},
+    {"ar": "بَيْتٌ", "id": "Rumah", "cat": "benda"},
+    {"ar": "مَدْرَسَةٌ", "id": "Sekolah", "cat": "benda"},
+    {"ar": "سَبُّورَةٌ", "id": "Papan tulis", "cat": "benda"},
+    {"ar": "حَقِيبَةٌ", "id": "Tas", "cat": "benda"},
+    {"ar": "مِمْسَحَةٌ", "id": "Penghapus", "cat": "benda"},
+    {"ar": "مِسْطَرَةٌ", "id": "Penggaris", "cat": "benda"},
+    {"ar": "قِرْطَاسٌ", "id": "Kertas", "cat": "benda"},
+    {"ar": "قَامُوسٌ", "id": "Kamus", "cat": "benda"},
+    {"ar": "دَفْتَرٌ", "id": "Buku tulis", "cat": "benda"},
+    {"ar": "صُورَةٌ", "id": "Gambar", "cat": "benda"},
+    {"ar": "سَاعَةٌ", "id": "Jam", "cat": "benda"},
+    {"ar": "خِزَانَةٌ", "id": "Lemari", "cat": "benda"},
+    {"ar": "مِرْوَحَةٌ", "id": "Kipas angin", "cat": "benda"},
+    {"ar": "مِصْبَاحٌ", "id": "Lampu", "cat": "benda"},
+    {"ar": "حِذَاءٌ", "id": "Sepatu", "cat": "benda"},
+    {"ar": "قَمِيصٌ", "id": "Baju", "cat": "benda"},
+    {"ar": "سِرْوَالٌ", "id": "Celana", "cat": "benda"},
+    {"ar": "قُبَّعَةٌ", "id": "Topi", "cat": "benda"},
+    {"ar": "جَوْرَبٌ", "id": "Kaos kaki", "cat": "benda"},
+    {"ar": "أَحْمَرُ", "id": "Merah", "cat": "warna"},
+    {"ar": "أَخْضَرُ", "id": "Hijau", "cat": "warna"},
+    {"ar": "أَزْرَقُ", "id": "Biru", "cat": "warna"},
+    {"ar": "أَصْفَرُ", "id": "Kuning", "cat": "warna"},
+    {"ar": "أَبْيَضُ", "id": "Putih", "cat": "warna"},
+    {"ar": "أَسْوَدُ", "id": "Hitam", "cat": "warna"},
+    {"ar": "بُنِّيٌّ", "id": "Cokelat", "cat": "warna"},
+    {"ar": "بُرْتُقَالِيٌّ", "id": "Oranye", "cat": "warna"},
+    {"ar": "وَرْدِيٌّ", "id": "Merah muda", "cat": "warna"},
+    {"ar": "بَنَفْسَجِيٌّ", "id": "Ungu", "cat": "warna"},
+    {"ar": "رَأْسٌ", "id": "Kepala", "cat": "tubuh"},
+    {"ar": "عَيْنٌ", "id": "Mata", "cat": "tubuh"},
+    {"ar": "أُذُنٌ", "id": "Telinga", "cat": "tubuh"},
+    {"ar": "أَنْفٌ", "id": "Hidung", "cat": "tubuh"},
+    {"ar": "فَمٌ", "id": "Mulut", "cat": "tubuh"},
+    {"ar": "يَدٌ", "id": "Tangan", "cat": "tubuh"},
+    {"ar": "رِجْلٌ", "id": "Kaki", "cat": "tubuh"},
+    {"ar": "شَعْرٌ", "id": "Rambut", "cat": "tubuh"},
+    {"ar": "سِنٌّ", "id": "Gigi", "cat": "tubuh"},
+    {"ar": "لِسَانٌ", "id": "Lidah", "cat": "tubuh"},
+    {"ar": "أَبٌ", "id": "Ayah", "cat": "orang"},
+    {"ar": "أُمٌّ", "id": "Ibu", "cat": "orang"},
+    {"ar": "أَخٌ", "id": "Saudara laki-laki", "cat": "orang"},
+    {"ar": "أُخْتٌ", "id": "Saudara perempuan", "cat": "orang"},
+    {"ar": "جَدٌّ", "id": "Kakek", "cat": "orang"},
+    {"ar": "جَدَّةٌ", "id": "Nenek", "cat": "orang"},
+    {"ar": "مُعَلِّمٌ", "id": "Guru laki-laki", "cat": "orang"},
+    {"ar": "مُعَلِّمَةٌ", "id": "Guru perempuan", "cat": "orang"},
+    {"ar": "طَالِبٌ", "id": "Siswa", "cat": "orang"},
+    {"ar": "طَالِبَةٌ", "id": "Siswi", "cat": "orang"},
+    {"ar": "مَاءٌ", "id": "Air", "cat": "makanan"},
+    {"ar": "حَلِيبٌ", "id": "Susu", "cat": "makanan"},
+    {"ar": "خُبْزٌ", "id": "Roti", "cat": "makanan"},
+    {"ar": "أَرُزٌّ", "id": "Nasi", "cat": "makanan"},
+    {"ar": "تُفَّاحٌ", "id": "Apel", "cat": "makanan"},
+    {"ar": "مَوْزٌ", "id": "Pisang", "cat": "makanan"},
+    {"ar": "بُرْتُقَالٌ", "id": "Jeruk", "cat": "makanan"},
+    {"ar": "عِنَبٌ", "id": "Anggur", "cat": "makanan"},
+    {"ar": "بَيْضٌ", "id": "Telur", "cat": "makanan"},
+    {"ar": "سُكَّرٌ", "id": "Gula", "cat": "makanan"},
+    {"ar": "مَسْجِدٌ", "id": "Masjid", "cat": "tempat"},
+    {"ar": "سُوقٌ", "id": "Pasar", "cat": "tempat"},
+    {"ar": "مُسْتَشْفَى", "id": "Rumah sakit", "cat": "tempat"},
+    {"ar": "حَدِيقَةٌ", "id": "Taman", "cat": "tempat"},
+    {"ar": "مَطْعَمٌ", "id": "Restoran", "cat": "tempat"},
+    {"ar": "مِائَة وَوَاحِد", "id": "Seratus Satu (101)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان", "id": "Seratus Dua (102)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة", "id": "Seratus Tiga (103)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة", "id": "Seratus Empat (104)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة", "id": "Seratus Lima (105)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة", "id": "Seratus Enam (106)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة", "id": "Seratus Tujuh (107)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة", "id": "Seratus Delapan (108)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة", "id": "Seratus Sembilan (109)", "cat": "angka"},
+    {"ar": "مِائَة وَعَشَرَة", "id": "Seratus Sepuluh (110)", "cat": "angka"},
+    {"ar": "مِائَة وَأَحَدَ عَشَرَ", "id": "Seratus Sebelas (111)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَا عَشَرَ", "id": "Seratus Dua Belas (112)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَةَ عَشَرَ", "id": "Seratus Tiga Belas (113)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Seratus Empat Belas (114)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَةَ عَشَرَ", "id": "Seratus Lima Belas (115)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّةَ عَشَرَ", "id": "Seratus Enam Belas (116)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَةَ عَشَرَ", "id": "Seratus Tujuh Belas (117)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Seratus Delapan Belas (118)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَةَ عَشَرَ", "id": "Seratus Sembilan Belas (119)", "cat": "angka"},
+    {"ar": "مِائَة وَعِشْرُون", "id": "Seratus Dua Puluh (120)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَعِشْرُون", "id": "Seratus Dua Puluh Satu (121)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَعِشْرُون", "id": "Seratus Dua Puluh Dua (122)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَعِشْرُون", "id": "Seratus Dua Puluh Tiga (123)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Seratus Dua Puluh Empat (124)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَعِشْرُون", "id": "Seratus Dua Puluh Lima (125)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَعِشْرُون", "id": "Seratus Dua Puluh Enam (126)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَعِشْرُون", "id": "Seratus Dua Puluh Tujuh (127)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Seratus Dua Puluh Delapan (128)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَعِشْرُون", "id": "Seratus Dua Puluh Sembilan (129)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثُون", "id": "Seratus Tiga Puluh (130)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَثَلَاثُون", "id": "Seratus Tiga Puluh Satu (131)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَثَلَاثُون", "id": "Seratus Tiga Puluh Dua (132)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Tiga (133)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Empat (134)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Lima (135)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَثَلَاثُون", "id": "Seratus Tiga Puluh Enam (136)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Tujuh (137)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Delapan (138)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَثَلَاثُون", "id": "Seratus Tiga Puluh Sembilan (139)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعُون", "id": "Seratus Empat Puluh (140)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَأَرْبَعُون", "id": "Seratus Empat Puluh Satu (141)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Seratus Empat Puluh Dua (142)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Tiga (143)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Empat (144)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Lima (145)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَأَرْبَعُون", "id": "Seratus Empat Puluh Enam (146)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Tujuh (147)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Delapan (148)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Seratus Empat Puluh Sembilan (149)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسُون", "id": "Seratus Lima Puluh (150)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَخَمْسُون", "id": "Seratus Lima Puluh Satu (151)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَخَمْسُون", "id": "Seratus Lima Puluh Dua (152)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَخَمْسُون", "id": "Seratus Lima Puluh Tiga (153)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Seratus Lima Puluh Empat (154)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَخَمْسُون", "id": "Seratus Lima Puluh Lima (155)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَخَمْسُون", "id": "Seratus Lima Puluh Enam (156)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَخَمْسُون", "id": "Seratus Lima Puluh Tujuh (157)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Seratus Lima Puluh Delapan (158)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَخَمْسُون", "id": "Seratus Lima Puluh Sembilan (159)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتُّون", "id": "Seratus Enam Puluh (160)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَسِتُّون", "id": "Seratus Enam Puluh Satu (161)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَسِتُّون", "id": "Seratus Enam Puluh Dua (162)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَسِتُّون", "id": "Seratus Enam Puluh Tiga (163)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَسِتُّون", "id": "Seratus Enam Puluh Empat (164)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَسِتُّون", "id": "Seratus Enam Puluh Lima (165)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَسِتُّون", "id": "Seratus Enam Puluh Enam (166)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَسِتُّون", "id": "Seratus Enam Puluh Tujuh (167)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَسِتُّون", "id": "Seratus Enam Puluh Delapan (168)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَسِتُّون", "id": "Seratus Enam Puluh Sembilan (169)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعُون", "id": "Seratus Tujuh Puluh (170)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَسَبْعُون", "id": "Seratus Tujuh Puluh Satu (171)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَسَبْعُون", "id": "Seratus Tujuh Puluh Dua (172)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Tiga (173)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Empat (174)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Lima (175)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَسَبْعُون", "id": "Seratus Tujuh Puluh Enam (176)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Tujuh (177)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Delapan (178)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَسَبْعُون", "id": "Seratus Tujuh Puluh Sembilan (179)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانُون", "id": "Seratus Delapan Puluh (180)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَثَمَانُون", "id": "Seratus Delapan Puluh Satu (181)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَثَمَانُون", "id": "Seratus Delapan Puluh Dua (182)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَثَمَانُون", "id": "Seratus Delapan Puluh Tiga (183)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Seratus Delapan Puluh Empat (184)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَثَمَانُون", "id": "Seratus Delapan Puluh Lima (185)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَثَمَانُون", "id": "Seratus Delapan Puluh Enam (186)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَثَمَانُون", "id": "Seratus Delapan Puluh Tujuh (187)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Seratus Delapan Puluh Delapan (188)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَثَمَانُون", "id": "Seratus Delapan Puluh Sembilan (189)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعُون", "id": "Seratus Sembilan Puluh (190)", "cat": "angka"},
+    {"ar": "مِائَة وَوَاحِد وَتِسْعُون", "id": "Seratus Sembilan Puluh Satu (191)", "cat": "angka"},
+    {"ar": "مِائَة وَاِثْنَان وَتِسْعُون", "id": "Seratus Sembilan Puluh Dua (192)", "cat": "angka"},
+    {"ar": "مِائَة وَثَلَاثَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Tiga (193)", "cat": "angka"},
+    {"ar": "مِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Empat (194)", "cat": "angka"},
+    {"ar": "مِائَة وَخَمْسَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Lima (195)", "cat": "angka"},
+    {"ar": "مِائَة وَسِتَّة وَتِسْعُون", "id": "Seratus Sembilan Puluh Enam (196)", "cat": "angka"},
+    {"ar": "مِائَة وَسَبْعَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Tujuh (197)", "cat": "angka"},
+    {"ar": "مِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Delapan (198)", "cat": "angka"},
+    {"ar": "مِائَة وَتِسْعَة وَتِسْعُون", "id": "Seratus Sembilan Puluh Sembilan (199)", "cat": "angka"},
+    {"ar": "مِائَتَان", "id": "Dua Ratus (200)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد", "id": "Dua Ratus Satu (201)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان", "id": "Dua Ratus Dua (202)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة", "id": "Dua Ratus Tiga (203)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة", "id": "Dua Ratus Empat (204)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة", "id": "Dua Ratus Lima (205)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة", "id": "Dua Ratus Enam (206)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة", "id": "Dua Ratus Tujuh (207)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة", "id": "Dua Ratus Delapan (208)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة", "id": "Dua Ratus Sembilan (209)", "cat": "angka"},
+    {"ar": "مِائَتَان وَعَشَرَة", "id": "Dua Ratus Sepuluh (210)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَحَدَ عَشَرَ", "id": "Dua Ratus Sebelas (211)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَا عَشَرَ", "id": "Dua Ratus Dua Belas (212)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَةَ عَشَرَ", "id": "Dua Ratus Tiga Belas (213)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَةَ عَشَرَ", "id": "Dua Ratus Empat Belas (214)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَةَ عَشَرَ", "id": "Dua Ratus Lima Belas (215)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّةَ عَشَرَ", "id": "Dua Ratus Enam Belas (216)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَةَ عَشَرَ", "id": "Dua Ratus Tujuh Belas (217)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَةَ عَشَرَ", "id": "Dua Ratus Delapan Belas (218)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَةَ عَشَرَ", "id": "Dua Ratus Sembilan Belas (219)", "cat": "angka"},
+    {"ar": "مِائَتَان وَعِشْرُون", "id": "Dua Ratus Dua Puluh (220)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَعِشْرُون", "id": "Dua Ratus Dua Puluh Satu (221)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَعِشْرُون", "id": "Dua Ratus Dua Puluh Dua (222)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Tiga (223)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Empat (224)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Lima (225)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Enam (226)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Tujuh (227)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Delapan (228)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَعِشْرُون", "id": "Dua Ratus Dua Puluh Sembilan (229)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh (230)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Satu (231)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Dua (232)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Tiga (233)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Empat (234)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Lima (235)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Enam (236)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Tujuh (237)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Delapan (238)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَثَلَاثُون", "id": "Dua Ratus Tiga Puluh Sembilan (239)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh (240)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Satu (241)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Dua (242)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Tiga (243)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Empat (244)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Lima (245)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Enam (246)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Tujuh (247)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Delapan (248)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَأَرْبَعُون", "id": "Dua Ratus Empat Puluh Sembilan (249)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسُون", "id": "Dua Ratus Lima Puluh (250)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَخَمْسُون", "id": "Dua Ratus Lima Puluh Satu (251)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَخَمْسُون", "id": "Dua Ratus Lima Puluh Dua (252)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Tiga (253)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Empat (254)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Lima (255)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Enam (256)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Tujuh (257)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Delapan (258)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَخَمْسُون", "id": "Dua Ratus Lima Puluh Sembilan (259)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتُّون", "id": "Dua Ratus Enam Puluh (260)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَسِتُّون", "id": "Dua Ratus Enam Puluh Satu (261)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَسِتُّون", "id": "Dua Ratus Enam Puluh Dua (262)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Tiga (263)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Empat (264)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Lima (265)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَسِتُّون", "id": "Dua Ratus Enam Puluh Enam (266)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Tujuh (267)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Delapan (268)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَسِتُّون", "id": "Dua Ratus Enam Puluh Sembilan (269)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh (270)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Satu (271)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Dua (272)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Tiga (273)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Empat (274)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Lima (275)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Enam (276)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Tujuh (277)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Delapan (278)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَسَبْعُون", "id": "Dua Ratus Tujuh Puluh Sembilan (279)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانُون", "id": "Dua Ratus Delapan Puluh (280)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Satu (281)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Dua (282)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Tiga (283)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Empat (284)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Lima (285)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Enam (286)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Tujuh (287)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Delapan (288)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَثَمَانُون", "id": "Dua Ratus Delapan Puluh Sembilan (289)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh (290)", "cat": "angka"},
+    {"ar": "مِائَتَان وَوَاحِد وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Satu (291)", "cat": "angka"},
+    {"ar": "مِائَتَان وَاِثْنَان وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Dua (292)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَلَاثَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Tiga (293)", "cat": "angka"},
+    {"ar": "مِائَتَان وَأَرْبَعَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Empat (294)", "cat": "angka"},
+    {"ar": "مِائَتَان وَخَمْسَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Lima (295)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسِتَّة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Enam (296)", "cat": "angka"},
+    {"ar": "مِائَتَان وَسَبْعَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Tujuh (297)", "cat": "angka"},
+    {"ar": "مِائَتَان وَثَمَانِيَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Delapan (298)", "cat": "angka"},
+    {"ar": "مِائَتَان وَتِسْعَة وَتِسْعُون", "id": "Dua Ratus Sembilan Puluh Sembilan (299)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة", "id": "Tiga Ratus (300)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد", "id": "Tiga Ratus Satu (301)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان", "id": "Tiga Ratus Dua (302)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة", "id": "Tiga Ratus Tiga (303)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة", "id": "Tiga Ratus Empat (304)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة", "id": "Tiga Ratus Lima (305)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة", "id": "Tiga Ratus Enam (306)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة", "id": "Tiga Ratus Tujuh (307)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة", "id": "Tiga Ratus Delapan (308)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة", "id": "Tiga Ratus Sembilan (309)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَعَشَرَة", "id": "Tiga Ratus Sepuluh (310)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَحَدَ عَشَرَ", "id": "Tiga Ratus Sebelas (311)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَا عَشَرَ", "id": "Tiga Ratus Dua Belas (312)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Tiga Ratus Tiga Belas (313)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Tiga Ratus Empat Belas (314)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Tiga Ratus Lima Belas (315)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّةَ عَشَرَ", "id": "Tiga Ratus Enam Belas (316)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Tiga Ratus Tujuh Belas (317)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Tiga Ratus Delapan Belas (318)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Tiga Ratus Sembilan Belas (319)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh (320)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Satu (321)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Dua (322)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Tiga (323)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Empat (324)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Lima (325)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Enam (326)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Tujuh (327)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Delapan (328)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Tiga Ratus Dua Puluh Sembilan (329)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh (330)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Satu (331)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Dua (332)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Tiga (333)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Empat (334)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Lima (335)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Enam (336)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Tujuh (337)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Delapan (338)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Tiga Ratus Tiga Puluh Sembilan (339)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh (340)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Satu (341)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Dua (342)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Tiga (343)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Empat (344)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Lima (345)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Enam (346)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Tujuh (347)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Delapan (348)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Tiga Ratus Empat Puluh Sembilan (349)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh (350)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Satu (351)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Dua (352)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Tiga (353)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Empat (354)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Lima (355)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Enam (356)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Tujuh (357)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Delapan (358)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Tiga Ratus Lima Puluh Sembilan (359)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh (360)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَسِتُّون", "id": "Tiga Ratus Enam Puluh Satu (361)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَسِتُّون", "id": "Tiga Ratus Enam Puluh Dua (362)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Tiga (363)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Empat (364)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Lima (365)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Enam (366)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Tujuh (367)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Delapan (368)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَسِتُّون", "id": "Tiga Ratus Enam Puluh Sembilan (369)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh (370)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Satu (371)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Dua (372)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Tiga (373)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Empat (374)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Lima (375)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Enam (376)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Tujuh (377)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Delapan (378)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Tiga Ratus Tujuh Puluh Sembilan (379)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh (380)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Satu (381)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Dua (382)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Tiga (383)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Empat (384)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Lima (385)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Enam (386)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Tujuh (387)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Delapan (388)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Tiga Ratus Delapan Puluh Sembilan (389)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh (390)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَوَاحِد وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Satu (391)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Dua (392)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Tiga (393)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Empat (394)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Lima (395)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسِتَّة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Enam (396)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Tujuh (397)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Delapan (398)", "cat": "angka"},
+    {"ar": "ثَلَاثُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Tiga Ratus Sembilan Puluh Sembilan (399)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة", "id": "Empat Ratus (400)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد", "id": "Empat Ratus Satu (401)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان", "id": "Empat Ratus Dua (402)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة", "id": "Empat Ratus Tiga (403)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة", "id": "Empat Ratus Empat (404)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة", "id": "Empat Ratus Lima (405)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة", "id": "Empat Ratus Enam (406)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة", "id": "Empat Ratus Tujuh (407)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة", "id": "Empat Ratus Delapan (408)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة", "id": "Empat Ratus Sembilan (409)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَعَشَرَة", "id": "Empat Ratus Sepuluh (410)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَحَدَ عَشَرَ", "id": "Empat Ratus Sebelas (411)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَا عَشَرَ", "id": "Empat Ratus Dua Belas (412)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Empat Ratus Tiga Belas (413)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Empat Ratus Empat Belas (414)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Empat Ratus Lima Belas (415)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّةَ عَشَرَ", "id": "Empat Ratus Enam Belas (416)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Empat Ratus Tujuh Belas (417)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Empat Ratus Delapan Belas (418)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Empat Ratus Sembilan Belas (419)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh (420)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَعِشْرُون", "id": "Empat Ratus Dua Puluh Satu (421)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Empat Ratus Dua Puluh Dua (422)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Tiga (423)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Empat (424)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Lima (425)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Enam (426)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Tujuh (427)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Delapan (428)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Empat Ratus Dua Puluh Sembilan (429)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh (430)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Satu (431)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Dua (432)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Tiga (433)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Empat (434)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Lima (435)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Enam (436)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Tujuh (437)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Delapan (438)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Empat Ratus Tiga Puluh Sembilan (439)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh (440)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Satu (441)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Dua (442)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Tiga (443)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Empat (444)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Lima (445)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Enam (446)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Tujuh (447)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Delapan (448)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Empat Ratus Empat Puluh Sembilan (449)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh (450)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَخَمْسُون", "id": "Empat Ratus Lima Puluh Satu (451)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Empat Ratus Lima Puluh Dua (452)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Tiga (453)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Empat (454)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Lima (455)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Enam (456)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Tujuh (457)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Delapan (458)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Empat Ratus Lima Puluh Sembilan (459)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتُّون", "id": "Empat Ratus Enam Puluh (460)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَسِتُّون", "id": "Empat Ratus Enam Puluh Satu (461)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَسِتُّون", "id": "Empat Ratus Enam Puluh Dua (462)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Tiga (463)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Empat (464)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Lima (465)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَسِتُّون", "id": "Empat Ratus Enam Puluh Enam (466)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Tujuh (467)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Delapan (468)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَسِتُّون", "id": "Empat Ratus Enam Puluh Sembilan (469)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh (470)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Satu (471)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Dua (472)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Tiga (473)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Empat (474)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Lima (475)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Enam (476)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Tujuh (477)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Delapan (478)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Empat Ratus Tujuh Puluh Sembilan (479)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh (480)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Satu (481)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Dua (482)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Tiga (483)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Empat (484)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Lima (485)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Enam (486)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Tujuh (487)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Delapan (488)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Empat Ratus Delapan Puluh Sembilan (489)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh (490)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَوَاحِد وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Satu (491)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Dua (492)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Tiga (493)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Empat (494)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Lima (495)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسِتَّة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Enam (496)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Tujuh (497)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Delapan (498)", "cat": "angka"},
+    {"ar": "أَرْبَعُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Empat Ratus Sembilan Puluh Sembilan (499)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة", "id": "Lima Ratus (500)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد", "id": "Lima Ratus Satu (501)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان", "id": "Lima Ratus Dua (502)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة", "id": "Lima Ratus Tiga (503)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة", "id": "Lima Ratus Empat (504)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة", "id": "Lima Ratus Lima (505)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة", "id": "Lima Ratus Enam (506)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة", "id": "Lima Ratus Tujuh (507)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة", "id": "Lima Ratus Delapan (508)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة", "id": "Lima Ratus Sembilan (509)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَعَشَرَة", "id": "Lima Ratus Sepuluh (510)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَحَدَ عَشَرَ", "id": "Lima Ratus Sebelas (511)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَا عَشَرَ", "id": "Lima Ratus Dua Belas (512)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Lima Ratus Tiga Belas (513)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Lima Ratus Empat Belas (514)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Lima Ratus Lima Belas (515)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّةَ عَشَرَ", "id": "Lima Ratus Enam Belas (516)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Lima Ratus Tujuh Belas (517)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Lima Ratus Delapan Belas (518)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Lima Ratus Sembilan Belas (519)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh (520)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَعِشْرُون", "id": "Lima Ratus Dua Puluh Satu (521)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Lima Ratus Dua Puluh Dua (522)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Tiga (523)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Empat (524)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Lima (525)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Enam (526)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Tujuh (527)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Delapan (528)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Lima Ratus Dua Puluh Sembilan (529)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh (530)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Satu (531)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Dua (532)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Tiga (533)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Empat (534)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Lima (535)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Enam (536)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Tujuh (537)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Delapan (538)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Lima Ratus Tiga Puluh Sembilan (539)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh (540)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Satu (541)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Dua (542)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Tiga (543)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Empat (544)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Lima (545)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Enam (546)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Tujuh (547)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Delapan (548)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Lima Ratus Empat Puluh Sembilan (549)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh (550)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَخَمْسُون", "id": "Lima Ratus Lima Puluh Satu (551)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Lima Ratus Lima Puluh Dua (552)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Tiga (553)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Empat (554)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Lima (555)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Enam (556)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Tujuh (557)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Delapan (558)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Lima Ratus Lima Puluh Sembilan (559)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتُّون", "id": "Lima Ratus Enam Puluh (560)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَسِتُّون", "id": "Lima Ratus Enam Puluh Satu (561)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَسِتُّون", "id": "Lima Ratus Enam Puluh Dua (562)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Tiga (563)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Empat (564)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Lima (565)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَسِتُّون", "id": "Lima Ratus Enam Puluh Enam (566)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Tujuh (567)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Delapan (568)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَسِتُّون", "id": "Lima Ratus Enam Puluh Sembilan (569)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh (570)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Satu (571)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Dua (572)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Tiga (573)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Empat (574)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Lima (575)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Enam (576)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Tujuh (577)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Delapan (578)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Lima Ratus Tujuh Puluh Sembilan (579)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh (580)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Satu (581)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Dua (582)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Tiga (583)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Empat (584)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Lima (585)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Enam (586)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Tujuh (587)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Delapan (588)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Lima Ratus Delapan Puluh Sembilan (589)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh (590)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَوَاحِد وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Satu (591)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Dua (592)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Tiga (593)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Empat (594)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Lima (595)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسِتَّة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Enam (596)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Tujuh (597)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Delapan (598)", "cat": "angka"},
+    {"ar": "خَمْسُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Lima Ratus Sembilan Puluh Sembilan (599)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة", "id": "Enam Ratus (600)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد", "id": "Enam Ratus Satu (601)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان", "id": "Enam Ratus Dua (602)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة", "id": "Enam Ratus Tiga (603)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة", "id": "Enam Ratus Empat (604)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة", "id": "Enam Ratus Lima (605)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة", "id": "Enam Ratus Enam (606)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة", "id": "Enam Ratus Tujuh (607)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة", "id": "Enam Ratus Delapan (608)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة", "id": "Enam Ratus Sembilan (609)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَعَشَرَة", "id": "Enam Ratus Sepuluh (610)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَحَدَ عَشَرَ", "id": "Enam Ratus Sebelas (611)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَا عَشَرَ", "id": "Enam Ratus Dua Belas (612)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Enam Ratus Tiga Belas (613)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Enam Ratus Empat Belas (614)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَةَ عَشَرَ", "id": "Enam Ratus Lima Belas (615)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّةَ عَشَرَ", "id": "Enam Ratus Enam Belas (616)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَةَ عَشَرَ", "id": "Enam Ratus Tujuh Belas (617)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Enam Ratus Delapan Belas (618)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَةَ عَشَرَ", "id": "Enam Ratus Sembilan Belas (619)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh (620)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَعِشْرُون", "id": "Enam Ratus Dua Puluh Satu (621)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَعِشْرُون", "id": "Enam Ratus Dua Puluh Dua (622)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Tiga (623)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Empat (624)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Lima (625)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Enam (626)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Tujuh (627)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Delapan (628)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَعِشْرُون", "id": "Enam Ratus Dua Puluh Sembilan (629)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh (630)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Satu (631)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Dua (632)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Tiga (633)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Empat (634)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Lima (635)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Enam (636)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Tujuh (637)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Delapan (638)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Enam Ratus Tiga Puluh Sembilan (639)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh (640)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Satu (641)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Dua (642)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Tiga (643)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Empat (644)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Lima (645)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Enam (646)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Tujuh (647)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Delapan (648)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Enam Ratus Empat Puluh Sembilan (649)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh (650)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَخَمْسُون", "id": "Enam Ratus Lima Puluh Satu (651)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَخَمْسُون", "id": "Enam Ratus Lima Puluh Dua (652)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Tiga (653)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Empat (654)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Lima (655)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Enam (656)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Tujuh (657)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Delapan (658)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَخَمْسُون", "id": "Enam Ratus Lima Puluh Sembilan (659)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتُّون", "id": "Enam Ratus Enam Puluh (660)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَسِتُّون", "id": "Enam Ratus Enam Puluh Satu (661)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَسِتُّون", "id": "Enam Ratus Enam Puluh Dua (662)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Tiga (663)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Empat (664)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Lima (665)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَسِتُّون", "id": "Enam Ratus Enam Puluh Enam (666)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Tujuh (667)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Delapan (668)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَسِتُّون", "id": "Enam Ratus Enam Puluh Sembilan (669)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh (670)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Satu (671)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Dua (672)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Tiga (673)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Empat (674)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Lima (675)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Enam (676)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Tujuh (677)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Delapan (678)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَسَبْعُون", "id": "Enam Ratus Tujuh Puluh Sembilan (679)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh (680)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Satu (681)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Dua (682)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Tiga (683)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Empat (684)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Lima (685)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Enam (686)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Tujuh (687)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Delapan (688)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَثَمَانُون", "id": "Enam Ratus Delapan Puluh Sembilan (689)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh (690)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَوَاحِد وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Satu (691)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَاِثْنَان وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Dua (692)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Tiga (693)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Empat (694)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَخَمْسَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Lima (695)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسِتَّة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Enam (696)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَسَبْعَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Tujuh (697)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Delapan (698)", "cat": "angka"},
+    {"ar": "سِتُّمِائَة وَتِسْعَة وَتِسْعُون", "id": "Enam Ratus Sembilan Puluh Sembilan (699)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة", "id": "Tujuh Ratus (700)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد", "id": "Tujuh Ratus Satu (701)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان", "id": "Tujuh Ratus Dua (702)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة", "id": "Tujuh Ratus Tiga (703)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة", "id": "Tujuh Ratus Empat (704)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة", "id": "Tujuh Ratus Lima (705)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة", "id": "Tujuh Ratus Enam (706)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة", "id": "Tujuh Ratus Tujuh (707)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة", "id": "Tujuh Ratus Delapan (708)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة", "id": "Tujuh Ratus Sembilan (709)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَعَشَرَة", "id": "Tujuh Ratus Sepuluh (710)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَحَدَ عَشَرَ", "id": "Tujuh Ratus Sebelas (711)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَا عَشَرَ", "id": "Tujuh Ratus Dua Belas (712)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Tujuh Ratus Tiga Belas (713)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Tujuh Ratus Empat Belas (714)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Tujuh Ratus Lima Belas (715)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّةَ عَشَرَ", "id": "Tujuh Ratus Enam Belas (716)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Tujuh Ratus Tujuh Belas (717)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Tujuh Ratus Delapan Belas (718)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Tujuh Ratus Sembilan Belas (719)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh (720)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Satu (721)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Dua (722)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Tiga (723)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Empat (724)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Lima (725)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Enam (726)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Tujuh (727)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Delapan (728)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Tujuh Ratus Dua Puluh Sembilan (729)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh (730)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Satu (731)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Dua (732)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Tiga (733)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Empat (734)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Lima (735)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Enam (736)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Tujuh (737)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Delapan (738)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Tujuh Ratus Tiga Puluh Sembilan (739)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh (740)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Satu (741)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Dua (742)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Tiga (743)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Empat (744)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Lima (745)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Enam (746)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Tujuh (747)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Delapan (748)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Tujuh Ratus Empat Puluh Sembilan (749)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh (750)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Satu (751)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Dua (752)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Tiga (753)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Empat (754)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Lima (755)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Enam (756)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Tujuh (757)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Delapan (758)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Tujuh Ratus Lima Puluh Sembilan (759)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh (760)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Satu (761)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Dua (762)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Tiga (763)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Empat (764)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Lima (765)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Enam (766)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Tujuh (767)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Delapan (768)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَسِتُّون", "id": "Tujuh Ratus Enam Puluh Sembilan (769)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh (770)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Satu (771)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Dua (772)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Tiga (773)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Empat (774)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Lima (775)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Enam (776)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Tujuh (777)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Delapan (778)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Tujuh Ratus Tujuh Puluh Sembilan (779)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh (780)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Satu (781)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Dua (782)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Tiga (783)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Empat (784)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Lima (785)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Enam (786)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Tujuh (787)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Delapan (788)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Tujuh Ratus Delapan Puluh Sembilan (789)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh (790)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَوَاحِد وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Satu (791)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Dua (792)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Tiga (793)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Empat (794)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Lima (795)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسِتَّة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Enam (796)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Tujuh (797)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Delapan (798)", "cat": "angka"},
+    {"ar": "سَبْعُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Tujuh Ratus Sembilan Puluh Sembilan (799)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة", "id": "Delapan Ratus (800)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد", "id": "Delapan Ratus Satu (801)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان", "id": "Delapan Ratus Dua (802)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة", "id": "Delapan Ratus Tiga (803)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة", "id": "Delapan Ratus Empat (804)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة", "id": "Delapan Ratus Lima (805)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة", "id": "Delapan Ratus Enam (806)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة", "id": "Delapan Ratus Tujuh (807)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة", "id": "Delapan Ratus Delapan (808)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة", "id": "Delapan Ratus Sembilan (809)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَعَشَرَة", "id": "Delapan Ratus Sepuluh (810)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَحَدَ عَشَرَ", "id": "Delapan Ratus Sebelas (811)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَا عَشَرَ", "id": "Delapan Ratus Dua Belas (812)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Delapan Ratus Tiga Belas (813)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Delapan Ratus Empat Belas (814)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Delapan Ratus Lima Belas (815)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّةَ عَشَرَ", "id": "Delapan Ratus Enam Belas (816)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Delapan Ratus Tujuh Belas (817)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Delapan Ratus Delapan Belas (818)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Delapan Ratus Sembilan Belas (819)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh (820)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Satu (821)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Dua (822)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Tiga (823)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Empat (824)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Lima (825)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Enam (826)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Tujuh (827)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Delapan (828)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Delapan Ratus Dua Puluh Sembilan (829)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh (830)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Satu (831)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Dua (832)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Tiga (833)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Empat (834)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Lima (835)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Enam (836)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Tujuh (837)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Delapan (838)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Delapan Ratus Tiga Puluh Sembilan (839)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh (840)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Satu (841)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Dua (842)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Tiga (843)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Empat (844)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Lima (845)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Enam (846)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Tujuh (847)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Delapan (848)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Delapan Ratus Empat Puluh Sembilan (849)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh (850)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Satu (851)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Dua (852)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Tiga (853)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Empat (854)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Lima (855)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Enam (856)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Tujuh (857)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Delapan (858)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Delapan Ratus Lima Puluh Sembilan (859)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh (860)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَسِتُّون", "id": "Delapan Ratus Enam Puluh Satu (861)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَسِتُّون", "id": "Delapan Ratus Enam Puluh Dua (862)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Tiga (863)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Empat (864)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Lima (865)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Enam (866)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Tujuh (867)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Delapan (868)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَسِتُّون", "id": "Delapan Ratus Enam Puluh Sembilan (869)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh (870)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Satu (871)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Dua (872)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Tiga (873)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Empat (874)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Lima (875)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Enam (876)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Tujuh (877)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Delapan (878)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Delapan Ratus Tujuh Puluh Sembilan (879)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh (880)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Satu (881)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Dua (882)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Tiga (883)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Empat (884)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Lima (885)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Enam (886)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Tujuh (887)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Delapan (888)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Delapan Ratus Delapan Puluh Sembilan (889)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh (890)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَوَاحِد وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Satu (891)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Dua (892)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Tiga (893)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Empat (894)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Lima (895)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسِتَّة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Enam (896)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Tujuh (897)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Delapan (898)", "cat": "angka"},
+    {"ar": "ثَمَانُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Delapan Ratus Sembilan Puluh Sembilan (899)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة", "id": "Sembilan Ratus (900)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد", "id": "Sembilan Ratus Satu (901)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان", "id": "Sembilan Ratus Dua (902)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة", "id": "Sembilan Ratus Tiga (903)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة", "id": "Sembilan Ratus Empat (904)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة", "id": "Sembilan Ratus Lima (905)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة", "id": "Sembilan Ratus Enam (906)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة", "id": "Sembilan Ratus Tujuh (907)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة", "id": "Sembilan Ratus Delapan (908)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة", "id": "Sembilan Ratus Sembilan (909)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَعَشَرَة", "id": "Sembilan Ratus Sepuluh (910)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَحَدَ عَشَرَ", "id": "Sembilan Ratus Sebelas (911)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَا عَشَرَ", "id": "Sembilan Ratus Dua Belas (912)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَةَ عَشَرَ", "id": "Sembilan Ratus Tiga Belas (913)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَةَ عَشَرَ", "id": "Sembilan Ratus Empat Belas (914)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَةَ عَشَرَ", "id": "Sembilan Ratus Lima Belas (915)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّةَ عَشَرَ", "id": "Sembilan Ratus Enam Belas (916)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَةَ عَشَرَ", "id": "Sembilan Ratus Tujuh Belas (917)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَةَ عَشَرَ", "id": "Sembilan Ratus Delapan Belas (918)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَةَ عَشَرَ", "id": "Sembilan Ratus Sembilan Belas (919)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh (920)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Satu (921)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Dua (922)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Tiga (923)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Empat (924)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Lima (925)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Enam (926)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Tujuh (927)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Delapan (928)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَعِشْرُون", "id": "Sembilan Ratus Dua Puluh Sembilan (929)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh (930)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Satu (931)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Dua (932)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Tiga (933)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Empat (934)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Lima (935)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Enam (936)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Tujuh (937)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Delapan (938)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَثَلَاثُون", "id": "Sembilan Ratus Tiga Puluh Sembilan (939)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh (940)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Satu (941)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Dua (942)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Tiga (943)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Empat (944)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Lima (945)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Enam (946)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Tujuh (947)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Delapan (948)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَأَرْبَعُون", "id": "Sembilan Ratus Empat Puluh Sembilan (949)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh (950)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Satu (951)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Dua (952)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Tiga (953)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Empat (954)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Lima (955)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Enam (956)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Tujuh (957)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Delapan (958)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَخَمْسُون", "id": "Sembilan Ratus Lima Puluh Sembilan (959)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh (960)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Satu (961)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Dua (962)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Tiga (963)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Empat (964)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Lima (965)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Enam (966)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Tujuh (967)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Delapan (968)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَسِتُّون", "id": "Sembilan Ratus Enam Puluh Sembilan (969)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh (970)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Satu (971)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Dua (972)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Tiga (973)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Empat (974)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Lima (975)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Enam (976)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Tujuh (977)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Delapan (978)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَسَبْعُون", "id": "Sembilan Ratus Tujuh Puluh Sembilan (979)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh (980)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Satu (981)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Dua (982)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Tiga (983)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Empat (984)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Lima (985)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Enam (986)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Tujuh (987)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Delapan (988)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَثَمَانُون", "id": "Sembilan Ratus Delapan Puluh Sembilan (989)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh (990)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَوَاحِد وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Satu (991)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَاِثْنَان وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Dua (992)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَلَاثَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Tiga (993)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَأَرْبَعَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Empat (994)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَخَمْسَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Lima (995)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسِتَّة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Enam (996)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَسَبْعَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Tujuh (997)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَثَمَانِيَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Delapan (998)", "cat": "angka"},
+    {"ar": "تِسْعُمِائَة وَتِسْعَة وَتِسْعُون", "id": "Sembilan Ratus Sembilan Puluh Sembilan (999)", "cat": "angka"},
+    {"ar": "أَلْف", "id": "Seribu (1000)", "cat": "angka"}
+  ];
+
+  const JUMLAH_SOAL_PER_LEVEL = 10;
+  const MAX_LEVEL = 100; // 100 Level * 10 Soal = 1000 Soal
+
+  let currentLevel = parseInt(localStorage.getItem('madasa_mix_2way_level')) || 1;
+  if (currentLevel > MAX_LEVEL) currentLevel = 1;
+
+  let activeQuiz = [];
+  let currentQuestionIndex = 0;
+  let isWaiting = false; 
+  let skorBenar = 0;
+  let skorSalah = 0;
+  
+  const gameContainer = document.getElementById('game-container');
+  const questionBox = document.getElementById('question-box');
+  const instructionText = document.getElementById('q-text');
+  const optionsArea = document.getElementById('options-area');
+  const currentQDisplay = document.getElementById('current-q');
+  const currentLvlDisplay = document.getElementById('current-lvl-display');
+  const totalQDisplay = document.getElementById('total-q');
+  const progressFill = document.getElementById('progress-fill');
+  const feedbackMsg = document.getElementById('feedback-msg');
+  const bgMusic = document.getElementById('bg-music');
+
+  document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+
+  // GENERATOR SOAL (Acak 2 Arah: Arab->Indo & Indo->Arab)
+  function generateQuizData() {
+    const startIndex = (currentLevel - 1) * JUMLAH_SOAL_PER_LEVEL;
+    const levelItems = kosakataList.slice(startIndex, startIndex + JUMLAH_SOAL_PER_LEVEL);
+    const shuffledItems = [...levelItems].sort(() => Math.random() - 0.5);
+
+    function getNumberValue(item) {
+      const match = item.id.match(/\((\d+)\)$/);
+      return match ? parseInt(match[1], 10) : null;
+    }
+
+    function getHardDistractors(currentItem, isArabToIndo) {
+      let pool = kosakataList.filter(item => item !== currentItem && item.cat === currentItem.cat);
+
+      if (currentItem.cat === 'angka') {
+        const target = getNumberValue(currentItem);
+        pool = pool.map(item => ({item, diff: Math.abs(getNumberValue(item) - target)}))
+          .filter(x => Number.isFinite(x.diff) && x.diff > 0)
+          .sort((a,b) => a.diff - b.diff || Math.random() - 0.5)
+          .slice(0, 20).map(x => x.item).sort(() => Math.random() - 0.5);
+      } else {
+        pool.sort(() => Math.random() - 0.5);
+      }
+
+      const chosen = [];
+      const correct = isArabToIndo ? currentItem.id : currentItem.ar;
+      for (const item of pool) {
+        const val = isArabToIndo ? item.id : item.ar;
+        if (val !== correct && !chosen.includes(val)) chosen.push(val);
+        if (chosen.length === 3) break;
+      }
+
+      if (chosen.length < 3) {
+        for (const item of [...kosakataList].sort(() => Math.random() - 0.5)) {
+          const val = isArabToIndo ? item.id : item.ar;
+          if (val !== correct && !chosen.includes(val)) chosen.push(val);
+          if (chosen.length === 3) break;
+        }
+      }
+      return chosen;
+    }
+
+    return shuffledItems.map(currentItem => {
+      const isArabToIndo = Math.random() > 0.5;
+      const correctAnswer = isArabToIndo ? currentItem.id : currentItem.ar;
+      const questionText = isArabToIndo ? currentItem.ar : currentItem.id;
+      const direction = isArabToIndo ? 'arab-indo' : 'indo-arab';
+      const options = [
+        {val: correctAnswer, isCorrect: true},
+        ...getHardDistractors(currentItem, isArabToIndo).map(val => ({val, isCorrect: false}))
+      ].sort(() => Math.random() - 0.5);
+      return {type: direction, questionText, opts: options};
+    });
+  }
+
+  function startGame() {
+    try {
+      if (bgMusic.paused) bgMusic.play().catch(e => console.log(e));
+    } catch(err) {}
+
+    skorBenar = 0;
+    skorSalah = 0;
+    currentQuestionIndex = 0;
+    isWaiting = false;
+    
+    currentLvlDisplay.innerText = currentLevel;
+    activeQuiz = generateQuizData();
+    totalQDisplay.innerText = JUMLAH_SOAL_PER_LEVEL;
+
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    isWaiting = false;
+    const currentQuiz = activeQuiz[currentQuestionIndex];
+    currentQDisplay.innerText = currentQuestionIndex + 1;
+
+    // Menentukan Instruksi, Font Soal, dan Font Pilihan Jawaban
+    let qClass = '';
+    let optClass = '';
+
+    if (currentQuiz.type === 'arab-indo') {
+      instructionText.innerText = "Apakah arti dari kata ini?";
+      qClass = 'q-arab';
+      optClass = 'opt-indo';
+    } else {
+      instructionText.innerText = "Apa bahasa Arab dari kata ini?";
+      qClass = 'q-indo';
+      optClass = 'opt-arab';
+    }
+
+    questionBox.innerHTML = `<div class="${qClass}">${currentQuiz.questionText}</div>`;
+    questionBox.style.animation = 'none';
+    questionBox.offsetHeight;
+    questionBox.style.animation = 'popIn 0.4s forwards';
+
+    const progressPercent = (currentQuestionIndex / JUMLAH_SOAL_PER_LEVEL) * 100;
+    progressFill.style.width = progressPercent + '%';
+
+    optionsArea.innerHTML = '';
+    
+    currentQuiz.opts.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.className = `option-btn ${optClass}`; // Font menyesuaikan bahasa
+      btn.type = 'button';
+      btn.innerText = opt.val;
+      btn.dataset.correct = opt.isCorrect;
+      btn.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.15}s both`;
+      
+      btn.addEventListener('click', function() {
+        checkAnswer(this, opt.isCorrect);
+      });
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, isCorrect) {
+    if (isWaiting || btn.style.pointerEvents === 'none') return; 
+    
+    isWaiting = true;
+    const allBtns = optionsArea.querySelectorAll('.option-btn');
+    allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+    if (isCorrect) {
+      btn.classList.add('pop');
+      skorBenar++;
+      showFeedback("Pintar Sekali! 🌟", true);
+    } else {
+      btn.classList.add('shake');
+      skorSalah++;
+      showFeedback("Oops, kurang tepat! 😉", false);
+      
+      allBtns.forEach(b => {
+        if(b.dataset.correct === "true") b.classList.add('correct-highlight');
+      });
+    }
+
+    setTimeout(() => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < JUMLAH_SOAL_PER_LEVEL) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500); 
+  }
+
+  function showFeedback(text, isSuccess) {
+    feedbackMsg.innerText = text;
+    if (isSuccess) feedbackMsg.classList.remove('feedback-wrong');
+    else feedbackMsg.classList.add('feedback-wrong');
+    
+    feedbackMsg.classList.add('feedback-show');
+    setTimeout(() => feedbackMsg.classList.remove('feedback-show'), 1200);
+  }
+
+  function showResult() {
+    progressFill.style.width = '100%';
+    document.getElementById('score-benar').innerText = skorBenar;
+    document.getElementById('score-salah').innerText = skorSalah;
+
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const btnAction = document.getElementById('btn-result-action');
+
+    // SYARAT LULUS LEVEL DIPERKETAT: WAJIB BENAR 10
+    if (skorBenar === 10) {
+      if (currentLevel < MAX_LEVEL) {
+        title.innerText = "Level Selesai! 🎉";
+        message.innerText = `Luar biasa sempurna! Kamu berhasil lulus dari Level ${currentLevel}.`;
+        btnAction.innerText = `▶️ LANJUT LEVEL ${currentLevel + 1}`;
+        btnAction.style.backgroundColor = "#0288D1";
+        btnAction.style.boxShadow = "0 8px 0 #01579B, 0 15px 20px rgba(0,0,0,0.3)";
+        
+        btnAction.onclick = () => {
+          currentLevel++;
+          localStorage.setItem('madasa_mix_2way_level', currentLevel);
+          document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+          startGame();
+        };
+      } 
+      else {
+        title.innerText = "TAMAT! MASYA ALLAH! 🏆";
+        message.innerText = "Luar biasa! Kamu sudah menaklukkan 1000 Soal dengan Sempurna!";
+        btnAction.innerText = "🔄 ULANG DARI LEVEL 1";
+        btnAction.style.backgroundColor = "#E91E63"; 
+        btnAction.style.boxShadow = "0 8px 0 #AD1457, 0 15px 20px rgba(0,0,0,0.3)";
+        
+        btnAction.onclick = () => {
+          currentLevel = 1;
+          localStorage.setItem('madasa_mix_2way_level', currentLevel);
+          document.getElementById('welcome-level-text').innerText = "Misi Kamu: Level " + currentLevel;
+          startGame();
+        };
+      }
+    } 
+    else {
+      title.innerText = "Tetap Semangat! 💪";
+      message.innerText = `Kamu harus menjawab 10 dengan benar (Sempurna) untuk naik level. Coba lagi ya!`;
+      btnAction.innerText = `🔄 ULANGI LEVEL ${currentLevel}`;
+      btnAction.style.backgroundColor = "#F57C00";
+      btnAction.style.boxShadow = "0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3)";
+      
+      btnAction.onclick = () => { startGame(); };
+    }
+
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+    }, 500);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#2E7D32">
+<title>MADASA - Urutkan Wudu & Salat</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#A5D6A7,#1B5E20);display:flex;align-items:center;justify-content:center;color:#333}
+button{font:inherit}
+#app{width:min(94vw,900px);height:min(94vh,680px);background:#f4fbf5;border:5px solid #fff;border-radius:26px;box-shadow:0 18px 50px #0004;position:relative;overflow:hidden}
+.screen{height:100%;display:none;flex-direction:column;align-items:center;padding:clamp(14px,3vmin,28px);text-align:center}
+.screen.active{display:flex}
+h1{color:#176b28;margin:8px 0;font-size:clamp(25px,6vmin,45px)}
+h2{color:#ef6c00;margin:5px 0 10px;font-size:clamp(18px,4vmin,27px)}
+p{font-weight:700;line-height:1.4}
+.badge{background:#fff;border:2px dashed #43a047;color:#2e7d32;border-radius:20px;padding:7px 18px;font-weight:900;margin:5px}
+.actions{display:flex;flex-direction:column;gap:10px;width:min(92%,340px);margin-top:12px}
+.btn{border:3px solid #fff;border-radius:24px;padding:12px 20px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 6px 0 #175c22}
+.btn:active{transform:translateY(4px);box-shadow:none}
+.green{background:#2e7d32}.orange{background:#f57c00;box-shadow:0 6px 0 #d65300}.blue{background:#00acc1;box-shadow:0 4px 0 #007c91}
+.mini{align-self:center;width:auto;padding:6px 14px;font-size:12px;border-radius:18px}
+.footer{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);border:2px solid #ffc107;border-radius:20px;background:#fff;padding:5px 14px;font-size:12px;font-weight:bold;white-space:nowrap}
+.game-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.game-head .badge{margin:0;font-size:clamp(12px,3vmin,16px)}
+.progress{height:10px;background:#dfe9e0;border-radius:20px;width:100%;margin:10px 0;overflow:hidden}
+.progress>div{height:100%;background:#43a047;width:0;transition:.3s}
+.instruction{font-size:clamp(15px,3.6vmin,21px);font-weight:900;color:#ef6c00;margin:3px 0}
+.task-title{font-size:clamp(19px,4.5vmin,29px);font-weight:900;color:#1b5e20;margin:3px 0 8px}
+.cards{width:min(100%,650px);display:flex;flex-direction:column;gap:7px;overflow:auto;flex:1;padding:3px 5px 8px}
+.card{background:#fff;border:3px solid #81c784;border-radius:17px;padding:clamp(9px,2vmin,13px);font-weight:900;font-size:clamp(14px,3.2vmin,19px);display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;box-shadow:0 3px 7px #0002;text-align:left}
+.card.dragging{opacity:.45}
+.num{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;background:#e8f5e9;color:#2e7d32}
+.controls{display:flex;gap:8px;width:min(100%,650px);margin-top:7px}
+.controls .btn{flex:1;padding:9px;font-size:clamp(12px,3vmin,16px)}
+.feedback{min-height:25px;font-weight:900;font-size:clamp(13px,3vmin,17px)}
+.correct{color:#2e7d32}.wrong{color:#d32f2f}
+.stats{display:flex;gap:15px;margin:15px 0}.stat{background:#fff;border:4px solid #66bb6a;border-radius:20px;padding:14px 24px;font-size:20px;font-weight:900}.stat.bad{border-color:#ef5350}
+.modal-bg{display:none;position:fixed;inset:0;background:#102c1899;backdrop-filter:blur(5px);z-index:20;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}.modal{width:min(92vw,390px);background:#fff;border-radius:25px;padding:24px;text-align:center;box-shadow:0 20px 60px #0005}.modal h3{color:#1b5e20;font-size:24px}.modal-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-buttons button{border:0;border-radius:15px;padding:13px;font-weight:900;cursor:pointer}
+@media(max-height:600px){#app{height:98vh}.screen{padding:8px 14px}h1{margin:2px}.footer{bottom:4px}.card{padding:6px 10px}.actions{gap:6px;margin-top:5px}.btn{padding:8px 15px}}
+
+.hint-btn{
+  background:#ffb300;
+  color:#fff;
+  box-shadow:0 4px 0 #d68c00;
+  padding:9px 10px!important;
+  font-size:clamp(11px,2.7vmin,15px)!important;
+}
+.hint-box{
+  display:none;
+  width:min(100%,650px);
+  background:#fff8e1;
+  border:2px solid #ffb300;
+  border-radius:14px;
+  padding:8px 12px;
+  margin:4px 0;
+  color:#7a4b00;
+  font-weight:800;
+  font-size:clamp(12px,2.8vmin,15px);
+  line-height:1.35;
+}
+.hint-box.show{display:block}
+@media(max-width:520px){
+  .controls{gap:5px}
+  .controls .btn{padding:8px 5px;font-size:11px}
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+<section id="home" class="screen active">
+<h1>🕌 Urutkan Ibadah</h1>
+<h2>Wudu & Salat</h2>
+<div class="badge" id="homeLevel">Misi Kamu: Level 1</div>
+<p>Susun kartu dengan urutan yang benar.<br>Geser kartu ke atas atau ke bawah.</p>
+<div class="actions">
+<button class="btn green" onclick="startGame()">▶ MULAI BERMAIN</button>
+<button class="btn orange" onclick="openReset()">↩ ULANG DARI AWAL</button>
+<button class="btn blue mini" onclick="rotateApp()">🔄 PUTAR LAYAR</button>
+</div>
+<div class="footer">Development <b style="color:#ef6c00">Arom Kobama 😎</b></div>
+</section>
+
+<section id="game" class="screen">
+<div class="game-head"><div class="badge" id="levelBadge">Level 1</div><div class="badge" id="challengeBadge">Tantangan 1/5</div></div>
+<div class="progress"><div id="bar"></div></div>
+<div class="instruction">↕️ Susun dari langkah pertama sampai terakhir</div>
+<div class="task-title" id="taskTitle"></div>
+<div id="cards" class="cards"></div>
+<div id="feedback" class="feedback"></div>
+<div id="hintBox" class="hint-box"></div>
+<div class="controls">
+<button class="btn blue mini" onclick="shuffleCurrent()">🔀 ACAK</button>
+<button class="btn hint-btn" id="hintBtn" onclick="showHint()">💡 PETUNJUK</button>
+<button class="btn green" onclick="checkAnswer()">✓ PERIKSA</button>
+</div>
+</section>
+
+<section id="result" class="screen">
+<h1 id="resultTitle">Masya Allah! 🎉</h1>
+<p id="resultMsg"></p>
+<div class="stats"><div class="stat">✅<br><span id="correctCount">0</span></div><div class="stat bad">❌<br><span id="wrongCount">0</span></div></div>
+<div class="actions">
+<button id="resultBtn" class="btn green">LANJUT</button>
+<button class="btn blue mini" onclick="rotateApp()">🔄 PUTAR LAYAR</button>
+</div>
+<div class="footer">Development <b style="color:#ef6c00">Arom Kobama 😎</b></div>
+</section>
+</div>
+
+<div id="resetModal" class="modal-bg">
+<div class="modal">
+<div style="font-size:45px">↩️</div><h3>Mulai dari Awal?</h3>
+<p>Progres akan dihapus dan permainan kembali ke Level 1.</p>
+<div class="modal-buttons"><button onclick="closeReset()">Batal</button><button style="background:#f57c00;color:white" onclick="doReset()">Ya, Mulai Ulang</button></div>
+</div></div>
+
+<script>
+const levels=[{"name": "Dasar Wudu", "challenges": [{"title": "Rukun Wudu", "items": ["Niat berwudu", "Membasuh wajah", "Membasuh kedua tangan sampai siku", "Mengusap sebagian kepala", "Membasuh kedua kaki sampai mata kaki"]}, {"title": "Awal Wudu", "items": ["Membaca basmalah", "Membasuh kedua telapak tangan", "Berkumur", "Membersihkan hidung", "Membasuh wajah"]}, {"title": "Wajah sampai Kepala", "items": ["Membasuh wajah", "Membasuh tangan kanan sampai siku", "Membasuh tangan kiri sampai siku", "Mengusap sebagian kepala"]}, {"title": "Kepala sampai Kaki", "items": ["Mengusap sebagian kepala", "Mengusap kedua telinga", "Membasuh kaki kanan", "Membasuh kaki kiri"]}, {"title": "Sesudah Wudu", "items": ["Menyelesaikan basuhan kaki", "Menghadap kiblat jika memungkinkan", "Membaca syahadat", "Membaca doa setelah wudu"]}]}, {"name": "Wudu Lengkap", "challenges": [{"title": "Persiapan Wudu", "items": ["Berniat bersuci", "Membaca basmalah", "Membasuh telapak tangan", "Berkumur", "Membersihkan hidung"]}, {"title": "Bagian Pertengahan Wudu", "items": ["Membasuh wajah", "Membasuh tangan kanan sampai siku", "Membasuh tangan kiri sampai siku", "Mengusap kepala"]}, {"title": "Bagian Akhir Wudu", "items": ["Mengusap kepala", "Mengusap telinga", "Membasuh kaki kanan", "Membasuh kaki kiri", "Membaca doa"]}, {"title": "Urutan Anggota Wudu", "items": ["Wajah", "Kedua tangan sampai siku", "Kepala", "Kedua kaki sampai mata kaki"]}, {"title": "Wudu dari Awal sampai Akhir", "items": ["Niat", "Membasuh wajah", "Membasuh kedua tangan", "Mengusap kepala", "Membasuh kedua kaki"]}]}, {"name": "Adab Wudu", "challenges": [{"title": "Sebelum Wudu", "items": ["Menyiapkan air suci", "Berniat", "Membaca basmalah", "Memulai wudu"]}, {"title": "Mendahulukan Kanan", "items": ["Membasuh tangan kanan", "Membasuh tangan kiri", "Membasuh kaki kanan", "Membasuh kaki kiri"]}, {"title": "Tidak Berlebihan Air", "items": ["Membuka air secukupnya", "Melakukan basuhan dengan baik", "Menghindari pemborosan", "Menutup air setelah selesai"]}, {"title": "Setelah Wudu", "items": ["Menyelesaikan wudu", "Membaca syahadat", "Membaca doa setelah wudu", "Menjaga kesucian"]}, {"title": "Wudu Tertib", "items": ["Niat", "Wajah", "Tangan", "Kepala", "Kaki"]}]}, {"name": "Persiapan Salat", "challenges": [{"title": "Syarat Sebelum Salat", "items": ["Memastikan waktu salat masuk", "Bersuci dari hadas", "Membersihkan najis", "Menutup aurat", "Menghadap kiblat"]}, {"title": "Dari Wudu ke Salat", "items": ["Berwudu", "Memakai pakaian yang menutup aurat", "Menghadap kiblat", "Berniat salat", "Takbiratul ihram"]}, {"title": "Masuk Masjid", "items": ["Masuk dengan kaki kanan", "Membaca doa masuk masjid", "Melaksanakan tahiyatul masjid jika memungkinkan", "Menunggu salat dengan tertib"]}, {"title": "Menjelang Jamaah", "items": ["Bersuci", "Datang ke masjid", "Merapikan saf", "Berniat mengikuti imam", "Takbiratul ihram"]}, {"title": "Awal Salat", "items": ["Berdiri menghadap kiblat", "Niat", "Takbiratul ihram", "Bersedekap", "Membaca bacaan pembuka"]}]}, {"name": "Rakaat Pertama", "challenges": [{"title": "Takbir sampai Al-Fatihah", "items": ["Niat", "Takbiratul ihram", "Bersedekap", "Membaca Al-Fatihah"]}, {"title": "Al-Fatihah sampai Rukuk", "items": ["Membaca Al-Fatihah", "Membaca surah/ayat", "Takbir menuju rukuk", "Rukuk"]}, {"title": "Rukuk sampai Iktidal", "items": ["Rukuk", "Bangun dari rukuk", "Iktidal"]}, {"title": "Iktidal sampai Sujud", "items": ["Iktidal", "Takbir menuju sujud", "Sujud pertama"]}, {"title": "Dua Sujud", "items": ["Sujud pertama", "Duduk di antara dua sujud", "Sujud kedua", "Bangun ke rakaat berikutnya"]}]}, {"name": "Rakaat Kedua", "challenges": [{"title": "Berdiri Rakaat Kedua", "items": ["Bangun dari sujud", "Berdiri rakaat kedua", "Membaca Al-Fatihah", "Membaca surah/ayat"]}, {"title": "Rukuk Rakaat Kedua", "items": ["Membaca Al-Fatihah", "Takbir menuju rukuk", "Rukuk", "Iktidal"]}, {"title": "Sujud Rakaat Kedua", "items": ["Iktidal", "Sujud pertama", "Duduk di antara dua sujud", "Sujud kedua"]}, {"title": "Menuju Tasyahud", "items": ["Sujud kedua", "Duduk tasyahud", "Membaca tasyahud"]}, {"title": "Rakaat Kedua Lengkap", "items": ["Berdiri rakaat kedua", "Membaca Al-Fatihah", "Rukuk", "Iktidal", "Dua kali sujud", "Duduk tasyahud"]}]}, {"name": "Gerakan Rukuk", "challenges": [{"title": "Menuju Rukuk", "items": ["Berdiri membaca Al-Fatihah", "Takbir", "Membungkuk untuk rukuk", "Tuma'ninah dalam rukuk"]}, {"title": "Rukuk ke Iktidal", "items": ["Rukuk", "Bangun dari rukuk", "Berdiri tegak iktidal", "Tuma'ninah"]}, {"title": "Iktidal ke Sujud", "items": ["Iktidal", "Takbir", "Turun menuju sujud", "Sujud"]}, {"title": "Rukuk dalam Rakaat", "items": ["Berdiri", "Membaca Al-Fatihah", "Rukuk", "Iktidal", "Sujud"]}, {"title": "Rangkaian Tengah Salat", "items": ["Rukuk", "Iktidal", "Sujud pertama", "Duduk antara dua sujud", "Sujud kedua"]}]}, {"name": "Gerakan Sujud", "challenges": [{"title": "Sujud Pertama", "items": ["Iktidal", "Takbir menuju sujud", "Sujud pertama", "Tuma'ninah"]}, {"title": "Antara Dua Sujud", "items": ["Sujud pertama", "Bangun dari sujud", "Duduk antara dua sujud", "Takbir menuju sujud kedua"]}, {"title": "Sujud Kedua", "items": ["Duduk antara dua sujud", "Takbir", "Sujud kedua", "Bangun"]}, {"title": "Dua Sujud Lengkap", "items": ["Sujud pertama", "Duduk antara dua sujud", "Sujud kedua"]}, {"title": "Sujud ke Rakaat Berikutnya", "items": ["Sujud kedua", "Bangun", "Berdiri tegak", "Memulai rakaat berikutnya"]}]}, {"name": "Tasyahud", "challenges": [{"title": "Menuju Tasyahud Awal", "items": ["Sujud kedua rakaat kedua", "Duduk tasyahud awal", "Membaca tasyahud", "Bangun rakaat ketiga"]}, {"title": "Tasyahud Akhir", "items": ["Sujud kedua rakaat terakhir", "Duduk tasyahud akhir", "Membaca tasyahud", "Membaca selawat", "Berdoa"]}, {"title": "Tasyahud ke Salam", "items": ["Membaca tasyahud", "Membaca selawat", "Membaca doa", "Salam ke kanan", "Salam ke kiri"]}, {"title": "Akhir Rakaat Terakhir", "items": ["Sujud kedua", "Duduk", "Tasyahud akhir", "Selawat", "Salam"]}, {"title": "Penutup Salat", "items": ["Tasyahud akhir", "Selawat", "Doa", "Salam kanan", "Salam kiri"]}]}, {"name": "Salat Subuh", "challenges": [{"title": "Subuh Rakaat Pertama", "items": ["Takbiratul ihram", "Membaca Al-Fatihah", "Rukuk", "Iktidal", "Dua kali sujud"]}, {"title": "Subuh Menuju Rakaat Kedua", "items": ["Sujud kedua rakaat pertama", "Bangun", "Berdiri rakaat kedua", "Membaca Al-Fatihah"]}, {"title": "Subuh Rakaat Kedua", "items": ["Membaca Al-Fatihah", "Rukuk", "Iktidal", "Dua kali sujud", "Tasyahud akhir"]}, {"title": "Akhir Salat Subuh", "items": ["Sujud kedua rakaat kedua", "Tasyahud akhir", "Selawat", "Salam kanan", "Salam kiri"]}, {"title": "Subuh Lengkap Ringkas", "items": ["Takbiratul ihram", "Rakaat pertama", "Rakaat kedua", "Tasyahud akhir", "Salam"]}]}, {"name": "Salat Magrib", "challenges": [{"title": "Magrib Rakaat 1-2", "items": ["Takbiratul ihram", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal"]}, {"title": "Menuju Rakaat Ketiga", "items": ["Tasyahud awal", "Bangun", "Berdiri rakaat ketiga", "Membaca Al-Fatihah"]}, {"title": "Magrib Rakaat Ketiga", "items": ["Membaca Al-Fatihah", "Rukuk", "Iktidal", "Dua kali sujud", "Tasyahud akhir"]}, {"title": "Akhir Magrib", "items": ["Sujud kedua rakaat ketiga", "Tasyahud akhir", "Selawat", "Salam"]}, {"title": "Magrib Lengkap Ringkas", "items": ["Takbiratul ihram", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Tasyahud akhir", "Salam"]}]}, {"name": "Salat Empat Rakaat", "challenges": [{"title": "Rakaat 1 dan 2", "items": ["Takbiratul ihram", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal"]}, {"title": "Rakaat Ketiga", "items": ["Tasyahud awal", "Bangun rakaat ketiga", "Membaca Al-Fatihah", "Rukuk", "Dua kali sujud"]}, {"title": "Rakaat Keempat", "items": ["Bangun rakaat keempat", "Membaca Al-Fatihah", "Rukuk", "Iktidal", "Dua kali sujud"]}, {"title": "Rakaat Keempat ke Salam", "items": ["Sujud kedua rakaat keempat", "Tasyahud akhir", "Selawat", "Salam"]}, {"title": "Empat Rakaat Ringkas", "items": ["Takbiratul ihram", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Rakaat keempat", "Tasyahud akhir", "Salam"]}]}, {"name": "Salat Berjamaah", "challenges": [{"title": "Masuk Saf", "items": ["Datang dengan tertib", "Merapikan saf", "Berniat berjamaah", "Mengikuti takbir imam"]}, {"title": "Mengikuti Imam", "items": ["Imam takbir", "Makmum mengikuti takbir", "Imam rukuk", "Makmum mengikuti rukuk"]}, {"title": "Rukuk Berjamaah", "items": ["Imam menuju rukuk", "Makmum mengikuti", "Imam bangun iktidal", "Makmum mengikuti"]}, {"title": "Sujud Berjamaah", "items": ["Imam sujud", "Makmum mengikuti sujud", "Imam duduk", "Makmum mengikuti duduk"]}, {"title": "Salam Berjamaah", "items": ["Tasyahud akhir", "Imam salam", "Makmum mengikuti salam", "Menyelesaikan salat"]}]}, {"name": "Adab Masjid", "challenges": [{"title": "Masuk Masjid", "items": ["Mendahulukan kaki kanan", "Membaca doa masuk", "Menjaga ketenangan", "Melaksanakan ibadah"]}, {"title": "Di Dalam Masjid", "items": ["Masuk dengan tertib", "Menjaga kebersihan", "Duduk dengan sopan", "Tidak mengganggu jamaah"]}, {"title": "Menunggu Salat", "items": ["Berwudu", "Masuk masjid", "Salat tahiyatul masjid jika memungkinkan", "Menunggu iqamah"]}, {"title": "Setelah Salat", "items": ["Menyelesaikan salam", "Berzikir dan berdoa", "Menjaga ketertiban", "Keluar dengan sopan"]}, {"title": "Keluar Masjid", "items": ["Selesai beribadah", "Bersiap keluar", "Mendahulukan kaki kiri", "Membaca doa keluar"]}]}, {"name": "Bacaan & Gerakan", "challenges": [{"title": "Takbir sampai Berdiri", "items": ["Niat", "Takbiratul ihram", "Bersedekap", "Membaca Al-Fatihah"]}, {"title": "Bacaan Menuju Rukuk", "items": ["Membaca Al-Fatihah", "Membaca surah/ayat", "Takbir", "Rukuk"]}, {"title": "Rukuk ke Sujud", "items": ["Tasbih rukuk", "Bangun iktidal", "Bacaan iktidal", "Takbir", "Sujud"]}, {"title": "Duduk antara Dua Sujud", "items": ["Sujud pertama", "Takbir", "Duduk", "Membaca doa", "Sujud kedua"]}, {"title": "Tasyahud Akhir", "items": ["Duduk tasyahud", "Membaca tasyahud", "Membaca selawat", "Berdoa", "Salam"]}]}, {"name": "Tertib Wudu", "challenges": [{"title": "Empat Anggota Utama", "items": ["Wajah", "Tangan", "Kepala", "Kaki"]}, {"title": "Kanan dan Kiri Tangan", "items": ["Membasuh wajah", "Tangan kanan", "Tangan kiri", "Mengusap kepala"]}, {"title": "Kanan dan Kiri Kaki", "items": ["Mengusap kepala", "Kaki kanan", "Kaki kiri", "Selesai"]}, {"title": "Rukun dari Niat", "items": ["Niat", "Wajah", "Tangan sampai siku", "Kepala", "Kaki"]}, {"title": "Wudu dan Doa", "items": ["Niat", "Wajah", "Tangan", "Kepala", "Kaki", "Doa setelah wudu"]}]}, {"name": "Tertib Salat", "challenges": [{"title": "Awal sampai Rukuk", "items": ["Niat", "Takbiratul ihram", "Berdiri", "Al-Fatihah", "Rukuk"]}, {"title": "Rukuk sampai Sujud", "items": ["Rukuk", "Iktidal", "Sujud pertama", "Duduk", "Sujud kedua"]}, {"title": "Sujud ke Rakaat Berikutnya", "items": ["Sujud kedua", "Bangun", "Berdiri", "Membaca Al-Fatihah"]}, {"title": "Rakaat Terakhir", "items": ["Berdiri rakaat terakhir", "Rukuk", "Iktidal", "Dua sujud", "Tasyahud akhir"]}, {"title": "Salat Ringkas", "items": ["Takbiratul ihram", "Berdiri", "Rukuk", "Iktidal", "Sujud", "Tasyahud", "Salam"]}]}, {"name": "Campuran Dasar", "challenges": [{"title": "Wudu lalu Salat", "items": ["Berwudu", "Menutup aurat", "Menghadap kiblat", "Niat salat", "Takbiratul ihram"]}, {"title": "Dari Masjid ke Salat", "items": ["Masuk masjid", "Berdoa", "Merapikan saf", "Niat", "Takbir"]}, {"title": "Salat sampai Selesai", "items": ["Takbir", "Berdiri", "Rukuk", "Iktidal", "Sujud", "Tasyahud", "Salam"]}, {"title": "Sesudah Salat", "items": ["Salam", "Berzikir", "Berdoa", "Merapikan tempat", "Keluar dengan tertib"]}, {"title": "Ibadah Tertib", "items": ["Bersuci", "Menutup aurat", "Menghadap kiblat", "Salat", "Berzikir"]}]}, {"name": "Campuran Menengah", "challenges": [{"title": "Persiapan hingga Rukuk", "items": ["Berwudu", "Menutup aurat", "Menghadap kiblat", "Takbiratul ihram", "Al-Fatihah", "Rukuk"]}, {"title": "Rukuk hingga Rakaat Baru", "items": ["Rukuk", "Iktidal", "Sujud pertama", "Duduk", "Sujud kedua", "Bangun"]}, {"title": "Rakaat Akhir", "items": ["Berdiri", "Al-Fatihah", "Rukuk", "Iktidal", "Dua sujud", "Tasyahud akhir", "Salam"]}, {"title": "Magrib Ringkas", "items": ["Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Tasyahud akhir", "Salam"]}, {"title": "Isya Ringkas", "items": ["Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Rakaat keempat", "Tasyahud akhir", "Salam"]}]}, {"name": "Tantangan Ahli", "challenges": [{"title": "Wudu Lengkap Ringkas", "items": ["Niat", "Wajah", "Tangan", "Kepala", "Kaki", "Doa"]}, {"title": "Salat Dua Rakaat", "items": ["Takbir", "Rakaat pertama", "Rakaat kedua", "Tasyahud akhir", "Salam"]}, {"title": "Salat Tiga Rakaat", "items": ["Takbir", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Tasyahud akhir", "Salam"]}, {"title": "Salat Empat Rakaat", "items": ["Takbir", "Rakaat pertama", "Rakaat kedua", "Tasyahud awal", "Rakaat ketiga", "Rakaat keempat", "Tasyahud akhir", "Salam"]}, {"title": "Dari Bersuci sampai Salam", "items": ["Berwudu", "Menutup aurat", "Menghadap kiblat", "Niat", "Takbir", "Melaksanakan rakaat", "Tasyahud akhir", "Salam"]}]}];
+
+const MAX=20, PER_LEVEL=5;
+let level=Math.min(parseInt(localStorage.getItem("madasa_wudhu_salat_level")||"1"),MAX);
+let challenge=0, correct=0, wrong=0, currentOrder=[], failedAttempts=0;
+
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function updateHome(){
+ const theme=levels[level-1] ? " • "+levels[level-1].name : "";
+ document.getElementById("homeLevel").textContent="Misi Kamu: Level "+level+theme;
+}
+updateHome();
+
+function makeChallenge(){
+ const levelData=levels[level-1];
+ const data=levelData.challenges[challenge];
+ currentOrder=data.items.map((text,i)=>({text,order:i})).sort(()=>Math.random()-.5);
+ document.getElementById("taskTitle").textContent=data.title;
+ document.getElementById("levelBadge").textContent="Level "+level;
+ document.getElementById("challengeBadge").textContent="Tantangan "+(challenge+1)+"/"+PER_LEVEL;
+ document.getElementById("bar").style.width=(challenge/PER_LEVEL*100)+"%";
+ document.getElementById("feedback").textContent="";
+ const hb=document.getElementById("hintBox");
+ if(hb){hb.classList.remove("show");hb.innerHTML="";}
+ failedAttempts=0;
+ renderCards();
+}
+function renderCards(){
+ const box=document.getElementById("cards");box.innerHTML="";
+ currentOrder.forEach((it,i)=>{
+  const el=document.createElement("div");el.className="card";el.draggable=true;el.dataset.order=it.order;
+  el.innerHTML=`<span class="num">${i+1}</span><span>${it.text}</span>`;
+  el.addEventListener("dragstart",()=>el.classList.add("dragging"));
+  el.addEventListener("dragend",()=>{el.classList.remove("dragging");syncFromDOM()});
+  // touch/click accessibility: tap card then tap another to swap
+  el.onclick=()=>selectCard(el);
+  box.appendChild(el);
+ });
+}
+document.getElementById("cards").addEventListener("dragover",e=>{
+ e.preventDefault();const box=e.currentTarget,drag=box.querySelector(".dragging");if(!drag)return;
+ const after=[...box.querySelectorAll(".card:not(.dragging)")].find(x=>e.clientY<=x.getBoundingClientRect().top+x.offsetHeight/2);
+ after?box.insertBefore(drag,after):box.appendChild(drag);
+ [...box.children].forEach((x,i)=>x.querySelector(".num").textContent=i+1);
+});
+let selected=null;
+function selectCard(el){
+ if(!selected){selected=el;el.style.outline="4px solid #ffb300";return}
+ if(selected===el){el.style.outline="";selected=null;return}
+ const box=el.parentNode,a=[...box.children].indexOf(selected),b=[...box.children].indexOf(el);
+ if(a<b) box.insertBefore(el,selected); else box.insertBefore(selected,el);
+ selected.style.outline="";selected=null;syncFromDOM();renderCards();
+}
+function syncFromDOM(){
+ const arr=[...document.querySelectorAll("#cards .card")].map(x=>({text:x.querySelector("span:last-child").textContent,order:+x.dataset.order}));
+ currentOrder=arr;
+ [...document.querySelectorAll("#cards .num")].forEach((x,i)=>x.textContent=i+1);
+}
+function shuffleCurrent(){currentOrder.sort(()=>Math.random()-.5);renderCards()}
+function startGame(){challenge=0;correct=0;wrong=0;show("game");makeChallenge()}
+
+function showHint(){
+  const data=levels[level-1].challenges[challenge];
+  const correctItems=data.items;
+  const hb=document.getElementById("hintBox");
+  let message="";
+
+  // Progressive hints: useful without immediately revealing everything.
+  if(failedAttempts<=1){
+    message="💡 Langkah pertama adalah: <b>"+correctItems[0]+"</b>.";
+  }else if(failedAttempts===2){
+    message="💡 Dua langkah awal: <b>1. "+correctItems[0]+"</b> → <b>2. "+correctItems[1]+"</b>.";
+  }else{
+    const preview=correctItems.slice(0,Math.min(3,correctItems.length))
+      .map((x,i)=>(i+1)+". "+x).join(" → ");
+    message="💡 Petunjuk lebih kuat: <b>"+preview+"</b>. Lanjutkan sisanya sendiri.";
+  }
+  hb.innerHTML=message;
+  hb.classList.add("show");
+}
+
+function checkAnswer(){
+ syncFromDOM();
+ const ok=currentOrder.every((x,i)=>x.order===i);
+ const fb=document.getElementById("feedback");
+ if(!ok){
+   wrong++; failedAttempts++;
+   fb.className="feedback wrong";
+   fb.textContent="❌ Urutannya belum tepat. Coba susun lagi!";
+   if(failedAttempts>=2) showHint();
+   return;
+ }
+ correct++;fb.className="feedback correct";fb.textContent="✅ Masya Allah, urutannya benar!";
+ setTimeout(()=>{challenge++; if(challenge>=PER_LEVEL)finishLevel(); else makeChallenge()},650);
+}
+function finishLevel(){
+ show("result");document.getElementById("correctCount").textContent=correct;document.getElementById("wrongCount").textContent=wrong;
+ const pass=correct===PER_LEVEL;
+ const title=document.getElementById("resultTitle"),msg=document.getElementById("resultMsg"),btn=document.getElementById("resultBtn");
+ if(pass){
+   title.textContent="Masya Allah! 🎉";
+   if(level<MAX){msg.textContent="Semua tantangan selesai. Level berikutnya terbuka!";btn.textContent="🔓 LANJUT LEVEL "+(level+1);btn.onclick=()=>{level++;localStorage.setItem("madasa_wudhu_salat_level",level);startGame()}}
+   else{msg.textContent="Kamu telah menuntaskan seluruh 20 level!";btn.textContent="🏆 KEMBALI KE LEVEL 1";btn.onclick=()=>{level=1;localStorage.setItem("madasa_wudhu_salat_level",1);updateHome();show("home")}}
+ }else{
+   title.textContent="Tetap Semangat! 💪";msg.textContent="Selesaikan semua tantangan dengan benar untuk naik level.";btn.textContent="🔄 ULANGI LEVEL "+level;btn.onclick=startGame;
+ }
+}
+function openReset(){document.getElementById("resetModal").classList.add("show")}
+function closeReset(){document.getElementById("resetModal").classList.remove("show")}
+function doReset(){level=1;localStorage.setItem("madasa_wudhu_salat_level","1");updateHome();closeReset();show("home")}
+function rotateApp(){document.getElementById("app").style.transform=document.getElementById("app").style.transform?"":"rotate(90deg) scale(.82)"}
+</script>
+<audio id="bgMusic" src="asset/lucu.mp3" preload="auto" loop></audio>
+<script>
+(function(){
+  const music = document.getElementById("bgMusic");
+  music.volume = 0.35;
+
+  // Browser/HP normally requires a user interaction before audio can start.
+  function playBackgroundMusic(){
+    if (music.paused) music.play().catch(()=>{});
+  }
+
+  // Start on the first interaction and keep it playing during the game.
+  document.addEventListener("pointerdown", playBackgroundMusic, {once:true});
+  document.addEventListener("keydown", playBackgroundMusic, {once:true});
+
+  // Resume after returning to the tab if playback was interrupted.
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden && music.paused) music.play().catch(()=>{});
+  });
+})();
+</script>
+</body></html>
