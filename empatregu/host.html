@@ -31,17 +31,40 @@ button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px
 .controls button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:760px){main{padding:7px}.setup{align-items:stretch}.field{flex:1 1 140px;min-width:0}.teams{grid-template-columns:repeat(2,minmax(0,1fr))}.teams.c3 .team:nth-child(3){grid-column:1/-1;width:calc(50% - 4px);justify-self:center}.question{min-height:165px;padding:17px 10px}.num{height:65px;font-size:38px}.controls button{flex:1 1 125px}}
 @media(orientation:landscape) and (max-height:650px){main{gap:6px;padding:6px}.setup{padding:6px}.question{min-height:115px;padding:10px}#q{font-size:clamp(20px,2.8vw,30px)}.num{height:55px;font-size:34px}.score{font-size:20px}.teams{grid-template-columns:repeat(4,minmax(0,1fr))}.controls{padding:5px}.controls button{padding:6px 9px;font-size:10px}}
+
+.settings-btn{background:#fff;color:#176b39;border:1px solid #cfe1d5;padding:9px 12px}
+.settings-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:14px}
+.settings-modal.open{display:flex}.settings-backdrop{position:absolute;inset:0;background:#102b1dcc;backdrop-filter:blur(5px)}
+.settings-card{position:relative;width:min(720px,100%);max-height:min(88dvh,760px);overflow:auto;background:#fafffb;border:1px solid #d5e8db;border-radius:25px;box-shadow:0 30px 90px #0005;padding:18px}
+.settings-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #deebe2;padding-bottom:12px;margin-bottom:12px}
+.settings-head h2{margin:2px 0 0;color:#176b39;font-size:clamp(20px,4vw,29px)}.settings-kicker{font-size:10px;font-weight:1000;letter-spacing:1.3px;color:#718379}
+.settings-x{width:42px;height:42px;padding:0;border-radius:50%;font-size:28px;line-height:1;background:#edf5ef;color:#294b38;border:1px solid #d5e5da}
+.settings-body .setup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;background:transparent;border:0;box-shadow:none;padding:2px}
+.settings-body .field{min-width:0}.settings-body .green{min-height:43px}.settings-note{text-align:center;color:#718379;font-size:11px;font-weight:800;margin-top:12px}
+@media(max-width:560px){.settings-card{padding:14px;border-radius:20px}.settings-body .setup{grid-template-columns:1fr}.settings-body .counts{width:100%}.settings-body .count{flex:1}.settings-body .green{width:100%}}
+
 </style>
 </head>
 <body>
 <main>
- <header class="top"><h1>🏆 MADASA QUIZ — CERDAS CERMAT</h1><div class="top-actions"><div class="room">ROOM: <span id="roomCode">----</span></div><button class="blue" onclick="openBuzzerPage()">📱 BUKA BUZZER</button></div></header>
- <section class="setup" id="setup">
+ <header class="top"><h1>🏆 MADASA QUIZ — CERDAS CERMAT</h1><div class="top-actions"><div class="room">ROOM: <span id="roomCode">----</span></div><button class="blue" onclick="openBuzzerPage()">📱 BUKA BUZZER</button><button class="settings-btn" onclick="openSettings()">⚙️ SETTING</button></div></header>
+ 
+ <section class="settings-modal" id="settingsModal" aria-hidden="true">
+   <div class="settings-backdrop" onclick="closeSettings()"></div>
+   <div class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+     <div class="settings-head">
+       <div><div class="settings-kicker">PENGATURAN</div><h2 id="settingsTitle">⚙️ Pengaturan Game</h2></div>
+       <button class="settings-x" onclick="closeSettings()" aria-label="Tutup">×</button>
+     </div>
+     <div class="settings-body">
    <div class="field"><label>JUMLAH REGU</label><div class="counts"><button class="count" data-n="2" onclick="pickCount(2)">2</button><button class="count" data-n="3" onclick="pickCount(3)">3</button><button class="count active" data-n="4" onclick="pickCount(4)">4</button></div></div>
    <div class="field"><label>KATEGORI</label><select id="category" onchange="fillSubjects()"><option value="islami">Cerdas Cermat Islami</option><option value="umum">Cerdas Cermat Umum</option></select></div>
    <div class="field"><label>MATERI</label><select id="subject"></select></div>
    <div class="field"><label>WAKTU / SOAL</label><select id="seconds"><option>10</option><option>15</option><option>20</option><option selected>30</option><option>45</option><option>60</option></select></div>
    <button class="green" onclick="createRoom()">BUAT ROOM</button>
+ </div>
+     <div class="settings-note">Tekan tombol kembali di HP atau tombol × untuk menutup.</div>
+   </div>
  </section>
  <section class="question">
    <div class="badge" id="badge">PERSIAPAN</div><div id="q">Pilih jumlah regu, kategori, materi, dan waktu.</div>
@@ -67,6 +90,10 @@ button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px
  </section>
 </main>
 
+
+<audio id="bgMusic" src="asset/musik.mp3" loop preload="auto"></audio>
+<audio id="answerMusic" src="asset/lucu.mp3" preload="auto"></audio>
+
 <script type="module">
 
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
@@ -90,6 +117,39 @@ const MANIFEST={"islami": {"label": "Cerdas Cermat Islami", "materi": {"campuran
 let room="",teamCount=4,category="islami",subject="campuran",seconds=30,mode="idle";
 let connected={},scores={1:0,2:0,3:0,4:0},winner=null,current=null,questions=[],qIndex=-1;
 let timerLeft=30,timerId=null,roomUnsub=null;
+
+let settingsOpen=false, historyGuard=false;
+const bgMusic=document.getElementById("bgMusic"), answerMusic=document.getElementById("answerMusic");
+bgMusic.volume=.35; answerMusic.volume=.65;
+
+function safePlay(a){ if(!a)return; const p=a.play(); if(p&&p.catch)p.catch(()=>{}); }
+function startBackgroundMusic(){ if(answerMusic&&!answerMusic.paused){answerMusic.pause();answerMusic.currentTime=0} safePlay(bgMusic); }
+function playAnswerMusic(){
+  if(bgMusic)bgMusic.pause();
+  if(answerMusic){answerMusic.currentTime=0;safePlay(answerMusic);}
+}
+function resumeBackgroundAfterAnswer(){
+  if(answerMusic){answerMusic.pause();answerMusic.currentTime=0}
+  safePlay(bgMusic);
+}
+function openSettings(){
+  if(settingsOpen)return;
+  settingsOpen=true;
+  document.getElementById("settingsModal").classList.add("open");
+  document.getElementById("settingsModal").setAttribute("aria-hidden","false");
+  if(!historyGuard){history.pushState({madasaSettings:true},"");historyGuard=true;}
+}
+function closeSettings(fromPop=false){
+  if(!settingsOpen)return;
+  settingsOpen=false;
+  document.getElementById("settingsModal").classList.remove("open");
+  document.getElementById("settingsModal").setAttribute("aria-hidden","true");
+  if(!fromPop && historyGuard){historyGuard=false;history.back();}
+}
+window.addEventListener("popstate",()=>{if(settingsOpen){historyGuard=false;closeSettings(true)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&settingsOpen)closeSettings()});
+document.addEventListener("pointerdown",()=>{if(bgMusic.paused && (!answerMusic || answerMusic.paused)) safePlay(bgMusic)}, {once:true});
+
 
 const activeTeams=()=>Array.from({length:teamCount},(_,i)=>i+1);
 function pickCount(n){if(room)return;teamCount=n;document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n));renderTeams()}
@@ -125,7 +185,7 @@ async function createRoom(){
  try{await loadQuestions()}catch(e){return alert("Bank soal gagal dimuat. Jalankan game melalui GitHub/hosting, bukan file://.\n"+e.message)}
  room=code();mode="lobby";connected={};scores={1:0,2:0,3:0,4:0};timerLeft=seconds;renderTimer();
  await FB.set(FB.ref(FB.db,"quiz4/"+room),{mode:"lobby",teamCount,category,subject,seconds,connected:{},pressed:{1:false,2:false,3:false,4:false},buzzer:{open:false,winner:null,excluded:{}},scores,createdAt:Date.now()});
- document.getElementById("roomCode").textContent=room;document.getElementById("badge").textContent="GABUNG ROOM";
+ closeSettings(); startBackgroundMusic(); document.getElementById("roomCode").textContent=room;document.getElementById("badge").textContent="GABUNG ROOM";
  document.getElementById("q").innerHTML='Masukkan kode <b style="color:#7c3aed">'+room+'</b> atau scan QR';
  document.getElementById("sub").textContent="Pilih nomor regu yang masih kosong, lalu tes tombol buzzer.";
  renderQR();listen();
@@ -159,7 +219,7 @@ async function startQuiz(){
  document.getElementById("join").hidden=true;await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}});
  await nextQuestion();
 }
-async function nextQuestion(){
+async function nextQuestion(){resumeBackgroundAfterAnswer();
  if(!room||mode!=="quiz")return;
  if(!questions.length)return alert("Bank soal kosong.");
  qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
@@ -176,13 +236,13 @@ function startTimer(){
  timerId=setInterval(async()=>{timerLeft--;renderTimer();if(timerLeft<=0){pauseTimer();await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null});document.getElementById("status").textContent="⏰ WAKTU HABIS — LIHAT JAWABAN / SOAL BERIKUTNYA";}},1000);
 }
 function pauseTimer(){clearInterval(timerId);timerId=null}
-function showAnswer(){if(!current)return;const a=document.getElementById("answer");a.style.display="block";pauseTimer()}
-async function correct(){
+function showAnswer(){if(!current)return;const a=document.getElementById("answer");a.style.display="block";pauseTimer();playAnswerMusic()}
+async function correct(){resumeBackgroundAfterAnswer();
  if(!winner)return alert("Belum ada regu yang memenangkan buzzer.");pauseTimer();
  const n=+winner;scores[n]=(scores[n]||0)+10;await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n],"buzzer/open":false});
  document.getElementById("status").textContent="✅ REGU "+n+" BENAR +10 — LANJUT SOAL";
 }
-async function wrong(){
+async function wrong(){resumeBackgroundAfterAnswer();
  if(!winner)return alert("Belum ada regu yang memenangkan buzzer.");
  const n=+winner,s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/buzzer")),b=s.val()||{},excluded={...(b.excluded||{}),[n]:true};
  const remaining=activeTeams().filter(i=>excluded[i]!==true);
@@ -192,7 +252,7 @@ async function wrong(){
 }
 async function resumeBuzzer(){if(!room||mode!=="quiz")return;await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()});if(timerLeft>0)startTimer()}
 async function score(n,d){if(!room)return;scores[n]=(scores[n]||0)+d;await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),scores[n])}
-window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.resumeBuzzer=resumeBuzzer;window.score=score;
+window.openSettings=openSettings;window.closeSettings=closeSettings;window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.resumeBuzzer=resumeBuzzer;window.score=score;
 fillSubjects();renderTeams();renderTimer();
 </script>
 </body></html>

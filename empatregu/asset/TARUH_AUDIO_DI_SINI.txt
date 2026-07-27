@@ -1,0 +1,3 @@
+Letakkan file audio Anda di folder ini dengan nama persis:
+- musik.mp3  (musik latar)
+- lucu.mp3   (musik saat jawaban dibuka)

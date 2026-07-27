@@ -32,3 +32,12 @@ CATATAN:
 Campuran Islami hanya menggabungkan file di folder islami.
 Campuran Umum hanya menggabungkan file di folder umum.
 Jangan membuka host.html dengan file:// karena fetch bank soal JSON dibatasi browser. Gunakan GitHub Pages/hosting/server lokal.
+
+
+AUDIO:
+- asset/musik.mp3 = musik latar, loop
+- asset/lucu.mp3 = musik sementara ketika LIHAT JAWABAN ditekan
+
+SETTING:
+- Pengaturan dipindah ke popup tombol ⚙️ SETTING.
+- Popup dapat ditutup dengan ×, Escape, atau tombol Back HP tanpa keluar dari halaman host.
