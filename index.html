@@ -550,8 +550,22 @@ footer{
   function tutupWelcome() {
     const overlay = document.getElementById('welcome-overlay');
     if (overlay.style.visibility === 'hidden') return;
-    overlay.style.opacity = '0'; overlay.style.transform = 'translateY(-20px)';
-    setTimeout(() => { overlay.style.display = 'none'; overlay.style.visibility = 'hidden'; }, 300);
+
+    // Putar suara pembuka 1x saat tombol KLIK MASUK ditekan.
+    // File: asset/open.mp3
+    const openSound = new Audio('asset/open.mp3');
+    openSound.preload = 'auto';
+    openSound.volume = 1;
+    openSound.play().catch(err => {
+      console.log('Audio pembuka gagal diputar:', err);
+    });
+
+    overlay.style.opacity = '0';
+    overlay.style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      overlay.style.visibility = 'hidden';
+    }, 300);
   }
 
 function tampilkanPopupDonasi() {
