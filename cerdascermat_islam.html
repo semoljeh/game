@@ -273,21 +273,24 @@
   <div id="result-screen" class="screen-overlay">
     <div class="welcome-card">
       <h1>ALHAMDULILLAH Selesai! 🎉</h1>
-      <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
+      <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div><div style="margin:8px auto 14px;padding:10px 16px;background:#f7fff7;border:2px solid #d9ead9;border-radius:16px;max-width:360px;">
+        <div style="font-size:12px;font-weight:900;color:#666;">SKOR PERTANDINGAN</div>
+        <div style="font-size:28px;font-weight:900;"><span id="series-p1">0</span> — <span id="series-p2">0</span></div>
+      </div>
       <div class="results-container">
         
         <div class="result-card" style="border-color: #4CAF50;">
           <h2 style="color: #2E7D32;">Player 1</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p1-dijawab">0</span></h3>
           <p style="color: #00897B; font-weight: 900; margin: 5px 0;">Benar: <span id="p1-benar">0</span></p>
-          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p1-salah">0</span></p>
+          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p1-salah">0</span></p><p style="font-weight:900;margin:8px 0 0;">POIN: <span id="p1-poin">0</span></p>
         </div>
         
         <div class="result-card" style="border-color: #FBC02D;">
           <h2 style="color: #F57F17;">Player 2</h2>
           <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p2-dijawab">0</span></h3>
           <p style="color: #00897B; font-weight: 900; margin: 5px 0;">Benar: <span id="p2-benar">0</span></p>
-          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p2-salah">0</span></p>
+          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p2-salah">0</span></p><p style="font-weight:900;margin:8px 0 0;">POIN: <span id="p2-poin">0</span></p>
         </div>
 
       </div>
@@ -562,17 +565,210 @@
     { q: "Sambung ayat berikut (Al-Ma'un):\nوَلَا يَحُضُّ عَلَىٰ طَعَامِ ...", ans: "الْمِسْكِينِ", opts: ["الْمِسْكِينِ", "الْيَتِيمَ", "لِّلْمُصَلِّينَ"], cat: "quran" }
   ];
 
+  let seriesScore = {p1:0,p2:0};
+  let seriesRoundCommitted=false;
+  let currentRoundId=null;
   let myRole = 0; 
   let roomId = "";
   let currentRoomRef = null;
   const maxQuestionsPerGame = 50; 
   
-  let p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
-  let p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+  let p1 = { correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
+  let p2 = { correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
   
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0;
+
+  // === BOT GLOBAL ===
+  let isBotMatch = false;
+  let botJoinTimer = null;
+  let botAnswerTimer = null;
+  let botChatTimer = null;
+  let matchmakingCountdownTimer = null;
+  let matchmakingSeconds = 10;
+
+  let botRoundAccuracy = 0.62;
+  let botRoundMinDelay = 1500;
+  let botRoundMaxDelay = 4800;
+  const BOT_WAIT_MS = 10000;
+
+  function siapkanProfilBotRonde() {
+    // Tiap ronde kemampuan bot berubah agar terasa seperti pemain berbeda.
+    const roll = Math.random();
+    if (roll < 0.22) botRoundAccuracy = 0.38 + Math.random() * 0.14;
+    else if (roll < 0.78) botRoundAccuracy = 0.53 + Math.random() * 0.18;
+    else botRoundAccuracy = 0.72 + Math.random() * 0.14;
+
+    botRoundMinDelay = 1200 + Math.floor(Math.random() * 1300);
+    botRoundMaxDelay = 4300 + Math.floor(Math.random() * 3000);
+  }
+
+  function batalkanTimerBot() {
+    hentikanCountdownMatchmaking();
+    if (botJoinTimer) { clearTimeout(botJoinTimer); botJoinTimer = null; }
+    if (botAnswerTimer) { clearTimeout(botAnswerTimer); botAnswerTimer = null; }
+    if (botChatTimer) { clearTimeout(botChatTimer); botChatTimer = null; }
+  }
+
+  function hentikanCountdownMatchmaking() {
+    if (matchmakingCountdownTimer) {
+      clearInterval(matchmakingCountdownTimer);
+      matchmakingCountdownTimer = null;
+    }
+  }
+
+  function tampilkanStatusMatchmaking() {
+    const el = document.getElementById('p2-status');
+    if (!el) return;
+    el.innerHTML = `Mencari pemain... <b>${matchmakingSeconds}</b> detik`;
+    el.style.backgroundColor = "#FFF3E0";
+    el.style.color = "#F57C00";
+  }
+
+  function mulaiCountdownMatchmaking() {
+    hentikanCountdownMatchmaking();
+    matchmakingSeconds = 10;
+
+    // FASE 1: tampilkan pesan pencarian dulu agar tidak terasa terburu-buru.
+    const el = document.getElementById('p2-status');
+    if (el) {
+      el.innerText = "Mencari lawan yang tersedia...";
+      el.style.backgroundColor = "#FFF3E0";
+      el.style.color = "#F57C00";
+    }
+
+    // Setelah 2 detik baru masuk ke FASE 2: hitung mundur 10–1.
+    setTimeout(() => {
+      if (!currentRoomRef || isGameOver) return;
+      tampilkanStatusMatchmaking();
+
+      matchmakingCountdownTimer = setInterval(async () => {
+      // Bila manusia sudah ditemukan, countdown langsung berhenti.
+      try {
+        if (currentRoomRef) {
+          const snap = await window.dbGet(currentRoomRef);
+          if (snap.exists()) {
+            const data = snap.val() || {};
+            if (data.p2_ready && data.opponentType === "human") {
+              hentikanCountdownMatchmaking();
+              return;
+            }
+          }
+        }
+      } catch(e) {}
+
+      matchmakingSeconds--;
+      if (matchmakingSeconds > 0) {
+        tampilkanStatusMatchmaking();
+      } else {
+        hentikanCountdownMatchmaking();
+        const el = document.getElementById('p2-status');
+        if (el) el.innerText = "Menyiapkan lawan...";
+        await aktifkanBotJikaMasihSendiri();
+      }
+      }, 1000);
+    }, 2000);
+  }
+
+  async function aktifkanBotJikaMasihSendiri() {
+    if (myRole !== 1 || !currentRoomRef || isGameOver) return;
+    try {
+      const snap = await window.dbGet(currentRoomRef);
+      if (!snap.exists()) return;
+      const data = snap.val() || {};
+      if (data.p2_ready) return; // manusia sudah masuk
+
+      isBotMatch = true;
+      hentikanCountdownMatchmaking();
+      siapkanProfilBotRonde();
+
+      await window.dbUpdate(currentRoomRef, {
+        p2_ready: true,
+        opponentType: "bot",
+        botActive: true,
+        p2: { correct: 0, wrong: 0, score: 0, index: 0 }
+      });
+
+      document.getElementById('room-code-display').innerText = "ACAK";
+      document.getElementById('p2-status').innerText = "Lawan ditemukan! Silakan pilih kategori.";
+      document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
+      document.getElementById('p2-status').style.color = "#2E7D32";
+      document.getElementById('host-controls').style.display = 'block';
+    } catch (e) {
+      console.error("Gagal mengaktifkan bot:", e);
+    }
+  }
+
+  function jadwalkanJawabanBot() {
+    if (!isBotMatch || myRole !== 1 || isGameOver || timeLeft <= 0) return;
+    if (!p2.questions || p2.index >= p2.questions.length) return;
+
+    if (botAnswerTimer) clearTimeout(botAnswerTimer);
+    const delay = botRoundMinDelay + Math.floor(Math.random() * Math.max(1, botRoundMaxDelay - botRoundMinDelay));
+
+    botAnswerTimer = setTimeout(async () => {
+      if (!isBotMatch || myRole !== 1 || isGameOver || timeLeft <= 0) return;
+      const q = p2.questions[p2.index];
+      if (!q) return;
+
+      // Akurasi dibuat sedikit bergoyang setiap jawaban.
+      const chance = Math.max(0.20, Math.min(0.90, botRoundAccuracy + (Math.random() * 0.20 - 0.10)));
+      const benar = Math.random() < chance;
+
+      if (benar) {
+        p2.correct++;
+        p2.score = Number(p2.score || 0) + 10;
+      } else {
+        p2.wrong++;
+        p2.score = Number(p2.score || 0) - 5;
+      }
+      p2.index++;
+
+      try {
+        await window.dbUpdate(currentRoomRef, {
+          p2: {
+            correct: p2.correct,
+            wrong: p2.wrong,
+            score: p2.score,
+            index: p2.index,
+            lastAction: {
+              isCorrect: benar,
+              timestamp: Date.now()
+              // Jawaban yang dipilih sengaja TIDAK dikirim agar tidak bisa dicontek.
+            }
+          }
+        });
+      } catch(e) {}
+
+      showOpponentResultOnly(2, benar);
+      loadQuestion(2);
+      jadwalkanJawabanBot();
+    }, delay);
+  }
+
+  function pilihBalasanBot(teks) {
+    const t = (teks || "").toLowerCase();
+    let pilihan;
+    if (/halo|hai|assalam|salam/.test(t)) pilihan = ["Waalaikumsalam 😊", "Halo, siap bermain!", "Hai, semangat ya!"];
+    else if (/main lagi|lagi|rematch/.test(t)) pilihan = ["Ayo, main lagi!", "Siap, lanjut ronde berikutnya.", "Boleh, kita lanjut!"];
+    else if (/hebat|bagus|mantap/.test(t)) pilihan = ["Terima kasih 😄", "Kamu juga hebat!", "Seru juga permainannya."];
+    else if (/kalah|menang/.test(t)) pilihan = ["Yang penting tetap semangat!", "Masih bisa lanjut ronde berikutnya.", "Permainannya seru!"];
+    else pilihan = ["Siap 😄", "Oke!", "Ayo lanjut!", "Semangat!", "Hehe, siap bermain."];
+    return pilihan[Math.floor(Math.random() * pilihan.length)];
+  }
+
+  function jadwalkanBalasanBot(teks) {
+    if (!isBotMatch || !currentRoomRef) return;
+    if (botChatTimer) clearTimeout(botChatTimer);
+    botChatTimer = setTimeout(() => {
+      if (!isBotMatch || !currentRoomRef) return;
+      const key = Date.now();
+      const u = {};
+      u["chats/" + key] = { role: 2, msg: pilihBalasanBot(teks), bot: true };
+      window.dbUpdate(currentRoomRef, u);
+    }, 700 + Math.floor(Math.random() * 1700));
+  }
 
  let alertCallback = null;
 let isAlertOpen = false;
@@ -649,6 +845,11 @@ window.addEventListener('beforeunload', function (e) {
 function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
+      if(data && data.seriesScore){
+        seriesScore.p1=Number(data.seriesScore.p1||0);
+        seriesScore.p2=Number(data.seriesScore.p2||0);
+        updateSeriesScoreUI();
+      }
       
       // FIX NOTIFIKASI PUTUS
       if (!data) {
@@ -673,8 +874,11 @@ function pantauDataKamar() {
       
       if (data.restart && data.restart !== lastRestart) { lastRestart = data.restart; kembaliKeLobi(); }
       
+      if (data.opponentType === "bot" || data.botActive === true) isBotMatch = true;
+
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
-        document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
+        if (data.opponentType === "human") { isBotMatch = false; hentikanCountdownMatchmaking(); batalkanTimerBot(); }
+        document.getElementById('p2-status').innerText = isBotMatch ? "Lawan ditemukan. Siap bermain! 🤖" : "Player 2 Telah Bergabung! ✅";
         document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
         document.getElementById('p2-status').style.color = "#2E7D32";
         document.getElementById('host-controls').style.display = 'block';
@@ -704,39 +908,39 @@ function pantauDataKamar() {
     });
   }
 
-  function syncOpponent(oppRole, oppData) {
-    let localOppData = oppRole === 1 ? p1 : p2; let prefix = oppRole === 1 ? 'p1' : 'p2';
-    localOppData.correct = oppData.correct || 0; localOppData.wrong = oppData.wrong || 0;
-    
-    if (document.getElementById('result-screen').style.display === 'flex') {
-      document.getElementById(`${prefix}-dijawab`).innerText = localOppData.correct + localOppData.wrong;
-      document.getElementById(`${prefix}-benar`).innerText = localOppData.correct;
-      document.getElementById(`${prefix}-salah`).innerText = localOppData.wrong;
-    }
+  function showOpponentResultOnly(player, isCorrect) {
+    const zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+    if (!zone) return;
+    const oldNotif = zone.querySelector('.opponent-result-only');
+    if (oldNotif) oldNotif.remove();
+    const notif = document.createElement('div');
+    notif.className = 'notif-lucu opponent-result-only';
+    notif.innerText = isCorrect ? '🔥 BENAR!' : '❌ SALAH!';
+    notif.style.color = isCorrect ? '#2E7D32' : '#E53935';
+    zone.appendChild(notif);
+    setTimeout(() => notif.remove(), 1100);
+  }
 
-    if (oppData.lastAction && oppData.lastAction.timestamp !== localOppData.lastTimestamp) {
-      localOppData.lastTimestamp = oppData.lastAction.timestamp;
-      let selected = oppData.lastAction.selected; let isCorrect = oppData.lastAction.isCorrect;
+  function syncOpponent(player, data) {
+    const p = player === 1 ? p1 : p2;
+    const previousCorrect = Number(p.correct || 0);
+    const previousWrong = Number(p.wrong || 0);
+    p.correct = Number(data.correct || 0);
+    p.wrong = Number(data.wrong || 0);
+    p.score = Number(data.score ?? ((p.correct * 10) - (p.wrong * 5)));
+    p.index = Number(data.index || 0);
 
-      if (selected !== "SKIP") {
-        let zone = document.getElementById(prefix + '-zone');
-        let notif = document.createElement('div'); notif.className = 'notif-lucu';
-        notif.innerText = isCorrect ? "🌟 Benar!" : "❌ Kurang Tepat!";
-        notif.style.color = isCorrect ? "#2E7D32" : "#D32F2F";
-        zone.appendChild(notif); 
-        setTimeout(() => notif.remove(), 1200);
-      }
-      setTimeout(() => { localOppData.index = oppData.index; loadQuestion(oppRole); }, 150);
-    } else if (oppData.index !== undefined && oppData.index > localOppData.index) {
-       localOppData.index = oppData.index; loadQuestion(oppRole);
-    }
+    if (p.correct > previousCorrect) showOpponentResultOnly(player, true);
+    else if (p.wrong > previousWrong) showOpponentResultOnly(player, false);
+
+    loadQuestion(player);
   }
 
   function buatKamar() {
     roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     window.dbOnDisconnect(currentRoomRef).remove(); 
-    window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
+    window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, score: 0, index: 0 }, p2: { correct: 0, wrong: 0, score: 0, index: 0 } }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
       document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
@@ -748,7 +952,7 @@ function pantauDataKamar() {
     if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     window.dbOnDisconnect(currentRoomRef).remove();
-    window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
+    window.dbUpdate(currentRoomRef, { p2_ready: true }).then(async () => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
       document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
       document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
@@ -767,17 +971,27 @@ function pantauDataKamar() {
         roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbRemove(antreanRef); 
         window.dbOnDisconnect(currentRoomRef).remove();
-        window.dbUpdate(currentRoomRef, { p2_ready: true }).then(() => {
-          document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 memilih mode...";
-          document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+        window.dbUpdate(currentRoomRef, { p2_ready: true, opponentType: "human", botActive: false }).then(() => {
+          isBotMatch = false;
+          hentikanCountdownMatchmaking();
+          batalkanTimerBot();
+          document.getElementById('room-code-display').innerText = "ACAK";
+          document.getElementById('p2-status').innerText = "Lawan ditemukan. Menunggu host memilih kategori...";
+          document.getElementById('p1-zone').classList.add('terkunci');
+          document.getElementById('chat-icon').style.display = 'flex';
+          pantauDataKamar();
         });
       } else {
         roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
         window.dbOnDisconnect(currentRoomRef).remove(); 
-        window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 } }).then(() => {
+        window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, score: 0, index: 0 }, p2: { correct: 0, wrong: 0, score: 0, index: 0 } }).then(() => {
           window.dbSet(antreanRef, roomId).then(() => {
-            document.getElementById('room-code-display').innerText = "ACAK"; document.getElementById('p2-status').innerText = "Menunggu pemain acak bergabung...";
-            document.getElementById('p2-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+            document.getElementById('room-code-display').innerText = "ACAK";
+            document.getElementById('p2-status').innerText = "Mencari pemain...";
+            document.getElementById('p2-zone').classList.add('terkunci');
+            document.getElementById('chat-icon').style.display = 'flex';
+            pantauDataKamar();
+            mulaiCountdownMatchmaking();
           });
         });
       }
@@ -813,6 +1027,12 @@ function pantauDataKamar() {
     p2.questions = JSON.parse(JSON.stringify(finalQuestions));
     globalEndTime = targetEndTime; 
     loadQuestion(1); loadQuestion(2); startTimer();
+    seriesRoundCommitted = false;
+    currentRoundId = targetEndTime;
+    if (isBotMatch && myRole === 1) {
+      siapkanProfilBotRonde();
+      jadwalkanJawabanBot();
+    }
   }
 
   function loadQuestion(player) {
@@ -892,14 +1112,14 @@ let qData = pData.questions[pData.index];
     setTimeout(() => notif.remove(), 1200);
     
     if (isCorrect) { 
-      pData.correct++; safePlayAudio('sound-benar');
+      pData.correct++; pData.score = Number(pData.score || 0) + 10; safePlayAudio('sound-benar');
     } else { 
-      pData.wrong++; safePlayAudio('sound-salah');
+      pData.wrong++; pData.score = Number(pData.score || 0) - 5; safePlayAudio('sound-salah');
     }
     pData.index++; 
 
     let updateData = {}; 
-    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
     window.dbUpdate(currentRoomRef, updateData); 
     setTimeout(() => { loadQuestion(player); }, 150);
   }
@@ -907,9 +1127,9 @@ let qData = pData.questions[pData.index];
   function skipQuestion(player) {
     if (player !== myRole) return;
     let pData = player === 1 ? p1 : p2;
-    pData.wrong++; pData.index++; 
+    pData.wrong++; pData.score = Number(pData.score || 0) - 5; pData.index++; 
     let updateData = {}; 
-    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
+    updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
     window.dbUpdate(currentRoomRef, updateData); 
     loadQuestion(player);
   }
@@ -925,16 +1145,41 @@ let qData = pData.questions[pData.index];
     }, 100);
   }
 
+  function updateSeriesScoreUI(){
+    const a=document.getElementById('series-p1'), b=document.getElementById('series-p2');
+    if(a)a.innerText=Number(seriesScore.p1||0);
+    if(b)b.innerText=Number(seriesScore.p2||0);
+  }
+  async function commitSeriesScoreOnce(){
+    if(myRole!==1 || !currentRoomRef || seriesRoundCommitted) return;
+    seriesRoundCommitted=true;
+    try{
+      const snap=await window.dbGet(currentRoomRef); if(!snap.exists())return;
+      const data=snap.val()||{}, rs=data.seriesScore||{p1:0,p2:0};
+      const rid=data.roundId||currentRoundId||data.endTime||'round';
+      if(String(data.seriesLastScoredRoundId||'')===String(rid)){seriesScore={p1:Number(rs.p1||0),p2:Number(rs.p2||0)};updateSeriesScoreUI();return;}
+      let a=Number(rs.p1||0),b=Number(rs.p2||0);
+      const p1p=Number(p1.score||0),p2p=Number(p2.score||0);
+      if(p1p>p2p || (p1p===p2p && p1.correct>p2.correct))a++;
+      else if(p2p>p1p || (p1p===p2p && p2.correct>p1.correct))b++;
+      seriesScore={p1:a,p2:b}; updateSeriesScoreUI();
+      await window.dbUpdate(currentRoomRef,{seriesScore:{p1:a,p2:b},seriesLastScoredRoundId:rid});
+    }catch(e){seriesRoundCommitted=false;console.error(e);}
+  }
+
   function endGame() {
     clearInterval(timerInterval);
+    if (botAnswerTimer) { clearTimeout(botAnswerTimer); botAnswerTimer = null; }
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; 
     document.getElementById('p1-benar').innerText = p1.correct;
-    document.getElementById('p1-salah').innerText = p1.wrong;
+    document.getElementById('p1-salah').innerText = p1.wrong; const p1PoinEl=document.getElementById('p1-poin'); if(p1PoinEl)p1PoinEl.innerText=Number(p1.score||0);
     document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; 
     document.getElementById('p2-benar').innerText = p2.correct;
-    document.getElementById('p2-salah').innerText = p2.wrong;
+    document.getElementById('p2-salah').innerText = p2.wrong; const p2PoinEl=document.getElementById('p2-poin'); if(p2PoinEl)p2PoinEl.innerText=Number(p2.score||0);
     document.getElementById('result-screen').style.display = 'flex';
     document.getElementById('chat-icon').style.display = 'flex';
+  
+    commitSeriesScoreOnce();
   }
 
   function toggleChat() {
@@ -955,13 +1200,22 @@ let qData = pData.questions[pData.index];
     const inputPesan = document.getElementById('chat-input'); const teks = inputPesan.value.trim();
     if (teks === "") return;
     const timeKey = Date.now(); let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks };
-    window.dbUpdate(currentRoomRef, updateData); inputPesan.value = ""; 
+    window.dbUpdate(currentRoomRef, updateData);
+    inputPesan.value = "";
+    if (isBotMatch && myRole === 1) jadwalkanBalasanBot(teks); 
   }
 
   document.getElementById('chat-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') kirimPesan(); });
   
   function mainLagi() {
-    let updateData = { mode: "", questionOrder: null, p1: { correct: 0, wrong: 0, index: 0 }, p2: { correct: 0, wrong: 0, index: 0 }, restart: Date.now() };
+    seriesRoundCommitted = false;
+    batalkanTimerBot();
+    let updateData = { mode: "", questionOrder: null, endTime: null,
+      p1: { correct: 0, wrong: 0, score: 0, index: 0 },
+      p2: { correct: 0, wrong: 0, score: 0, index: 0 },
+      restart: Date.now()
+    };
+    if (isBotMatch) { updateData.p2_ready = true; updateData.opponentType = "bot"; updateData.botActive = true; }
     window.dbUpdate(currentRoomRef, updateData);
   }
 
@@ -975,8 +1229,8 @@ let qData = pData.questions[pData.index];
     document.getElementById('welcome-screen').style.display = 'flex';
     
     // 3. Reset data pemain secara lokal
-    p1 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
-    p2 = { correct: 0, wrong: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p1 = { correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
+    p2 = { correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
     
     // 4. Blur / Kunci kembali area permainan
     document.getElementById('p1-zone').classList.add('belum-mulai');
@@ -987,7 +1241,7 @@ let qData = pData.questions[pData.index];
     document.getElementById('timer-display').classList.remove('waktu-kritis');
     
     // 6. Atur ulang status teks di lobi
-    document.getElementById('p2-status').innerText = "Player 2 Telah Bergabung! ✅";
+    document.getElementById('p2-status').innerText = isBotMatch ? "Lawan siap. Pilih kategori untuk ronde berikutnya! 🤖" : "Player 2 Telah Bergabung! ✅";
     
     // Khusus Player 1 (Host) tampilkan kembali tombol pilihan kategori soal
     if (myRole === 1) {
