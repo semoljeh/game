@@ -586,7 +586,9 @@
   let botAnswerTimer = null;
   let botChatTimer = null;
   let matchmakingCountdownTimer = null;
+  let matchmakingStartTimer = null;
   let matchmakingSeconds = 10;
+  let isGlobalMatch = false;
 
   let botRoundAccuracy = 0.62;
   let botRoundMinDelay = 1500;
@@ -612,6 +614,10 @@
   }
 
   function hentikanCountdownMatchmaking() {
+    if (matchmakingStartTimer) {
+      clearTimeout(matchmakingStartTimer);
+      matchmakingStartTimer = null;
+    }
     if (matchmakingCountdownTimer) {
       clearInterval(matchmakingCountdownTimer);
       matchmakingCountdownTimer = null;
@@ -620,55 +626,59 @@
 
   function tampilkanStatusMatchmaking() {
     const el = document.getElementById('p2-status');
-    if (!el) return;
-    el.innerHTML = `Mencari pemain... <b>${matchmakingSeconds}</b> detik`;
-    el.style.backgroundColor = "#FFF3E0";
-    el.style.color = "#F57C00";
+    const code = document.getElementById('room-code-display');
+
+    if (code) {
+      code.innerText = "MENCARI LAWAN";
+      code.style.color = "#4CAF50";
+    }
+
+    if (el) {
+      el.innerHTML = `Sedang mencari pemain yang tersedia...<br>
+        <span style="font-size:.82em;opacity:.82">Memperluas pencarian dalam ${matchmakingSeconds} detik.</span>`;
+      el.style.backgroundColor = "#FFF3E0";
+      el.style.color = "#E65100";
+    }
   }
 
   function mulaiCountdownMatchmaking() {
     hentikanCountdownMatchmaking();
     matchmakingSeconds = 10;
+    tampilkanStatusMatchmaking();
 
-    // FASE 1: tampilkan pesan pencarian dulu agar tidak terasa terburu-buru.
-    const el = document.getElementById('p2-status');
-    if (el) {
-      el.innerText = "Mencari lawan yang tersedia...";
-      el.style.backgroundColor = "#FFF3E0";
-      el.style.color = "#F57C00";
-    }
+    matchmakingCountdownTimer = setInterval(async () => {
+      if (!currentRoomRef || isGameOver || myRole !== 1) {
+        hentikanCountdownMatchmaking();
+        return;
+      }
 
-    // Setelah 2 detik baru masuk ke FASE 2: hitung mundur 10–1.
-    setTimeout(() => {
-      if (!currentRoomRef || isGameOver) return;
-      tampilkanStatusMatchmaking();
-
-      matchmakingCountdownTimer = setInterval(async () => {
-      // Bila manusia sudah ditemukan, countdown langsung berhenti.
       try {
-        if (currentRoomRef) {
-          const snap = await window.dbGet(currentRoomRef);
-          if (snap.exists()) {
-            const data = snap.val() || {};
-            if (data.p2_ready && data.opponentType === "human") {
-              hentikanCountdownMatchmaking();
-              return;
-            }
-          }
+        const snap = await window.dbGet(currentRoomRef);
+        if (!snap.exists()) {
+          hentikanCountdownMatchmaking();
+          return;
         }
-      } catch(e) {}
+
+        const data = snap.val() || {};
+
+        // Jika manusia asli ditemukan, hentikan pencarian.
+        if (data.p2_ready === true && data.opponentType === "human") {
+          hentikanCountdownMatchmaking();
+          return;
+        }
+      } catch (e) {}
 
       matchmakingSeconds--;
-      if (matchmakingSeconds > 0) {
+
+      if (matchmakingSeconds >= 1) {
         tampilkanStatusMatchmaking();
-      } else {
-        hentikanCountdownMatchmaking();
-        const el = document.getElementById('p2-status');
-        if (el) el.innerText = "Menyiapkan lawan...";
-        await aktifkanBotJikaMasihSendiri();
+        return;
       }
-      }, 1000);
-    }, 2000);
+
+      // Setelah angka 1 selesai, langsung siapkan BOT/lawan.
+      hentikanCountdownMatchmaking();
+      await aktifkanBotJikaMasihSendiri();
+    }, 1000);
   }
 
   async function aktifkanBotJikaMasihSendiri() {
@@ -683,6 +693,15 @@
       hentikanCountdownMatchmaking();
       siapkanProfilBotRonde();
 
+      // Penting: kamar yang sudah memakai bot tidak boleh tertinggal di antrean global.
+      try {
+        const antreanRef = window.dbRef(window.db, 'antrean_global_islam');
+        const qSnap = await window.dbGet(antreanRef);
+        if (qSnap.exists() && String(qSnap.val()) === String(roomId)) {
+          await window.dbRemove(antreanRef);
+        }
+      } catch(e) {}
+
       await window.dbUpdate(currentRoomRef, {
         p2_ready: true,
         opponentType: "bot",
@@ -690,10 +709,11 @@
         p2: { correct: 0, wrong: 0, score: 0, index: 0 }
       });
 
-      document.getElementById('room-code-display').innerText = "ACAK";
-      document.getElementById('p2-status').innerText = "Lawan ditemukan! Silakan pilih kategori.";
+      document.getElementById('room-code-display').innerText = "LAWAN DITEMUKAN";
+      document.getElementById('room-code-display').style.color = "#2E7D32";
+      document.getElementById('p2-status').innerHTML = `✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`;
       document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
-      document.getElementById('p2-status').style.color = "#2E7D32";
+      document.getElementById('p2-status').style.color = "#1B5E20";
       document.getElementById('host-controls').style.display = 'block';
     } catch (e) {
       console.error("Gagal mengaktifkan bot:", e);
@@ -877,11 +897,21 @@ function pantauDataKamar() {
       if (data.opponentType === "bot" || data.botActive === true) isBotMatch = true;
 
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
-        if (data.opponentType === "human") { isBotMatch = false; hentikanCountdownMatchmaking(); batalkanTimerBot(); }
-        document.getElementById('p2-status').innerText = isBotMatch ? "Lawan ditemukan. Siap bermain! 🤖" : "Player 2 Telah Bergabung! ✅";
+        if (data.opponentType === "human") {
+          isBotMatch = false;
+          hentikanCountdownMatchmaking();
+          batalkanTimerBot();
+        }
+
+        document.getElementById('room-code-display').innerText = "LAWAN DITEMUKAN";
+        document.getElementById('room-code-display').style.color = "#2E7D32";
+        document.getElementById('p2-status').innerHTML =
+          `✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`;
         document.getElementById('p2-status').style.backgroundColor = "#E8F5E9";
-        document.getElementById('p2-status').style.color = "#2E7D32";
-        document.getElementById('host-controls').style.display = 'block';
+        document.getElementById('p2-status').style.color = "#1B5E20";
+
+        // Hanya P1 yang melihat pilihan kategori.
+        document.getElementById('host-controls').style.display = (myRole === 1 ? 'block' : 'none');
       }
       
       if (data.mode && data.questionOrder && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
@@ -961,43 +991,151 @@ function pantauDataKamar() {
     });
   }
 
-  function cariLawanAcak() {
-    document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-    document.getElementById('room-code-display').innerText = "MENCARI..."; document.getElementById('p2-status').innerText = "Mencari lawan yang tersedia di internet...";
+  async function cariLawanAcak() {
+    isGlobalMatch = true;
+    isBotMatch = false;
+    hentikanCountdownMatchmaking();
+    batalkanTimerBot();
+
+    const roomScreen = document.getElementById('room-screen');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const hostControls = document.getElementById('host-controls');
+    const codeEl = document.getElementById('room-code-display');
+    const statusEl = document.getElementById('p2-status');
+
+    if (hostControls) hostControls.style.display = 'none';
+    if (roomScreen) roomScreen.style.display = 'none';
+    if (welcomeScreen) welcomeScreen.style.display = 'flex';
+    if (codeEl) {
+      codeEl.innerText = "MENCARI LAWAN";
+      codeEl.style.color = "#4CAF50";
+    }
+    if (statusEl) {
+      statusEl.innerHTML = `Sedang mencari pemain yang tersedia...<br>
+        <span style="font-size:.82em;opacity:.82">Memperluas pencarian dalam 10 detik.</span>`;
+      statusEl.style.backgroundColor = "#FFF3E0";
+      statusEl.style.color = "#E65100";
+    }
+
     const antreanRef = window.dbRef(window.db, 'antrean_global_islam');
-    
-    window.dbGet(antreanRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        roomId = snapshot.val(); myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        window.dbRemove(antreanRef); 
-        window.dbOnDisconnect(currentRoomRef).remove();
-        window.dbUpdate(currentRoomRef, { p2_ready: true, opponentType: "human", botActive: false }).then(() => {
-          isBotMatch = false;
-          hentikanCountdownMatchmaking();
-          batalkanTimerBot();
-          document.getElementById('room-code-display').innerText = "ACAK";
-          document.getElementById('p2-status').innerText = "Lawan ditemukan. Menunggu host memilih kategori...";
-          document.getElementById('p1-zone').classList.add('terkunci');
-          document.getElementById('chat-icon').style.display = 'flex';
-          pantauDataKamar();
-        });
-      } else {
-        roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
-        window.dbOnDisconnect(currentRoomRef).remove(); 
-        window.dbSet(currentRoomRef, { mode: "", p2_ready: false, p1: { correct: 0, wrong: 0, score: 0, index: 0 }, p2: { correct: 0, wrong: 0, score: 0, index: 0 } }).then(() => {
-          window.dbSet(antreanRef, roomId).then(() => {
-            document.getElementById('room-code-display').innerText = "ACAK";
-            document.getElementById('p2-status').innerText = "Mencari pemain...";
-            document.getElementById('p2-zone').classList.add('terkunci');
-            document.getElementById('chat-icon').style.display = 'flex';
-            pantauDataKamar();
-            mulaiCountdownMatchmaking();
-          });
-        });
+
+    try {
+      // Maksimal beberapa kali membersihkan antrean basi sebelum membuat room sendiri.
+      for (let percobaan = 0; percobaan < 3; percobaan++) {
+        const queueSnap = await window.dbGet(antreanRef);
+
+        if (!queueSnap.exists()) break;
+
+        const foundRoomId = String(queueSnap.val());
+        const foundRoomRef = window.dbRef(window.db, 'rooms/' + foundRoomId);
+        const roomSnap = await window.dbGet(foundRoomRef);
+
+        // Antrean valid hanya jika room masih ada, belum punya P2,
+        // belum memakai bot, dan belum memulai permainan.
+        if (roomSnap.exists()) {
+          const roomData = roomSnap.val() || {};
+          const roomMasihKosong =
+            roomData.p2_ready !== true &&
+            roomData.botActive !== true &&
+            roomData.opponentType !== "bot" &&
+            !roomData.mode;
+
+          if (roomMasihKosong) {
+            roomId = foundRoomId;
+            myRole = 2;
+            currentRoomRef = foundRoomRef;
+
+            // Cek sekali lagi sesaat sebelum mengambil slot.
+            const confirmSnap = await window.dbGet(currentRoomRef);
+            const confirmData = confirmSnap.exists() ? (confirmSnap.val() || {}) : null;
+
+            if (confirmData &&
+                confirmData.p2_ready !== true &&
+                confirmData.botActive !== true &&
+                confirmData.opponentType !== "bot" &&
+                !confirmData.mode) {
+
+              await window.dbUpdate(currentRoomRef, {
+                p2_ready: true,
+                opponentType: "human",
+                botActive: false
+              });
+
+              const qNow = await window.dbGet(antreanRef);
+              if (qNow.exists() && String(qNow.val()) === String(roomId)) {
+                await window.dbRemove(antreanRef);
+              }
+
+              window.dbOnDisconnect(currentRoomRef).remove();
+              hentikanCountdownMatchmaking();
+
+              if (codeEl) {
+                codeEl.innerText = "LAWAN DITEMUKAN";
+                codeEl.style.color = "#2E7D32";
+              }
+              if (statusEl) {
+                statusEl.innerHTML =
+                  `✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`;
+                statusEl.style.backgroundColor = "#E8F5E9";
+                statusEl.style.color = "#1B5E20";
+              }
+
+              if (hostControls) hostControls.style.display = 'none';
+              document.getElementById('p1-zone').classList.add('terkunci');
+              document.getElementById('chat-icon').style.display = 'flex';
+              pantauDataKamar();
+              return;
+            }
+          }
+        }
+
+        // Queue menunjuk room basi/penuh/bot: hapus, jangan dianggap lawan.
+        const staleSnap = await window.dbGet(antreanRef);
+        if (staleSnap.exists() && String(staleSnap.val()) === foundRoomId) {
+          await window.dbRemove(antreanRef);
+        }
       }
-    }).catch((error) => { 
-      showCustomAlert("Server Error", "Gagal terhubung ke server. Silakan coba lagi.", () => { location.reload(); });
-    });
+
+      // Tidak ada manusia valid. Kita menjadi P1 dan countdown HARUS tampil 10 -> 1.
+      roomId = Math.floor(1000 + Math.random() * 9000).toString();
+      myRole = 1;
+      currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+      await window.dbSet(currentRoomRef, {
+        mode: "",
+        p2_ready: false,
+        opponentType: "",
+        botActive: false,
+        p1: { correct: 0, wrong: 0, score: 0, index: 0 },
+        p2: { correct: 0, wrong: 0, score: 0, index: 0 },
+        seriesScore: { p1: 0, p2: 0 }
+      });
+
+      document.getElementById('p2-zone').classList.add('terkunci');
+      document.getElementById('chat-icon').style.display = 'flex';
+      pantauDataKamar();
+
+      // Antrean hanya berisi room manusia yang benar-benar masih menunggu.
+      window.dbOnDisconnect(antreanRef).remove();
+      await window.dbSet(antreanRef, roomId);
+
+      mulaiCountdownMatchmaking();
+
+    } catch (error) {
+      console.error("Matchmaking error:", error);
+      hentikanCountdownMatchmaking();
+      showCustomAlert(
+        "Server Error",
+        "Gagal terhubung ke matchmaking. Silakan coba lagi.",
+        () => location.reload()
+      );
+    }
+  }
+
+  async function mulaiGlobalOtomatisJikaSiap() {
+    // Sengaja tidak memulai kategori otomatis.
+    // Setelah lawan ditemukan, P1 memilih kategori seperti sistem referensi Campuran.
+    return;
   }
 
   function hostPilihMode(modeDipilih) { 
@@ -1244,8 +1382,10 @@ let qData = pData.questions[pData.index];
     document.getElementById('p2-status').innerText = isBotMatch ? "Lawan siap. Pilih kategori untuk ronde berikutnya! 🤖" : "Player 2 Telah Bergabung! ✅";
     
     // Khusus Player 1 (Host) tampilkan kembali tombol pilihan kategori soal
-    if (myRole === 1) {
+    if (myRole === 1 && !isGlobalMatch) {
       document.getElementById('host-controls').style.display = 'block';
+    } else {
+      document.getElementById('host-controls').style.display = 'none';
     }
   }
 
