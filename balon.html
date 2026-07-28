@@ -427,6 +427,56 @@
   }
 
 </style>
+
+<style>
+/* Tombol tambahan pada layar hasil */
+#result-screen .btn {
+  margin-bottom: 7px;
+}
+
+.btn-reset-level {
+  padding: 7px 20px;
+  margin: 1px 0 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  background: #607D8B;
+  border: 3px solid #fff;
+  border-radius: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #37474F, 0 6px 10px rgba(0,0,0,.18);
+}
+.btn-reset-level:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+/* Putar layar dibuat kecil mungil khusus layar hasil */
+#result-screen .btn-rotate-mini {
+  margin-top: 0;
+  padding: 5px 14px;
+  font-size: 11px;
+  border-width: 2px;
+  border-radius: 18px;
+  gap: 4px;
+  box-shadow: 0 3px 0 #7B1FA2, 0 5px 8px rgba(0,0,0,.18);
+}
+#result-screen .btn-rotate-mini:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+@media (max-width:650px) {
+  .btn-reset-level { padding:6px 16px; font-size:11px; }
+  #result-screen .btn-rotate-mini { padding:4px 11px; font-size:9px; }
+}
+@media (orientation:landscape) and (max-height:600px) {
+  .btn-reset-level { padding:4px 14px; font-size:10px; margin-bottom:4px; box-shadow:0 3px 0 #37474F; }
+  #result-screen .btn-rotate-mini { padding:3px 10px; font-size:9px; box-shadow:0 2px 0 #7B1FA2; }
+}
+</style>
+
 </head>
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
@@ -461,12 +511,12 @@
 
 <!-- Layar Permainan -->
 <div id="top-bar" style="display: none;">
-  <div class="ui-box">⏱️ <span id="time-display">60</span>s</div>
+  <div class="ui-box">⏱️ <span id="time-display">60</span>s<br><span style="font-size:.58em">LEVEL <span id="level-display">1</span></span></div>
   <div id="target-container">
     <div id="target-text">Tangkap Huruf:</div>
     <div id="target-letter">ا</div>
   </div>
-  <div class="ui-box">⭐ <span id="score-display">0</span></div>
+  <div class="ui-box">⭐ <span id="score-display">0</span><br><span style="font-size:.58em">BENAR <span id="correct-display">0</span>/10</span></div>
 </div>
 
 <!-- Area Tempat Balon Muncul -->
@@ -474,14 +524,15 @@
 
 <!-- Layar Hasil Akhir -->
 <div id="result-screen" class="screen">
-  <h1>Masya Allah, Hebat! 🎉</h1>
-  <p>Waktu habis! Kamu berhasil menangkap banyak balon.</p>
+  <h1 id="result-title">Masya Allah, Hebat! 🎉</h1>
+  <p id="result-message">Waktu habis! Kamu berhasil menangkap banyak balon.</p>
   <div class="ui-box" style="margin-bottom: 20px; font-size: 30px; padding: 15px 40px; border-width: 4px;">
     Total Skor: <span id="final-score" style="color: #E91E63; font-size: 40px;">0</span> ⭐
   </div>
   
-  <button class="btn" onclick="startGame()">🔄 MAIN LAGI</button>
-  <button class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+  <button id="result-main-btn" class="btn" onclick="handleResultButton()">▶️ LEVEL BERIKUTNYA</button>
+  <button class="btn-reset-level" onclick="resetLevel()">↺ RESET LEVEL</button>
+  <button class="btn-rotate btn-rotate-mini" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
 
   <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
     Development <strong>Arom Kobama 😎</strong>
@@ -512,11 +563,18 @@
   let gameInterval;
   let spawnInterval;
   let isPlaying = false;
+  let level = 1;
+  let correctThisLevel = 0;
+  let levelPassed = false;
+  const TARGET_PER_LEVEL = 10;
+  const MAX_LEVEL = 10;
 
   const gameArea = document.getElementById('game-area');
   const targetLetterDisplay = document.getElementById('target-letter');
   const scoreDisplay = document.getElementById('score-display');
   const timeDisplay = document.getElementById('time-display');
+  const levelDisplay = document.getElementById('level-display');
+  const correctDisplay = document.getElementById('correct-display');
   
   // Variabel untuk memanggil elemen audio latar
   const bgMusic = document.getElementById('bg-music');
@@ -560,13 +618,20 @@
 
       if (letterInside === currentTarget) {
         score += 10;
+        correctThisLevel++;
         scoreDisplay.innerText = score;
+        correctDisplay.innerText = correctThisLevel;
         showPopText(bX, bY, pujianBenar[Math.floor(Math.random() * pujianBenar.length)], '#4CAF50');
         
         balloon.style.opacity = '0';
         balloon.style.transform = 'scale(0)';
         
-        setNewTarget();
+        if (correctThisLevel >= TARGET_PER_LEVEL) {
+          levelPassed = true;
+          setTimeout(endGame, 250);
+        } else {
+          setNewTarget();
+        }
       } else {
         showPopText(bX, bY, "Oops!", '#F44336');
         balloon.style.opacity = '0';
@@ -599,22 +664,34 @@
   }
 
   function startGame() {
+    level = 1;
+    score = 0;
+    startLevel();
+  }
+
+  function startLevel() {
+    clearInterval(gameInterval);
+    clearInterval(spawnInterval);
+
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('top-bar').style.display = 'flex';
-    
+
     if (bgMusic.paused) {
       bgMusic.play().catch(error => {
         console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
       });
     }
-    
+
     gameArea.innerHTML = '';
-    
-    score = 0;
+
     timeLeft = 60;
+    correctThisLevel = 0;
+    levelPassed = false;
     scoreDisplay.innerText = score;
     timeDisplay.innerText = timeLeft;
+    levelDisplay.innerText = level;
+    correctDisplay.innerText = correctThisLevel;
     isPlaying = true;
 
     setNewTarget();
@@ -627,17 +704,58 @@
       }
     }, 1000);
 
+    // Mekanisme balon ASLI tetap: satu balon baru setiap 1 detik.
     spawnInterval = setInterval(createBalloon, 1000);
   }
 
   function endGame() {
+    if (!isPlaying) return;
     isPlaying = false;
     clearInterval(gameInterval);
     clearInterval(spawnInterval);
-    
+
     document.getElementById('top-bar').style.display = 'none';
     document.getElementById('result-screen').style.display = 'flex';
     document.getElementById('final-score').innerText = score;
+
+    levelPassed = correctThisLevel >= TARGET_PER_LEVEL;
+
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const btn = document.getElementById('result-main-btn');
+
+    if (levelPassed && level >= MAX_LEVEL) {
+      title.innerText = 'Masya Allah, Semua Level Selesai! 🏆';
+      message.innerText = `Kamu berhasil menyelesaikan semua ${MAX_LEVEL} level.`;
+      btn.innerText = '🔄 MAIN DARI LEVEL 1';
+    } else if (levelPassed) {
+      title.innerText = `Level ${level} Berhasil! 🎉`;
+      message.innerText = `Berhasil menangkap ${TARGET_PER_LEVEL} balon benar.`;
+      btn.innerText = `▶️ LANJUT LEVEL ${level + 1}`;
+    } else {
+      title.innerText = 'Waktu Habis!';
+      message.innerText = `Benar ${correctThisLevel}/${TARGET_PER_LEVEL}. Target level belum tercapai.`;
+      btn.innerText = '🔄 COBA LAGI DARI LEVEL 1';
+    }
+  }
+
+  function resetLevel() {
+    // Ulangi level yang sedang dimainkan tanpa kembali ke Level 1.
+    score = 0;
+    correctThisLevel = 0;
+    levelPassed = false;
+    startLevel();
+  }
+
+  function handleResultButton() {
+    if (levelPassed && level < MAX_LEVEL) {
+      level++;
+      startLevel();
+    } else {
+      level = 1;
+      score = 0;
+      startLevel();
+    }
   }
 
 </script>
