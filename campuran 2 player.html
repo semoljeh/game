@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 
 <!-- --- META TAGS DASAR --- -->
-<title>MADASA - Cerdas Cermat 2 Player</title>
+<title>MADASA - Cerdas Cermat 2 Player Turnamen</title>
 <meta name="description" content="Game edukasi Cerdas Cermat Matematika seru untuk 2 pemain. Ayo adu kecepatan dan ketepatan berhitung!">
 
 <!-- --- FONT NUNITO (KHAS MADASA) --- -->
@@ -38,7 +38,7 @@
   /* --- ZONA PERMAINAN (DEFAULT: LANSKAP / KIRI-KANAN) --- */
   #game-board { 
     display: flex; 
-    flex-direction: row; /* Kiri dan Kanan */
+    flex-direction: row;
     height: 100%; 
     width: 100%; 
     position: relative;
@@ -58,6 +58,38 @@
   #p1-zone { background: linear-gradient(135deg, #F8BBD0 0%, #F48FB1 100%); }
   #p2-zone { background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%); }
 
+  /* --- SCORE BOARD (DALAM GAME) --- */
+  .ingame-score {
+    position: absolute;
+    top: 20px;
+    font-size: 28px;
+    font-weight: 900;
+    background: rgba(255,255,255,0.9);
+    padding: 8px 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 3px solid #FFF;
+    z-index: 10;
+  }
+  #p1-ingame-score { left: 20px; color: #D81B60; }
+  #p2-ingame-score { right: 20px; color: #0288D1; }
+
+  /* --- COMBO INDICATOR (DALAM GAME) --- */
+  .ingame-combo {
+    position: absolute;
+    top: 75px; 
+    font-size: 20px;
+    font-weight: 900;
+    color: #FFF;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #p1-ingame-combo { left: 25px; text-align: left; }
+  #p2-ingame-combo { right: 25px; text-align: right; }
+
   /* --- GARIS PEMISAH (DEFAULT: VERTIKAL) --- */
   #center-line {
     position: absolute;
@@ -73,7 +105,7 @@
 
   .belum-mulai { filter: blur(8px); pointer-events: none; }
 
-  /* --- TIMER & TOMBOL SKOR (DEFAULT: ATAS TENGAH) --- */
+  /* --- TIMER & TOMBOL SKOR --- */
   #top-center-container {
     position: absolute;
     top: 25px;
@@ -81,9 +113,9 @@
     transform: translateX(-50%);
     z-index: 5;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 30px; 
+    gap: 10px; 
     background: rgba(255, 255, 255, 0.95);
     padding: 10px 25px;
     border-radius: 30px;
@@ -102,13 +134,12 @@
     text-align: center;
   }
 
-  /* --- EFEK WAKTU MAU HABIS --- */
   .waktu-kritis { color: #F44336 !important; animation: detak 1s infinite; }
   @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
   #btn-lihat-skor {
-    font-size: 18px; font-weight: 900; background: #E91E63;
-    padding: 8px 20px; border-radius: 20px; color: #FFF; border: 3px solid #FFF;
+    font-size: 16px; font-weight: 900; background: #E91E63;
+    padding: 6px 15px; border-radius: 20px; color: #FFF; border: 3px solid #FFF;
     cursor: pointer; box-shadow: 0 5px 0 #C2185B; transition: 0.1s; font-family: inherit;
   }
   #btn-lihat-skor:active { transform: translateY(5px); box-shadow: 0 0 0; }
@@ -143,23 +174,24 @@
   }
   .btn-next:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-  /* --- LAYAR SAMBUTAN (WELCOME SCREEN) --- */
+  /* --- LAYAR OVERLAY (MODAL) --- */
   .screen-overlay {
     display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     flex-direction: column; align-items: center; justify-content: center;
-    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box;
+    z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; overflow-y: auto;
   }
   .welcome-card {
-    background: rgba(255, 255, 255, 0.95); border: 5px solid #FFF; border-radius: 40px; padding: 30px 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 650px; width: 95%; box-sizing: border-box;
+    background: #FFF; border-radius: 30px; padding: 25px 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 600px; width: 95%; box-sizing: border-box;
+    margin: auto; position: relative; border: 4px solid #FFF;
   }
-  .welcome-card h1 { font-size: 40px; color: #E91E63; margin: 0 0 5px 0; font-weight: 900; line-height: 1.2; }
-  .welcome-card h2 { font-size: 22px; color: #03A9F4; margin: 0 0 15px 0; font-weight: 800; }
-  .welcome-card p { font-size: 16px; color: #555; margin-bottom: 20px; font-weight: 700; line-height: 1.4; }
-
+  
+  .welcome-card h1 { font-size: 38px; color: #E91E63; margin: 0 0 5px 0; font-weight: 900; line-height: 1.2; }
+  .welcome-card h2 { font-size: 20px; color: #03A9F4; margin: 0 0 15px 0; font-weight: 800; }
+  
   /* --- TOMBOL MODE PERMAINAN --- */
-  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px;}
   .btn-mode {
     padding: 10px 15px; font-size: 16px; font-weight: 900; color: white;
     border: 3px solid #FFF; border-radius: 20px; cursor: pointer;
@@ -172,424 +204,692 @@
   .btn-kali { background: #9C27B0; box-shadow: 0 5px 0 #6A1B9A; }
   .btn-bagi { background: #00BCD4; box-shadow: 0 5px 0 #00838F; }
 
-  .btn-play {
-    padding: 12px 30px; font-size: 20px; font-weight: 900;
-    background-color: #4CAF50; color: white; border: 4px solid #FFF; border-radius: 30px;
-    cursor: pointer; box-shadow: 0 6px 0 #2E7D32, 0 10px 15px rgba(0,0,0,0.2); transition: 0.1s; font-family: inherit;
+  /* --- KOTAK HASIL AKHIR (PRESISI) --- */
+  .result-grid { 
+    display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; align-items: stretch; width: 100%; 
   }
-  .btn-play:active { transform: translateY(6px); box-shadow: 0 0 0; }
-
-  /* --- LENCANA DEV MADASA --- */
-  .dev-link {
-    position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-    padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none;
-    background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700; border-radius: 25px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; z-index: 60; font-weight: 700;
-  }
-  .dev-link strong { color: #FF9800; font-size: 15px; font-weight: 900; margin-left: 4px; }
-
-  /* --- KOTAK HASIL (MODAL) --- */
   .result-card { 
-    background: #FFF; border: 4px solid #FFF; color: #333; padding: 15px; border-radius: 25px; 
-    margin: 10px; width: 200px; display: flex; flex-direction: column; align-items: center;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    background: #FFF; padding: 15px; border-radius: 20px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); flex: 1; border-width: 4px; border-style: solid;
+    box-sizing: border-box;
   }
-  .results-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-  #waktu-akhir-display {
-    font-size: 24px; font-weight: 900; color: #FFF; margin-bottom: 25px;
-    background: #F44336; padding: 10px 30px; border-radius: 20px; border: 3px solid #FFF;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  
+  .stats-list { width: 100%; text-align: left; font-size: 13px; margin: 10px 0; border-top: 2px dashed #EEE; padding-top: 10px; }
+  .stats-list div { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 800; color: #555; }
+  
+  .score-huge { font-size: 50px; font-weight: 900; margin: 5px 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.1); }
+  
+  .gelar-badge {
+    padding: 6px 10px; border-radius: 20px; font-weight: 900; color: #FFF; font-size: 12px; margin-top: auto;
+    width: 100%; text-align: center; box-sizing: border-box;
   }
 
-  /* --- ANIMASI NOTIFIKASI LUCU --- */
+  /* --- MATCH SCORE DISPLAY BARU --- */
+  .match-score-board {
+    background: #283593; color: #FFF; border-radius: 15px; padding: 12px 20px; margin: 0 auto 15px auto;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15); width: 100%; box-sizing: border-box; text-align: center;
+  }
+  .match-score-title { font-size: 14px; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; color: #E8EAF6; }
+  .match-score-numbers { display: flex; justify-content: center; align-items: center; gap: 12px; }
+  
+  .ms-name { font-size: 18px; font-weight: 900; white-space: nowrap; }
+  .ms-score { font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
+  
+  .ms-p1 { color: #F48FB1; } .ms-p2 { color: #81D4FA; }
+  .ms-trophy { font-size: 32px; animation: pulseTrophy 1.5s infinite; margin: 0 5px; }
+  @keyframes pulseTrophy { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+  .round-winner-banner {
+    font-size: 24px; font-weight: 900; padding: 12px 20px; border-radius: 15px; margin-bottom: 15px;
+    color: #FFF; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); animation: popUpAnim 0.5s ease-out; box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+  }
+  .win-p1 { background: #D81B60; }
+  .win-p2 { background: #0288D1; }
+  .win-draw { background: #757575; }
+
+  /* --- TOMBOL AKSI BAWAH --- */
+  .action-buttons { display: flex; gap: 10px; justify-content: center; width: 100%; }
+  .btn-action {
+    flex: 1; padding: 12px 10px; font-size: 14px; font-weight: 900; color: white;
+    border: 3px solid #FFF; border-radius: 25px; cursor: pointer; transition: 0.1s; font-family: inherit;
+    box-sizing: border-box;
+  }
+  .btn-play-again { background-color: #4CAF50; box-shadow: 0 5px 0 #2E7D32; }
+  .btn-reset-match { background-color: #FF9800; box-shadow: 0 5px 0 #E65100; }
+  .btn-main-menu { background-color: #607D8B; box-shadow: 0 5px 0 #455A64; }
+  .btn-action:active { transform: translateY(5px); box-shadow: 0 0 0; }
+
+  /* --- ANIMASI NOTIFIKASI LUCU & COMBO --- */
   .notif-lucu {
-    position: absolute; top: 35%; font-size: 45px; font-weight: 900;
+    position: absolute; top: 25%; font-size: 45px; font-weight: 900;
     text-shadow: 3px 3px 0 #FFF, -3px -3px 0 #FFF, 3px -3px 0 #FFF, -3px 3px 0 #FFF, 0 8px 15px rgba(0,0,0,0.2);
     pointer-events: none; z-index: 100; animation: popUpAnim 1s ease-out forwards; text-align: center;
   }
+  
+  .combo-anim {
+    position: absolute; top: 40%; width: 100%; text-align: center;
+    font-weight: 900; pointer-events: none; z-index: 110;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.2); animation: comboPop 2s forwards;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .combo-title { font-size: 40px; color: #FFEB3B; -webkit-text-stroke: 2px #E65100; }
+  .combo-bonus { font-size: 30px; color: #4CAF50; background: #FFF; padding: 5px 20px; border-radius: 20px; border: 3px solid #4CAF50; margin-top: 10px; }
+
+  .godlike-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,0,0,0) 70%);
+    animation: godlikeFlash 1s ease-out; z-index: 105;
+  }
+
   @keyframes popUpAnim {
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
     20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
     80% { transform: translateY(-60px) scale(1); opacity: 1; }
     100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
   }
-
+  @keyframes comboPop {
+    0% { transform: scale(0); opacity: 0; }
+    10% { transform: scale(1.4); opacity: 1; }
+    20% { transform: scale(1); opacity: 1; }
+    80% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  @keyframes godlikeFlash { 0% { opacity: 1; } 100% { opacity: 0; } }
 
   /* ========================================================= */
   /* RESPONSIVE LAYOUT HP - JIKA LAYAR TEGAK (PORTRAIT) */
   /* ========================================================= */
   @media screen and (orientation: portrait) {
-    
-    /* Ubah arah terbelah menjadi Atas-Bawah */
     #game-board { flex-direction: column; }
+    #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 6px; }
     
-    /* Garis pemisah menjadi Horizontal di tengah */
-    #center-line {
-      top: 50%; left: 0; transform: translateY(-50%);
-      width: 100%; height: 10px;
+    #top-center-container { 
+      top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      padding: 5px 15px; flex-direction: row; gap: 15px; border-width: 3px;
     }
-
-    /* Timer pindah ke tengah-tengah persis di atas garis pemisah */
-    #top-center-container {
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      gap: 15px; padding: 5px 20px;
-    }
-    #timer-display { font-size: 28px; }
-    #btn-lihat-skor { font-size: 14px; padding: 5px 15px; }
-
-   /* !!! PUTAR AREA PEMAIN 1 (ATAS) AGAR BISA BERHADAPAN !!! */
+    #timer-display { font-size: 24px; min-width: 35px; }
+    #btn-lihat-skor { font-size: 14px; padding: 4px 12px; border-width: 2px; }
+    
     #p1-zone { transform: rotate(180deg); }
     #p2-zone { transform: rotate(0deg); }
+    .player-zone { padding-top: 45px; justify-content: center; }
 
-    /* Perkecil ukuran kotak soal & opsi agar muat di HP */
-    .question-box { font-size: 38px; padding: 10px 20px; margin-bottom: 15px; border-width: 4px; min-width: 150px;}
-    .btn-option { font-size: 26px; width: 70px; height: 70px; border-width: 3px; }
-    .btn-next { font-size: 13px; padding: 8px 25px; margin-top: 15px; } 
+    .ingame-score { top: auto; bottom: 15px; font-size: 18px; padding: 5px 15px; }
+    #p1-ingame-score { left: 15px; } 
+    #p2-ingame-score { right: 15px; }
+
+    .ingame-combo { top: auto; bottom: 55px; font-size: 16px; }
+    #p1-ingame-combo { left: 15px; text-align: left; }
+    #p2-ingame-combo { right: 15px; text-align: right; }
+
+    .question-box { font-size: 34px; padding: 10px 15px; margin-bottom: 12px; border-width: 3px; min-width: 140px;}
+    .btn-option { font-size: 24px; width: 60px; height: 60px; border-width: 3px; }
+    .options { gap: 12px; }
+    .btn-next { font-size: 13px; padding: 8px 25px; margin-top: 20px; } 
     
-    /* Menu Welcome di HP Tegak */
-    .welcome-card { padding: 15px 15px; border-radius: 25px; max-width: 90%; }
-    .welcome-card h1 { font-size: 24px; margin-bottom: 2px; }
-    .welcome-card h2 { font-size: 14px; margin-bottom: 5px; }
-    .welcome-card p { font-size: 12px; margin-bottom: 10px; line-height: 1.2; }
-    .mode-container { gap: 6px; }
-    .btn-mode { font-size: 12px; padding: 6px 8px; border-width: 2px; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
-    .btn-campuran { font-size: 14px; padding: 8px; }
-    .dev-link { bottom: 8px; padding: 6px 15px; font-size: 10px; }
+    .welcome-card { padding: 20px 15px; border-radius: 20px; max-width: 100%; }
+    .round-winner-banner { font-size: 20px; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
     
-    /* Menu Skor Akhir di HP Tegak */
-    .results-container { gap: 10px; }
-    .result-card { width: 130px; padding: 10px; }
-    .result-card h2 { font-size: 18px !important; margin-bottom: 5px !important;}
-    .result-card p { font-size: 14px !important; margin: 3px 0 !important; }
-    #waktu-akhir-display { font-size: 18px; padding: 8px 20px; margin-bottom: 15px;}
+    .match-score-board { padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+    .match-score-numbers { gap: 6px; }
+    .ms-name { font-size: 12px; } 
+    .ms-score { font-size: 38px; } 
+    .ms-trophy { font-size: 24px; margin: 0 4px; }
+    
+    .result-grid { gap: 8px; margin-bottom: 15px; }
+    .result-card { padding: 10px; border-width: 3px; border-radius: 15px; }
+    .result-card h2 { font-size: 16px !important; }
+    .score-huge { font-size: 38px; margin: 2px 0; } 
+    .stats-list { font-size: 11px; margin: 5px 0; padding-top: 5px; }
+    .gelar-badge { font-size: 10px; padding: 6px 4px; }
+    
+    .action-buttons { gap: 6px; }
+    .btn-action { font-size: 12px; padding: 10px 4px; border-width: 2px; white-space: nowrap; }
+    
+    .combo-title { font-size: 28px; }
+    .combo-bonus { font-size: 20px; }
   }
   
-  /* HP SANGAT KECIL */
-  @media screen and (orientation: portrait) and (max-height: 650px) {
-    .question-box { font-size: 30px; margin-bottom: 10px; padding: 5px 10px; }
-    .btn-option { font-size: 22px; width: 55px; height: 55px; }
-    .options { gap: 10px; }
+  @media screen and (orientation: portrait) and (max-height: 700px) {
+    .player-zone { padding-top: 35px; }
+    .question-box { font-size: 26px; margin-bottom: 10px; padding: 5px 10px; min-width: 120px; border-width: 3px;}
+    .btn-option { font-size: 20px; width: 50px; height: 50px; border-width: 2px;}
+    .btn-next { margin-top: 10px; padding: 6px 15px; font-size: 11px;}
+    .ingame-combo { bottom: 50px; font-size: 15px; }
   }
 </style>
 </head>
 <body>
 
-<!-- --- MUSIK LATAR --- -->
-<audio id="bg-music" loop>
-  <source src="asset/musik.mp3" type="audio/mpeg">
-</audio>
-
 <div id="app-container">
 
   <!-- Layar Sambutan (Pilih Mode) -->
   <div id="welcome-screen" class="screen-overlay" style="display: flex;">
-    <div class="welcome-card">
+    <div class="welcome-card" style="text-align: center;">
       <h1>🌟 MADASA 2 PLAYER 🌟</h1>
-      <h2>Cerdas Cermat Matematika</h2>
-      <p>Kalian punya waktu <b>60 detik</b>! Ajak temanmu dan buktikan siapa yang bisa menjawab benar paling banyak! Pilih mode:</p>
-      
-      <!-- MENU PILIHAN MODE -->
+      <h2>Cerdas Cermat Matematika - Turnamen</h2>
+      <p style="color: #555; font-weight: 700; margin-bottom: 15px;">
+        Kalian punya waktu <b>60 detik</b>! Jawab cepat dan tepat!<br>
+        <span style="color:#4CAF50">Benar +10</span> | <span style="color:#F44336">Salah -5</span> | <span style="color:#FF9800">Combo Bonus Point!</span>
+      </p>
       <div class="mode-container">
-        <button class="btn-mode btn-campuran" onclick="mulaiPermainanDenganMode('campuran')">🌟 CAMPURAN (Acak)</button>
-        <button class="btn-mode btn-tambah" onclick="mulaiPermainanDenganMode('penjumlahan')">➕ Penjumlahan</button>
-        <button class="btn-mode btn-kurang" onclick="mulaiPermainanDenganMode('pengurangan')">➖ Pengurangan</button>
-        <button class="btn-mode btn-kali" onclick="mulaiPermainanDenganMode('perkalian')">✖️ Perkalian</button>
-        <button class="btn-mode btn-bagi" onclick="mulaiPermainanDenganMode('pembagian')">➗ Pembagian</button>
+        <button class="btn-mode btn-campuran" onclick="GameApp.startMatch('campuran')">🌟 CAMPURAN (Acak)</button>
+        <button class="btn-mode btn-tambah" onclick="GameApp.startMatch('penjumlahan')">➕ Penjumlahan</button>
+        <button class="btn-mode btn-kurang" onclick="GameApp.startMatch('pengurangan')">➖ Pengurangan</button>
+        <button class="btn-mode btn-kali" onclick="GameApp.startMatch('perkalian')">✖️ Perkalian</button>
+        <button class="btn-mode btn-bagi" onclick="GameApp.startMatch('pembagian')">➗ Pembagian</button>
       </div>
     </div>
-
-    <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-      Development <strong>Arom Kobama 😎</strong>
-    </a>
   </div>
 
+  <!-- Papan Permainan -->
   <div id="game-board">
     <div id="top-center-container">
       <div id="timer-display">60</div>
-      <button id="btn-lihat-skor" onclick="tampilkanSkorSaatIni()">Skor</button>
+      <button id="btn-lihat-skor" onclick="GameApp.showMidGameScore()">Skor</button>
     </div>
-
     <div id="center-line"></div>
 
-    <!-- ZONA PLAYER 1 (BAWAH KALAU TEGAK, KIRI KALAU MENDATAR) -->
+    <!-- ZONA PLAYER 1 -->
     <div class="player-zone belum-mulai" id="p1-zone">
+      <div id="p1-ingame-score" class="ingame-score">0</div>
+      <div id="p1-ingame-combo" class="ingame-combo">🔥 Combo x0</div>
       <div class="question-box" id="p1-q">Soal</div>
       <div class="options" id="p1-options"></div>
-      <button class="btn-next" id="p1-skip" onclick="skipQuestion(1)">Lewati >></button>
+      <button class="btn-next" id="p1-skip" onclick="GameApp.skipQuestion(1)">Lewati >></button>
     </div>
 
-    <!-- ZONA PLAYER 2 (ATAS KALAU TEGAK, KANAN KALAU MENDATAR) -->
+    <!-- ZONA PLAYER 2 -->
     <div class="player-zone belum-mulai" id="p2-zone">
+      <div id="p2-ingame-score" class="ingame-score">0</div>
+      <div id="p2-ingame-combo" class="ingame-combo">🔥 Combo x0</div>
       <div class="question-box" id="p2-q">Soal</div>
       <div class="options" id="p2-options"></div>
-      <button class="btn-next" id="p2-skip" onclick="skipQuestion(2)">Lewati >></button>
+      <button class="btn-next" id="p2-skip" onclick="GameApp.skipQuestion(2)">Lewati >></button>
     </div>
   </div>
 
   <!-- Popup Skor Sementara -->
   <div id="skor-sementara-screen" class="screen-overlay">
-    <div class="welcome-card" style="background: rgba(255,255,255,0.9);">
-      <h1 style="font-size: 32px; color: #673AB7;">SKOR SEMENTARA</h1>
-      <div class="results-container">
+    <div class="welcome-card" style="text-align: center;">
+      <h1 style="font-size: 28px; color: #673AB7; margin-bottom: 15px;">SKOR SEMENTARA</h1>
+      <div class="result-grid">
         <div class="result-card" style="border-color: #F48FB1;">
-          <h2 style="font-size: 22px; color: #D81B60; margin: 0 0 10px 0;">Player 1</h2>
-          <h3 style="font-size: 16px; color: #555; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin: 0 0 10px 0;">Dijawab: <span id="cur-p1-dijawab">0</span></h3>
-          <p style="font-size: 18px; margin: 5px 0; color: #4CAF50; font-weight: 900;">Benar: <span id="cur-p1-benar">0</span></p>
-          <p style="font-size: 18px; margin: 5px 0; color: #F44336; font-weight: 900;">Salah: <span id="cur-p1-salah">0</span></p>
+          <h2 style="color: #D81B60; margin: 0;">PLAYER 1</h2>
+          <div class="score-huge" style="color: #D81B60;" id="cur-p1-score">0</div>
         </div>
         <div class="result-card" style="border-color: #81D4FA;">
-          <h2 style="font-size: 22px; color: #0288D1; margin: 0 0 10px 0;">Player 2</h2>
-          <h3 style="font-size: 16px; color: #555; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin: 0 0 10px 0;">Dijawab: <span id="cur-p2-dijawab">0</span></h3>
-          <p style="font-size: 18px; margin: 5px 0; color: #4CAF50; font-weight: 900;">Benar: <span id="cur-p2-benar">0</span></p>
-          <p style="font-size: 18px; margin: 5px 0; color: #F44336; font-weight: 900;">Salah: <span id="cur-p2-salah">0</span></p>
+          <h2 style="color: #0288D1; margin: 0;">PLAYER 2</h2>
+          <div class="score-huge" style="color: #0288D1;" id="cur-p2-score">0</div>
         </div>
       </div>
-      <button class="btn-play" style="background: #FF9800;" onclick="tutupSkor()">Lanjut Main!</button>
+      <div style="display: flex; justify-content: center; width: 100%;">
+        <button class="btn-action btn-play-again" style="max-width: 200px;" onclick="document.getElementById('skor-sementara-screen').style.display='none'">Lanjut Main!</button>
+      </div>
     </div>
   </div>
 
   <!-- Popup Hasil Akhir -->
   <div id="result-screen" class="screen-overlay">
-    <div class="welcome-card" style="background: rgba(255,255,255,0.95);">
-      <h1 style="font-size: 32px;">PERMAINAN SELESAI 🎉</h1>
-      <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
+    <div class="welcome-card" style="background: #EAF6FD;">
       
-      <div class="results-container">
-        <div class="result-card" style="border-color: #F48FB1;">
-          <h2 style="font-size: 22px; color: #D81B60; margin: 0 0 10px 0;">Player 1</h2>
-          <h3 style="font-size: 16px; color: #555; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin: 0 0 10px 0;">Total Dijawab: <span id="p1-dijawab">0</span></h3>
-          <p style="font-size: 18px; margin: 5px 0; color: #4CAF50; font-weight: 900;">Benar: <span id="p1-benar">0</span></p>
-          <p style="font-size: 18px; margin: 5px 0; color: #F44336; font-weight: 900;">Salah: <span id="p1-salah">0</span></p>
-        </div>
-        <div class="result-card" style="border-color: #81D4FA;">
-          <h2 style="font-size: 22px; color: #0288D1; margin: 0 0 10px 0;">Player 2</h2>
-          <h3 style="font-size: 16px; color: #555; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin: 0 0 10px 0;">Total Dijawab: <span id="p2-dijawab">0</span></h3>
-          <p style="font-size: 18px; margin: 5px 0; color: #4CAF50; font-weight: 900;">Benar: <span id="p2-benar">0</span></p>
-          <p style="font-size: 18px; margin: 5px 0; color: #F44336; font-weight: 900;">Salah: <span id="p2-salah">0</span></p>
+      <div id="round-winner-banner" class="round-winner-banner win-draw">🤝 DRAW</div>
+      <div id="streak-banner" style="font-size: 16px; font-weight: 900; color: #FF9800; margin-bottom: 10px; text-align: center; display: none;">🔥 WIN STREAK x2</div>
+
+      <!-- Match Score -->
+      <div class="match-score-board">
+        <div class="match-score-title">MATCH SCORE</div>
+        <div class="match-score-numbers">
+          <span class="ms-name ms-p1">PLAYER 1</span>
+          <span class="ms-score ms-p1" id="ms-p1-val">0</span>
+          <span class="ms-trophy">🏆</span>
+          <span class="ms-score ms-p2" id="ms-p2-val">0</span>
+          <span class="ms-name ms-p2">PLAYER 2</span>
         </div>
       </div>
-      <button class="btn-play" onclick="kembaliKeMenu()">🏠 Kembali ke Menu</button>
+      
+      <!-- Player Stats Grid -->
+      <div class="result-grid">
+        <!-- Player 1 Stats -->
+        <div class="result-card" style="border-color: #F48FB1;">
+          <h2 style="color: #D81B60; margin: 0; font-size: 18px;">PLAYER 1</h2>
+          <div class="score-huge" style="color: #D81B60;" id="res-p1-score">0</div>
+          
+          <div class="stats-list">
+            <div><span style="color: #D81B60;">Benar:</span> <span id="res-p1-benar" style="color: #4CAF50;">0</span></div>
+            <div><span style="color: #D81B60;">Salah:</span> <span id="res-p1-salah" style="color: #F44336;">0</span></div>
+            <div><span style="color: #D81B60;">Akurasi:</span> <span id="res-p1-akurasi">0%</span></div>
+            <div><span style="color: #D81B60;">Max Combo:</span> <span id="res-p1-combo">0</span></div>
+          </div>
+          <div id="res-p1-gelar" class="gelar-badge" style="background: #D81B60;">🏅 CERDAS</div>
+        </div>
+
+        <!-- Player 2 Stats -->
+        <div class="result-card" style="border-color: #81D4FA;">
+          <h2 style="color: #0288D1; margin: 0; font-size: 18px;">PLAYER 2</h2>
+          <div class="score-huge" style="color: #0288D1;" id="res-p2-score">0</div>
+          
+          <div class="stats-list">
+            <div><span style="color: #0288D1;">Benar:</span> <span id="res-p2-benar" style="color: #4CAF50;">0</span></div>
+            <div><span style="color: #0288D1;">Salah:</span> <span id="res-p2-salah" style="color: #F44336;">0</span></div>
+            <div><span style="color: #0288D1;">Akurasi:</span> <span id="res-p2-akurasi">0%</span></div>
+            <div><span style="color: #0288D1;">Max Combo:</span> <span id="res-p2-combo">0</span></div>
+          </div>
+          <div id="res-p2-gelar" class="gelar-badge" style="background: #0288D1;">💪 TERUS BERLATIH</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn-action btn-play-again" onclick="GameApp.playAgain()">Main Lagi</button>
+        <button class="btn-action btn-reset-match" onclick="GameApp.resetMatch()">Reset Match</button>
+        <button class="btn-action btn-main-menu" onclick="GameApp.goToMenu()">Menu Utama</button>
+      </div>
+
     </div>
   </div>
 
 </div>
 
 <script>
-  const totalQuestions = 100; // Kuota soal aman
+/**
+ * MADASA GAME ARCHITECTURE
+ * Refactored by Senior HTML5 Game Developer
+ */
 
-  let p1 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
-  let p2 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
-
-  let timerInterval;
-  let timeLeft = 60; // Set 60 Detik untuk Countdown
-
-  const bgMusic = document.getElementById('bg-music');
-  const timerDisplay = document.getElementById('timer-display');
-
-  function updateTimerDisplay() {
-    timerDisplay.innerText = timeLeft;
-    
-    if (timeLeft <= 10) {
-      timerDisplay.classList.add('waktu-kritis');
-    } else {
-      timerDisplay.classList.remove('waktu-kritis');
+const GameConfig = {
+    totalQuestions: 100,
+    roundTime: 60,
+    ptsCorrect: 10,
+    ptsWrong: -5,
+    ptsSkip: 0,
+    comboBonuses: {
+        5: { text: "🔥 COMBO x5", pts: 20 },
+        10: { text: "⚡ SUPER COMBO x10", pts: 30 },
+        15: { text: "🚀 ULTRA COMBO x15", pts: 40 },
+        20: { text: "👑 LEGEND COMBO x20", pts: 50 },
+        25: { text: "💥 MEGA COMBO x25", pts: 75 },
+        30: { text: "💎 GODLIKE x30", pts: 100 }
     }
-  }
+};
 
-  function startTimer() {
-    clearInterval(timerInterval); 
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateTimerDisplay();
-      
-      if (timeLeft <= 0) { endGame(); }
-    }, 1000);
-  }
+// --- AUDIO SYNTHESIZER UNTUK SFX ---
+const AudioSFX = (function() {
+    let ctx = null;
+    function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+    function playTone(freq, type, duration, vol=0.1) {
+        if (!ctx) return;
+        let osc = ctx.createOscillator(); let gain = ctx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(vol, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + duration);
+    }
+    return {
+        correct: () => { init(); playTone(600, 'sine', 0.15, 0.1); },
+        wrong: () => { init(); playTone(150, 'sawtooth', 0.2, 0.1); },
+        combo: () => { init(); playTone(880, 'square', 0.1, 0.1); setTimeout(()=>playTone(1100, 'square', 0.2, 0.1), 100); },
+        win: () => { init(); [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.3, 0.2), i*150)); }
+    };
+})();
 
-  function stopTimer() { clearInterval(timerInterval); }
+// --- GENERATOR MUSIK 8-BIT RETRO BAWAAN (Pengganti MP3) ---
+const BGMPlayer = (function() {
+    let ctx = null;
+    let isPlaying = false;
+    let intervalId = null;
+    let step = 0;
 
-  function generateQuestions(modePilihan) {
-    let masterQuestions = []; 
-    let operators = [];
+    // Nada melodi bahagia (Arpeggio style) ala game lawas
+    const notes = [
+        261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 261.63, 329.63, 
+        349.23, 440.00, 523.25, 698.46, 523.25, 440.00, 349.23, 440.00  
+    ];
 
-    if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
-    else if (modePilihan === 'penjumlahan') { operators = ['+']; } 
-    else if (modePilihan === 'pengurangan') { operators = ['-']; } 
-    else if (modePilihan === 'perkalian') { operators = ['x']; } 
-    else if (modePilihan === 'pembagian') { operators = ['÷']; }
-    
-    for(let i=0; i < totalQuestions; i++) {
-      let op = operators[Math.floor(Math.random() * operators.length)];
-      let a, b, ans;
-
-      if (op === '+') {
-        a = Math.floor(Math.random() * 20) + 1;
-        b = Math.floor(Math.random() * 20) + 1;
-        ans = a + b;
-      } else if (op === '-') {
-        a = Math.floor(Math.random() * 19) + 2; 
-        b = Math.floor(Math.random() * (a - 1)) + 1; 
-        ans = a - b;
-      } else if (op === 'x') {
-        a = Math.floor(Math.random() * 10) + 1;
-        b = Math.floor(Math.random() * 10) + 1;
-        ans = a * b;
-      } else if (op === '÷') {
-        b = Math.floor(Math.random() * 10) + 1;
-        ans = Math.floor(Math.random() * 10) + 1;
-        a = b * ans;
-      }
-      
-      let w1, w2;
-      
-      do { w1 = ans + Math.floor(Math.random() * 5) + 1; } while (w1 === ans);
-      do {
-        let offset = Math.floor(Math.random() * 5) + 1;
-        w2 = (ans - offset > 0) ? (ans - offset) : (ans + offset + 2); 
-      } while (w2 === ans || w2 === w1);
-
-      let opts = [ans, w1, w2];
-      opts.sort(() => Math.random() - 0.5);
-
-      masterQuestions.push({ q: `${a} ${op} ${b}`, ans: ans, opts: opts });
+    function init() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
     }
 
-    p1.questions = [...masterQuestions].sort(() => Math.random() - 0.5);
-    p2.questions = [...masterQuestions].sort(() => Math.random() - 0.5);
-  }
-
-  function mulaiPermainanDenganMode(mode) {
-    try { bgMusic.currentTime = 0; bgMusic.play().catch(e => console.log(e)); } catch(err) {}
-
-    p1 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
-    p2 = { score: 0, correct: 0, wrong: 0, index: 0, questions: [] };
-    
-    document.getElementById('welcome-screen').style.display = 'none';
-    document.getElementById('p1-zone').classList.remove('belum-mulai');
-    document.getElementById('p2-zone').classList.remove('belum-mulai');
-    
-    document.getElementById('p1-skip').style.display = 'block';
-    document.getElementById('p2-skip').style.display = 'block';
-
-    generateQuestions(mode);
-    
-    loadQuestion(1); loadQuestion(2);
-
-    stopTimer(); timeLeft = 60; 
-    updateTimerDisplay(); startTimer();
-  }
-
-  function kembaliKeMenu() {
-    bgMusic.pause();
-
-    document.getElementById('result-screen').style.display = 'none';
-    document.getElementById('skor-sementara-screen').style.display = 'none';
-    
-    document.getElementById('p1-zone').classList.add('belum-mulai');
-    document.getElementById('p2-zone').classList.add('belum-mulai');
-    
-    document.getElementById('p1-q').innerText = "Soal";
-    document.getElementById('p2-q').innerText = "Soal";
-    document.getElementById('p1-options').innerHTML = "";
-    document.getElementById('p2-options').innerHTML = "";
-    
-    stopTimer(); timeLeft = 60; updateTimerDisplay();
-
-    document.getElementById('welcome-screen').style.display = 'flex';
-  }
-
-  function loadQuestion(player) {
-    let pData = player === 1 ? p1 : p2;
-    let prefix = player === 1 ? 'p1' : 'p2';
-
-    if (pData.index >= totalQuestions) {
-      document.getElementById(`${prefix}-q`).innerText = "SELESAI!";
-      document.getElementById(`${prefix}-options`).innerHTML = '';
-      document.getElementById(`${prefix}-skip`).style.display = 'none';
-      if (p1.index >= totalQuestions && p2.index >= totalQuestions) { endGame(); }
-      return;
+    function playNote(freq) {
+        if (!ctx) return;
+        let osc = ctx.createOscillator();
+        let gain = ctx.createGain();
+        osc.type = 'square'; // Suara 8-Bit Nintendo
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        
+        // Volume sangat rendah agar tidak mengganggu suara SFX / konsentrasi
+        gain.gain.setValueAtTime(0.02, ctx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
     }
 
-    let qData = pData.questions[pData.index];
-    document.getElementById(`${prefix}-q`).innerText = qData.q;
-    
-    let optsDiv = document.getElementById(`${prefix}-options`);
-    optsDiv.innerHTML = '';
-    
-    qData.opts.forEach(opt => {
-      let btn = document.createElement('button');
-      btn.className = 'btn-option'; btn.innerText = opt;
-      btn.onclick = () => checkAnswer(player, opt, qData.ans);
-      optsDiv.appendChild(btn);
-    });
-  }
-  
-  function munculkanNotifLucu(player, isCorrect) {
-    let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
-    let notif = document.createElement('div');
-    notif.className = 'notif-lucu';
-    
-    if (isCorrect) {
-      const pesanBenar = ["🤩 Yeyyy!", "🔥 Mantul!", "🎉 Gacor!", "😎 Jenius!", "🚀 Wuzzz!"];
-      notif.innerText = pesanBenar[Math.floor(Math.random() * pesanBenar.length)];
-      notif.style.color = "#4CAF50"; 
-    } else {
-      const pesanSalah = ["🙈 Waduh!", "🤪 Ngawur!", "😅 Hayoloh!", "🥴 Yhaa..", "💨 Meleset!"];
-      notif.innerText = pesanSalah[Math.floor(Math.random() * pesanSalah.length)];
-      notif.style.color = "#E91E63"; 
+    return {
+        play: () => {
+            init();
+            if (isPlaying) return;
+            isPlaying = true;
+            step = 0;
+            intervalId = setInterval(() => {
+                playNote(notes[step]);
+                step = (step + 1) % notes.length;
+            }, 220); // Tempo musik
+        },
+        stop: () => {
+            isPlaying = false;
+            clearInterval(intervalId);
+        }
+    };
+})();
+
+// --- GAME STATE ---
+class PlayerState {
+    constructor(id) {
+        this.id = id;
+        this.resetRound();
     }
+    resetRound() {
+        this.score = 0; this.correct = 0; this.wrong = 0;
+        this.index = 0; this.questions = [];
+        this.combo = 0; this.maxCombo = 0;
+    }
+    getAccuracy() {
+        let total = this.correct + this.wrong;
+        return total === 0 ? 0 : Math.round((this.correct / total) * 100);
+    }
+    getTitle() {
+        let acc = this.getAccuracy();
+        if(acc >= 90) return "👑 MASTER";
+        if(acc >= 80) return "🥇 HEBAT";
+        if(acc >= 70) return "🥈 CERDAS";
+        if(acc >= 60) return "🥉 SEMANGAT";
+        return "💪 TERUS BERLATIH";
+    }
+}
 
-    zone.appendChild(notif);
-    setTimeout(() => { notif.remove(); }, 1000);
-  }
+const State = {
+    mode: 'campuran',
+    timeLeft: GameConfig.roundTime,
+    timerInt: null,
+    match: { p1Wins: 0, p2Wins: 0, streakWinner: 0, streakCount: 0 },
+    p1: new PlayerState(1),
+    p2: new PlayerState(2)
+};
 
-  function checkAnswer(player, selected, correct) {
-    let pData = player === 1 ? p1 : p2;
-    let isCorrect = (selected === correct);
-    
-    munculkanNotifLucu(player, isCorrect);
-    
-    if (isCorrect) { pData.score += 10; pData.correct++; } 
-    else { pData.score -= 5; pData.wrong++; }
-    
-    pData.index++; loadQuestion(player);
-  }
+// --- VISUAL EFFECTS ---
+const FX = {
+    showNotif: (player, isCorrect) => {
+        let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+        let notif = document.createElement('div');
+        notif.className = 'notif-lucu';
+        notif.innerText = isCorrect ? ["🤩 Yeyyy!", "🔥 Mantul!", "🎉 Gacor!", "😎 Jenius!"][Math.floor(Math.random()*4)] 
+                                    : ["🙈 Waduh!", "🤪 Ngawur!", "😅 Hayoloh!", "💨 Meleset!"][Math.floor(Math.random()*4)];
+        notif.style.color = isCorrect ? "#4CAF50" : "#E91E63";
+        zone.appendChild(notif);
+        setTimeout(() => notif.remove(), 1000);
+    },
+    showComboBonus: (player, comboLevel, bonusPts) => {
+        let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+        let anim = document.createElement('div');
+        anim.className = 'combo-anim';
+        anim.innerHTML = `<div class="combo-title">${comboLevel}</div><div class="combo-bonus">+${bonusPts} BONUS</div>`;
+        zone.appendChild(anim);
+        AudioSFX.combo();
+        
+        if (bonusPts >= 100) {
+            let flash = document.createElement('div');
+            flash.className = 'godlike-overlay';
+            zone.appendChild(flash);
+            setTimeout(() => flash.remove(), 1000);
+        }
+        setTimeout(() => anim.remove(), 2000);
+    },
+    updateIngameUI: (playerObj) => {
+        let pId = playerObj.id;
+        document.getElementById(`p${pId}-ingame-score`).innerText = playerObj.score;
+        let comboUI = document.getElementById(`p${pId}-ingame-combo`);
+        if (playerObj.combo > 1) {
+            comboUI.innerText = `🔥 Combo x${playerObj.combo}`;
+            comboUI.style.opacity = 1;
+            comboUI.style.transform = `scale(${1 + (playerObj.combo * 0.05)})`;
+        } else {
+            comboUI.style.opacity = 0;
+            comboUI.style.transform = "scale(1)";
+        }
+    },
+    fireConfetti: () => {
+        const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#4CAF50', '#FFEB3B', '#FF9800'];
+        for (let i = 0; i < 100; i++) {
+            let conf = document.createElement('div');
+            conf.style.position = 'absolute'; conf.style.width = '10px'; conf.style.height = '10px';
+            conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-10px';
+            conf.style.zIndex = '9999'; conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(conf);
+            let duration = Math.random() * 2 + 2;
+            conf.animate([
+                { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+            ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)' }).onfinish = () => conf.remove();
+        }
+    }
+};
 
-  function skipQuestion(player) {
-    let pData = player === 1 ? p1 : p2;
-    if (pData.index < totalQuestions) { pData.index++; loadQuestion(player); }
-  }
+// --- GAME LOGIC CONTROLLER ---
+const GameApp = {
+    startMatch: (mode) => {
+        // Nyalakan Musik Sintetis 8-Bit
+        BGMPlayer.play();
 
-  function tampilkanSkorSaatIni() {
-    document.getElementById('cur-p1-dijawab').innerText = p1.correct + p1.wrong;
-    document.getElementById('cur-p1-benar').innerText = p1.correct;
-    document.getElementById('cur-p1-salah').innerText = p1.wrong;
+        State.mode = mode;
+        State.p1.resetRound(); State.p2.resetRound();
+        
+        document.getElementById('welcome-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        
+        ['p1', 'p2'].forEach(p => {
+            document.getElementById(`${p}-zone`).classList.remove('belum-mulai');
+            document.getElementById(`${p}-skip`).style.display = 'block';
+            FX.updateIngameUI(State[p]);
+        });
+        
+        GameApp.generateQuestions();
+        GameApp.loadQuestion(1); GameApp.loadQuestion(2);
+        
+        State.timeLeft = GameConfig.roundTime;
+        GameApp.updateTimer();
+        clearInterval(State.timerInt);
+        State.timerInt = setInterval(GameApp.tickTimer, 1000);
+    },
 
-    document.getElementById('cur-p2-dijawab').innerText = p2.correct + p2.wrong;
-    document.getElementById('cur-p2-benar').innerText = p2.correct;
-    document.getElementById('cur-p2-salah').innerText = p2.wrong;
+    playAgain: () => { GameApp.startMatch(State.mode); },
 
-    document.getElementById('skor-sementara-screen').style.display = 'flex';
-  }
+    resetMatch: () => {
+        State.match = { p1Wins: 0, p2Wins: 0, streakWinner: 0, streakCount: 0 };
+        GameApp.startMatch(State.mode);
+    },
 
-  function tutupSkor() { document.getElementById('skor-sementara-screen').style.display = 'none'; }
+    goToMenu: () => {
+        clearInterval(State.timerInt);
+        BGMPlayer.stop(); // Matikan Musik
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('p1-zone').classList.add('belum-mulai');
+        document.getElementById('p2-zone').classList.add('belum-mulai');
+        document.getElementById('welcome-screen').style.display = 'flex';
+    },
 
-  function endGame() {
-    stopTimer(); bgMusic.pause(); timerDisplay.classList.remove('waktu-kritis');
+    tickTimer: () => {
+        State.timeLeft--;
+        GameApp.updateTimer();
+        if(State.timeLeft <= 0) GameApp.endRound();
+    },
 
-    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong;
-    document.getElementById('p1-benar').innerText = p1.correct;
-    document.getElementById('p1-salah').innerText = p1.wrong;
+    updateTimer: () => {
+        let td = document.getElementById('timer-display');
+        td.innerText = State.timeLeft;
+        if (State.timeLeft <= 10 && State.timeLeft > 0) td.classList.add('waktu-kritis');
+        else td.classList.remove('waktu-kritis');
+    },
 
-    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong;
-    document.getElementById('p2-benar').innerText = p2.correct;
-    document.getElementById('p2-salah').innerText = p2.wrong;
+    generateQuestions: () => {
+        let qs = [];
+        let operators = [];
+        if (State.mode === 'campuran') operators = ['+', '-', 'x', '÷'];
+        else if (State.mode === 'penjumlahan') operators = ['+'];
+        else if (State.mode === 'pengurangan') operators = ['-'];
+        else if (State.mode === 'perkalian') operators = ['x'];
+        else if (State.mode === 'pembagian') operators = ['÷'];
 
-    document.getElementById('skor-sementara-screen').style.display = 'none';
-    document.getElementById('result-screen').style.display = 'flex';
-  }
+        for(let i=0; i<GameConfig.totalQuestions; i++) {
+            let op = operators[Math.floor(Math.random() * operators.length)];
+            let a, b, ans;
+            if (op === '+') { a = Math.floor(Math.random()*20)+1; b = Math.floor(Math.random()*20)+1; ans = a+b; }
+            else if (op === '-') { a = Math.floor(Math.random()*19)+2; b = Math.floor(Math.random()*(a-1))+1; ans = a-b; }
+            else if (op === 'x') { a = Math.floor(Math.random()*10)+1; b = Math.floor(Math.random()*10)+1; ans = a*b; }
+            else if (op === '÷') { b = Math.floor(Math.random()*10)+1; ans = Math.floor(Math.random()*10)+1; a = b*ans; }
+            
+            let w1, w2;
+            do { w1 = ans + Math.floor(Math.random()*5)+1; } while(w1===ans);
+            do { let off = Math.floor(Math.random()*5)+1; w2 = (ans-off>0)?(ans-off):(ans+off+2); } while(w2===ans || w2===w1);
+            
+            let opts = [ans, w1, w2].sort(()=>Math.random()-0.5);
+            qs.push({ q: `${a} ${op} ${b}`, ans: ans, opts: opts });
+        }
+        State.p1.questions = [...qs].sort(()=>Math.random()-0.5);
+        State.p2.questions = [...qs].sort(()=>Math.random()-0.5);
+    },
+
+    loadQuestion: (pId) => {
+        let pData = pId === 1 ? State.p1 : State.p2;
+        if(pData.index >= GameConfig.totalQuestions) {
+            document.getElementById(`p${pId}-q`).innerText = "SELESAI!";
+            document.getElementById(`p${pId}-options`).innerHTML = '';
+            document.getElementById(`p${pId}-skip`).style.display = 'none';
+            if(State.p1.index >= GameConfig.totalQuestions && State.p2.index >= GameConfig.totalQuestions) GameApp.endRound();
+            return;
+        }
+        let q = pData.questions[pData.index];
+        document.getElementById(`p${pId}-q`).innerText = q.q;
+        let optDiv = document.getElementById(`p${pId}-options`);
+        optDiv.innerHTML = '';
+        q.opts.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'btn-option'; btn.innerText = opt;
+            btn.onclick = () => GameApp.checkAnswer(pId, opt, q.ans);
+            optDiv.appendChild(btn);
+        });
+    },
+
+    checkAnswer: (pId, selected, correct) => {
+        let pData = pId === 1 ? State.p1 : State.p2;
+        let isCorrect = (selected === correct);
+        
+        FX.showNotif(pId, isCorrect);
+        
+        if (isCorrect) {
+            AudioSFX.correct();
+            pData.score += GameConfig.ptsCorrect;
+            pData.correct++;
+            pData.combo++;
+            if(pData.combo > pData.maxCombo) pData.maxCombo = pData.combo;
+            
+            let bonusData = GameConfig.comboBonuses[pData.combo];
+            if(bonusData) {
+                pData.score += bonusData.pts;
+                FX.showComboBonus(pId, bonusData.text, bonusData.pts);
+            }
+        } else {
+            AudioSFX.wrong();
+            pData.score += GameConfig.ptsWrong;
+            pData.wrong++;
+            pData.combo = 0;
+        }
+        
+        FX.updateIngameUI(pData);
+        pData.index++;
+        GameApp.loadQuestion(pId);
+    },
+
+    skipQuestion: (pId) => {
+        let pData = pId === 1 ? State.p1 : State.p2;
+        pData.combo = 0;
+        FX.updateIngameUI(pData);
+        pData.index++;
+        GameApp.loadQuestion(pId);
+    },
+
+    showMidGameScore: () => {
+        document.getElementById('cur-p1-score').innerText = State.p1.score;
+        document.getElementById('cur-p2-score').innerText = State.p2.score;
+        document.getElementById('skor-sementara-screen').style.display = 'flex';
+    },
+
+    endRound: () => {
+        clearInterval(State.timerInt);
+        BGMPlayer.stop(); // Matikan musik saat ronde usai
+        document.getElementById('timer-display').classList.remove('waktu-kritis');
+        document.getElementById('skor-sementara-screen').style.display = 'none';
+        
+        let p1 = State.p1, p2 = State.p2;
+        let winnerId = 0;
+        if(p1.score > p2.score) winnerId = 1;
+        else if(p2.score > p1.score) winnerId = 2;
+
+        if (winnerId === 1) {
+            State.match.p1Wins++;
+            if(State.match.streakWinner === 1) State.match.streakCount++; else { State.match.streakWinner = 1; State.match.streakCount = 1; }
+        } else if (winnerId === 2) {
+            State.match.p2Wins++;
+            if(State.match.streakWinner === 2) State.match.streakCount++; else { State.match.streakWinner = 2; State.match.streakCount = 1; }
+        } else {
+            State.match.streakWinner = 0; State.match.streakCount = 0;
+        }
+
+        GameApp.renderResultScreen(winnerId);
+        
+        if (winnerId !== 0) {
+            AudioSFX.win();
+            FX.fireConfetti();
+        }
+        
+        document.getElementById('result-screen').style.display = 'flex';
+    },
+
+    renderResultScreen: (winnerId) => {
+        let banner = document.getElementById('round-winner-banner');
+        let streak = document.getElementById('streak-banner');
+        if(winnerId === 1) { banner.className = "round-winner-banner win-p1"; banner.innerHTML = "🏆 PLAYER 1 MENANG!"; }
+        else if(winnerId === 2) { banner.className = "round-winner-banner win-p2"; banner.innerHTML = "🏆 PLAYER 2 MENANG!"; }
+        else { banner.className = "round-winner-banner win-draw"; banner.innerHTML = "🤝 DRAW"; }
+
+        if (State.match.streakCount > 1) {
+            streak.innerHTML = `🔥 WIN STREAK x${State.match.streakCount}`;
+            streak.style.display = 'block';
+        } else { streak.style.display = 'none'; }
+
+        document.getElementById('ms-p1-val').innerText = State.match.p1Wins;
+        document.getElementById('ms-p2-val').innerText = State.match.p2Wins;
+
+        [1, 2].forEach(id => {
+            let p = State[`p${id}`];
+            document.getElementById(`res-p${id}-score`).innerText = p.score;
+            document.getElementById(`res-p${id}-benar`).innerText = p.correct;
+            document.getElementById(`res-p${id}-salah`).innerText = p.wrong;
+            document.getElementById(`res-p${id}-akurasi`).innerText = p.getAccuracy() + "%";
+            document.getElementById(`res-p${id}-combo`).innerText = p.maxCombo;
+            document.getElementById(`res-p${id}-gelar`).innerText = p.getTitle();
+        });
+    }
+};
+
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
 </script>
-
 </body>
 </html>
