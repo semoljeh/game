@@ -4,12 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<!-- META TAG PWA -->
-<link rel="manifest" href="/manifest.json?v=3">
+<!-- META TAG PWA (Naik 1 folder mencari manifest) -->
+<link rel="manifest" href="../manifest.json?v=5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#176b39">
 
 <title>MADASA Buzzer</title>
 <style>
@@ -153,13 +152,14 @@ function init(){const r=(new URLSearchParams(location.search).get("room")||"").r
 if(window.FB)init();else window.addEventListener("firebase-ready",init,{once:true});
 </script>
 
-<!-- REGISTRASI SERVICE WORKER -->
+<!-- REGISTRASI SERVICE WORKER (Naik 1 folder mencari sw.js) -->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((reg) => console.log('Service Worker berhasil didaftarkan.', reg.scope))
-        .catch((err) => console.log('Pendaftaran Service Worker gagal.', err));
+      // Menggunakan ../sw.js agar mencari ke luar folder empatregu
+      navigator.serviceWorker.register('../sw.js')
+        .then((reg) => console.log('Service Worker Folder Dalam Terdaftar!'))
+        .catch((err) => console.log('Gagal mendaftar SW dari dalam', err));
     });
   }
 </script>
