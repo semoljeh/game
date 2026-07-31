@@ -17,366 +17,87 @@
 
 <style>
   /* --- PENGATURAN DASAR --- */
+  * { -webkit-tap-highlight-color: transparent; }
+  
   html, body { 
-    margin: 0; 
-    padding: 0;
-    width: 100%;
-    height: 100%;
+    margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif; 
     /* TEMA BAWAH LAUT: Gradien Biru Samudra */
     background: linear-gradient(to bottom, #001e3d 0%, #003566 40%, #006699 100%); 
-    color: #333; 
-    overflow: hidden; 
-    touch-action: manipulation; 
-    
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    color: #333; overflow: hidden; touch-action: manipulation; 
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  /* --- EFEK GETAR SAAT SALAH --- */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px) rotate(-2deg); }
+    75% { transform: translateX(10px) rotate(2deg); }
+  }
+  .shake-screen { animation: shake 0.3s ease-in-out; }
 
   /* --- PEMANDANGAN ALAM (BACKGROUND BAWAH LAUT) --- */
-  #scenery {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1; 
-    pointer-events: none; 
-    overflow: hidden;
-  }
-
-  /* Cahaya Terang dari Permukaan Air */
-  .sun-glow {
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(72, 202, 228, 0.6) 0%, rgba(0, 119, 182, 0) 70%);
-    border-radius: 50%;
-    animation: pulseGlow 5s infinite alternate ease-in-out;
-  }
-  @keyframes pulseGlow {
-    0% { transform: scale(1); opacity: 0.6; }
-    100% { transform: scale(1.3); opacity: 0.9; }
-  }
-
-  /* Gelembung Udara Hiasan Latar */
-  .bubble-bg {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    animation: riseBubble linear infinite;
-  }
+  #scenery { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: hidden; }
+  .sun-glow { position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(72, 202, 228, 0.6) 0%, rgba(0, 119, 182, 0) 70%); border-radius: 50%; animation: pulseGlow 5s infinite alternate ease-in-out; }
+  @keyframes pulseGlow { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.3); opacity: 0.9; } }
+  .bubble-bg { position: absolute; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 50%; animation: riseBubble linear infinite; }
   .b1 { width: 20px; height: 20px; left: 10%; bottom: -30px; animation-duration: 8s; animation-delay: 0s; }
   .b2 { width: 35px; height: 35px; left: 30%; bottom: -40px; animation-duration: 11s; animation-delay: 2s; }
   .b3 { width: 15px; height: 15px; left: 60%; bottom: -20px; animation-duration: 7s; animation-delay: 4s; }
   .b4 { width: 25px; height: 25px; left: 80%; bottom: -30px; animation-duration: 9s; animation-delay: 1s; }
   .b5 { width: 40px; height: 40px; left: 90%; bottom: -50px; animation-duration: 12s; animation-delay: 3s; }
-
-  @keyframes riseBubble {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
-    20% { opacity: 0.6; }
-    80% { opacity: 0.6; }
-    100% { transform: translateY(-120vh) translateX(-20px); opacity: 0; }
-  }
-
-  /* Gelombang Dasar Laut */
-  .sea-floor {
-    position: absolute;
-    border-radius: 50%;
-  }
-  .sea-back {
-    width: 150%; height: 35vh; left: -25%; bottom: -15vh;
-    background: #002b49; 
-  }
-  .sea-middle {
-    width: 120%; height: 30vh; right: -10%; bottom: -10vh;
-    background: #004974; 
-  }
-  .sea-front {
-    width: 140%; height: 25vh; left: -10%; bottom: -5vh;
-    background: #005f8e; 
-  }
+  @keyframes riseBubble { 0% { transform: translateY(0) translateX(0); opacity: 0; } 20% { opacity: 0.6; } 80% { opacity: 0.6; } 100% { transform: translateY(-120vh) translateX(-20px); opacity: 0; } }
+  .sea-floor { position: absolute; border-radius: 50%; }
+  .sea-back { width: 150%; height: 35vh; left: -25%; bottom: -15vh; background: #002b49; }
+  .sea-middle { width: 120%; height: 30vh; right: -10%; bottom: -10vh; background: #004974; }
+  .sea-front { width: 140%; height: 25vh; left: -10%; bottom: -5vh; background: #005f8e; }
 
   /* --- UI ATAS (SKOR & TARGET) --- */
-  #top-bar {
-    position: absolute;
-    top: 2vh; 
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between; 
-    align-items: flex-start;
-    z-index: 10;
-    padding: 0 4vw; 
-    box-sizing: border-box;
-  }
-
-  .ui-box {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1vh 3vw;
-    border-radius: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    font-size: clamp(16px, 4vmin, 24px); 
-    font-weight: 900;
-    border: 3px solid #00B4D8;
-    color: #0077B6;
-  }
-
-  #target-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #fff;
-    padding: 1vh 4vw 2vh 4vw; 
-    border-radius: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    border: 4px solid #00B4D8;
-    animation: pulseTarget 2s infinite;
-    margin: 0 10px;
-  }
+  #top-bar { position: absolute; top: 2vh; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: flex-start; z-index: 10; padding: 0 4vw; box-sizing: border-box; }
+  .ui-box { background: rgba(255, 255, 255, 0.95); padding: 1vh 3vw; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: clamp(16px, 4vmin, 24px); font-weight: 900; border: 3px solid #00B4D8; color: #0077B6; }
   
-  #target-text {
-    font-size: 18px;
-    color: #666;
-    margin-bottom: 5px;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  #target-letter {
-    font-size: clamp(45px, 12vmin, 85px); 
-    font-weight: 900;
-    color: #023E8A;
-    line-height: 1.2; 
-  }
-
-  @keyframes pulseTarget {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
+  #target-container { display: flex; flex-direction: column; align-items: center; background: #fff; padding: 1vh 4vw 2vh 4vw; border-radius: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 4px solid #00B4D8; animation: pulseTarget 2s infinite; margin: 0 10px; cursor: pointer; }
+  #target-container:active { transform: scale(0.95); animation: none; }
+  #target-text { font-size: 18px; color: #666; margin-bottom: 5px; font-weight: 800; white-space: nowrap; }
+  #target-letter { font-size: clamp(45px, 12vmin, 85px); font-weight: 900; color: #023E8A; line-height: 1.2; }
+  @keyframes pulseTarget { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
   /* --- AREA PERMAINAN --- */
-  #game-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    overflow: hidden;
-  }
+  #game-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; overflow: hidden; }
 
-  /* --- GELEMBUNG PERMAINAN (MENGGANTIKAN BALON) --- */
-  .game-bubble {
-    position: absolute;
-    bottom: -150px;
-    /* Dibuat sama rata agar bulat sempurna (lingkaran) */
-    width: clamp(75px, 16vmin, 110px); 
-    height: clamp(75px, 16vmin, 110px); 
-    /* Efek gradien memusat agar terlihat seperti gelembung mengkilap */
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), var(--b-color) 80%);
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: clamp(35px, 7.5vmin, 55px); 
-    color: white;
-    font-weight: 900;
-    /* Bayangan agar teks lebih mudah dibaca di atas gelembung berwarna terang */
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
-    cursor: pointer;
-    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2);
-    animation: floatUp linear forwards;
-    user-select: none;
-    transition: transform 0.1s;
-    z-index: 10;
-    box-sizing: border-box; 
-  }
-
-  /* Animasi mengecil sesaat ketika ditekan */
-  .game-bubble:active {
-    transform: scale(0.85);
-  }
-
-  @keyframes floatUp {
-    0% { bottom: -150px; transform: translateX(0) rotate(0deg); }
-    50% { transform: translateX(15px) rotate(5deg); }
-    100% { bottom: 110vh; transform: translateX(-15px) rotate(-5deg); }
-  }
+  /* --- GELEMBUNG PERMAINAN --- */
+  .game-bubble { position: absolute; bottom: -150px; width: clamp(75px, 16vmin, 110px); height: clamp(75px, 16vmin, 110px); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), var(--b-color) 80%); border: 2px solid rgba(255, 255, 255, 0.6); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: clamp(35px, 7.5vmin, 55px); color: white; font-weight: 900; text-shadow: 1px 1px 4px rgba(0,0,0,0.3); cursor: pointer; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2); animation: floatUp linear forwards; z-index: 10; box-sizing: border-box; }
+  .game-bubble:active { transform: scale(0.85); filter: brightness(1.2); }
+  @keyframes floatUp { 0% { bottom: -150px; transform: translateX(0) rotate(0deg); } 50% { transform: translateX(15px) rotate(5deg); } 100% { bottom: 110vh; transform: translateX(-15px) rotate(-5deg); } }
 
   /* --- ANIMASI SAAT DIPECAHKAN (POP!) --- */
-  .pop-anim {
-    position: absolute;
-    font-size: 35px;
-    font-weight: 900;
-    color: #00F5D4;
-    text-shadow: 2px 2px 0 #0077B6, -2px -2px 0 #0077B6, 2px -2px 0 #0077B6, -2px 2px 0 #0077B6;
-    pointer-events: none;
-    z-index: 20;
-    animation: popUp 1s ease-out forwards;
-  }
-
-  @keyframes popUp {
-    0% { transform: scale(0.5); opacity: 1; }
-    50% { transform: scale(1.5) translateY(-30px); opacity: 1; }
-    100% { transform: scale(1) translateY(-60px); opacity: 0; }
-  }
+  .pop-anim { position: absolute; font-size: 35px; font-weight: 900; color: #00F5D4; text-shadow: 2px 2px 0 #0077B6, -2px -2px 0 #0077B6, 2px -2px 0 #0077B6, -2px 2px 0 #0077B6; pointer-events: none; z-index: 20; animation: popUp 1s ease-out forwards; }
+  @keyframes popUp { 0% { transform: scale(0.5); opacity: 1; } 50% { transform: scale(1.5) translateY(-30px); opacity: 1; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
 
   /* --- LAYAR MENU & HASIL --- */
-  .screen {
-    display: none;
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 30, 61, 0.88); 
-    backdrop-filter: blur(8px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
+  .screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 30, 61, 0.88); backdrop-filter: blur(8px); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; }
+  h1 { font-size: clamp(30px, 8vw, 40px); color: #00F5D4; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 900; }
+  h2 { font-size: clamp(18px, 4vw, 22px); color: #FFB703; margin: 0 0 20px 0; font-weight: 800; }
+  p { font-size: clamp(14px, 3.5vw, 18px); max-width: 600px; color: #E0F1F7; line-height: 1.5; margin-bottom: 25px; font-weight: 700; }
+  .btn { padding: 15px 40px; font-size: clamp(18px, 5vw, 24px); font-weight: 900; background-color: #FB8500; color: white; border: 5px solid #FFF; border-radius: 40px; cursor: pointer; box-shadow: 0 8px 0 #D00000, 0 15px 20px rgba(0,0,0,0.5); transition: 0.1s; margin-bottom: 10px; }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  .btn-rotate { margin-top: 5px; background: #023E8A; color: white; border: 4px solid #FFF; border-radius: 30px; padding: 12px 30px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #03045E, 0 10px 15px rgba(0,0,0,0.5); transition: 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-rotate:active { transform: translateY(6px); box-shadow: 0 0 0; }
 
-  h1 { font-size: 40px; color: #00F5D4; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 900; }
-  h2 { font-size: 22px; color: #FFB703; margin: 0 0 20px 0; font-weight: 800; }
-  p { font-size: 18px; max-width: 600px; color: #E0F1F7; line-height: 1.5; margin-bottom: 25px; font-weight: 700; }
+  /* Lencana Developer */
+  .dev-link { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 6px 20px; font-size: 14px; color: #333; text-decoration: none; background: rgba(255, 255, 255, 0.95); border: 2px solid #00B4D8; border-radius: 25px; text-align: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); white-space: nowrap; z-index: 60; font-weight: 700; }
+  .dev-link strong { color: #FB8500; font-weight: 900; margin-left: 4px; }
 
-  .btn {
-    padding: 15px 40px;
-    font-size: 24px;
-    font-weight: 900;
-    background-color: #FB8500;
-    color: white;
-    border: 5px solid #FFF;
-    border-radius: 40px;
-    cursor: pointer;
-    box-shadow: 0 8px 0 #D00000, 0 15px 20px rgba(0,0,0,0.5);
-    transition: 0.1s;
-    font-family: inherit;
-    margin-bottom: 10px;
-  }
-  .btn:active {
-    transform: translateY(8px);
-    box-shadow: 0 0 0;
-  }
+  /* KONTROL ROTASI BISA KLIK */
+  #app-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.4s ease; transform-origin: center center; overflow: hidden; }
+  .layar-diputar { transform: rotate(90deg); width: 100vh !important; height: 100vw !important; top: 50% !important; left: 50% !important; margin-top: -50vw !important; margin-left: -50vh !important; }
 
-  .btn-rotate {
-    margin-top: 5px;
-    background: #023E8A; 
-    color: white; 
-    border: 4px solid #FFF;
-    border-radius: 30px; 
-    padding: 12px 30px; 
-    font-size: 18px;
-    font-weight: 900; 
-    cursor: pointer; 
-    box-shadow: 0 6px 0 #03045E, 0 10px 15px rgba(0,0,0,0.5);
-    font-family: inherit; 
-    transition: 0.1s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-rotate:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0;
-  }
-
-  /* --- LENCANA DEVELOPER --- */
-  .dev-link {
-    position: absolute; 
-    bottom: 20px; 
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 20px;
-    font-size: 14px;
-    color: #333;
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid #00B4D8;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    white-space: nowrap; 
-    z-index: 60;
-    font-weight: 700;
-  }
-  .dev-link strong {
-    color: #FB8500; 
-    font-size: 15px;
-    font-weight: 900;
-    margin-left: 4px;
-  }
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR KECIL / HP POTRAIT */
-  /* ============================================== */
-  @media (max-width: 650px) {
-    #target-text { font-size: 12px; }
-
-    h1 { font-size: 30px; }
-    h2 { font-size: 16px; margin-bottom: 10px;}
-    p { font-size: 14px; margin-bottom: 20px; }
-    
-    .btn { font-size: 18px; padding: 10px 25px; border-width: 3px; margin-bottom: 8px;}
-    .btn:active { transform: translateY(5px); box-shadow: 0 0 0;}
-    
-    .btn-rotate { font-size: 14px; padding: 8px 20px; border-width: 3px; box-shadow: 0 4px 0 #03045E, 0 6px 10px rgba(0,0,0,0.3);}
-    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
-    
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 10px; }
-    .dev-link strong { font-size: 12px; }
-  }
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS MODE LAYAR MIRING (LANDSCAPE) */
-  /* ============================================== */
   @media (orientation: landscape) and (max-height: 600px) {
     #top-bar { top: 10px; padding: 0 15px; }
-    
     #target-container { flex-direction: row; gap: 15px; padding: 5px 25px; border-radius: 20px; }
-    
-    #target-text { font-size: 14px; margin-bottom: 0; }
-    #target-letter { font-size: 40px; }
-    
-    h1 { font-size: 26px; margin-bottom: 5px; }
-    h2 { font-size: 16px; margin-bottom: 5px; }
-    p { font-size: 14px; margin-bottom: 15px; }
-    
-    .btn { padding: 8px 20px; font-size: 16px; box-shadow: 0 4px 0 #D00000; margin-bottom: 5px; border-width: 3px;}
-    .btn:active { transform: translateY(4px); box-shadow: 0 0 0; }
-    
-    .btn-rotate { font-size: 14px; padding: 6px 15px; margin-top: 5px; box-shadow: 0 4px 0 #03045E; border-width: 3px;}
-    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
-    
-    .dev-link { bottom: 5px; padding: 4px 12px; font-size: 10px; }
-    .dev-link strong { font-size: 11px; }
-  }
-
-  /* --- KONTROL ROTASI BISA KLIK --- */
-  #app-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    transition: transform 0.4s ease;
-    transform-origin: center center;
-    overflow: hidden;
-  }
-  .layar-diputar {
-    transform: rotate(90deg);
-    width: 100vh !important;
-    height: 100vw !important;
-    top: 50% !important;
-    left: 50% !important;
-    margin-top: -50vw !important;
-    margin-left: -50vh !important;
+    #target-text { font-size: 14px; margin-bottom: 0; } #target-letter { font-size: 40px; }
+    .btn { padding: 8px 20px; font-size: 16px; border-width: 3px;}
   }
 </style>
 </head>
@@ -387,23 +108,15 @@
 <!-- PEMANDANGAN ALAM / BACKGROUND BARU (BAWAH LAUT) -->
 <div id="scenery">
   <div class="sun-glow"></div>
-  
-  <div class="bubble-bg b1"></div>
-  <div class="bubble-bg b2"></div>
-  <div class="bubble-bg b3"></div>
-  <div class="bubble-bg b4"></div>
-  <div class="bubble-bg b5"></div>
-
-  <div class="sea-floor sea-back"></div>
-  <div class="sea-floor sea-middle"></div>
-  <div class="sea-floor sea-front"></div>
+  <div class="bubble-bg b1"></div><div class="bubble-bg b2"></div><div class="bubble-bg b3"></div><div class="bubble-bg b4"></div><div class="bubble-bg b5"></div>
+  <div class="sea-floor sea-back"></div><div class="sea-floor sea-middle"></div><div class="sea-floor sea-front"></div>
 </div>
 
 <!-- Layar Sambutan -->
 <div id="welcome-screen" class="screen" style="display: flex;">
   <h1>🌊 Gelembung Angka 1-22 🌊</h1>
   <h2>Bermain & Belajar bersama MADASA!</h2>
-  <p>Pecahkan gelembung yang angkanya sama dengan yang diminta ya! Jangan sampai salah pilih. Siap?</p>
+  <p>Pecahkan gelembung yang angkanya sama dengan yang diminta ya! Jangan sampai salah pilih. Tekan kotaknya jika kamu lupa bunyinya.</p>
   
   <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
   <button class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
@@ -416,10 +129,12 @@
 <!-- Layar Permainan -->
 <div id="top-bar" style="display: none;">
   <div class="ui-box">⏱️ <span id="time-display">60</span>s</div>
-  <div id="target-container">
+  
+  <div id="target-container" onclick="putarSuara(currentTarget)">
     <div id="target-text">Tangkap:</div>
-    <div id="target-letter">1</div>
+    <div id="target-letter"><span id="the-letter">1</span></div>
   </div>
+  
   <div class="ui-box">⭐ <span id="score-display">0</span></div>
 </div>
 
@@ -444,15 +159,13 @@
 
 </div>
 
-<!-- --- MUSIK LATAR --- -->
+<!-- --- MUSIK LATAR LOKAL --- -->
 <audio id="bg-music" loop>
   <source src="asset/lucu.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-  function putarLayar() {
-    document.getElementById('app-container').classList.toggle('layar-diputar');
-  }
+  function putarLayar() { document.getElementById('app-container').classList.toggle('layar-diputar'); }
 
   // KHUSUS ANGKA 1 - 22
   const karakterBelajar = [
@@ -463,24 +176,65 @@
   const bubbleColors = ['#F44336', '#9C27B0', '#3F51B5', '#03A9F4', '#4CAF50', '#8BC34A', '#FFEB3B', '#FF9800', '#FF5722'];
   const pujianBenar = ["Pintar!", "Hebat!", "Masya Allah!", "Bagus!", "Horeee!"];
 
-  let score = 0;
-  let timeLeft = 60;
-  let currentTarget = '';
-  let gameInterval;
-  let spawnInterval;
-  let isPlaying = false;
+  const bgMusic = document.getElementById('bg-music');
 
+  // --- MESIN SUARA EFEK (LETUSAN & SALAH) ---
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  function playPopSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+  }
+
+  function playWrongSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+  }
+
+  // --- FUNGSI MEMANGGIL SUARA ANGKA ---
+  function putarSuara(angka) {
+    // Memanggil file langsung sesuai angka (misal: 1.mp3, 2.mp3, dst.)
+    let audioAngka = new Audio(`asset/suara/${angka}.mp3`);
+    
+    // Auto-ducking BGM
+    let originalVolume = bgMusic.volume;
+    bgMusic.volume = 0.2; 
+    
+    audioAngka.play().catch(e => console.log("Gagal memutar: asset/suara/" + angka + ".mp3"));
+    
+    audioAngka.onended = function() {
+        bgMusic.volume = originalVolume;
+    };
+  }
+
+  let score = 0, timeLeft = 60, currentTarget = '', gameInterval, spawnInterval, isPlaying = false;
   const gameArea = document.getElementById('game-area');
-  const targetLetterDisplay = document.getElementById('target-letter');
   const scoreDisplay = document.getElementById('score-display');
   const timeDisplay = document.getElementById('time-display');
-  
-  const bgMusic = document.getElementById('bg-music');
 
   function setNewTarget() {
     const randomIndex = Math.floor(Math.random() * karakterBelajar.length);
     currentTarget = karakterBelajar[randomIndex];
-    targetLetterDisplay.innerText = currentTarget;
+    document.getElementById('the-letter').innerText = currentTarget;
+    
+    // Otomatis bunyikan saat target berubah
+    putarSuara(currentTarget);
   }
 
   function createBubble() {
@@ -488,86 +242,60 @@
 
     const bubble = document.createElement('div');
     bubble.className = 'game-bubble';
-    
-    let posisiAkhir = Math.floor(Math.random() * 75) + 10;
-    bubble.style.left = posisiAkhir + '%';
-    
-    const randomColor = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-    bubble.style.setProperty('--b-color', randomColor);
+    bubble.style.left = (Math.floor(Math.random() * 75) + 10) + '%';
+    bubble.style.setProperty('--b-color', bubbleColors[Math.floor(Math.random() * bubbleColors.length)]);
 
     const randomSpeed = Math.random() * 4 + 6;
     bubble.style.animationDuration = randomSpeed + 's';
 
-    let letterInside;
-    if (Math.random() < 0.3) {
-      letterInside = currentTarget;
-    } else {
-      letterInside = karakterBelajar[Math.floor(Math.random() * karakterBelajar.length)];
-    }
-    
+    let letterInside = (Math.random() < 0.3) ? currentTarget : karakterBelajar[Math.floor(Math.random() * karakterBelajar.length)];
     bubble.innerText = letterInside;
 
-    bubble.addEventListener('pointerdown', (e) => {
+    bubble.addEventListener('pointerdown', () => {
       if(bubble.style.opacity === '0') return; 
-      
-      let bX = bubble.offsetLeft + 50; 
-      let bY = bubble.offsetTop;
+      let bX = bubble.offsetLeft + 50, bY = bubble.offsetTop;
 
       if (letterInside === currentTarget) {
+        playPopSound();
         score += 10;
         scoreDisplay.innerText = score;
         showPopText(bX, bY, pujianBenar[Math.floor(Math.random() * pujianBenar.length)], '#00F5D4');
         
-        bubble.style.opacity = '0';
-        bubble.style.transform = 'scale(0)';
-        
+        bubble.style.opacity = '0'; bubble.style.transform = 'scale(0)';
         setNewTarget();
       } else {
+        playWrongSound();
+        document.body.classList.add('shake-screen');
+        setTimeout(() => document.body.classList.remove('shake-screen'), 300);
+
         showPopText(bX, bY, "Oops!", '#FF5722');
-        bubble.style.opacity = '0';
-        bubble.style.transform = 'scale(0)';
+        bubble.style.opacity = '0'; bubble.style.transform = 'scale(0)';
       }
     });
 
     gameArea.appendChild(bubble);
-
-    setTimeout(() => {
-      if (bubble.parentNode) {
-        bubble.remove();
-      }
-    }, randomSpeed * 1000);
+    setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, randomSpeed * 1000);
   }
 
   function showPopText(x, y, text, color) {
     const pop = document.createElement('div');
-    pop.className = 'pop-anim';
-    pop.innerText = text;
-    pop.style.left = (x - 40) + 'px';
-    pop.style.top = (y - 40) + 'px';
-    pop.style.color = color;
-    
+    pop.className = 'pop-anim'; pop.innerText = text; pop.style.color = color;
+    pop.style.left = (x - 40) + 'px'; pop.style.top = (y - 40) + 'px';
     document.getElementById('game-area').appendChild(pop);
-    
-    setTimeout(() => {
-      pop.remove();
-    }, 1000);
+    setTimeout(() => pop.remove(), 1000);
   }
 
   function startGame() {
+    clearInterval(gameInterval); clearInterval(spawnInterval);
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('top-bar').style.display = 'flex';
     
-    if (bgMusic.paused) {
-      bgMusic.play().catch(error => {
-        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
-      });
-    }
-    
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    bgMusic.play().catch(e => console.log("Auto-play dicekal browser"));
+
     gameArea.innerHTML = '';
-    
-    score = 0;
-    timeLeft = 60;
+    score = 0; timeLeft = 60;
     scoreDisplay.innerText = score;
     timeDisplay.innerText = timeLeft;
     isPlaying = true;
@@ -575,11 +303,8 @@
     setNewTarget();
 
     gameInterval = setInterval(() => {
-      timeLeft--;
-      timeDisplay.innerText = timeLeft;
-      if (timeLeft <= 0) {
-        endGame();
-      }
+      timeLeft--; timeDisplay.innerText = timeLeft;
+      if (timeLeft <= 0) endGame();
     }, 1000);
 
     spawnInterval = setInterval(createBubble, 1000);
@@ -587,9 +312,7 @@
 
   function endGame() {
     isPlaying = false;
-    clearInterval(gameInterval);
-    clearInterval(spawnInterval);
-    
+    clearInterval(gameInterval); clearInterval(spawnInterval);
     document.getElementById('top-bar').style.display = 'none';
     document.getElementById('result-screen').style.display = 'flex';
     document.getElementById('final-score').innerText = score;
