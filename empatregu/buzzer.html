@@ -1,35 +1,93 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MADASA Buzzer</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,Arial;background:#eaf6ee;overflow:hidden}
-.setup{min-height:100dvh;display:grid;place-items:center;padding:14px;background:linear-gradient(145deg,#effaf2,#dff2e5)}.card{width:min(440px,100%);background:#fff;border-radius:25px;padding:22px;box-shadow:0 20px 60px #19563029;text-align:center}h1{color:#176b39;margin:0 0 5px}p{color:#64786d;font-weight:700;font-size:13px}input{width:100%;font-size:30px;text-align:center;letter-spacing:7px;font-weight:1000;border:2px solid #d7e7dc;border-radius:15px;padding:11px}
-.status{margin:10px 0;padding:9px;border-radius:11px;background:#eef7f1;color:#557066;font-size:12px;font-weight:900}.status.ok{background:#e6f8ec;color:#14743a}.status.bad{background:#fff0f0;color:#b42323}
-.teams{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.teams button{border:0;border-radius:15px;padding:15px;color:#fff;font-size:24px;font-weight:1000;cursor:pointer}.t1{background:#ef4444}.t2{background:#3b82f6}.t3{background:#22c55e}.t4{background:#f59e0b}.teams button.hide{display:none}.teams button.taken,.teams button:disabled{background:#c8ceca!important;color:#78827c!important;opacity:.58;filter:grayscale(1);cursor:not-allowed;pointer-events:none}.teams button.taken:after{content:"  TERISI";display:block;font-size:9px;letter-spacing:1px}
-#buzz{display:none;position:fixed;inset:0;width:100vw;height:100dvh;border:0;color:#fff;align-items:center;justify-content:center;font-size:min(58vw,58vh);font-weight:1000;user-select:none;-webkit-user-select:none;touch-action:none;text-shadow:0 8px 20px #0003}#buzz:after{content:"";position:absolute;inset:15px;border:5px solid #ffffff99;border-radius:40px}#buzz.down{filter:brightness(1.28)}#buzz.locked{filter:grayscale(.8) brightness(.65)}
-</style></head><body>
-<div class="setup" id="setup"><div class="card"><h1>⚡ Gabung Buzzer</h1><p>Masukkan kode ROOM dari layar juri. Regu tidak perlu membuat room.</p><input id="room" inputmode="numeric" maxlength="4" placeholder="0000"><div id="status" class="status">Masukkan 4 digit kode ROOM.</div><div class="teams"><button class="t1" onclick="join(1)">1</button><button class="t2" onclick="join(2)">2</button><button class="t3" onclick="join(3)">3</button><button class="t4" onclick="join(4)">4</button></div></div></div>
+.setup{min-height:100dvh;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#effaf2,#dff2e5)}
+.card{width:100%;max-width:400px;background:#fff;border-radius:25px;padding:clamp(15px, 5vw, 30px);box-shadow:0 20px 60px #19563029;text-align:center}
+h1{color:#176b39;margin:0 0 5px; font-size:clamp(24px, 6vw, 30px);}
+p{color:#64786d;font-weight:700;font-size:clamp(12px, 3vw, 14px); line-height:1.4;}
+input{width:100%;font-size:clamp(24px, 8vw, 36px);text-align:center;letter-spacing:7px;font-weight:1000;border:2px solid #d7e7dc;border-radius:15px;padding:12px; margin-top:10px;}
+.status{margin:15px 0;padding:10px;border-radius:11px;background:#eef7f1;color:#557066;font-size:12px;font-weight:900}.status.ok{background:#e6f8ec;color:#14743a}.status.bad{background:#fff0f0;color:#b42323}
+
+.teams{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.teams button{border:0;border-radius:15px;padding:clamp(15px, 4vw, 20px);color:#fff;font-size:clamp(20px, 6vw, 28px);font-weight:1000;cursor:pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s;}.teams button:active{transform: scale(0.95);}
+.t1{background:#ef4444}.t2{background:#3b82f6}.t3{background:#22c55e}.t4{background:#f59e0b}
+.teams button.hide{display:none}.teams button.taken,.teams button:disabled{background:#c8ceca!important;color:#78827c!important;opacity:.58;filter:grayscale(1);cursor:not-allowed;pointer-events:none}.teams button.taken:after{content:"  TERISI";display:block;font-size:9px;letter-spacing:1px; margin-top:5px;}
+
+#buzz{display:none;position:fixed;inset:0;width:100vw;height:100dvh;border:0;color:#fff;align-items:center;justify-content:center;font-size:min(50vw,50vh);font-weight:1000;user-select:none;-webkit-user-select:none;touch-action:none;text-shadow:0 8px 20px rgba(0,0,0,0.3)}
+#buzz:after{content:"";position:absolute;inset:20px;border:clamp(5px, 2vw, 10px) solid rgba(255,255,255,0.4);border-radius:clamp(30px, 8vw, 60px)}
+#buzz.down{filter:brightness(1.28) saturate(1.2); transform: scale(0.98);}
+#buzz.locked{filter:grayscale(.8) brightness(.65)}
+
+/* FITUR POPUP SOAL DI HP YANG RESPONSIVE */
+#btn-show-q { display: none; position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; color: #176b39; border: 2px solid #176b39; border-radius: 20px; padding: 10px 20px; font-weight: 900; box-shadow: 0 5px 15px rgba(0,0,0,0.2); font-size: clamp(12px, 3vw, 16px); cursor: pointer; transition: 0.2s;}
+#btn-show-q:active { transform: scale(0.9); }
+
+#q-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: #fff; padding: clamp(15px, 5vw, 25px); border-radius: 25px; z-index: 101; box-shadow: 0 15px 50px rgba(0,0,0,0.5); color: #176b39; text-align: center; max-height: 85vh; overflow-y: auto; border: 4px solid #176b39;}
+#q-text { font-size: clamp(16px, 4.5vw, 22px); font-weight: 800; line-height: 1.4; margin: 15px 0; color: #1e293b; }
+#q-timer { font-size: clamp(28px, 8vw, 40px); font-weight: 900; color: #dc2626; margin-top: 15px; background: #fee2e2; border-radius: 15px; padding: 10px; border: 2px dashed #f87171; font-variant-numeric: tabular-nums; transition: 0.3s;}
+#q-timer.answer-mode { background: #fef3c7; border-color: #f59e0b; color: #d97706; }
+
+#btn-close-q { margin-top: 20px; background: #ef4444; color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 900; width: 100%; font-size: clamp(14px, 4vw, 18px); cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);}
+#btn-close-q:active { transform: scale(0.95); }
+#modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 100; backdrop-filter: blur(3px);}
+</style>
+</head>
+<body>
+
+<div class="setup" id="setup">
+  <div class="card">
+    <h1>⚡ Gabung Buzzer</h1><p>Masukkan kode ROOM dari layar juri. Regu tidak perlu membuat room.</p>
+    <input id="room" inputmode="numeric" maxlength="4" placeholder="0000">
+    <div id="status" class="status">Masukkan 4 digit kode ROOM.</div>
+    <div class="teams"><button class="t1" onclick="join(1)">1</button><button class="t2" onclick="join(2)">2</button><button class="t3" onclick="join(3)">3</button><button class="t4" onclick="join(4)">4</button></div>
+  </div>
+</div>
+
 <button id="buzz"></button>
+
+<button id="btn-show-q" onpointerdown="event.stopPropagation(); toggleQ()">📖 Buka Soal</button>
+<div id="modal-backdrop" onpointerdown="event.stopPropagation(); toggleQ()"></div>
+<div id="q-modal" onpointerdown="event.stopPropagation()">
+  <h3 style="margin:0; border-bottom: 2px dashed #cbd5e1; padding-bottom: 10px;">Pertanyaan Saat Ini</h3>
+  <div id="q-text">Menunggu soal dari juri...</div>
+  <div id="q-timer">00:00</div>
+  <button id="btn-close-q" onpointerdown="event.stopPropagation(); toggleQ()">Tutup & Siap Memencet!</button>
+</div>
+
 <script type="module">
-
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import {getDatabase,ref,get,onValue,runTransaction,set,onDisconnect} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-const firebaseConfig={
-    apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
-    authDomain: "madasagame.firebaseapp.com",
-    projectId: "madasagame",
-    storageBucket: "madasagame.firebasestorage.app",
-    messagingSenderId: "394583790148",
-    appId: "1:394583790148:web:d20af0e57771a63bf5e211",
-    databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import {getDatabase,ref,get,onValue,runTransaction,set,onDisconnect} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  const firebaseConfig={
+      apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
+      authDomain: "madasagame.firebaseapp.com",
+      projectId: "madasagame",
+      storageBucket: "madasagame.firebasestorage.app",
+      messagingSenderId: "394583790148",
+      appId: "1:394583790148:web:d20af0e57771a63bf5e211",
+      databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
-const app=initializeApp(firebaseConfig),db=getDatabase(app);
-window.FB={db,ref,get,onValue,runTransaction,set,onDisconnect};window.__FB_READY__=true;window.dispatchEvent(new Event("firebase-ready"));
-
+  const app=initializeApp(firebaseConfig),db=getDatabase(app);
+  window.FB={db,ref,get,onValue,runTransaction,set,onDisconnect};window.__FB_READY__=true;window.dispatchEvent(new Event("firebase-ready"));
 </script>
+
 <script>
 let room="",team=0,mode="idle",teamCount=4,canBuzz=false,availabilityUnsub=null,gameUnsub=null;
+let qOpen = false;
+
 const input=document.getElementById("room"),statusEl=document.getElementById("status"),buzz=document.getElementById("buzz"),buttons=[...document.querySelectorAll(".teams button")];
 const colors={1:"#ef4444",2:"#3b82f6",3:"#22c55e",4:"#f59e0b"};
+
+function toggleQ() {
+    qOpen = !qOpen;
+    document.getElementById("q-modal").style.display = qOpen ? "block" : "none";
+    document.getElementById("modal-backdrop").style.display = qOpen ? "block" : "none";
+}
+
 function used(o,n){return !!o&&(o[n]===true||o[String(n)]===true)}
 function paint(c={}){buttons.forEach((b,i)=>{const n=i+1;b.classList.toggle("hide",n>teamCount);const x=n<=teamCount&&used(c,n);b.disabled=x;b.classList.toggle("taken",x)})}
 async function watch(){
@@ -46,7 +104,33 @@ async function join(n){
  if(!tr.committed){watch();return alert("Regu "+n+" sudah terisi.")}
  team=n;if(availabilityUnsub)availabilityUnsub();FB.onDisconnect(claim).set(false);FB.onDisconnect(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team)).set(false);
  buzz.textContent=team;buzz.style.background=colors[team];buzz.style.display="flex";document.getElementById("setup").style.display="none";
- gameUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+room),s=>{const x=s.val()||{};mode=x.mode||"lobby";const bz=x.buzzer||{},ex=bz.excluded||{};canBuzz=mode==="quiz"&&bz.open===true&&(bz.winner==null)&&!used(ex,team);buzz.classList.toggle("locked",mode==="quiz"&&!canBuzz)});
+ 
+ gameUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+room),s=>{
+    const x=s.val()||{};mode=x.mode||"lobby";
+    const bz=x.buzzer||{},ex=bz.excluded||{};
+    canBuzz=mode==="quiz"&&bz.open===true&&(bz.winner==null)&&!used(ex,team);
+    buzz.classList.toggle("locked",mode==="quiz"&&!canBuzz);
+    
+    if (mode === "quiz") {
+        document.getElementById("btn-show-q").style.display = "block";
+        document.getElementById("q-text").textContent = x.currentQuestion || "Menunggu soal...";
+        
+        let tLeft = x.timerLeft || 0;
+        const qt = document.getElementById("q-timer");
+        qt.textContent = "00:" + String(Math.max(0, tLeft)).padStart(2, "0");
+        
+        if (x.timerMode === "answer") {
+            qt.classList.add("answer-mode");
+        } else {
+            qt.classList.remove("answer-mode");
+        }
+    } else {
+        document.getElementById("btn-show-q").style.display = "none";
+        document.getElementById("q-modal").style.display = "none";
+        document.getElementById("modal-backdrop").style.display = "none";
+        qOpen = false;
+    }
+ });
 }
 async function down(){
  if(!window.FB||!room||!team)return;buzz.classList.add("down");
@@ -59,4 +143,5 @@ input.addEventListener("input",()=>setTimeout(watch,70));buzz.addEventListener("
 window.join=join;
 function init(){const r=(new URLSearchParams(location.search).get("room")||"").replace(/\D/g,"").slice(0,4);if(r.length===4)input.value=r;watch()}
 if(window.FB)init();else window.addEventListener("firebase-ready",init,{once:true});
-</script></body></html>
+</script>
+</body></html>

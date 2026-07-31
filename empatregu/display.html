@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MADASA Quiz - Layar Proyektor</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; font-family: Inter, system-ui, Arial, sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+  
+  body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%); background-size: 80px 80px; background-position: 0 0, 40px 40px; animation: drift 20s linear infinite; pointer-events: none; z-index: -1; }
+  @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(80px) rotate(5deg); } }
+
+  #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
+  #setup h1 { font-size: clamp(24px, 5vw, 40px); margin-bottom: 20px; color: #38bdf8; }
+  #setup input { font-size: clamp(30px, 6vw, 50px); padding: 15px; text-align: center; border-radius: 15px; border: 4px solid #38bdf8; outline: none; font-weight: 900; letter-spacing: 10px; width: 100%; max-width: 350px; }
+  #setup button { font-size: clamp(20px, 4vw, 30px); padding: 15px 40px; margin-top: 25px; background: #10b981; color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; width: 100%; max-width: 350px;}
+  #setup button:active { transform: scale(0.95); }
+
+  #game-board { display: none; flex-direction: column; min-height: 100vh; width: min(1300px, 100%); margin: 0 auto; padding: 12px 20px; justify-content: space-between; }
+  .header { text-align: center; font-size: clamp(16px, 2vw, 22px); font-weight: 900; letter-spacing: 2px; color: #94a3b8; margin-bottom: 5px; }
+  
+  .question-container { position: relative; background: #ffffff; color: #0f172a; flex: 1; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 45px 30px 30px 30px; text-align: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); border: 6px solid #38bdf8; margin: 25px 0 10px 0; transition: 0.3s;}
+  
+  .timer-box { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display:flex; flex-direction:column; align-items:center; z-index: 10;}
+  .timer-label { font-size: 11px; font-weight: 900; color: #fff; background: rgba(0,0,0,0.75); padding: 3px 12px; border-radius: 10px; margin-bottom: 3px; display: none; letter-spacing: 1px;}
+  
+  #d-timer { font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; transition: 0.3s;}
+  #d-timer.answer-mode { background: #f59e0b; }
+  #d-timer.danger { animation: pulse 0.5s infinite alternate; background: #991b1b !important; }
+  @keyframes pulse { to { transform: scale(1.08); } }
+
+  #d-q { font-size: clamp(22px, 3vw, 42px); font-weight: 1000; line-height: 1.35; word-wrap: break-word; max-width: 100%; }
+  #d-ans { display: none; margin-top: 15px; font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: #16a34a; background: #dcfce7; padding: 8px 30px; border-radius: 15px; border: 3px dashed #16a34a; }
+
+  .teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%; margin-top: 10px; margin-bottom: 10px;}
+  .team { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 4px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 12px; text-align: center; transition: 0.3s; }
+  .team.hide { display: none; }
+  .team-name { font-size: clamp(16px, 2vw, 22px); font-weight: 900; color: #cbd5e1; margin-bottom: 5px; }
+  .score { font-size: clamp(40px, 5vw, 60px); font-weight: 1000; color: #fff; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  
+  .t1 { border-bottom-color: #ef4444; } .t2 { border-bottom-color: #3b82f6; }
+  .t3 { border-bottom-color: #22c55e; } .t4 { border-bottom-color: #f59e0b; }
+
+  .team.win { background: #facc15; border-color: #fff; color: #000; transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(250,204,21,0.4); animation: glow 0.5s infinite alternate;}
+  .team.win .team-name { color: #000; }
+  .team.win .score { color: #000; text-shadow: none; }
+  @keyframes glow { to { box-shadow: 0 0 30px rgba(250,204,21,0.8); } }
+
+  .big-notif { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; animation: popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; -webkit-text-stroke: 3px #fff; }
+  @keyframes popZoom { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <h1>DISPLAY PROYEKTOR</h1>
+  <input id="room" type="number" placeholder="KODE" maxlength="4">
+  <button onclick="connectRoom()">TAMPILKAN</button>
+</div>
+
+<div id="game-board">
+  <div class="header">ROOM: <span id="d-room" style="color: #38bdf8;">----</span></div>
+  
+  <div class="question-container" id="q-container">
+    <div class="timer-box">
+       <div class="timer-label" id="d-timer-label">WAKTU MENJAWAB!</div>
+       <div id="d-timer">00:00</div>
+    </div>
+    <div id="d-q">Menunggu kuis dimulai...</div>
+    <div id="d-ans"></div>
+  </div>
+
+  <div class="teams" id="teams">
+    <div class="team t1" id="team1"><div class="team-name">REGU 1</div><div class="score" id="s1">0</div></div>
+    <div class="team t2" id="team2"><div class="team-name">REGU 2</div><div class="score" id="s2">0</div></div>
+    <div class="team t3" id="team3"><div class="team-name">REGU 3</div><div class="score" id="s3">0</div></div>
+    <div class="team t4" id="team4"><div class="team-name">REGU 4</div><div class="score" id="s4">0</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  const firebaseConfig = {
+      apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
+      authDomain: "madasagame.firebaseapp.com",
+      projectId: "madasagame",
+      storageBucket: "madasagame.firebasestorage.app",
+      messagingSenderId: "394583790148",
+      appId: "1:394583790148:web:d20af0e57771a63bf5e211",
+      databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+  const app = initializeApp(firebaseConfig), db = getDatabase(app);
+  window.FB = { db, ref, onValue };
+</script>
+<script>
+  let room = "", roomUnsub = null, lastWinner = null;
+  function showNotif(text, color) {
+      let notif = document.createElement('div');
+      notif.className = 'big-notif'; notif.innerHTML = text; notif.style.color = color;
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 1500);
+  }
+  function connectRoom() {
+      if(!window.FB) return;
+      room = document.getElementById("room").value;
+      if(room.length !== 4) return alert("Masukkan 4 digit kode room dari juri.");
+      
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("game-board").style.display = "flex";
+      document.getElementById("d-room").textContent = room;
+      
+      if(roomUnsub) roomUnsub();
+      
+      // Mendengarkan perubahan data room secara utuh, termasuk objek scores
+      roomUnsub = FB.onValue(FB.ref(FB.db, "quiz4/" + room), snap => {
+          const d = snap.val();
+          if(!d) return;
+          const teamCount = d.teamCount || 4;
+          for(let i=1; i<=4; i++) { document.getElementById("team"+i).classList.toggle("hide", i > teamCount); }
+          
+          document.getElementById("d-q").textContent = d.currentQuestion || "Persiapan...";
+          const ansBox = document.getElementById("d-ans");
+          
+          if(d.showAnswer === true && d.currentAnswer) {
+              ansBox.style.display = "inline-block";
+              ansBox.textContent = "JAWABAN: " + d.currentAnswer;
+          } else { ansBox.style.display = "none"; }
+          
+          const timerLeft = d.timerLeft || 0;
+          const t = document.getElementById("d-timer");
+          const lbl = document.getElementById("d-timer-label");
+          const qc = document.getElementById("q-container");
+          
+          t.textContent = "00:" + String(Math.max(0, timerLeft)).padStart(2,"0");
+          t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0);
+          
+          if(d.timerMode === "answer") {
+              t.classList.add("answer-mode");
+              lbl.style.display = "block";
+              qc.style.borderColor = "#f59e0b";
+          } else {
+              t.classList.remove("answer-mode");
+              lbl.style.display = "none";
+              qc.style.borderColor = "#38bdf8";
+          }
+
+          // PERBAIKAN: Sinkronisasi Skor Real-time dari database
+          const scores = d.scores || {};
+          const winner = d.buzzer?.winner ?? null;
+          
+          for(let i=1; i<=4; i++) {
+              // Mengambil nilai skor dengan aman (mendukung key angka maupun string)
+              let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
+              document.getElementById("s"+i).textContent = currentScore;
+              document.getElementById("team"+i).classList.toggle("win", +winner === i);
+          }
+          
+          if (winner && winner !== lastWinner && d.mode === "quiz") {
+              const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"};
+              showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]);
+          }
+          lastWinner = winner;
+      });
+  }
+</script>
+</body>
+</html>
