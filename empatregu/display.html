@@ -42,6 +42,9 @@
   .t1 { border-bottom-color: #ef4444; } .t2 { border-bottom-color: #3b82f6; }
   .t3 { border-bottom-color: #22c55e; } .t4 { border-bottom-color: #f59e0b; }
 
+  /* Efek Berkedip / Menyala saat Tes Buzzer di Lobby */
+  .team.pressed { transform: scale(1.05); border-color: #facc15 !important; background: rgba(250,204,21,0.25); box-shadow: 0 0 25px #facc15; }
+
   .team.win { background: #facc15; border-color: #fff; color: #000; transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(250,204,21,0.4); animation: glow 0.5s infinite alternate;}
   .team.win .team-name { color: #000; }
   .team.win .score { color: #000; text-shadow: none; }
@@ -113,12 +116,29 @@
       
       if(roomUnsub) roomUnsub();
       
-      // Mendengarkan perubahan data room secara utuh, termasuk objek scores
       roomUnsub = FB.onValue(FB.ref(FB.db, "quiz4/" + room), snap => {
           const d = snap.val();
           if(!d) return;
           const teamCount = d.teamCount || 4;
-          for(let i=1; i<=4; i++) { document.getElementById("team"+i).classList.toggle("hide", i > teamCount); }
+          const mode = d.mode || "lobby";
+          const pressed = d.pressed || {};
+          const scores = d.scores || {};
+          const winner = d.buzzer?.winner ?? null;
+
+          for(let i=1; i<=4; i++) { 
+              const teamEl = document.getElementById("team"+i);
+              teamEl.classList.toggle("hide", i > teamCount); 
+              
+              // Menambahkan efek berkedip/menyala jika tombol buzzer ditekan saat di lobby
+              teamEl.classList.toggle("pressed", mode === "lobby" && pressed[i] === true);
+              
+              // Sinkronisasi status pemenang saat kuis berjalan
+              teamEl.classList.toggle("win", mode === "quiz" && +winner === i);
+              
+              // Sinkronisasi skor real-time
+              let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
+              document.getElementById("s"+i).textContent = currentScore;
+          }
           
           document.getElementById("d-q").textContent = d.currentQuestion || "Persiapan...";
           const ansBox = document.getElementById("d-ans");
@@ -145,19 +165,8 @@
               lbl.style.display = "none";
               qc.style.borderColor = "#38bdf8";
           }
-
-          // PERBAIKAN: Sinkronisasi Skor Real-time dari database
-          const scores = d.scores || {};
-          const winner = d.buzzer?.winner ?? null;
           
-          for(let i=1; i<=4; i++) {
-              // Mengambil nilai skor dengan aman (mendukung key angka maupun string)
-              let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
-              document.getElementById("s"+i).textContent = currentScore;
-              document.getElementById("team"+i).classList.toggle("win", +winner === i);
-          }
-          
-          if (winner && winner !== lastWinner && d.mode === "quiz") {
+          if (winner && winner !== lastWinner && mode === "quiz") {
               const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"};
               showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]);
           }
