@@ -13,7 +13,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#173c29;}
+/* DITAMBAHKAN ANTI COPAS DI SINI */
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html,body{
+  margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#173c29;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 body{ min-height:100dvh; background: linear-gradient(135deg, #10b981 0%, #059669 100%); overflow-x: hidden; position: relative; }
 body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 10%); background-size: 60px 60px; background-position: 0 0, 30px 30px; animation: drift 15s linear infinite; pointer-events: none; z-index: -1; }
@@ -43,7 +53,12 @@ h1{font-size:clamp(18px,2.2vw,24px);margin:0;color:#176b39; text-shadow: 1px 1px
 .top-actions > * { flex: 1; min-width: 130px; text-align: center; }
 
 .room{background:#fff;border:2px dashed #15803d;border-radius:12px;padding:10px 12px;font-weight:900; color:#15803d; display: flex; align-items: center; justify-content: center;}
-button,select,input{font:inherit}button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+
+/* Tambahan izin blok teks khusus untuk form input & select */
+button,select,input{font:inherit}
+select,input{user-select: auto; -webkit-user-select: auto;}
+button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+
 .blue{background:#2878e8;color:white}.green{background:#15803d;color:white}.purple{background:#7c3aed;color:white}.amber{background:#f59e0b;color:#3f2a00}.red{background:#dc2626;color:white}.gray{background:#64748b;color:white}
 
 .setup{background:#ffffffdd;border:1px solid #dbe9df;border-radius:20px;padding:10px;display:flex;justify-content:center;gap:9px;flex-wrap:wrap;align-items:end}
@@ -108,7 +123,9 @@ button:not(:disabled):hover{filter:brightness(1.05);box-shadow:0 5px 12px rgba(0
 button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96);box-shadow:inset 0 3px 6px rgba(0,0,0,0.2)!important;filter:brightness(.95)}
 </style>
 </head>
-<body>
+
+<!-- DITAMBAHKAN ATRIBUT ANTI KLIK KANAN DAN COPAS -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <!-- CUSTOM ALERT MODAL CONTAINER -->
 <div class="custom-alert-overlay" id="customAlertOverlay">
