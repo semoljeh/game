@@ -1,4 +1,5 @@
-const CACHE_NAME = 'madasa-game-cache-v1';
+// UBAH VERSI KE v3 AGAR CACHE LAMA (v2) TERHAPUS
+const CACHE_NAME = 'madasa-game-cache-v3'; 
 
 // Daftar semua file yang akan disimpan agar bisa dimainkan offline
 const urlsToCache = [
@@ -11,6 +12,9 @@ const urlsToCache = [
   './kuis.html',
   './hitung.html',
   './angka.html',
+  './buzzer.html',   // File Buzzer
+  './display.html',  // <-- FILE DISPLAY DITAMBAHKAN KE SINI
+  './host.html',     // <-- FILE HOST DITAMBAHKAN AGAR LENGKAP
   './manifest.json',
   './asset/logo.png'
 ];
@@ -24,6 +28,8 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
+  // Memaksa service worker baru untuk langsung aktif
+  self.skipWaiting();
 });
 
 // Proses Fetch (Mengambil data dari cache saat offline)
@@ -53,6 +59,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Memastikan semua tab langsung menggunakan service worker terbaru
+      return self.clients.claim();
     })
   );
 });
