@@ -12,12 +12,23 @@
 
 <title>MADASA Buzzer</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,Arial;background:#eaf6ee;overflow:hidden}
+/* DITAMBAHKAN ANTI COPAS DI SINI */
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html,body{
+  margin:0;width:100%;height:100%;font-family:Inter,system-ui,Arial;background:#eaf6ee;overflow:hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .setup{min-height:100dvh;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#effaf2,#dff2e5)}
 .card{width:100%;max-width:400px;background:#fff;border-radius:25px;padding:clamp(15px, 5vw, 30px);box-shadow:0 20px 60px #19563029;text-align:center}
 h1{color:#176b39;margin:0 0 5px; font-size:clamp(24px, 6vw, 30px);}
 p{color:#64786d;font-weight:700;font-size:clamp(12px, 3vw, 14px); line-height:1.4;}
-input{width:100%;font-size:clamp(24px, 8vw, 36px);text-align:center;letter-spacing:7px;font-weight:1000;border:2px solid #d7e7dc;border-radius:15px;padding:12px; margin-top:10px;}
+/* Agar input tetap bisa diketik meskipun ada anti-copas */
+input{width:100%;font-size:clamp(24px, 8vw, 36px);text-align:center;letter-spacing:7px;font-weight:1000;border:2px solid #d7e7dc;border-radius:15px;padding:12px; margin-top:10px; user-select: auto; -webkit-user-select: auto;}
 .status{margin:15px 0;padding:10px;border-radius:11px;background:#eef7f1;color:#557066;font-size:12px;font-weight:900}.status.ok{background:#e6f8ec;color:#14743a}.status.bad{background:#fff0f0;color:#b42323}
 
 .teams{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
@@ -44,7 +55,9 @@ input{width:100%;font-size:clamp(24px, 8vw, 36px);text-align:center;letter-spaci
 #modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 100; backdrop-filter: blur(3px);}
 </style>
 </head>
-<body>
+
+<!-- DITAMBAHKAN ATRIBUT ANTI KLIK KANAN DAN COPAS -->
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <div class="setup" id="setup">
   <div class="card">
@@ -83,6 +96,8 @@ input{width:100%;font-size:clamp(24px, 8vw, 36px);text-align:center;letter-spaci
 </script>
 
 <script>
+
+
 let room="",team=0,mode="idle",teamCount=4,canBuzz=false,availabilityUnsub=null,gameUnsub=null;
 let qOpen = false;
 
@@ -93,7 +108,30 @@ function toggleQ() {
     qOpen = !qOpen;
     document.getElementById("q-modal").style.display = qOpen ? "block" : "none";
     document.getElementById("modal-backdrop").style.display = qOpen ? "block" : "none";
+
+    // --- LOGIKA ANTI KELUAR PWA (BACK BUTTON) ---
+    if (qOpen) {
+        // Saat pop-up terbuka, buat riwayat halaman semu
+        try { history.pushState({ modal: 'soal' }, null, ''); } catch(e) {}
+    } else {
+        // Saat pop-up ditutup manual (tekan tombol/latar), hapus riwayat semunya
+        try {
+            if (history.state && history.state.modal === 'soal') {
+                history.back();
+            }
+        } catch(e) {}
+    }
 }
+
+// Mendeteksi saat tombol "Kembali/Back" di HP ditekan
+window.addEventListener('popstate', function(event) {
+    // Jika pop-up sedang terbuka, tutup pop-up tersebut
+    if (qOpen) {
+        qOpen = false;
+        document.getElementById("q-modal").style.display = "none";
+        document.getElementById("modal-backdrop").style.display = "none";
+    }
+});
 
 function used(o,n){return !!o&&(o[n]===true||o[String(n)]===true)}
 function paint(c={}){buttons.forEach((b,i)=>{const n=i+1;b.classList.toggle("hide",n>teamCount);const x=n<=teamCount&&used(c,n);b.disabled=x;b.classList.toggle("taken",x)})}
