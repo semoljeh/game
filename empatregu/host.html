@@ -7,7 +7,7 @@
 
 
 <!-- META TAG PWA (Naik 1 folder mencari manifest) -->
-<link rel="manifest" href="../manifest.json?v=5">
+<link rel="manifest" href="../manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -302,8 +302,8 @@ function fillSubjects(){
 function code(){return String(Math.floor(1000+Math.random()*9000))}
 function buzzerUrl(){const u=new URL("buzzer.html",location.href);if(room)u.searchParams.set("room",room);return u.toString()}
 function displayUrl(){const u=new URL("display.html",location.href);if(room)u.searchParams.set("room",room);return u.toString()}
-function openBuzzerPage(){window.open(buzzerUrl(),"_blank")}
-function openDisplayPage(){window.open(displayUrl(),"_blank")}
+function openBuzzerPage(){ window.location.href = buzzerUrl(); }
+function openDisplayPage(){ window.location.href = displayUrl(); }
 
 function renderQR(){
  const j=document.getElementById("join");j.hidden=!room;if(!room)return;
