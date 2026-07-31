@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<!-- TAMBAHKAN 3 BARIS INI -->
-<link rel="manifest" href="manifest.json">
+<!-- META TAG PWA -->
+<link rel="manifest" href="/manifest.json?v=3">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#176b39">
 
 <title>MADASA Buzzer</title>
 <style>
@@ -150,4 +152,16 @@ window.join=join;
 function init(){const r=(new URLSearchParams(location.search).get("room")||"").replace(/\D/g,"").slice(0,4);if(r.length===4)input.value=r;watch()}
 if(window.FB)init();else window.addEventListener("firebase-ready",init,{once:true});
 </script>
+
+<!-- REGISTRASI SERVICE WORKER -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => console.log('Service Worker berhasil didaftarkan.', reg.scope))
+        .catch((err) => console.log('Pendaftaran Service Worker gagal.', err));
+    });
+  }
+</script>
+
 </body></html>
