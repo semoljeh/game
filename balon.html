@@ -8,716 +8,309 @@
 <title>MADASA - Tangkap Balon Hijaiyah</title>
 <meta name="description" content="Game edukasi Islam untuk anak TK/RA. Mari belajar huruf hijaiyah dengan menangkap balon!">
 
-<!-- --- FAVICON & ICON --- -->
-<link rel="icon" type="image/png" href="icon/icon-192x192.png">
-<link rel="apple-touch-icon" href="icon/icon-192x192.png">
-
-<!-- --- OPEN GRAPH (UNTUK SHARE WA / SOSMED) --- -->
-<meta property="og:title" content="MADASA! Game Tangkap Balon Hijaiyah">
-<meta property="og:description" content="Ayo belajar huruf Hijaiyah dengan seru! Tangkap balon-balonnya sebelum terbang jauh.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://sdialhayat.github.io/game/">
-<meta property="og:image" content="https://sdialhayat.github.io/game/icon/icon-192x192.png">
-<meta property="og:image:secure_url" content="https://sdialhayat.github.io/game/icon/icon-192x192.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="192">
-<meta property="og:image:height" content="192">
-
-<!-- --- GOOGLE FONTS (PENTING AGAR FONT KONSISTEN DI HP) --- -->
+<!-- --- GOOGLE FONTS --- -->
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
   /* --- PENGATURAN DASAR --- */
   html, body { 
-    margin: 0; 
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    /* Memastikan font Nunito dipanggil di seluruh elemen */
+    margin: 0; padding: 0; width: 100%; height: 100%;
     font-family: 'Nunito', 'Segoe UI', sans-serif; 
     background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 100%); 
-    color: #333; 
-    overflow: hidden; 
-    touch-action: manipulation; 
-    
-    /* Mencegah seleksi teks (copy paste) */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    color: #333; overflow: hidden; touch-action: manipulation; 
+    -webkit-touch-callout: none; -webkit-user-select: none;
     user-select: none;
   }
 
-  /* --- PEMANDANGAN ALAM (BACKGROUND) --- */
-  #scenery {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1; 
-    pointer-events: none; 
-    overflow: hidden;
+  /* Efek Getar Saat Salah */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px) rotate(-2deg); }
+    75% { transform: translateX(10px) rotate(2deg); }
   }
+  .shake-screen { animation: shake 0.3s ease-in-out; }
 
-  /* Matahari diposisikan paling pojok kanan atas agar tidak mengenai kotak skor */
-  .sun {
-    position: absolute;
-    top: -20px; right: -20px;
-    width: 110px; height: 110px;
-    background: #FFEB3B;
-    border-radius: 50%;
-    box-shadow: 0 0 40px #FF9800, 0 0 80px #FFEB3B;
-    animation: pulseSun 4s infinite alternate;
-  }
-  @keyframes pulseSun {
-    0% { transform: scale(1); box-shadow: 0 0 30px #FF9800, 0 0 60px #FFEB3B; }
-    100% { transform: scale(1.1); box-shadow: 0 0 50px #FF9800, 0 0 100px #FFEB3B; }
-  }
-
-  /* Awan Statis (Diposisikan di area bawah/tengah agar area atas bersih) */
-  .cloud {
-    position: absolute;
-    background: #fff;
-    border-radius: 100px;
-    width: 160px; height: 50px;
-    opacity: 0.6;
-  }
-  .cloud::after {
-    content: ''; position: absolute; background: #fff;
-    width: 70px; height: 70px; border-radius: 50%;
-    top: -30px; left: 25px;
-  }
-  .cloud::before {
-    content: ''; position: absolute; background: #fff;
-    width: 90px; height: 90px; border-radius: 50%;
-    top: -45px; right: 25px;
-  }
-
-  /* Posisi awan dijauhkan dari pojok kiri/kanan atas */
+  /* --- PEMANDANGAN ALAM --- */
+  #scenery { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: hidden; }
+  .sun { position: absolute; top: -20px; right: -20px; width: 110px; height: 110px; background: #FFEB3B; border-radius: 50%; box-shadow: 0 0 40px #FF9800, 0 0 80px #FFEB3B; animation: pulseSun 4s infinite alternate; }
+  @keyframes pulseSun { 0% { transform: scale(1); box-shadow: 0 0 30px #FF9800, 0 0 60px #FFEB3B; } 100% { transform: scale(1.1); box-shadow: 0 0 50px #FF9800, 0 0 100px #FFEB3B; } }
+  .cloud { position: absolute; background: #fff; border-radius: 100px; width: 160px; height: 50px; opacity: 0.6; }
+  .cloud::after { content: ''; position: absolute; background: #fff; width: 70px; height: 70px; border-radius: 50%; top: -30px; left: 25px; }
+  .cloud::before { content: ''; position: absolute; background: #fff; width: 90px; height: 90px; border-radius: 50%; top: -45px; right: 25px; }
   .c1 { top: 40%; left: 5%; opacity: 0.4; }
   .c2 { top: 55%; right: 10%; transform: scale(0.7); opacity: 0.4; }
+  .hill { position: absolute; border-radius: 50%; }
+  .hill-back { width: 150%; height: 35vh; left: -25%; bottom: -15vh; background: #558B2F; }
+  .hill-middle { width: 120%; height: 30vh; right: -10%; bottom: -10vh; background: #7CB342; }
+  .hill-front { width: 140%; height: 25vh; left: -10%; bottom: -5vh; background: #8BC34A; }
 
-  /* Bukit Hijau Berlapis */
-  .hill {
-    position: absolute;
-    border-radius: 50%;
-  }
-  .hill-back {
-    width: 150%; height: 35vh; left: -25%; bottom: -15vh;
-    background: #558B2F; 
-  }
-  .hill-middle {
-    width: 120%; height: 30vh; right: -10%; bottom: -10vh;
-    background: #7CB342; 
-  }
-  .hill-front {
-    width: 140%; height: 25vh; left: -10%; bottom: -5vh;
-    background: #8BC34A; 
-  }
-
-  /* --- UI ATAS (SKOR & TARGET) --- */
-  #top-bar {
-    position: absolute;
-    top: 2vh; 
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between; 
-    align-items: flex-start;
-    z-index: 10;
-    padding: 0 4vw; 
-    box-sizing: border-box;
-  }
-
-  .ui-box {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1vh 3vw;
-    border-radius: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    font-size: clamp(16px, 4vmin, 24px); 
-    font-weight: 900;
-    border: 3px solid #FFD700;
-    color: #ff8c00;
-  }
-
-  #target-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #fff;
-    padding: 1vh 4vw 2vh 4vw; 
-    border-radius: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border: 4px solid #4CAF50;
-    animation: pulseTarget 2s infinite;
-    margin: 0 10px;
-  }
-  
-  #target-text {
-    font-size: 18px;
-    color: #666;
-    margin-bottom: 5px;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  #target-letter {
-    font-size: clamp(45px, 12vmin, 85px); 
-    font-weight: 900;
-    color: #E91E63;
-    line-height: 1.2; 
-  }
-
-  @keyframes pulseTarget {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
+  /* --- UI ATAS --- */
+  #top-bar { position: absolute; top: 2vh; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: flex-start; z-index: 10; padding: 0 4vw; box-sizing: border-box; }
+  .ui-box { background: rgba(255, 255, 255, 0.95); padding: 1vh 3vw; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: clamp(16px, 4vmin, 24px); font-weight: 900; border: 3px solid #FFD700; color: #ff8c00; }
+  #target-container { display: flex; flex-direction: column; align-items: center; background: #fff; padding: 1vh 4vw 2vh 4vw; border-radius: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 4px solid #4CAF50; animation: pulseTarget 2s infinite; margin: 0 10px; cursor: pointer;}
+  #target-text { font-size: 18px; color: #666; margin-bottom: 5px; font-weight: 800; white-space: nowrap; }
+  #target-letter { font-size: clamp(45px, 12vmin, 85px); font-weight: 900; color: #E91E63; line-height: 1.2; }
+  @keyframes pulseTarget { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
   /* --- AREA PERMAINAN --- */
-  #game-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    overflow: hidden;
-  }
+  #game-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; overflow: hidden; }
 
   /* --- BALON --- */
-  .balloon {
-    position: absolute;
-    bottom: -150px;
-    width: clamp(70px, 15vmin, 100px); 
-    height: clamp(90px, 18.75vmin, 125px); 
-    background-color: var(--b-color);
-    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: clamp(40px, 8vmin, 60px); 
-    color: white;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: inset -8px -8px 15px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1);
-    animation: floatUp linear forwards;
-    user-select: none;
-    transition: transform 0.1s;
-    z-index: 10;
-    padding-bottom: 12px; 
-    box-sizing: border-box; 
-  }
+  .balloon { position: absolute; bottom: -150px; width: clamp(70px, 15vmin, 100px); height: clamp(90px, 18.75vmin, 125px); background-color: var(--b-color); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; display: flex; justify-content: center; align-items: center; font-size: clamp(40px, 8vmin, 60px); color: white; font-weight: 900; cursor: pointer; box-shadow: inset -8px -8px 15px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1); animation: floatUp linear forwards; z-index: 10; padding-bottom: 12px; box-sizing: border-box; }
+  .balloon::before { content: ''; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid var(--b-color); }
+  .balloon::after { content: ''; position: absolute; bottom: -45px; left: 50%; width: 2px; height: 35px; background: rgba(0,0,0,0.2); }
+  .balloon:active { transform: scale(0.9); filter: brightness(1.2); }
+  @keyframes floatUp { 0% { bottom: -150px; transform: translateX(0) rotate(0deg); } 50% { transform: translateX(10px) rotate(3deg); } 100% { bottom: 110vh; transform: translateX(-10px) rotate(-3deg); } }
 
-  /* Tali Balon */
-  .balloon::before {
-    content: '';
-    position: absolute;
-    bottom: -14px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 14px solid var(--b-color);
-  }
-
-  /* Benang Balon */
-  .balloon::after {
-    content: '';
-    position: absolute;
-    bottom: -45px;
-    left: 50%;
-    width: 2px;
-    height: 35px;
-    background: rgba(0,0,0,0.2);
-  }
-
-  .balloon:active {
-    transform: scale(0.9);
-  }
-
-  @keyframes floatUp {
-    0% { bottom: -150px; transform: translateX(0) rotate(0deg); }
-    50% { transform: translateX(10px) rotate(3deg); }
-    100% { bottom: 110vh; transform: translateX(-10px) rotate(-3deg); }
-  }
-
-  /* --- ANIMASI SAAT DITANGKAP (POP!) --- */
-  .pop-anim {
-    position: absolute;
-    font-size: 35px;
-    font-weight: 900;
-    color: #4CAF50;
-    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
-    pointer-events: none;
-    z-index: 20;
-    animation: popUp 1s ease-out forwards;
-  }
-
-  @keyframes popUp {
-    0% { transform: scale(0.5); opacity: 1; }
-    50% { transform: scale(1.5) translateY(-30px); opacity: 1; }
-    100% { transform: scale(1) translateY(-60px); opacity: 0; }
-  }
+  /* --- ANIMASI POP --- */
+  .pop-anim { position: absolute; font-size: 35px; font-weight: 900; text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; pointer-events: none; z-index: 20; animation: popUp 1s ease-out forwards; }
+  @keyframes popUp { 0% { transform: scale(0.5); opacity: 1; } 50% { transform: scale(1.5) translateY(-30px); opacity: 1; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
 
   /* --- LAYAR MENU & HASIL --- */
-  .screen {
-    display: none;
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
+  .screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 20px; box-sizing: border-box; }
   h1 { font-size: 40px; color: #4CAF50; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-weight: 900; }
   h2 { font-size: 22px; color: #E91E63; margin: 0 0 20px 0; font-weight: 800; }
   p { font-size: 18px; max-width: 600px; color: #555; line-height: 1.5; margin-bottom: 25px; font-weight: 700; }
+  .btn { padding: 15px 40px; font-size: 24px; font-weight: 900; background-color: #FF9800; color: white; border: 5px solid #FFF; border-radius: 40px; cursor: pointer; box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3); transition: 0.1s; margin-bottom: 10px; }
+  .btn:active { transform: translateY(8px); box-shadow: 0 0 0; }
+  
+  /* Lencana Developer */
+  .dev-link { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 6px 20px; font-size: 14px; color: #555; text-decoration: none; background: rgba(255, 255, 255, 0.9); border: 2px solid #FFD700; border-radius: 25px; text-align: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); white-space: nowrap; z-index: 60; font-weight: 700; }
+  .dev-link strong { color: #FF9800; font-weight: 900; margin-left: 4px; }
 
-  .btn {
-    padding: 15px 40px;
-    font-size: 24px;
-    font-weight: 900;
-    background-color: #FF9800;
-    color: white;
-    border: 5px solid #FFF;
-    border-radius: 40px;
-    cursor: pointer;
-    box-shadow: 0 8px 0 #E65100, 0 15px 20px rgba(0,0,0,0.3);
-    transition: 0.1s;
-    font-family: inherit;
-    margin-bottom: 10px;
-  }
-  .btn:active {
-    transform: translateY(8px);
-    box-shadow: 0 0 0;
-  }
+  /* KONTROL ROTASI */
+  #app-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.4s ease; transform-origin: center center; overflow: hidden; }
+  .layar-diputar { transform: rotate(90deg); width: 100vh !important; height: 100vw !important; top: 50% !important; left: 50% !important; margin-top: -50vw !important; margin-left: -50vh !important; }
 
-  /* --- DESAIN TOMBOL PUTAR (DI DALAM MENU) --- */
-  .btn-rotate {
-    margin-top: 5px;
-    background: #9C27B0; 
-    color: white; 
-    border: 4px solid #FFF;
-    border-radius: 30px; 
-    padding: 12px 30px; 
-    font-size: 18px;
-    font-weight: 900; 
-    cursor: pointer; 
-    box-shadow: 0 6px 0 #7B1FA2, 0 10px 15px rgba(0,0,0,0.3);
-    font-family: inherit; 
-    transition: 0.1s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-rotate:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0;
-  }
-
-  /* --- LENCANA DEVELOPER --- */
-  .dev-link {
-    position: absolute; 
-    bottom: 20px; 
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 20px;
-    font-size: 14px;
-    color: #555;
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid #FFD700;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    white-space: nowrap; 
-    z-index: 60;
-    font-weight: 700;
-  }
-  .dev-link strong {
-    color: #FF9800; 
-    font-size: 15px;
-    font-weight: 900;
-    margin-left: 4px;
-  }
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS LAYAR KECIL / HP POTRAIT */
-  /* ============================================== */
+  /* RESPONSIVE */
   @media (max-width: 650px) {
-    #target-text { font-size: 12px; }
-    
-    .sun { width: 75px; height: 75px; right: -10px; top: -10px; }
-
-    h1 { font-size: 30px; }
-    h2 { font-size: 16px; margin-bottom: 10px;}
-    p { font-size: 14px; margin-bottom: 20px; }
-    
-    .btn { font-size: 18px; padding: 10px 25px; border-width: 3px; margin-bottom: 8px;}
-    .btn:active { transform: translateY(5px); box-shadow: 0 0 0;}
-    
-    .btn-rotate { font-size: 14px; padding: 8px 20px; border-width: 3px; box-shadow: 0 4px 0 #7B1FA2, 0 6px 10px rgba(0,0,0,0.3);}
-    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
-    
-    .dev-link { bottom: 15px; padding: 6px 15px; font-size: 10px; }
-    .dev-link strong { font-size: 12px; }
+    #target-text { font-size: 12px; } .sun { width: 75px; height: 75px; right: -10px; top: -10px; }
+    h1 { font-size: 30px; } h2 { font-size: 16px; } p { font-size: 14px; }
+    .btn { font-size: 18px; padding: 10px 25px; border-width: 3px; }
+    .dev-link { bottom: 15px; font-size: 10px; } .dev-link strong { font-size: 12px; }
   }
-
-  /* ============================================== */
-  /* RESPONSIVE KHUSUS MODE LAYAR MIRING (LANDSCAPE) */
-  /* ============================================== */
   @media (orientation: landscape) and (max-height: 600px) {
-    #top-bar { 
-      top: 10px; 
-      padding: 0 15px;
-    }
-    
-    #target-container { 
-      flex-direction: row; 
-      gap: 15px; 
-      padding: 5px 25px; 
-      border-radius: 20px;
-    }
-    
-    #target-text { font-size: 14px; margin-bottom: 0; }
-    #target-letter { font-size: 40px; }
-
-    .sun { width: 70px; height: 70px; right: -10px; top: -10px; }
-    
-    h1 { font-size: 26px; margin-bottom: 5px; }
-    h2 { font-size: 16px; margin-bottom: 5px; }
-    p { font-size: 14px; margin-bottom: 15px; }
-    
-    .btn { padding: 8px 20px; font-size: 16px; box-shadow: 0 4px 0 #E65100; margin-bottom: 5px; border-width: 3px;}
-    .btn:active { transform: translateY(4px); box-shadow: 0 0 0; }
-    
-    .btn-rotate { font-size: 14px; padding: 6px 15px; margin-top: 5px; box-shadow: 0 4px 0 #7B1FA2; border-width: 3px;}
-    .btn-rotate:active { transform: translateY(4px); box-shadow: 0 0 0;}
-    
-    /* Tetap memunculkan dev link dengan ukuran diperkecil */
-    .dev-link { bottom: 5px; padding: 4px 12px; font-size: 10px; }
-    .dev-link strong { font-size: 11px; }
+    #top-bar { top: 10px; padding: 0 15px; } #target-container { flex-direction: row; gap: 15px; padding: 5px 25px; }
+    #target-text { font-size: 14px; margin-bottom: 0; } #target-letter { font-size: 40px; }
+    .btn { padding: 8px 20px; font-size: 16px; border-width: 3px;}
   }
-
-  /* --- KONTROL ROTASI BISA KLIK --- */
-  #app-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    transition: transform 0.4s ease;
-    transform-origin: center center;
-    overflow: hidden;
-  }
-  .layar-diputar {
-    transform: rotate(90deg);
-    width: 100vh !important;
-    height: 100vw !important;
-    top: 50% !important;
-    left: 50% !important;
-    margin-top: -50vw !important;
-    margin-left: -50vh !important;
-  }
-
 </style>
-
-<style>
-/* Tombol tambahan pada layar hasil */
-#result-screen .btn {
-  margin-bottom: 7px;
-}
-
-.btn-reset-level {
-  padding: 7px 20px;
-  margin: 1px 0 6px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 900;
-  color: #fff;
-  background: #607D8B;
-  border: 3px solid #fff;
-  border-radius: 22px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #37474F, 0 6px 10px rgba(0,0,0,.18);
-}
-.btn-reset-level:active {
-  transform: translateY(4px);
-  box-shadow: none;
-}
-
-/* Putar layar dibuat kecil mungil khusus layar hasil */
-#result-screen .btn-rotate-mini {
-  margin-top: 0;
-  padding: 5px 14px;
-  font-size: 11px;
-  border-width: 2px;
-  border-radius: 18px;
-  gap: 4px;
-  box-shadow: 0 3px 0 #7B1FA2, 0 5px 8px rgba(0,0,0,.18);
-}
-#result-screen .btn-rotate-mini:active {
-  transform: translateY(3px);
-  box-shadow: none;
-}
-
-@media (max-width:650px) {
-  .btn-reset-level { padding:6px 16px; font-size:11px; }
-  #result-screen .btn-rotate-mini { padding:4px 11px; font-size:9px; }
-}
-@media (orientation:landscape) and (max-height:600px) {
-  .btn-reset-level { padding:4px 14px; font-size:10px; margin-bottom:4px; box-shadow:0 3px 0 #37474F; }
-  #result-screen .btn-rotate-mini { padding:3px 10px; font-size:9px; box-shadow:0 2px 0 #7B1FA2; }
-}
-</style>
-
 </head>
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <div id="app-container">
 
-<!-- PEMANDANGAN ALAM / BACKGROUND -->
+<!-- BACKGROUND -->
 <div id="scenery">
   <div class="sun"></div>
-  
-  <div class="cloud c1"></div>
-  <div class="cloud c2"></div>
-
-  <div class="hill hill-back"></div>
-  <div class="hill hill-middle"></div>
-  <div class="hill hill-front"></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div>
+  <div class="hill hill-back"></div><div class="hill hill-middle"></div><div class="hill hill-front"></div>
 </div>
 
 <!-- Layar Sambutan -->
 <div id="welcome-screen" class="screen" style="display: flex;">
   <h1>🎈 Balon Hijaiyah 🎈</h1>
   <h2>Bermain & Belajar bersama MADASA!</h2>
-  <p>Tangkap balon yang hurufnya sama dengan yang diminta ya! Jangan sampai salah tangkap. Siap?</p>
-  
+  <p>Tangkap balon yang hurufnya sama dengan yang diminta ya! Jangan sampai salah tangkap.</p>
   <button class="btn" onclick="startGame()">▶️ MAIN SEKARANG</button>
-  <button class="btn-rotate" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
-
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
+  <button class="btn" style="background: #9C27B0; box-shadow: 0 8px 0 #7B1FA2;" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
+  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">Development <strong>Arom Kobama 😎</strong></a>
 </div>
 
 <!-- Layar Permainan -->
 <div id="top-bar" style="display: none;">
   <div class="ui-box">⏱️ <span id="time-display">60</span>s<br><span style="font-size:.58em">LEVEL <span id="level-display">1</span></span></div>
-  <div id="target-container">
+  <!-- Ditambahkan onclick agar huruf bisa dipencet manual untuk mengulang suara -->
+  <div id="target-container" onclick="putarSuaraHuruf(currentTarget)">
     <div id="target-text">Tangkap Huruf:</div>
     <div id="target-letter">ا</div>
+    <div style="font-size: 10px; color: #888; font-weight: bold; margin-top: -5px;">(Tekan untuk Dengar)</div>
   </div>
   <div class="ui-box">⭐ <span id="score-display">0</span><br><span style="font-size:.58em">BENAR <span id="correct-display">0</span>/10</span></div>
 </div>
 
-<!-- Area Tempat Balon Muncul -->
 <div id="game-area"></div>
 
 <!-- Layar Hasil Akhir -->
 <div id="result-screen" class="screen">
-  <h1 id="result-title">Masya Allah, Hebat! 🎉</h1>
-  <p id="result-message">Waktu habis! Kamu berhasil menangkap banyak balon.</p>
+  <h1 id="result-title">Hebat! 🎉</h1>
+  <p id="result-message">Waktu habis!</p>
   <div class="ui-box" style="margin-bottom: 20px; font-size: 30px; padding: 15px 40px; border-width: 4px;">
     Total Skor: <span id="final-score" style="color: #E91E63; font-size: 40px;">0</span> ⭐
   </div>
-  
   <button id="result-main-btn" class="btn" onclick="handleResultButton()">▶️ LEVEL BERIKUTNYA</button>
-  <button class="btn-reset-level" onclick="resetLevel()">↺ RESET LEVEL</button>
-  <button class="btn-rotate btn-rotate-mini" onclick="putarLayar()">🔄 PUTAR LAYAR</button>
-
-  <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link">
-    Development <strong>Arom Kobama 😎</strong>
-  </a>
+  <button class="btn" style="background: #607D8B; box-shadow: 0 8px 0 #37474F;" onclick="resetLevel()">↺ RESET LEVEL</button>
 </div>
 
 </div>
 
-<!-- --- MUSIK LATAR --- -->
+<!-- MUSIK LATAR -->
 <audio id="bg-music" loop>
   <source src="asset/lucu.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-
-  // FUNGSI MEMUTAR LAYAR 90 DERAJAT
-  function putarLayar() {
-    document.getElementById('app-container').classList.toggle('layar-diputar');
-  }
+  function putarLayar() { document.getElementById('app-container').classList.toggle('layar-diputar'); }
 
   const hurufHijaiyah = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'و', 'ه', 'ي'];
   const balloonColors = ['#F44336', '#9C27B0', '#3F51B5', '#03A9F4', '#4CAF50', '#8BC34A', '#FFEB3B', '#FF9800', '#FF5722'];
-  const pujianBenar = ["Pintar!", "Hebat!", "Masya Allah!", "Bagus!", "Horeee!"];
+  const pujianBenar = ["Pintar!", "Hebat!", "Bagus!", "Horeee!"];
 
-  let score = 0;
-  let timeLeft = 60;
-  let currentTarget = '';
-  let gameInterval;
-  let spawnInterval;
-  let isPlaying = false;
-  let level = 1;
-  let correctThisLevel = 0;
-  let levelPassed = false;
-  const TARGET_PER_LEVEL = 10;
-  const MAX_LEVEL = 10;
+  // --- DATABASE NAMA FILE SUARA HURUF ---
+  // Pastikan Anda menaruh file misal: asset/suara/alif.mp3
+  const namaFileHuruf = {
+    'ا': 'alif', 'ب': 'ba', 'ت': 'ta', 'ث': 'tsa', 'ج': 'jim', 'ح': 'ha', 'خ': 'kha',
+    'د': 'dal', 'ذ': 'dzal', 'ر': 'ra', 'ز': 'zai', 'س': 'sin', 'ش': 'syin', 'ص': 'shad',
+    'ض': 'dhad', 'ط': 'tha', 'ظ': 'zha', 'ع': 'ain', 'غ': 'ghain', 'ف': 'fa', 'ق': 'qaf',
+    'ك': 'kaf', 'ل': 'lam', 'م': 'mim', 'ن': 'nun', 'و': 'wau', 'ه': 'haa', 'ي': 'ya'
+  };
 
-  const gameArea = document.getElementById('game-area');
-  const targetLetterDisplay = document.getElementById('target-letter');
-  const scoreDisplay = document.getElementById('score-display');
-  const timeDisplay = document.getElementById('time-display');
-  const levelDisplay = document.getElementById('level-display');
-  const correctDisplay = document.getElementById('correct-display');
+  // --- MESIN SUARA EFEK (BUATAN SENDIRI TANPA FILE MP3) ---
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   
-  // Variabel untuk memanggil elemen audio latar
-  const bgMusic = document.getElementById('bg-music');
+  function playPopSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine'; // Suara bulat/pop
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+  }
+
+  function playWrongSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sawtooth'; // Suara kasar/buzzer
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  }
+
+  // --- FUNGSI MEMANGGIL SUARA HURUF ---
+  function putarSuaraHuruf(huruf) {
+    let namaFile = namaFileHuruf[huruf];
+    if(namaFile) {
+      // Akan mencari file di folder asset/suara/alif.mp3 dst.
+      let audioHuruf = new Audio(`asset/suara/${namaFile}.mp3`);
+      audioHuruf.play().catch(e => console.log("File audio belum diunggah: " + namaFile + ".mp3"));
+    }
+  }
+
+  let score = 0, timeLeft = 60, currentTarget = '', gameInterval, spawnInterval, isPlaying = false, level = 1, correctThisLevel = 0, levelPassed = false;
+  const TARGET_PER_LEVEL = 10, MAX_LEVEL = 10;
+  const gameArea = document.getElementById('game-area');
 
   function setNewTarget() {
     const randomIndex = Math.floor(Math.random() * hurufHijaiyah.length);
     currentTarget = hurufHijaiyah[randomIndex];
-    targetLetterDisplay.innerText = currentTarget;
+    document.getElementById('target-letter').innerText = currentTarget;
+    
+    // Putar suara huruf secara otomatis saat target baru muncul
+    putarSuaraHuruf(currentTarget);
   }
 
   function createBalloon() {
     if (!isPlaying) return;
-
     const balloon = document.createElement('div');
     balloon.className = 'balloon';
-    
-    // PEMBARUAN: Balon menyebar dinamis mengikuti lebar layar secara acak (10% hingga 85%)
-    let posisiAkhir = Math.floor(Math.random() * 75) + 10;
-    balloon.style.left = posisiAkhir + '%';
-    
-    const randomColor = balloonColors[Math.floor(Math.random() * balloonColors.length)];
-    balloon.style.setProperty('--b-color', randomColor);
-
+    balloon.style.left = (Math.floor(Math.random() * 75) + 10) + '%';
+    balloon.style.setProperty('--b-color', balloonColors[Math.floor(Math.random() * balloonColors.length)]);
     const randomSpeed = Math.random() * 4 + 6;
     balloon.style.animationDuration = randomSpeed + 's';
 
-    let letterInside;
-    if (Math.random() < 0.3) {
-      letterInside = currentTarget;
-    } else {
-      letterInside = hurufHijaiyah[Math.floor(Math.random() * hurufHijaiyah.length)];
-    }
-    
+    let letterInside = (Math.random() < 0.3) ? currentTarget : hurufHijaiyah[Math.floor(Math.random() * hurufHijaiyah.length)];
     balloon.innerText = letterInside;
 
-    balloon.addEventListener('pointerdown', (e) => {
+    balloon.addEventListener('pointerdown', () => {
       if(balloon.style.opacity === '0') return; 
-      
-      let bX = balloon.offsetLeft + 50; 
-      let bY = balloon.offsetTop;
+      let bX = balloon.offsetLeft + 50, bY = balloon.offsetTop;
 
       if (letterInside === currentTarget) {
-        score += 10;
-        correctThisLevel++;
-        scoreDisplay.innerText = score;
-        correctDisplay.innerText = correctThisLevel;
+        // JIKA BENAR: Putar Pop Sound, Tambah Skor
+        playPopSound();
+        score += 10; correctThisLevel++;
+        document.getElementById('score-display').innerText = score;
+        document.getElementById('correct-display').innerText = correctThisLevel;
         showPopText(bX, bY, pujianBenar[Math.floor(Math.random() * pujianBenar.length)], '#4CAF50');
         
-        balloon.style.opacity = '0';
-        balloon.style.transform = 'scale(0)';
+        balloon.style.opacity = '0'; balloon.style.transform = 'scale(0)';
         
         if (correctThisLevel >= TARGET_PER_LEVEL) {
-          levelPassed = true;
-          setTimeout(endGame, 250);
+          levelPassed = true; setTimeout(endGame, 300);
         } else {
           setNewTarget();
         }
       } else {
+        // JIKA SALAH: Putar Wrong Sound, Getarkan Layar
+        playWrongSound();
+        document.body.classList.add('shake-screen');
+        setTimeout(() => document.body.classList.remove('shake-screen'), 300); // Hapus class setelah 0.3 dtk
+
         showPopText(bX, bY, "Oops!", '#F44336');
-        balloon.style.opacity = '0';
-        balloon.style.transform = 'scale(0)';
+        balloon.style.opacity = '0'; balloon.style.transform = 'scale(0)';
       }
     });
 
     gameArea.appendChild(balloon);
-
-    setTimeout(() => {
-      if (balloon.parentNode) {
-        balloon.remove();
-      }
-    }, randomSpeed * 1000);
+    setTimeout(() => { if (balloon.parentNode) balloon.remove(); }, randomSpeed * 1000);
   }
 
   function showPopText(x, y, text, color) {
     const pop = document.createElement('div');
-    pop.className = 'pop-anim';
-    pop.innerText = text;
-    pop.style.left = (x - 40) + 'px';
-    pop.style.top = (y - 40) + 'px';
-    pop.style.color = color;
-    
+    pop.className = 'pop-anim'; pop.innerText = text; pop.style.color = color;
+    pop.style.left = (x - 40) + 'px'; pop.style.top = (y - 40) + 'px';
     document.getElementById('game-area').appendChild(pop);
-    
-    setTimeout(() => {
-      pop.remove();
-    }, 1000);
+    setTimeout(() => pop.remove(), 1000);
   }
 
-  function startGame() {
-    level = 1;
-    score = 0;
-    startLevel();
-  }
+  function startGame() { level = 1; score = 0; startLevel(); }
 
   function startLevel() {
-    clearInterval(gameInterval);
-    clearInterval(spawnInterval);
-
+    clearInterval(gameInterval); clearInterval(spawnInterval);
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('top-bar').style.display = 'flex';
-
-    if (bgMusic.paused) {
-      bgMusic.play().catch(error => {
-        console.log("Pemutaran audio otomatis dicegah oleh browser:", error);
-      });
-    }
+    
+    // Inisialisasi Audio Engine agar tidak diblokir browser
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    document.getElementById('bg-music').play().catch(e => console.log(e));
 
     gameArea.innerHTML = '';
-
-    timeLeft = 60;
-    correctThisLevel = 0;
-    levelPassed = false;
-    scoreDisplay.innerText = score;
-    timeDisplay.innerText = timeLeft;
-    levelDisplay.innerText = level;
-    correctDisplay.innerText = correctThisLevel;
+    timeLeft = 60; correctThisLevel = 0; levelPassed = false;
+    document.getElementById('score-display').innerText = score;
+    document.getElementById('time-display').innerText = timeLeft;
+    document.getElementById('level-display').innerText = level;
+    document.getElementById('correct-display').innerText = correctThisLevel;
     isPlaying = true;
 
     setNewTarget();
 
     gameInterval = setInterval(() => {
-      timeLeft--;
-      timeDisplay.innerText = timeLeft;
-      if (timeLeft <= 0) {
-        endGame();
-      }
+      timeLeft--; document.getElementById('time-display').innerText = timeLeft;
+      if (timeLeft <= 0) endGame();
     }, 1000);
-
-    // Mekanisme balon ASLI tetap: satu balon baru setiap 1 detik.
     spawnInterval = setInterval(createBalloon, 1000);
   }
 
   function endGame() {
-    if (!isPlaying) return;
-    isPlaying = false;
-    clearInterval(gameInterval);
-    clearInterval(spawnInterval);
-
+    if (!isPlaying) return; isPlaying = false;
+    clearInterval(gameInterval); clearInterval(spawnInterval);
     document.getElementById('top-bar').style.display = 'none';
     document.getElementById('result-screen').style.display = 'flex';
     document.getElementById('final-score').innerText = score;
-
     levelPassed = correctThisLevel >= TARGET_PER_LEVEL;
 
     const title = document.getElementById('result-title');
@@ -725,39 +318,16 @@
     const btn = document.getElementById('result-main-btn');
 
     if (levelPassed && level >= MAX_LEVEL) {
-      title.innerText = 'Masya Allah, Semua Level Selesai! 🏆';
-      message.innerText = `Kamu berhasil menyelesaikan semua ${MAX_LEVEL} level.`;
-      btn.innerText = '🔄 MAIN DARI LEVEL 1';
+      title.innerText = 'Sempurna! 🏆'; message.innerText = `Semua ${MAX_LEVEL} level selesai.`; btn.innerText = '🔄 MAIN LAGI';
     } else if (levelPassed) {
-      title.innerText = `Level ${level} Berhasil! 🎉`;
-      message.innerText = `Berhasil menangkap ${TARGET_PER_LEVEL} balon benar.`;
-      btn.innerText = `▶️ LANJUT LEVEL ${level + 1}`;
+      title.innerText = `Level ${level} Lulus! 🎉`; message.innerText = `Target terpenuhi.`; btn.innerText = `▶️ LANJUT LEVEL ${level + 1}`;
     } else {
-      title.innerText = 'Waktu Habis!';
-      message.innerText = `Benar ${correctThisLevel}/${TARGET_PER_LEVEL}. Target level belum tercapai.`;
-      btn.innerText = '🔄 COBA LAGI DARI LEVEL 1';
+      title.innerText = 'Waktu Habis!'; message.innerText = `Benar ${correctThisLevel}/${TARGET_PER_LEVEL}.`; btn.innerText = '🔄 COBA LAGI DARI LEVEL 1';
     }
   }
 
-  function resetLevel() {
-    // Ulangi level yang sedang dimainkan tanpa kembali ke Level 1.
-    score = 0;
-    correctThisLevel = 0;
-    levelPassed = false;
-    startLevel();
-  }
-
-  function handleResultButton() {
-    if (levelPassed && level < MAX_LEVEL) {
-      level++;
-      startLevel();
-    } else {
-      level = 1;
-      score = 0;
-      startLevel();
-    }
-  }
-
+  function resetLevel() { score = 0; correctThisLevel = 0; levelPassed = false; startLevel(); }
+  function handleResultButton() { if (levelPassed && level < MAX_LEVEL) { level++; startLevel(); } else { level = 1; score = 0; startLevel(); } }
 </script>
 </body>
 </html>
