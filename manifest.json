@@ -1,8 +1,8 @@
 {
-  "name": "MADASA Buzzer",
-  "short_name": "Buzzer",
+  "name": "MADASA Buzzer & Display",
+  "short_name": "MADASA",
   "description": "Buzzer Cerdas Cermat MADASA",
-  "start_url": "/buzzer.html",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#eaf6ee",
