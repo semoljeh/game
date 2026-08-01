@@ -42,15 +42,15 @@
     justify-content: center; padding: 45px 30px 30px 30px; text-align: center; 
     box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); 
     border: 6px solid #38bdf8; margin: 25px 0 10px 0; 
-    transition: border-color 0.3s ease;
-    /* PERBAIKAN TV: Paksa TV menggunakan akselerasi Hardware (GPU) */
-    transform: translateZ(0);
-    will-change: border-color;
+    /* TV FIX: Animasi instan agar tidak berat, dan lapisan 3D GPU */
+    transition: border-color 0.1s ease;
+    transform: translate3d(0,0,0);
   }
   
   .question-container.answer-mode { border-color: #f59e0b; }
   
-  .timer-box { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display:flex; flex-direction:column; align-items:center; z-index: 10;}
+  /* TV FIX: Pastikan timer tidak bergeser dengan layer GPU 3D */
+  .timer-box { position: absolute; top: -32px; left: 50%; transform: translate3d(-50%, 0, 0); display:flex; flex-direction:column; align-items:center; z-index: 10;}
   
   .timer-label { 
     font-size: 11px; font-weight: 900; color: #fff; 
@@ -60,33 +60,37 @@
     position: absolute;
     top: -22px;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
     pointer-events: none;
     white-space: nowrap;
-    /* PERBAIKAN TV */
-    transform: translateZ(0);
-    will-change: opacity;
+    transform: translate3d(0,0,0);
   }
   
   #d-timer { 
     font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; 
     color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; 
     box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; 
-    transition: background-color 0.3s ease, transform 0.3s ease; 
-    /* PERBAIKAN TV */
-    transform: translateZ(0);
-    will-change: background-color, transform;
+    /* TV FIX: Animasi warna sangat cepat agar tidak delay */
+    transition: background-color 0.1s ease, transform 0.1s ease; 
+    transform: translate3d(0,0,0);
   }
   
   #d-timer.answer-mode { background: #f59e0b; }
   #d-timer.danger { animation: pulse 0.5s infinite alternate; background: #991b1b !important; }
   @keyframes pulse { to { transform: scale(1.08); } }
 
-  #d-q { font-size: clamp(22px, 3vw, 42px); font-weight: 1000; line-height: 1.35; word-wrap: break-word; max-width: 100%; }
+  #d-q { font-size: clamp(22px, 3vw, 42px); font-weight: 1000; line-height: 1.35; word-wrap: break-word; max-width: 100%; transform: translate3d(0,0,0); }
   #d-ans { display: none; margin-top: 15px; font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: #16a34a; background: #dcfce7; padding: 8px 30px; border-radius: 15px; border: 3px dashed #16a34a; }
 
   .teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%; margin-top: 10px; margin-bottom: 10px;}
-  .team { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 4px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 12px; text-align: center; transition: 0.3s; }
+  
+  .team { 
+    background: rgba(255,255,255,0.1); border: 4px solid rgba(255,255,255,0.2); 
+    border-radius: 20px; padding: 12px; text-align: center; 
+    /* TV FIX REAL-TIME: Turunkan angka transisi jadi 0.05s agar kedipannya terasa secepat kilat */
+    transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.05s ease, border-color 0.05s ease, box-shadow 0.05s ease;
+    transform: translate3d(0,0,0);
+  }
   .team.hide { display: none; }
   .team-name { font-size: clamp(16px, 2vw, 22px); font-weight: 900; color: #cbd5e1; margin-bottom: 5px; }
   .score { font-size: clamp(40px, 5vw, 60px); font-weight: 1000; color: #fff; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
@@ -100,12 +104,26 @@
   .team.win .score { color: #000; text-shadow: none; }
   @keyframes glow { to { box-shadow: 0 0 30px rgba(250,204,21,0.8); } }
 
-  .big-notif { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; animation: popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; -webkit-text-stroke: 3px #fff; }
-  @keyframes popZoom { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
+  /* TV FIX NOTIFIKASI: Gunakan translate3d untuk render layer mandiri (mencegah TV redraw elemen timer) */
+  .big-notif { 
+    position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); 
+    font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; 
+    text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; 
+    white-space: nowrap; -webkit-text-stroke: 3px #fff; opacity: 0;
+  }
+  @keyframes popZoom { 
+    0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 
+    20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 
+    80% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; } 
+    100% { transform: translate3d(-50%, -50%, 0) scale(1.3); opacity: 0; } 
+  }
 </style>
 </head>
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<!-- ELEMEN NOTIFIKASI PERMANEN: Menghentikan masalah Document Reflow/Glitch di TV -->
+<div id="notif-overlay" class="big-notif"></div>
 
 <div id="setup">
   <h1>DISPLAY PROYEKTOR</h1>
@@ -151,12 +169,17 @@
 </script>
 <script>
   let room = "", roomUnsub = null, lastWinner = null;
+  
+  // TV FIX: Memanggil ulang animasi elemen permanen, BUKAN menambah div baru
   function showNotif(text, color) {
-      let notif = document.createElement('div');
-      notif.className = 'big-notif'; notif.innerHTML = text; notif.style.color = color;
-      document.body.appendChild(notif);
-      setTimeout(() => notif.remove(), 1500);
+      const notif = document.getElementById('notif-overlay');
+      notif.innerHTML = text;
+      notif.style.color = color;
+      notif.style.animation = 'none'; // Reset animasi
+      notif.offsetHeight; // Paksa browser me-refresh elemen (trigger reflow)
+      notif.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
   }
+
   function connectRoom() {
       if(!window.FB) return;
       room = document.getElementById("room").value;
@@ -177,7 +200,6 @@
           const scores = d.scores || {};
           const winner = d.buzzer?.winner ?? null;
 
-          // PERBAIKAN TV Ekstrem: Cek status dahulu, baru update (DOM Write Optimization)
           for(let i=1; i<=4; i++) { 
               const teamEl = document.getElementById("team"+i);
               
