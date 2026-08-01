@@ -40,9 +40,34 @@
   .question-container { position: relative; background: #ffffff; color: #0f172a; flex: 1; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 45px 30px 30px 30px; text-align: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); border: 6px solid #38bdf8; margin: 25px 0 10px 0; transition: 0.3s;}
   
   .timer-box { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display:flex; flex-direction:column; align-items:center; z-index: 10;}
-  .timer-label { font-size: 11px; font-weight: 900; color: #fff; background: rgba(0,0,0,0.75); padding: 3px 12px; border-radius: 10px; margin-bottom: 3px; display: none; letter-spacing: 1px;}
   
-  #d-timer { font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; transition: 0.3s;}
+  
+.timer-label { 
+    font-size: 11px; font-weight: 900; color: #fff; 
+    background: rgba(0,0,0,0.75); padding: 3px 12px; 
+    border-radius: 10px; margin-bottom: 3px; 
+    letter-spacing: 1px;
+    /* PERBAIKAN: Posisi absolut dan opacity agar tidak menggeser timer */
+    position: absolute;
+    top: -22px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  
+  #d-timer { 
+    font-size: clamp(32px, 4vw, 48px); font-weight: 1000; 
+    background: #dc2626; color: white; padding: 4px 35px; 
+    border-radius: 22px; border: 4px solid #fff; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+    font-variant-numeric: tabular-nums; 
+    /* PERBAIKAN: Batasi transisi hanya pada warna agar tata letak stabil */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  
+  
   #d-timer.answer-mode { background: #f59e0b; }
   #d-timer.danger { animation: pulse 0.5s infinite alternate; background: #991b1b !important; }
   @keyframes pulse { to { transform: scale(1.08); } }
@@ -178,13 +203,13 @@
           t.textContent = "00:" + String(Math.max(0, timerLeft)).padStart(2,"0");
           t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0);
           
-          if(d.timerMode === "answer") {
+if(d.timerMode === "answer") {
               t.classList.add("answer-mode");
-              lbl.style.display = "block";
+              lbl.style.opacity = "1"; // Munculkan secara halus
               qc.style.borderColor = "#f59e0b";
           } else {
               t.classList.remove("answer-mode");
-              lbl.style.display = "none";
+              lbl.style.opacity = "0"; // Sembunyikan secara halus
               qc.style.borderColor = "#38bdf8";
           }
           
