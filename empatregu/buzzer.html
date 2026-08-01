@@ -185,6 +185,41 @@ async function down(){
 }
 async function up(){buzz.classList.remove("down");if(window.FB&&mode==="lobby"&&room&&team)try{await FB.set(FB.ref(FB.db,"quiz4/"+room+"/pressed/"+team),false)}catch(e){}}
 input.addEventListener("input",()=>setTimeout(watch,70));buzz.addEventListener("pointerdown",e=>{e.preventDefault();try{buzz.setPointerCapture(e.pointerId)}catch(x){}down()},{passive:false});buzz.addEventListener("pointerup",e=>{e.preventDefault();up()},{passive:false});buzz.addEventListener("pointercancel",up);buzz.addEventListener("lostpointercapture",up);window.addEventListener("blur",up);document.addEventListener("visibilitychange",()=>{if(document.hidden)up()});
+
+
+// --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
+let wakeLock = null;
+
+async function aktifkanWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Fitur Wake Lock aktif: Layar Buzzer tidak akan mati.');
+      
+      wakeLock.addEventListener('release', () => {
+        console.log('Wake Lock terlepas.');
+      });
+    }
+  } catch (err) {
+    console.log('Wake Lock gagal/tidak didukung:', err.message);
+  }
+}
+
+// Aktifkan Wake Lock saat peserta menyentuh layar pertama kali 
+// (Misalnya saat mengetik kode room atau mengeklik tombol nomor regu)
+document.addEventListener('pointerdown', () => {
+  if (wakeLock === null) {
+    aktifkanWakeLock();
+  }
+}, { once: true });
+
+// Aktifkan ulang otomatis jika peserta sempat meminimalkan browser
+document.addEventListener('visibilitychange', () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    aktifkanWakeLock();
+  }
+});
+
 window.join=join;
 function init(){const r=(new URLSearchParams(location.search).get("room")||"").replace(/\D/g,"").slice(0,4);if(r.length===4)input.value=r;watch()}
 if(window.FB)init();else window.addEventListener("firebase-ready",init,{once:true});

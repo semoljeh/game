@@ -233,6 +233,40 @@
           isInitialLoad = false;
       });
   }
+  
+  // --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
+  let wakeLock = null;
+
+  async function aktifkanWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Fitur Wake Lock aktif: Layar Proyektor tidak akan mati.');
+        
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock terlepas.');
+        });
+      }
+    } catch (err) {
+      console.log('Wake Lock gagal/tidak didukung:', err.message);
+    }
+  }
+
+  // Aktifkan saat tombol TAMPILKAN LAYAR atau FULLSCREEN diklik
+  document.addEventListener('click', () => {
+    if (wakeLock === null) {
+      aktifkanWakeLock();
+    }
+  }, { once: true });
+
+  // Aktifkan ulang jika layar sempat di-minimize
+  document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      aktifkanWakeLock();
+    }
+  });
+  
+  
 </script>
 <script> if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('../sw.js').then((reg) => console.log('Service Worker Folder Dalam Terdaftar!')).catch((err) => console.log('Gagal mendaftar SW dari dalam', err)); }); } </script>
 </body>

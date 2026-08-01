@@ -368,6 +368,44 @@ async function resumeBuzzer(){ if(isPrepMode) return; if(!room||mode!=="quiz")re
 async function score(n,d){if(!room)return;scores[n]=(scores[n]||0)+d;await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),scores[n])}
 window.openSettings=openSettings;window.closeSettings=closeSettings;window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.openDisplayPage=openDisplayPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.passQuestion=passQuestion;window.resumeBuzzer=resumeBuzzer;window.score=score;window.showCustomAlert=showCustomAlert;window.closeCustomAlert=closeCustomAlert;
 fillSubjects();renderTeams();renderTimerUI();
+
+
+// --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
+let wakeLock = null;
+
+async function aktifkanWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Fitur Wake Lock aktif: Layar Host/Juri tidak akan mati.');
+      
+      wakeLock.addEventListener('release', () => {
+        console.log('Wake Lock terlepas.');
+      });
+    }
+  } catch (err) {
+    console.log('Wake Lock gagal/tidak didukung:', err.message);
+  }
+}
+
+// Aktifkan Wake Lock saat Host menyentuh layar pertama kali 
+// (Misalnya saat mengeklik tombol "BUAT ROOM SEKARANG" atau mengatur menu setting)
+document.addEventListener('pointerdown', () => {
+  if (wakeLock === null) {
+    aktifkanWakeLock();
+  }
+}, { once: true });
+
+// Aktifkan ulang otomatis jika Host sempat meminimalkan browser
+document.addEventListener('visibilitychange', () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    aktifkanWakeLock();
+  }
+});
+
+
+
+
 </script>
 
 <script> if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('../sw.js').then((reg) => console.log('Service Worker Folder Dalam Terdaftar!')).catch((err) => console.log('Gagal mendaftar SW dari dalam', err)); }); } </script>
