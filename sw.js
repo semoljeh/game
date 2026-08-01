@@ -1,13 +1,15 @@
-// UBAH VERSI KE v5 
-const CACHE_NAME = 'madasa-game-cache-v5'; 
+// UBAH VERSI KE v6 
+const CACHE_NAME = 'madasa-game-cache-v6'; 
 
-// Tambahkan nama folder "empatregu/" untuk file yang ada di dalam
+// Tambahkan nama folder "empatregu/" dan "campuran/" untuk file yang ada di dalam
 const urlsToCache = [
   './',
   './index.html',
   './empatregu/buzzer.html',
   './empatregu/display.html',
   './empatregu/host.html',
+  './campuran/campuran2playeronline.html',
+  './campuran/display_vs.html',
   './manifest.json',
   './asset/logo.png'
 ];

@@ -1,7 +1,7 @@
 {
-  "name": "MADASA Buzzer & Display",
+  "name": "MADASA Portal Game Edukasi",
   "short_name": "MADASA",
-  "description": "Buzzer Cerdas Cermat MADASA",
+  "description": "Portal Game Edukasi Anak Islami & Cerdas Cermat",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",

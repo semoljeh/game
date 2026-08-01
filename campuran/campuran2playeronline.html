@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+
+<title>MADASA - Cerdas Cermat 2 Player Online</title>
+<meta name="description" content="Game edukasi Cerdas Cermat Matematika seru untuk 2 pemain.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* --- PENGATURAN DASAR & FIX RESPONSIVE --- */
+  *, *::before, *::after {
+    box-sizing: border-box; 
+  }
+
+  html, body { 
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: 'Nunito', sans-serif; background-color: #FCE4EC; 
+    color: #333; overflow: hidden; touch-action: manipulation; 
+    -webkit-user-select: none; user-select: none;
+  }
+  #app-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* --- ZONA PERMAINAN DENGAN ANIMASI MERIAH --- */
+  #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
+  .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; padding: 10px; overflow: hidden;}
+  
+  #p1-zone { background: linear-gradient(135deg, #F8BBD0 0%, #F06292 100%); }
+  #p2-zone { background: linear-gradient(135deg, #B3E5FC 0%, #29B6F6 100%); }
+
+  /* Gelembung ceria di background */
+  .player-zone::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 10%);
+    background-size: 60px 60px; background-position: 0 0, 30px 30px;
+    animation: drift 15s linear infinite; pointer-events: none; z-index: 0;
+  }
+  @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(60px) rotate(5deg); } }
+
+  .terkunci { pointer-events: none; opacity: 0.6; filter: grayscale(50%); }
+  .belum-mulai { filter: blur(8px); pointer-events: none; }
+
+  #center-line { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 10px; background-color: rgba(255, 255, 255, 0.9); z-index: 10; box-shadow: 0 0 15px rgba(0,0,0,0.15);}
+
+  /* --- UI COMPONENT --- */
+  #top-center-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95); padding: 5px 20px; border-radius: 30px; border: 4px solid #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+  #timer-display { font-size: clamp(24px, 5vw, 34px); font-weight: 900; color: #673AB7; }
+  .waktu-kritis { color: #F44336 !important; animation: detak 0.8s infinite; }
+  @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+  
+  .question-box { font-size: clamp(30px, 6vw, 55px); font-weight: 900; margin-bottom: 25px; background: rgba(255,255,255,0.95); padding: 15px 30px; border-radius: 25px; text-align: center; width: 80%; max-width: 450px; word-wrap: break-word; z-index: 1; box-shadow: 0 8px 20px rgba(0,0,0,0.1);}
+  #p1-zone .question-box { border: 5px dashed #D81B60; color: #AD1457; }
+  #p2-zone .question-box { border: 5px dashed #0288D1; color: #01579B; }
+  
+  /* PERBAIKAN: Lebar wadah opsi ditambah agar tidak terpotong */
+  .options { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px; z-index: 1;}
+  
+  /* PERBAIKAN: Kotak opsi dibuat melar otomatis (width: auto) dengan batas padding */
+  .btn-option { font-size: clamp(20px, 4vw, 32px); min-width: clamp(70px, 15vw, 110px); width: auto; padding: 10px 20px; height: clamp(70px, 15vw, 90px); display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 20px; background: #FFF; font-weight: 900; transition: transform 0.1s, background-color 0.2s; box-shadow: 0 6px 12px rgba(0,0,0,0.15);}
+  .btn-option:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+  #p1-zone .btn-option { border: 4px solid #F48FB1; color: #D81B60; }
+  #p2-zone .btn-option { border: 4px solid #81D4FA; color: #0288D1; }
+  
+  .btn-next { margin-top: 25px; padding: 10px 25px; font-size: 16px; font-weight: 800; cursor: pointer; background: rgba(255, 255, 255, 0.9); border: 3px solid #FFF; border-radius: 30px; transition: transform 0.1s; z-index: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+  .btn-next:active { transform: scale(0.95); }
+
+  /* --- MODAL LAYAR --- */
+  .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 15px; backdrop-filter: blur(5px); }
+  .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #FFF; border-radius: 30px; padding: 25px 20px; max-width: 600px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.2); position: relative; max-height: 95vh; overflow-y: auto;}
+  
+  .alert-card { width: 85% !important; max-width: 320px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
+
+  .welcome-card h1 { font-size: clamp(28px, 5vw, 40px); color: #E91E63; margin: 0 0 5px 0; text-shadow: 1px 1px 0 rgba(0,0,0,0.1); }
+  .welcome-card h2 { font-size: clamp(18px, 3vw, 22px); color: #03A9F4; margin: 0 0 15px 0; }
+  .welcome-card p { font-size: 16px; margin-bottom: 20px; font-weight: 700; }
+  
+  .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%;}
+  .btn-mode { padding: 12px 15px; font-size: 16px; font-weight: 900; color: white; border: 3px solid #FFF; border-radius: 20px; cursor: pointer; flex: 1 1 45%; max-width: 48%; transition: transform 0.1s, filter 0.2s; box-shadow: 0 6px 12px rgba(0,0,0,0.15); text-align: center;}
+  .btn-mode:active { transform: translateY(4px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  .btn-mode:hover { filter: brightness(1.1); }
+  .btn-campuran { flex: 1 1 100%; max-width: 100%; background: #E91E63; font-size: 18px;}
+  .btn-tambah { background: #4CAF50; }
+  .btn-kurang { background: #FF9800; }
+  .btn-kali { background: #9C27B0; }
+  .btn-bagi { background: #00BCD4; }
+  
+  .result-card { background: #FFF; border: 4px solid #FFF; padding: 15px; border-radius: 25px; margin: 10px; flex: 1; min-width: 140px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);}
+  .results-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  #waktu-akhir-display { font-size: clamp(18px, 4vw, 24px); font-weight: 900; color: #FFF; margin-bottom: 20px; background: #F44336; padding: 10px 25px; border-radius: 20px; border: 3px solid #FFF; display: inline-block; box-shadow: 0 6px 15px rgba(244, 67, 54, 0.4);}
+  
+  .room-input { font-size: 24px; padding: 12px; text-align: center; width: 100%; border-radius: 15px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none; }
+  .room-input:focus { border-color: #03A9F4; }
+  .room-input::-webkit-outer-spin-button, .room-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .room-input[type=number] { -moz-appearance: textfield; }
+
+  /* --- ANIMASI NOTIFIKASI MERIAH & TEBAL --- */
+  .notif-lucu { 
+    position: absolute; top: 35%; left: 50%; transform: translateX(-50%); 
+    font-size: clamp(35px, 6vw, 50px); font-weight: 900; 
+    pointer-events: none; z-index: 9999; animation: popUpAnim 1.2s forwards; 
+    text-align: center; white-space: nowrap;
+  }
+  @keyframes popUpAnim { 
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 
+    20% { transform: translate(-50%, -20px) scale(1.2) rotate(-5deg); opacity: 1; } 
+    40% { transform: translate(-50%, -20px) scale(1.2) rotate(5deg); opacity: 1; } 
+    80% { transform: translate(-50%, -40px) scale(1) rotate(0deg); opacity: 1; } 
+    100% { transform: translate(-50%, -60px) scale(0.8); opacity: 0; } 
+  }
+  @keyframes munculModal { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* --- UI CHAT --- */
+  #chat-icon { position: absolute; bottom: 20px; right: 20px; z-index: 100; width: 60px; height: 60px; background: #673AB7; color: #FFF; border-radius: 50%; font-size: 28px; display: none; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border: 3px solid #FFF; transition: transform 0.2s; }
+  #chat-icon:active { transform: scale(0.9); }
+  #chat-wrapper { position: absolute; bottom: 90px; right: 20px; z-index: 101; width: clamp(260px, 80vw, 320px); background: rgba(255, 255, 255, 0.98); border: 4px solid #673AB7; border-radius: 15px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.3); max-height: 55vh;}
+  .chat-header { background: #673AB7; color: white; padding: 10px 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+  .close-chat { cursor: pointer; color: #FFF; font-size: 14px; font-weight: bold; background: #E91E63; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
+  #chat-box { flex: 1; min-height: 150px; overflow-y: auto; padding: 10px; font-size: 14px; font-weight: 700; display: flex; flex-direction: column; gap: 8px; }
+  .pesan { padding: 8px 12px; border-radius: 15px; max-width: 85%; width: fit-content; word-wrap: break-word; line-height: 1.3;}
+  .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; border-bottom-right-radius: 3px; }
+  .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; border-bottom-left-radius: 3px; }
+  
+  /* Area Input & Emotikon Chat */
+  #chat-input-area { display: flex; flex-direction: column; border-top: 2px solid #ccc; background: #FFF;}
+  #emoji-bar { display: flex; gap: 5px; padding: 6px 10px; background: #F3E5F5; border-bottom: 1px solid #ddd; overflow-x: auto; scrollbar-width: none;}
+  #emoji-bar::-webkit-scrollbar { display: none; }
+  .quick-emoji { font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 8px; transition: 0.1s; user-select: none;}
+  .quick-emoji:active { transform: scale(0.8); background: #E1BEE7; }
+  
+  .input-wrapper { display: flex; padding: 8px; gap: 8px; }
+  #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; width: 100%;}
+  #chat-input:focus { border-color: #673AB7; }
+  #btn-send-chat { background: #673AB7; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; font-size: 16px;}
+  #btn-send-chat:active { transform: scale(0.95); }
+  
+  #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+  #custom-alert-close { position: absolute; top: -10px; right: -10px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; z-index: 10; }
+  #custom-alert-close:active { transform: scale(0.85); }
+  .goyang { animation: wiggle 0.5s infinite; }
+  @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
+
+  /* --- MEDIA QUERIES UNTUK HP / LAYAR KECIL --- */
+  @media screen and (max-width: 768px) {
+    #game-board { flex-direction: column; }
+    #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.3);}
+    #top-center-container { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 4px 15px; border-width: 3px;}
+    .player-zone { gap: 8px; }
+    #p1-zone { transform: rotate(180deg); padding-top: 65px; padding-bottom: 15px;}
+    #p2-zone { padding-top: 65px; padding-bottom: 15px;}
+    .question-box { margin-bottom: 0px; padding: 10px 15px; border-width: 4px; font-size: clamp(24px, 5vw, 35px); max-height: 38%;}
+    .options { gap: 8px; margin-bottom: 0;}
+    /* PERBAIKAN HP: Tombol juga memanjang dan font lebih kecil jika panjang */
+    .btn-option { min-height: 45px; height: auto; padding: 10px 15px; font-size: clamp(16px, 4vw, 22px); border-width: 3px; min-width: 70px;}
+    .btn-next { margin-top: 5px; padding: 8px 20px; font-size: 14px; border-width: 2px;}
+    .welcome-card { padding: 20px 15px; }
+    #chat-wrapper { bottom: 85px; right: 15px; }
+    #chat-icon { bottom: 15px; right: 15px; }
+    .result-card h2 { font-size: 20px; margin: 5px 0; }
+    .result-card h3 { font-size: 14px; margin: 5px 0; }
+    .result-card p { font-size: 16px; margin: 5px 0; }
+  }
+
+  /* --- MATCHMAKING PROFESIONAL --- */
+  #p2-status { line-height: 1.4; text-align: center; transition: background-color .25s ease, color .25s ease; }
+  #room-code-display { letter-spacing: .4px; }
+
+  /* Chat lawan otomatis */
+  .bot-typing{ display:flex!important; align-items:center; gap:7px; width:max-content; max-width:85%; opacity:.78; font-style:italic; }
+  .typing-dots{display:inline-flex;gap:3px;align-items:center}
+  .typing-dots i{ width:5px;height:5px;border-radius:50%; background:currentColor;display:block; animation:botTypingDot 1s infinite ease-in-out; }
+  .typing-dots i:nth-child(2){animation-delay:.15s}
+  .typing-dots i:nth-child(3){animation-delay:.3s}
+  @keyframes botTypingDot{ 0%,60%,100%{transform:translateY(0);opacity:.35} 30%{transform:translateY(-3px);opacity:1} }
+
+  /* Skor pertandingan antar ronde */
+  .series-score-wrap{ width:min(500px,100%); margin:14px auto 18px; padding:12px 16px 10px; border-radius:18px; background:linear-gradient(180deg,#fff,#fafafa); border:2px solid #ececec; box-shadow:0 8px 20px rgba(0,0,0,.06); text-align:center; }
+  .series-label{ font-size:12px;font-weight:900;letter-spacing:1.4px;color:#777;margin-bottom:6px }
+  .series-scoreboard{ display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px; }
+  .series-side{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:900}
+  .series-side span{font-size:15px}
+  .series-side strong{font-size:38px;line-height:1}
+  .p1-series{color:#E91E63}.p2-series{color:#0288D1}
+  .series-separator{font-size:28px;font-weight:900;color:#777}
+  .series-note{font-size:10px;font-weight:800;color:#999;margin-top:5px}
+  @media(max-width:520px){
+    .series-score-wrap{margin:10px auto 14px;padding:10px}
+    .series-side{gap:7px}.series-side span{font-size:12px}.series-side strong{font-size:32px}
+    .series-scoreboard{gap:6px}.series-separator{font-size:22px}
+  }
+  .stat-score{ margin-top:8px!important; padding-top:9px!important; border-top:2px dashed #e5e5e5; font-size:1.15em; }
+  .stat-score span{font-size:1.3em}
+
+</style>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- TAHAP 0: Layar Masukkan Nama & Level (BARU) -->
+  <div id="name-screen" class="screen-overlay" style="display: flex;">
+    <div class="welcome-card" style="max-width: 450px;">
+      <h1 style="font-size: 32px; margin-bottom: 10px;">👋 HALO, JUARA!</h1>
+      
+      <!-- Input Nama -->
+      <div style="margin-bottom: 15px;">
+        <p style="color: #E91E63; font-weight: 900; margin-bottom: 5px;">SIAPA NAMAMU?</p>
+        <input type="text" id="setup-nama-player" class="room-input" placeholder="Ketik nama kamu..." maxlength="12" autocomplete="off" style="border-color: #E91E63; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">
+        <p style="font-size: 13.5px; color: #777; font-weight: 800; line-height: 1.4; margin-top: 8px;">
+          *Nama ini akan terpampang gagah sebagai identitasmu di arena pertandingan dan layar proyektor!
+        </p>
+      </div>
+      
+      <!-- Input Tingkat Kesulitan -->
+      <div style="margin-bottom: 25px;">
+        <p style="color: #03A9F4; font-weight: 900; margin-bottom: 5px;">TINGKAT KESULITAN:</p>
+        <select id="setup-tingkat" class="room-input" style="border-color: #03A9F4; font-size: 18px; font-weight: 800; cursor: pointer; background: #FFF;">
+          <option value="TK">PAUD / TK</option>
+          <option value="SD" selected>SD / MI</option>
+          <option value="SMP">SMP / MTs</option>
+          <option value="SMA">SMA / MA</option>
+          <option value="UMUM">UMUM / HARDCORE</option>
+        </select>
+      </div>
+      
+      <button class="btn-mode" onclick="masukLobi()" style="background: #4CAF50; width: 100%; max-width: 100%; font-size: 18px; padding: 15px; border-color: #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">MASUK ARENA 🚀</button>
+    </div>
+  </div>
+
+  <!-- TAHAP 1: Layar Pembuatan/Gabung Kamar -->
+  <div id="room-screen" class="screen-overlay" style="display: none;">
+    <div class="welcome-card">
+      <h1>🚪 MADASA ROOM</h1>
+      <h2>Main Bareng Teman / Acak</h2>
+      
+      <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
+        <p style="margin-bottom: 10px; font-weight: 800;">Bermain dengan lawan acak (Global):</p>
+        <button class="btn-mode" style="background: #673AB7; width: 100%; padding: 12px; font-size: 18px; max-width:100%;" onclick="cariLawanAcak()">🌍 CARI LAWAN ACAK</button>
+      </div>
+      
+      <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
+        <p style="margin-top: 0; font-weight: 800;">Bermain privat dengan teman (KODE):</p>
+        <div class="mode-container" style="flex-direction: column; align-items: center; gap: 15px;">
+          <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%; max-width: 100%;">+ Buat Kamar Baru (P1)</button>
+          <div style="width: 100%; display: flex; gap: 10px; align-items: stretch;">
+            <input type="number" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" pattern="[0-9]*" autocomplete="off" style="flex: 1; margin: 0; letter-spacing: 5px;">
+            <button class="btn-mode btn-tambah" onclick="gabungKamar()" style="flex: 1; background: #03A9F4; margin: 0; max-width: none;">Gabung (P2)</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- TOMBOL DISPLAY PROYEKTOR -->
+      <div>
+        <button class="btn-mode" onclick="window.open('display_vs.html', '_blank')" style="background: #FF9800; width: 100%; max-width: 100%; font-size: 16px; padding: 15px; border-color: #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🖥️ BUKA DISPLAY PROYEKTOR</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAHAP 2: Lobi Menunggu -->
+  <div id="welcome-screen" class="screen-overlay" style="display: none;">
+    <div class="welcome-card">
+      <h1>KODE KAMAR: <span id="room-code-display" style="color: #4CAF50;">---</span></h1>
+      <h2 id="p2-status" style="color: #FF9800; font-size: clamp(14px, 4vw, 18px); background: #FFF3E0; padding: 10px; border-radius: 10px;">Menunggu Player 2 bergabung...</h2>
+      <div id="host-controls" style="display: none; margin-top: 20px;">
+        <p>Silakan Host (P1) pilih mode permainan:</p>
+        <div class="mode-container">
+          <button class="btn-mode btn-campuran" onclick="hostPilihMode('campuran')">🌟 CAMPURAN</button>
+          <button class="btn-mode btn-tambah" onclick="hostPilihMode('penjumlahan')">➕ Tambah</button>
+          <button class="btn-mode btn-kurang" onclick="hostPilihMode('pengurangan')">➖ Kurang</button>
+          <button class="btn-mode btn-kali" onclick="hostPilihMode('perkalian')">✖️ Kali</button>
+          <button class="btn-mode btn-bagi" onclick="hostPilihMode('pembagian')">➗ Bagi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 3: Area Permainan -->
+  <div id="game-board">
+    <div id="top-center-container">
+      <div id="timer-display">60</div>
+    </div>
+    <div id="center-line"></div>
+    <div class="player-zone belum-mulai" id="p1-zone">
+      <div class="question-box" id="p1-q">Soal</div>
+      <div class="options" id="p1-options"></div>
+      <button class="btn-next" id="p1-skip" onclick="skipQuestion(1)">Lewati >></button>
+    </div>
+    <div class="player-zone belum-mulai" id="p2-zone">
+      <div class="question-box" id="p2-q">Soal</div>
+      <div class="options" id="p2-options"></div>
+      <button class="btn-next" id="p2-skip" onclick="skipQuestion(2)">Lewati >></button>
+    </div>
+  </div>
+  
+  <!-- Popup Hasil Akhir -->
+  <div id="result-screen" class="screen-overlay">
+    <div class="welcome-card">
+      <h1>PERMAINAN SELESAI 🎉</h1>
+      <div id="waktu-akhir-display">WAKTU HABIS! ⏰</div>
+      <div class="series-score-wrap">
+        <div class="series-label">SKOR PERTANDINGAN</div>
+        <div class="series-scoreboard">
+          <div class="series-side p1-series"><span id="lbl-series-p1">PLAYER 1</span><strong id="series-p1">0</strong></div>
+          <div class="series-separator">—</div>
+          <div class="series-side p2-series"><strong id="series-p2">0</strong><span id="lbl-series-p2">PLAYER 2</span></div>
+        </div>
+        <div class="series-note">Skor kemenangan ronde • tersimpan selama sesi pertandingan</div>
+      </div>
+      <div class="results-container">
+        
+        <div class="result-card" style="border-color: #F48FB1;">
+          <h2 id="res-p1-name" style="color: #D81B60;">Player 1</h2>
+          <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p1-dijawab">0</span></h3>
+          <p style="color: #4CAF50; font-weight: 900; margin: 5px 0;">Benar: <span id="p1-benar">0</span></p>
+          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p1-salah">0</span></p><p class="stat-score" style="color: #D81B60; font-weight:900;margin:8px 0 0;">POIN: <span id="p1-poin">0</span></p>
+        </div>
+        
+        <div class="result-card" style="border-color: #81D4FA;">
+          <h2 id="res-p2-name" style="color: #0288D1;">Player 2</h2>
+          <h3 style="border-bottom: 2px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px;">Dijawab: <span id="p2-dijawab">0</span></h3>
+          <p style="color: #4CAF50; font-weight: 900; margin: 5px 0;">Benar: <span id="p2-benar">0</span></p>
+          <p style="color: #F44336; font-weight: 900; margin: 5px 0;">Salah: <span id="p2-salah">0</span></p><p class="stat-score" style="color: #0288D1; font-weight:900;margin:8px 0 0;">POIN: <span id="p2-poin">0</span></p>
+        </div>
+
+      </div>
+      <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
+        <button class="btn-mode btn-tambah" onclick="mainLagi()" style="flex: 1 1 45%; min-width: 130px; margin: 0; font-size: 16px;">🔄 Main Lagi</button>
+        <button class="btn-mode" onclick="akhiriGame()" style="flex: 1 1 45%; min-width: 130px; margin: 0; background: #F44336; border-color: #FFF; font-size: 16px;">🚪 Keluar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === POPUP NOTIFIKASI MODERN === -->
+  <div id="custom-alert-overlay" class="screen-overlay" style="display: none; z-index: 9999; background: rgba(0,0,0,0.8);">
+    <div class="welcome-card alert-card" style="text-align: center; border-color: #F44336; animation: munculModal 0.3s ease-out forwards;">
+      <div id="custom-alert-close" onclick="closeCustomAlert()">✖</div>
+      <div id="custom-alert-icon" style="font-size: 55px; margin-bottom: 10px;">⚠️</div>
+      <h1 id="custom-alert-title" style="color: #F44336; font-size: 26px; margin: 0 0 10px 0;">Peringatan</h1>
+      <p id="custom-alert-message" style="font-size: 16px; font-weight: 800; color: #333; margin-bottom: 25px; word-wrap: break-word;">Pesan di sini</p>
+      <button class="btn-mode" onclick="closeCustomAlert()" style="width: 100%; max-width: 100%; background: #F44336; border-color: #FFF; font-size: 18px; padding: 12px;">TUTUP</button>
+    </div>
+  </div>
+
+  <!-- IKON CHAT & POPUP CHAT -->
+  <div id="chat-icon" onclick="toggleChat()">
+    💬<div id="chat-notif">!</div>
+  </div>
+  <div id="chat-wrapper">
+    <div class="chat-header">
+      <span>💬 Obrolan Kamar</span>
+      <div class="close-chat" onclick="toggleChat()">✖</div>
+    </div>
+    <div id="chat-box"></div>
+    <div id="chat-input-area">
+      <!-- BARIS EMOTIKON KILAT -->
+      <div id="emoji-bar">
+         <span class="quick-emoji" onclick="tambahEmoji('🤓')">🤓</span>
+         <span class="quick-emoji" onclick="tambahEmoji('😂')">😂</span>
+         <span class="quick-emoji" onclick="tambahEmoji('🚀')">🚀</span>
+         <span class="quick-emoji" onclick="tambahEmoji('💡')">💡</span>
+         <span class="quick-emoji" onclick="tambahEmoji('⏱️')">⏱️</span>
+         <span class="quick-emoji" onclick="tambahEmoji('🔥')">🔥</span>
+         <span class="quick-emoji" onclick="tambahEmoji('👍')">👍</span>
+         <span class="quick-emoji" onclick="tambahEmoji('👏')">👏</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off">
+        <button id="btn-send-chat" onclick="kirimPesan()">➤</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- === KODE FIREBASE === -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getDatabase, ref, set, onValue, update, get, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
+    authDomain: "madasagame.firebaseapp.com",
+    projectId: "madasagame",
+    storageBucket: "madasagame.firebasestorage.app",
+    messagingSenderId: "394583790148",
+    appId: "1:394583790148:web:d20af0e57771a63bf5e211",
+    databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getDatabase(app);
+  window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
+  window.dbGet = get; window.dbRemove = remove; window.dbOnDisconnect = onDisconnect;
+</script>
+
+<!-- === LOGIKA PERMAINAN === -->
+<script>
+  // --- DAFTAR NAMA LAWAN ACAK (BOT) ---
+  const namaBotList = ["AROM KOBAMA", "BUDI", "SITI", "AHMAD", "RINA", "JOKO", "DEWI", "MADASA", "MAYA", "HENDRA", "NISA"];
+
+  const AudioSFX = (function() {
+      let ctx = null;
+      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+      function playTone(freq, type, duration, vol=0.1) {
+          if (!ctx) return;
+          let osc = ctx.createOscillator(); let gain = ctx.createGain();
+          osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(vol, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + duration);
+      }
+      return {
+          correct: () => { init(); [600, 800, 1000].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.1, 0.05), i*80)); },
+          wrong: () => { init(); [250, 200, 150].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.2, 0.05), i*100)); },
+          win: () => { init(); [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*150)); }
+      };
+  })();
+
+  const BGMPlayer = (function() {
+      let ctx = null; let isPlaying = false; let intervalId = null; let step = 0;
+      const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 349.23, 440.00]; 
+      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); }
+      function playNote(freq) {
+          if (!ctx) return;
+          let osc = ctx.createOscillator(); let gain = ctx.createGain();
+          osc.type = 'square'; 
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.015, ctx.currentTime); 
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + 0.15);
+      }
+      return {
+          play: () => {
+              init(); if (isPlaying) return; isPlaying = true; step = 0;
+              intervalId = setInterval(() => { playNote(notes[step]); step = (step + 1) % notes.length; }, 180); 
+          },
+          stop: () => { isPlaying = false; clearInterval(intervalId); }
+      };
+  })();
+
+  const FX = {
+    fireConfetti: () => {
+      const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
+      for (let i = 0; i < 80; i++) {
+        let conf = document.createElement('div');
+        conf.style.position = 'absolute'; conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 10 + 5 + 'px';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-10px';
+        conf.style.zIndex = '99999'; conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(conf);
+        let duration = Math.random() * 2 + 2;
+        conf.animate([
+            { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+            { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+        ], { duration: duration * 1000, easing: 'linear' }).onfinish = () => conf.remove();
+      }
+    },
+    showNotif: (zoneId, isCorrect, text) => {
+        let zone = document.getElementById(zoneId);
+        let oldNotif = zone.querySelector('.notif-lucu');
+        if (oldNotif) oldNotif.remove();
+        
+        let notif = document.createElement('div');
+        notif.className = 'notif-lucu';
+        notif.innerText = text;
+        
+        notif.style.color = "#FFF";
+        let strokeColor = isCorrect ? "#2E7D32" : "#B71C1C";
+        
+        notif.style.webkitTextStroke = `2px ${strokeColor}`;
+        notif.style.textShadow = `4px 4px 0 ${strokeColor}, -1px -1px 0 ${strokeColor}, 1px -1px 0 ${strokeColor}, -1px 1px 0 ${strokeColor}, 1px 1px 0 ${strokeColor}, 0px 10px 15px rgba(0,0,0,0.4)`;
+
+        zone.appendChild(notif);
+        setTimeout(() => notif.remove(), 1200);
+    }
+  };
+
+  let myRole = 0; 
+  let myName = ""; 
+  let tingkatKesulitan = "SD"; // Default tingkat kesulitan
+  let roomId = "";
+  let currentRoomRef = null;
+  const totalQuestions = 50; 
+  
+  let p1 = { name: "PLAYER 1", correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
+  let p2 = { name: "PLAYER 2", correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
+  
+  let timerInterval; let timeLeft = 60;
+  const timerDisplay = document.getElementById('timer-display');
+  let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0; 
+
+  let alertCallback = null;
+  let isAlertOpen = false;
+  let isGameOver = false;
+  let seriesScore = { p1: 0, p2: 0 };
+  let seriesRoundCommitted = false;
+  let currentRoundId = null;
+
+  let isBotOpponent = false;
+  let botSearchTimer = null;
+  let botCountdownTimer = null;
+  let botActionTimer = null;
+  const BOT_WAIT_SECONDS = 10;
+  let botRoundAccuracy = 0.65;
+  let botRoundSpeed = { min: 1800, max: 6000 };
+  let botStreakBias = 0;
+  let botLastResult = null;
+
+  // --- LOGIKA TAHAP 0 (MASUK LOBI) ---
+  function masukLobi() {
+    let inputName = document.getElementById('setup-nama-player').value.trim().toUpperCase();
+    if (inputName === "") {
+        showCustomAlert("Oops!", "Nama tidak boleh kosong. Isi namamu dulu ya!", null);
+        return;
+    }
+    myName = inputName;
+    tingkatKesulitan = document.getElementById('setup-tingkat').value; // Simpan tingkat kesulitan
+    
+    document.getElementById('name-screen').style.display = 'none';
+    document.getElementById('room-screen').style.display = 'flex';
+  }
+
+  function randomRange(min, max) { return min + Math.random() * (max - min); }
+
+  function siapkanProfilBotRonde() {
+    const roll = Math.random();
+    if (roll < 0.18) { botRoundAccuracy = randomRange(0.40, 0.55); } 
+    else if (roll < 0.72) { botRoundAccuracy = randomRange(0.56, 0.75); } 
+    else { botRoundAccuracy = randomRange(0.76, 0.88); }
+
+    botRoundSpeed = { min: Math.floor(randomRange(1200, 2400)), max: Math.floor(randomRange(4500, 7500)) };
+    botStreakBias = randomRange(-0.08, 0.08);
+    botLastResult = null;
+  }
+  
+  let botChatTimer = null;
+  let botTypingEl = null;
+
+  const botChatReplies = {
+    greeting: ["Halo juga! 🤓", "Hai! Siap ngitung cepat? 🔥", "Halo! Mari kita buktikan siapa yang jago hitung 😄"],
+    replay: ["Ayo! Jariku udah pemanasan nih 😄", "Boleh, rematch! 🔥", "Siap! Kali ini aku bakal lebih cepat 🚀"],
+    ready: ["Siap komandan! 🚀", "Siap banget 🤓", "Ayo, let's go!"],
+    thanks: ["Sama-sama! 😄", "Yoi! Santai aja", "Sama-sama, belajar hitung bareng emang asik 🤓"],
+    praise: ["Hahaha makasih! Kamu juga ngerjainnya cepet banget! 🔥", "Makasih 😄 Sempat panik tadi liat waktunya!", "Wah, terima kasih! Otakku berasa berasap nih mikirnya 😂"],
+    gg: ["GG! Bikin jantungan nunggu waktunya abis 😂", "GGWP! Mantap 🔥", "Tegang banget pertandingannya! 😄"],
+    win: ["Hoki doang ini mah 😂", "Yang penting seru! Lanjut? 🔥", "Yeay! Untung kalkulator di otak lagi lancar 🤓"],
+    lose: ["Waduh kepencet mulu tadi 😂", "Asli otakku nge-blank pas liat soalnya 🔥", "Ayo coba lagi, aku gak mau nyerah!"],
+    math_specific: ["Itu soalnya jebakan banget sumpah 😵", "Jangan pakai kalkulator ya! 😂", "Angkanya bikin pusing haha 🤯"],
+    default: ["Hehe 😄", "Siap! 🔥", "Mantap 😄", "Ngitung apaan tuh cepet banget 🚀", "Seru juga ya! 😄", "Semangat! 💪"]
+  };
+
+  function kirimSapaanAwalBot() {
+    if (!isBotOpponent || !currentRoomRef || myRole !== 1) return;
+    const sapaan = [ "Halo! Siap adu hitung cepat? 🚀", "Hai hai! Jangan pakai kalkulator ya 😂", "Salam kenal! Yuk mulai, aku udah pemanasan nih 🤓", "Ping! Udah di lobi nih. Let's go! 🔥", "Halo! Pilih modenya, jangan yang susah-susah ya angkanya 😅" ];
+    const pesan = sapaan[Math.floor(Math.random() * sapaan.length)];
+    setTimeout(() => {
+      if (!isBotOpponent || !currentRoomRef) return;
+      const key = Date.now(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
+      window.dbUpdate(currentRoomRef, u);
+    }, 2000 + Math.random() * 2000); 
+  }
+
+  function kirimSapaanRematchBot() {
+    if (!isBotOpponent || !currentRoomRef || myRole !== 1) return;
+    const sapaan = [ "Wah seru banget tadi! Jariku sampai keriting 😂", "Lanjut ronde dua! Udah nemu polanya nih aku 💪", "Hehe tadi pemanasan, sekarang serius! Jangan sampai salah pencet 😉", "Lanjut lagiii! Kali ini otaknya aku setel ke mode turbo 🚀", "Ayo ayo, sikat lagiii! ✨" ];
+    const pesan = sapaan[Math.floor(Math.random() * sapaan.length)];
+    setTimeout(() => {
+      if (!isBotOpponent || !currentRoomRef) return;
+      const key = Date.now(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
+      window.dbUpdate(currentRoomRef, u);
+    }, 2500 + Math.random() * 2000);
+  }
+
+  function showCustomAlert(title, message, callback) {
+    if (isAlertOpen) return; isAlertOpen = true;
+    document.getElementById('custom-alert-title').innerText = title; document.getElementById('custom-alert-message').innerText = message; alertCallback = callback;
+    history.pushState({ popup: 'alert' }, null, ''); document.getElementById('custom-alert-overlay').style.display = 'flex';
+  }
+
+  function closeCustomAlert() {
+    if (!isAlertOpen) return;
+    if (history.state && history.state.popup === 'alert') { history.back(); } else { executeCloseAlert(); }
+  }
+
+  function executeCloseAlert() {
+    isAlertOpen = false; document.getElementById('custom-alert-overlay').style.display = 'none';
+    if (alertCallback) { let tempCb = alertCallback; alertCallback = null; tempCb(); }
+  }
+
+  window.addEventListener('popstate', function(event) {
+    if (isAlertOpen) { executeCloseAlert(); return; }
+    const chatWrapper = document.getElementById('chat-wrapper');
+    if (chatWrapper && chatWrapper.style.display === 'flex') {
+      chatWrapper.style.display = 'none'; document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang');
+    }
+  });
+
+  // MENGAMBIL NAMA DARI FIREBASE DAN UPDATE KE UI
+  function pantauDataKamar() {
+    window.dbOnValue(currentRoomRef, (snapshot) => {
+      const data = snapshot.val();
+      
+      if (data && data.p1 && data.p1.name) {
+          const p1n = document.getElementById('lbl-series-p1'); if(p1n) p1n.innerText = data.p1.name;
+          const res1 = document.getElementById('res-p1-name'); if(res1) res1.innerText = data.p1.name;
+      }
+      if (data && data.p2 && data.p2.name) {
+          let p2Name = data.p2.name; 
+          const p2n = document.getElementById('lbl-series-p2'); if(p2n) p2n.innerText = p2Name;
+          const res2 = document.getElementById('res-p2-name'); if(res2) res2.innerText = p2Name;
+      }
+
+      if (data && data.seriesScore) {
+        const remoteP1 = Number(data.seriesScore.p1 ?? 0); const remoteP2 = Number(data.seriesScore.p2 ?? 0);
+        if (Number.isFinite(remoteP1) && Number.isFinite(remoteP2)) { seriesScore.p1 = remoteP1; seriesScore.p2 = remoteP2; updateSeriesScoreUI(); }
+      }
+      
+      if (!data) {
+        if (roomId !== "" && !isGameOver) { 
+          isGameOver = true; clearInterval(timerInterval);
+          showCustomAlert("Terputus!", "Lawan telah keluar dari kamar atau koneksi terputus.", () => { location.reload(); }); 
+        } return;
+      }
+
+      if (data.restart && data.restart !== lastRestart) { lastRestart = data.restart; kembaliKeLobi(); }
+
+      if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
+        stopBotSearchTimers(); isBotOpponent = data.botOpponent === true;
+        if (isBotOpponent) { setMatchmakingStatus(`✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true); } 
+        else { setMatchmakingStatus(`✓ Pemain ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true); }
+        document.getElementById('host-controls').style.display = 'block';
+      }
+
+      if (data.mode && data.questions && data.endTime && document.getElementById('welcome-screen').style.display === 'flex') {
+        isBotOpponent = data.botOpponent === true; currentRoundId = data.roundId || String(data.endTime || "");
+        seriesRoundCommitted = String(data.seriesLastScoredRoundId || "") === String(currentRoundId || "");
+        mulaiPermainan(data.questions, data.endTime);
+      }
+
+      if (document.getElementById('welcome-screen').style.display === 'none') {
+        if (myRole === 1 && data.p2 && !isBotOpponent) { syncOpponent(2, data.p2); } else if (myRole === 2 && data.p1) { syncOpponent(1, data.p1); }
+      }
+
+      if (data.chats) {
+        const chatArray = Object.values(data.chats);
+        if (chatArray.length > lastChatCount) {
+          const pesanTerakhir = chatArray[chatArray.length - 1]; const chatTertutup = document.getElementById('chat-wrapper').style.display !== 'flex';
+          if (pesanTerakhir.role !== myRole && chatTertutup) { document.getElementById('chat-notif').style.display = 'flex'; document.getElementById('chat-icon').classList.add('goyang'); }
+          lastChatCount = chatArray.length;
+        }
+        const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = ''; 
+        chatArray.forEach(chat => {
+          const div = document.createElement('div'); div.innerText = chat.msg;
+          div.className = chat.role === myRole ? 'pesan pesan-saya' : 'pesan pesan-lawan'; chatBox.appendChild(div);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight; 
+      }
+    });
+  }
+
+function syncOpponent(player, data) {
+    const p = player === 1 ? p1 : p2;
+    const previousCorrect = p.correct; const previousWrong = p.wrong;
+
+    p.correct = Number(data.correct || 0); p.wrong = Number(data.wrong || 0);
+    p.score = Number(data.score ?? ((p.correct * 10) - (p.wrong * 5))); p.index = Number(data.index || 0);
+
+    if (p.correct > previousCorrect) { FX.showNotif(`p${player}-zone`, true, '🔥 BENAR!'); } 
+    else if (p.wrong > previousWrong) { FX.showNotif(`p${player}-zone`, false, '❌ SALAH!'); }
+    loadQuestion(player);
+  }
+
+  function buatKamar() {
+    roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
+    currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+    window.dbOnDisconnect(currentRoomRef).remove(); 
+    window.dbSet(currentRoomRef, { 
+        mode: "", p2_ready: false, botOpponent: false, 
+        p1: { name: myName, correct: 0, wrong: 0, score: 0, index: 0 }, 
+        p2: { name: "MENCARI...", correct: 0, wrong: 0, score: 0, index: 0 }, 
+        seriesScore: { p1: 0, p2: 0 } 
+    }).then(() => {
+      document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+      document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
+      document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+    });
+  }
+
+  function gabungKamar() {
+    const input = document.getElementById('input-kode-kamar').value.toString();
+    if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
+    
+    roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+
+    window.dbGet(currentRoomRef).then((snap) => {
+      if(snap.exists() && snap.val().p2_ready === false) {
+        window.dbOnDisconnect(currentRoomRef).remove(); 
+        window.dbUpdate(currentRoomRef, { p2_ready: true, botOpponent: false, "p2/name": myName }).then(() => {
+          document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+          document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
+          document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
+        });
+      } else { showCustomAlert("Gagal!", "Kamar tidak ditemukan atau sudah penuh!", null); }
+    });
+  }
+  
+  function setMatchmakingStatus(html, found = false) {
+    const status = document.getElementById('p2-status'); const code = document.getElementById('room-code-display');
+    code.innerText = found ? "LAWAN DITEMUKAN" : "MENCARI LAWAN"; code.style.color = found ? "#2E7D32" : "#4CAF50";
+    status.innerHTML = html; status.style.backgroundColor = found ? "#E8F5E9" : "#FFF3E0"; status.style.color = found ? "#1B5E20" : "#E65100";
+  }
+
+  function stopBotSearchTimers() {
+    if (botSearchTimer) clearTimeout(botSearchTimer); if (botCountdownTimer) clearInterval(botCountdownTimer);
+    botSearchTimer = null; botCountdownTimer = null;
+  }
+
+  function mulaiCountdownLawanOtomatis() {
+    stopBotSearchTimers(); let sisa = BOT_WAIT_SECONDS;
+    setMatchmakingStatus(`Sedang mencari pemain yang tersedia...<br><span style="font-size:.82em;opacity:.82">Memperluas pencarian dalam ${sisa} detik.</span>`);
+    botCountdownTimer = setInterval(() => {
+      sisa--;
+      if (sisa > 0 && !isBotOpponent) { setMatchmakingStatus(`Sedang mencari pemain yang tersedia...<br><span style="font-size:.82em;opacity:.82">Memperluas pencarian dalam ${sisa} detik.</span>`); }
+    }, 1000);
+    botSearchTimer = setTimeout(() => { aktifkanLawanOtomatis(); }, BOT_WAIT_SECONDS * 1000);
+  }
+
+  async function aktifkanLawanOtomatis() {
+    if (myRole !== 1 || !currentRoomRef || isGameOver) return;
+    try {
+      const snap = await window.dbGet(currentRoomRef); if (!snap.exists()) return; const data = snap.val();
+      if (data.p2_ready === true && data.botOpponent !== true) { stopBotSearchTimers(); return; }
+
+      isBotOpponent = true; stopBotSearchTimers();
+      const antreanRef = window.dbRef(window.db, 'antrean_global');
+      try { const qSnap = await window.dbGet(antreanRef); if (qSnap.exists() && String(qSnap.val()) === String(roomId)) { await window.dbRemove(antreanRef); } } catch(e) {}
+
+      const namaBotAcak = namaBotList[Math.floor(Math.random() * namaBotList.length)];
+      await window.dbUpdate(currentRoomRef, { p2_ready: true, botOpponent: true, "p2/name": namaBotAcak });
+      
+      setMatchmakingStatus(`✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true);
+      document.getElementById('host-controls').style.display = 'block';
+
+      kirimSapaanAwalBot();
+    } catch(e) { console.warn("Gagal menyiapkan lawan otomatis:", e); }
+  }
+
+  async function cariLawanAcak() {
+    isBotOpponent = false; document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+    setMatchmakingStatus(`Sedang mencari pemain yang tersedia...<br><span style="font-size:.82em;opacity:.82">Menyiapkan matchmaking online.</span>`);
+    const antreanRef = window.dbRef(window.db, 'antrean_global');
+
+    try {
+      const snapshot = await window.dbGet(antreanRef);
+      if (snapshot.exists()) {
+        const foundRoomId = String(snapshot.val()); const tempRoomRef = window.dbRef(window.db, 'rooms/' + foundRoomId);
+        const roomSnap = await window.dbGet(tempRoomRef);
+        if (roomSnap.exists() && roomSnap.val().p2_ready === false && roomSnap.val().botOpponent !== true) {
+          roomId = foundRoomId; myRole = 2; currentRoomRef = tempRoomRef;
+          await window.dbRemove(antreanRef); 
+          await window.dbUpdate(currentRoomRef, { p2_ready: true, botOpponent: false, "p2/name": myName });
+          setMatchmakingStatus(`✓ Pemain ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true);
+          document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); return;
+        } else { await window.dbRemove(antreanRef); }
+      }
+
+      roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+      await window.dbSet(currentRoomRef, { 
+          mode: "", p2_ready: false, botOpponent: false, 
+          p1: { name: myName, correct: 0, wrong: 0, score: 0, index: 0 }, 
+          p2: { name: "MENCARI...", correct: 0, wrong: 0, score: 0, index: 0 }, 
+          seriesScore: { p1: 0, p2: 0 } 
+      });
+      document.getElementById('p2-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar();
+      window.dbOnDisconnect(antreanRef).remove(); await window.dbSet(antreanRef, roomId); mulaiCountdownLawanOtomatis();
+
+    } catch (error) { showCustomAlert("Server Error", "Gagal terhubung ke server. Silakan coba lagi.", () => location.reload()); }
+  }
+
+  // --- LOGIKA GENERATE SOAL BERDASARKAN KESULITAN ---
+  function generateQuestions(modePilihan) {
+    let master = []; 
+    let operators = [];
+    let setSoal = new Set(); 
+
+    if (modePilihan === 'campuran') { operators = ['+', '-', 'x', '÷']; } 
+    else if (modePilihan === 'penjumlahan') { operators = ['+']; } 
+    else if (modePilihan === 'pengurangan') { operators = ['-']; } 
+    else if (modePilihan === 'perkalian') { operators = ['x']; } 
+    else if (modePilihan === 'pembagian') { operators = ['÷']; }
+
+    let maxA_add, maxB_add, maxA_sub, max_mul, max_div;
+
+    switch(tingkatKesulitan) {
+      case 'TK':
+        maxA_add = 10; maxB_add = 10; maxA_sub = 10; max_mul = 5; max_div = 5; break;
+      case 'SD':
+        maxA_add = 50; maxB_add = 50; maxA_sub = 50; max_mul = 10; max_div = 10; break;
+      case 'SMP':
+        maxA_add = 100; maxB_add = 100; maxA_sub = 100; max_mul = 20; max_div = 20; break;
+      case 'SMA':
+        maxA_add = 500; maxB_add = 500; maxA_sub = 500; max_mul = 50; max_div = 50; break;
+      case 'UMUM':
+      default:
+        maxA_add = 1000; maxB_add = 1000; maxA_sub = 1000; max_mul = 100; max_div = 100; break;
+    }
+    
+    while(master.length < totalQuestions) {
+      let op = operators[Math.floor(Math.random() * operators.length)]; 
+      let a, b, ans;
+      
+      if (op === '+') { 
+        a = Math.floor(Math.random() * maxA_add) + 1; 
+        b = Math.floor(Math.random() * maxB_add) + 1; 
+        ans = a + b; 
+      } else if (op === '-') { 
+        a = Math.floor(Math.random() * maxA_sub) + 2; 
+        b = Math.floor(Math.random() * (a - 1)) + 1;
+        ans = a - b; 
+      } else if (op === 'x') { 
+        a = Math.floor(Math.random() * max_mul) + 1; 
+        b = Math.floor(Math.random() * max_mul) + 1; 
+        ans = a * b; 
+      } else if (op === '÷') { 
+        b = Math.floor(Math.random() * max_div) + 1; 
+        ans = Math.floor(Math.random() * max_div) + 1; 
+        a = b * ans; 
+      }
+      
+      let soalString = `${a} ${op} ${b}`;
+
+      if (!setSoal.has(soalString)) {
+        setSoal.add(soalString);
+
+        let w1, w2;
+        let offsetMax = Math.max(5, Math.floor(ans * 0.2)); 
+        
+        do { 
+          let o1 = Math.floor(Math.random() * offsetMax) + 1;
+          w1 = (Math.random() > 0.5) ? ans + o1 : ans - o1;
+          if (w1 <= 0) w1 = ans + o1;
+        } while (w1 === ans);
+
+        do { 
+          let o2 = Math.floor(Math.random() * offsetMax) + 1;
+          w2 = (Math.random() > 0.5) ? ans + o2 : ans - o2;
+          if (w2 <= 0) w2 = ans + o2;
+        } while (w2 === ans || w2 === w1);
+        
+        let opts = [ans, w1, w2].sort(() => Math.random() - 0.5); 
+        master.push({ q: soalString, ans: ans, opts: opts });
+      }
+    }
+    return master;
+  }
+
+  function hostPilihMode(modeDipilih) {
+    let finalQuestions = generateQuestions(modeDipilih); let targetWaktuSelesai = Date.now() + 60000; 
+    currentRoundId = Date.now().toString(); seriesRoundCommitted = false;
+    window.dbUpdate(currentRoomRef, { mode: modeDipilih, questions: finalQuestions, endTime: targetWaktuSelesai, botOpponent: isBotOpponent, roundId: currentRoundId });
+  }
+
+  function mulaiPermainan(questionsArray, targetEndTime) {
+    document.getElementById('welcome-screen').style.display = 'none'; document.getElementById('p1-zone').classList.remove('belum-mulai');
+    document.getElementById('p2-zone').classList.remove('belum-mulai'); document.getElementById('chat-icon').style.display = 'none'; document.getElementById('chat-wrapper').style.display = 'none'; 
+    
+    BGMPlayer.play(); 
+    
+    p1.questions = JSON.parse(JSON.stringify(questionsArray)); p2.questions = JSON.parse(JSON.stringify(questionsArray));
+    globalEndTime = targetEndTime; loadQuestion(1); loadQuestion(2); startTimer();
+
+    if (isBotOpponent && myRole === 1) { siapkanProfilBotRonde(); jadwalkanJawabanBot(); }
+  }
+
+  function loadQuestion(player) {
+    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2';
+    if (pData.index >= pData.questions.length) { document.getElementById(`${prefix}-q`).innerText = "SELESAI!"; document.getElementById(`${prefix}-options`).innerHTML = ''; return; }
+    let qData = pData.questions[pData.index]; document.getElementById(`${prefix}-q`).innerText = qData.q;
+    let optsDiv = document.getElementById(`${prefix}-options`); optsDiv.innerHTML = '';
+    
+    qData.opts.forEach(opt => {
+      let btn = document.createElement('button'); btn.className = 'btn-option'; btn.innerText = opt;
+      btn.onclick = () => checkAnswer(player, opt, qData.ans); optsDiv.appendChild(btn);
+    });
+  }
+
+  function stopBotAction() { if (botActionTimer) clearTimeout(botActionTimer); botActionTimer = null; }
+
+  function jadwalkanJawabanBot() {
+    stopBotAction(); if (botChatTimer) clearTimeout(botChatTimer); hapusBotMengetik();
+    if (!isBotOpponent || myRole !== 1 || isGameOver) return;
+    if (document.getElementById('result-screen').style.display === 'flex') return;
+    if (!p2.questions || p2.index >= p2.questions.length) return;
+
+    let delay = Math.floor(randomRange(botRoundSpeed.min, botRoundSpeed.max));
+    const speedRoll = Math.random();
+    if (speedRoll < 0.08) delay = Math.floor(randomRange(900, 1600)); else if (speedRoll > 0.92) delay = Math.floor(randomRange(7000, 9500));
+    botActionTimer = setTimeout(() => { jawabSebagaiBot(); }, delay);
+  }
+
+  function jawabSebagaiBot() {
+    if (!isBotOpponent || myRole !== 1 || isGameOver || timeLeft <= 0) return;
+    if (!p2.questions || p2.index >= p2.questions.length) return;
+
+    const qData = p2.questions[p2.index];
+    let chance = botRoundAccuracy + randomRange(-0.10, 0.10);
+    if (botLastResult === true) chance += botStreakBias; else if (botLastResult === false) chance -= botStreakBias;
+
+    chance = Math.max(0.22, Math.min(0.92, chance));
+    const benar = Math.random() < chance; botLastResult = benar; let selected = qData.ans;
+
+    if (!benar) { const salah = qData.opts.filter(x => String(x) !== String(qData.ans)); selected = salah[Math.floor(Math.random() * salah.length)]; }
+    const isCorrect = String(selected) === String(qData.ans);
+
+    FX.showNotif('p2-zone', isCorrect, isCorrect ? "🔥 BENAR!" : "❌ SALAH!");
+
+    if (isCorrect) { p2.correct++; p2.score += 10; } else { p2.wrong++; p2.score -= 5; }
+    p2.index++;
+
+    const updateData = {};
+    updateData["p2"] = { correct: p2.correct, wrong: p2.wrong, score: p2.score, index: p2.index, lastAction: { selected, isCorrect, timestamp: Date.now() } };
+    window.dbUpdate(currentRoomRef, updateData);
+
+    setTimeout(() => { loadQuestion(2); jadwalkanJawabanBot(); }, 450);
+  }
+
+  function checkAnswer(player, selected, correct) {
+    if (player !== myRole) return; 
+    let pData = player === 1 ? p1 : p2; let prefix = player === 1 ? 'p1' : 'p2';
+    let isCorrect = (String(selected) === String(correct));
+    
+    let optsDiv = document.getElementById(`${prefix}-options`); let buttons = optsDiv.getElementsByClassName('btn-option');
+    for (let btn of buttons) { btn.style.pointerEvents = 'none'; if (String(btn.innerText) === String(selected)) { btn.style.backgroundColor = isCorrect ? "#4CAF50" : "#F44336"; btn.style.color = "#FFF"; } }
+    
+    FX.showNotif(prefix + '-zone', isCorrect, isCorrect ? "🔥 BENAR!" : "❌ SALAH!");
+    
+    if (isCorrect) { 
+      pData.correct++; pData.score = Number(pData.score || 0) + 10; AudioSFX.correct(); FX.fireConfetti();
+    } else { 
+      pData.wrong++; pData.score = Number(pData.score || 0) - 5; AudioSFX.wrong();
+    }
+    pData.index++; 
+
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
+    window.dbUpdate(currentRoomRef, updateData); setTimeout(() => { loadQuestion(player); }, 400);
+  }
+
+  function skipQuestion(player) {
+    if (player !== myRole) return;
+    let pData = player === 1 ? p1 : p2; pData.wrong++; pData.index++; 
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
+    window.dbUpdate(currentRoomRef, updateData); loadQuestion(player);
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000); timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      timerDisplay.innerText = timeLeft;
+      if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
+      if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
+    }, 100);
+  }
+
+  async function commitSeriesScoreOnce(p1Points, p2Points, p1Correct, p2Correct) {
+    if (myRole !== 1 || !currentRoomRef || seriesRoundCommitted) { updateSeriesScoreUI(); return; }
+    seriesRoundCommitted = true;
+    try {
+      const snap = await window.dbGet(currentRoomRef); if (!snap.exists()) return;
+      const data = snap.val() || {}; const remoteSeries = data.seriesScore || { p1: 0, p2: 0 };
+      const remoteRoundId = data.roundId || currentRoundId || data.endTime || "round";
+      const scoredRoundId = data.seriesLastScoredRoundId || null;
+
+      if (String(scoredRoundId) === String(remoteRoundId)) { seriesScore.p1 = Number(remoteSeries.p1 || 0); seriesScore.p2 = Number(remoteSeries.p2 || 0); updateSeriesScoreUI(); return; }
+
+      let nextP1 = Number(remoteSeries.p1 || 0); let nextP2 = Number(remoteSeries.p2 || 0);
+      if (Number(p1Points) > Number(p2Points)) nextP1 += 1; else if (Number(p2Points) > Number(p1Points)) nextP2 += 1; else if (Number(p1Correct) > Number(p2Correct)) nextP1 += 1; else if (Number(p2Correct) > Number(p1Correct)) nextP2 += 1;
+
+      seriesScore.p1 = nextP1; seriesScore.p2 = nextP2; updateSeriesScoreUI();
+      await window.dbUpdate(currentRoomRef, { seriesScore: { p1: nextP1, p2: nextP2 }, seriesLastScoredRoundId: remoteRoundId });
+    } catch (err) { seriesRoundCommitted = false; console.error("Gagal menyimpan skor:", err); }
+  }
+
+  function updateSeriesScoreUI() {
+    const a = document.getElementById('series-p1'); const b = document.getElementById('series-p2');
+    if (a) a.innerText = seriesScore.p1 || 0; if (b) b.innerText = seriesScore.p2 || 0;
+  }
+
+  function endGame() {
+    clearInterval(timerInterval); stopBotAction(); BGMPlayer.stop(); AudioSFX.win(); FX.fireConfetti();
+
+    document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; document.getElementById('p1-benar').innerText = p1.correct; document.getElementById('p1-salah').innerText = p1.wrong;
+    const p1PoinEl = document.getElementById('p1-poin'); if (p1PoinEl) p1PoinEl.innerText = p1.score;
+    document.getElementById('p2-dijawab').innerText = p2.correct + p2.wrong; document.getElementById('p2-benar').innerText = p2.correct; document.getElementById('p2-salah').innerText = p2.wrong;
+    const p2PoinEl = document.getElementById('p2-poin'); if (p2PoinEl) p2PoinEl.innerText = p2.score;
+
+    document.getElementById('result-screen').style.display = 'flex'; document.getElementById('chat-icon').style.display = 'flex';
+    commitSeriesScoreOnce(p1.score, p2.score, p1.correct, p2.correct);
+  }
+
+  function toggleChat() {
+    const chatUI = document.getElementById('chat-wrapper');
+    if (chatUI.style.display === 'flex') { chatUI.style.display = 'none'; if (history.state && history.state.popup === 'chat') { history.back(); } } 
+    else { chatUI.style.display = 'flex'; history.pushState({ popup: 'chat' }, null, ''); const chatBox = document.getElementById('chat-box'); chatBox.scrollTop = chatBox.scrollHeight; document.getElementById('chat-input').focus(); document.getElementById('chat-notif').style.display = 'none'; document.getElementById('chat-icon').classList.remove('goyang'); }
+  }
+
+  function pilihBalasanBot(pesan) {
+    const t = String(pesan || "").toLowerCase().trim(); let list = botChatReplies.default;
+    if (/(main lagi|main ulang|rematch|lagi yuk|ulang)/i.test(t)) list = botChatReplies.replay;
+    else if (/(halo|hai|hello|assalam|salam)/i.test(t)) list = botChatReplies.greeting;
+    else if (/(siap|ready|mulai)/i.test(t)) list = botChatReplies.ready;
+    else if (/(makasih|terima kasih|thanks|thx)/i.test(t)) list = botChatReplies.thanks;
+    else if (/(hebat|jago|keren|mantap|pintar)/i.test(t)) list = botChatReplies.praise;
+    else if (/(^|\s)gg(\s|$)|good game/i.test(t)) list = botChatReplies.gg;
+    else if (/(menang|juara)/i.test(t)) list = botChatReplies.win;
+    else if (/(kalah|payah|salah terus|curang)/i.test(t)) list = botChatReplies.lose;
+    else if (/(hitung|kalkulator|susah|pusing)/i.test(t)) list = botChatReplies.math_specific;
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function tampilkanBotMengetik() {
+    const box = document.getElementById('chat-box'); if (!box || botTypingEl) return;
+    botTypingEl = document.createElement('div'); botTypingEl.className = 'pesan pesan-lawan bot-typing';
+    botTypingEl.innerHTML = '<span>Lawan sedang mengetik</span><span class="typing-dots"><i></i><i></i><i></i></span>';
+    box.appendChild(botTypingEl); box.scrollTop = box.scrollHeight;
+  }
+
+  function hapusBotMengetik() { if (botTypingEl) { botTypingEl.remove(); botTypingEl = null; } }
+
+  function jadwalkanBalasanBot(pesanUser) {
+    if (!isBotOpponent || myRole !== 1 || !currentRoomRef) return;
+    if (botChatTimer) clearTimeout(botChatTimer);
+    const mulaiKetik = 450 + Math.floor(Math.random() * 700); const durasiKetik = 900 + Math.floor(Math.random() * 1500);
+
+    setTimeout(() => {
+      if (!isBotOpponent || myRole !== 1) return; tampilkanBotMengetik();
+      botChatTimer = setTimeout(async () => {
+        hapusBotMengetik(); if (!isBotOpponent || myRole !== 1 || !currentRoomRef) return;
+        const balasan = pilihBalasanBot(pesanUser);
+        try { const timeKey = Date.now(); const updateData = {}; updateData["chats/" + timeKey] = { role: 2, msg: balasan, bot: true }; await window.dbUpdate(currentRoomRef, updateData); } catch(e) {}
+      }, durasiKetik);
+    }, mulaiKetik);
+  }
+
+  function tambahEmoji(emoji) {
+    const input = document.getElementById('chat-input');
+    input.value += emoji;
+    input.focus();
+  }
+
+  function kirimPesan() {
+    const inputPesan = document.getElementById('chat-input'); const teks = inputPesan.value.trim();
+    if (teks === "") return; const timeKey = Date.now(); 
+    let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks }; window.dbUpdate(currentRoomRef, updateData);
+    inputPesan.value = "";
+    if (isBotOpponent && myRole === 1) jadwalkanBalasanBot(teks);
+  }
+
+  document.getElementById('chat-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') kirimPesan(); });
+  
+  function mainLagi() {
+    botLastResult = null; botStreakBias = 0; seriesRoundCommitted = false; currentRoundId = null;
+    let updateData = { mode: "", questions: null, p2_ready: true, botOpponent: isBotOpponent, restart: Date.now() };
+    window.dbUpdate(currentRoomRef, updateData);
+  }
+
+  function kembaliKeLobi() {
+    document.getElementById('result-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
+    document.getElementById('p1-zone').classList.add('belum-mulai'); document.getElementById('p2-zone').classList.add('belum-mulai');
+    p1.correct = 0; p1.wrong = 0; p1.score = 0; p1.index = 0; p1.questions = [];
+    p2.correct = 0; p2.wrong = 0; p2.score = 0; p2.index = 0; p2.questions = [];
+    
+    timeLeft = 60; timerDisplay.innerText = "60"; timerDisplay.classList.remove('waktu-kritis');
+    document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
+    document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
+    document.getElementById('p2-status').innerHTML = "✓ Lawan siap!<br><span style=\"font-size:.82em;opacity:.82\">Silakan pilih mode untuk pertandingan berikutnya.</span>";
+    document.getElementById('p2-status').style.backgroundColor = "#E8F5E9"; document.getElementById('p2-status').style.color = "#1B5E20";
+    if (myRole === 1) document.getElementById('host-controls').style.display = 'block';
+
+    if (isBotOpponent && myRole === 1) { kirimSapaanRematchBot(); }
+  }
+
+  function akhiriGame() {
+    isGameOver = true; stopBotSearchTimers(); stopBotAction(); 
+    if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
+  }
+</script>
+</body>
+</html>
