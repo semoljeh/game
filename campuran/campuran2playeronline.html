@@ -212,18 +212,6 @@
         </p>
       </div>
       
-      <!-- Input Tingkat Kesulitan -->
-      <div style="margin-bottom: 25px;">
-        <p style="color: #03A9F4; font-weight: 900; margin-bottom: 5px;">TINGKAT KESULITAN:</p>
-        <select id="setup-tingkat" class="room-input" style="border-color: #03A9F4; font-size: 18px; font-weight: 800; cursor: pointer; background: #FFF;">
-          <option value="TK">PAUD / TK</option>
-          <option value="SD" selected>SD / MI</option>
-          <option value="SMP">SMP / MTs</option>
-          <option value="SMA">SMA / MA</option>
-          <option value="UMUM">UMUM / HARDCORE</option>
-        </select>
-      </div>
-      
       <button class="btn-mode" onclick="masukLobi()" style="background: #4CAF50; width: 100%; max-width: 100%; font-size: 18px; padding: 15px; border-color: #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">MASUK ARENA 🚀</button>
     </div>
   </div>
@@ -263,7 +251,21 @@
     <div class="welcome-card">
       <h1>KODE KAMAR: <span id="room-code-display" style="color: #4CAF50;">---</span></h1>
       <h2 id="p2-status" style="color: #FF9800; font-size: clamp(14px, 4vw, 18px); background: #FFF3E0; padding: 10px; border-radius: 10px;">Menunggu Player 2 bergabung...</h2>
+      
       <div id="host-controls" style="display: none; margin-top: 20px;">
+        
+        <!-- BARU: Pilihan Level Hanya Muncul Untuk Host -->
+        <div style="margin-bottom: 15px; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px;">
+          <p style="color: #03A9F4; font-weight: 900; margin: 0 0 5px 0; font-size: 14px;">TINGKAT KESULITAN:</p>
+          <select id="host-tingkat" class="room-input" style="border-color: #03A9F4; font-size: 16px; padding: 8px; font-weight: 800; cursor: pointer; background: #FFF;">
+            <option value="TK">PAUD / TK</option>
+            <option value="SD" selected>SD / MI</option>
+            <option value="SMP">SMP / MTs</option>
+            <option value="SMA">SMA / MA</option>
+            <option value="UMUM">UMUM / HARDCORE</option>
+          </select>
+        </div>
+
         <p>Silakan Host (P1) pilih mode permainan:</p>
         <div class="mode-container">
           <button class="btn-mode btn-campuran" onclick="hostPilihMode('campuran')">🌟 CAMPURAN</button>
@@ -519,7 +521,6 @@
         return;
     }
     myName = inputName;
-    tingkatKesulitan = document.getElementById('setup-tingkat').value; // Simpan tingkat kesulitan
     
     document.getElementById('name-screen').style.display = 'none';
     document.getElementById('room-screen').style.display = 'flex';
@@ -860,6 +861,8 @@ function syncOpponent(player, data) {
   }
 
   function hostPilihMode(modeDipilih) {
+    tingkatKesulitan = document.getElementById('host-tingkat').value;
+    
     let finalQuestions = generateQuestions(modeDipilih); let targetWaktuSelesai = Date.now() + 60000; 
     currentRoundId = Date.now().toString(); seriesRoundCommitted = false;
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questions: finalQuestions, endTime: targetWaktuSelesai, botOpponent: isBotOpponent, roundId: currentRoundId });
