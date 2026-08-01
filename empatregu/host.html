@@ -86,8 +86,6 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:poin
 .team.connected{outline:3px solid #22a65a}.team.pressed{transform:scale(1.03);box-shadow:0 0 0 4px #173c29,0 0 30px #facc15}.team.win{outline:5px solid #facc15;transform:scale(1.03); animation: pulse 0.5s infinite alternate;}.team.eliminated{opacity:.38;filter:grayscale(.8)}
 .label{font-size:11px;font-weight:900;color:#687b71;margin-top:5px}
 .score{font-size:clamp(24px, 4vw, 30px);font-weight:1000; color: #173c29;}
-
-/* PERBAIKAN: Padding dikecilkan agar ke-4 tombol (+10, +5, -5, -10) muat sejajar */
 .scorectl{display:flex;justify-content:center;gap:3px; margin-top:5px;}
 .scorectl button{padding:6px 2px;font-size:11px; border: 2px solid #eee; flex:1;}
 
@@ -126,7 +124,6 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
 </style>
 </head>
 
-<!-- DITAMBAHKAN ATRIBUT ANTI KLIK KANAN DAN COPAS -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <!-- CUSTOM ALERT MODAL CONTAINER -->
@@ -183,7 +180,6 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
  <div class="timer"><div class="timer-label" id="timerLabel">WAKTU MENJAWAB!</div><div id="timer">00:30</div></div>
  
  <section class="teams" id="teams">
-   <!-- PERBAIKAN: Menambahkan formasi tombol kontrol skor menjadi 4 (+10, +5, -5, -10) untuk semua regu -->
    <article class="team t1" id="team1"><div class="num">1</div><div class="label">REGU 1</div><div class="score" id="s1">0</div><div class="scorectl"><button onclick="score(1,10)">+10</button><button class="blue" onclick="score(1,5)">+5</button><button class="amber" onclick="score(1,-5)">-5</button><button class="red" onclick="score(1,-10)">-10</button></div></article>
    <article class="team t2" id="team2"><div class="num">2</div><div class="label">REGU 2</div><div class="score" id="s2">0</div><div class="scorectl"><button onclick="score(2,10)">+10</button><button class="blue" onclick="score(2,5)">+5</button><button class="amber" onclick="score(2,-5)">-5</button><button class="red" onclick="score(2,-10)">-10</button></div></article>
    <article class="team t3" id="team3"><div class="num">3</div><div class="label">REGU 3</div><div class="score" id="s3">0</div><div class="scorectl"><button onclick="score(3,10)">+10</button><button class="blue" onclick="score(3,5)">+5</button><button class="amber" onclick="score(3,-5)">-5</button><button class="red" onclick="score(3,-10)">-10</button></div></article>
@@ -251,7 +247,9 @@ const AudioSFX = (function() {
         correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); },
         wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); },
         buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); },
-        timeUp: () => { init(); playTone(300, 'triangle', 0.8, 0.2); }
+        timeUp: () => { init(); playTone(300, 'triangle', 0.8, 0.2); },
+        // PERBAIKAN: Bunyi TIK saat persiapan 5 detik
+        tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } 
     };
 })();
 
@@ -296,8 +294,8 @@ const MANIFEST={"islami": {"label": "Cerdas Cermat Islami", "materi": {"campuran
 let room="",teamCount=4,category="islami",subject="campuran",seconds=30,mode="idle";
 let connected={},scores={1:0,2:0,3:0,4:0},winner=null,current=null,questions=[],qIndex=-1;
 
-// PERBAIKAN: Menambahkan variabel isQuestionDone untuk mengunci soal yang sudah dijawab dengan benar
-let timerLeft=30, timerId=null, roomUnsub=null, lastWinner=null, settingsOpen=false, historyGuard=false, isQuestionDone=false;
+// PERBAIKAN: Menambahkan isPrepMode untuk mengunci kontrol selama 5 detik
+let timerLeft=30, timerId=null, roomUnsub=null, lastWinner=null, settingsOpen=false, historyGuard=false, isQuestionDone=false, isPrepMode=false;
 let questionTimerLeft = 30; 
 let answerSeconds = 10;
 let timerMode = "idle";
@@ -372,7 +370,7 @@ async function createRoom(){
  
  try{await loadQuestions()}catch(e){return showCustomAlert("Bank soal gagal dimuat.\n"+e.message,"GAGAL","❌")}
  room=code();mode="lobby";connected={};scores={1:0,2:0,3:0,4:0};timerLeft=seconds; timerMode="idle"; 
- isQuestionDone=false; // Reset status kunci soal
+ isQuestionDone=false; isPrepMode=false;
  renderTimerUI();
  await FB.set(FB.ref(FB.db,"quiz4/"+room),{mode:"lobby",teamCount,category,subject,seconds,answerSeconds,connected:{},pressed:{1:false,2:false,3:false,4:false},buzzer:{open:false,winner:null,excluded:{}},scores,createdAt:Date.now()});
  closeSettings(); 
@@ -418,7 +416,11 @@ function listen(){
      document.getElementById("startBtn").disabled=n!==teamCount;document.getElementById("join").hidden=n===teamCount;
    }else{
      const left=activeTeams().filter(i=>excluded[i]!==true);
-     document.getElementById("status").textContent=winner?"⚡ REGU "+winner+" MENJAWAB!":(d.buzzer?.open?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI");
+     if(isPrepMode) {
+         document.getElementById("status").textContent = "⏳ WAKTU PERSIAPAN SOAL...";
+     } else {
+         document.getElementById("status").textContent=winner?"⚡ REGU "+winner+" MENJAWAB!":(d.buzzer?.open?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI");
+     }
    }
  });
 }
@@ -426,28 +428,76 @@ function listen(){
 async function startQuiz(){
  const s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/connected")),c=s.val()||{};
  if(!activeTeams().every(i=>c[i]===true))return showCustomAlert("Semua "+teamCount+" regu harus terhubung terlebih dahulu.","PERINGATAN","⚠️");
- document.getElementById("join").hidden=true;await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}});
+ document.getElementById("join").hidden=true;
+ await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}});
  await nextQuestion();
 }
 
+// PERBAIKAN UTAMA: Tambah Waktu Persiapan 5 Detik Sebelum Soal Keluar
 async function nextQuestion(){
+ if(isPrepMode) return showCustomAlert("Sabar Kang, sedang dalam waktu persiapan 5 detik!","TUNGGU SEBENTAR","⏳");
  BGMPlayer.play();
  if(!room||mode!=="quiz")return;
  if(!questions.length)return showCustomAlert("Bank soal kosong.","PERINGATAN","⚠️");
- qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
  
- // Buka kembali kunci saat berganti soal
+ qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
  isQuestionDone = false; 
+ isPrepMode = true; // KUNCI MODE PERSIAPAN
+ 
+ document.getElementById("badge").textContent="PERSIAPAN";
+ document.getElementById("q").textContent="BERSIAP-SIAP! SOAL AKAN MUNCUL...";
+ document.getElementById("sub").textContent="Fokus ke layar proyektor...";
+ document.getElementById("answer").style.display="none";
+ document.getElementById("answer").textContent="JAWABAN: "+current.jawaban;
+ 
+ timerMode = "prep";
+ timerLeft = 5; // Waktu persiapan 5 detik
+ renderTimerUI();
+ 
+ // Sembunyikan soal dari proyektor (display.html akan otomatis menampilkan teks ini)
+ await FB.update(FB.ref(FB.db,"quiz4/"+room),{ 
+     currentQuestion: "BERSIAP-SIAP! SOAL KE-"+(qIndex+1)+" AKAN MUNCUL...", 
+     showAnswer: false, 
+     timerLeft: timerLeft, 
+     timerMode: "prep" 
+ });
+ // Pastikan buzzer terkunci saat hitung mundur persiapan
+ await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null,excluded:{}});
+ 
+ clearInterval(timerId);
+ timerId = setInterval(async() => {
+     timerLeft--;
+     renderTimerUI();
+     if(timerLeft > 0) AudioSFX.tick(); // Bunyikan TIK saat hitung mundur
+     
+     FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)});
+     if(timerLeft <= 0){
+         clearInterval(timerId);
+         startActualQuestion(); // Setelah 5 detik, tampilkan soal asli
+     }
+ }, 1000);
+}
+
+// Menampilkan soal asli setelah waktu persiapan selesai
+async function startActualQuestion() {
+ isPrepMode = false; // Buka kunci persiapan
  
  document.getElementById("badge").textContent=(MANIFEST[category].materi[subject]||subject).toUpperCase();
- document.getElementById("q").textContent=current.soal;document.getElementById("sub").textContent="Soal "+(qIndex+1)+" • Tekan buzzer jika sudah siap menjawab.";
- document.getElementById("answer").style.display="none";document.getElementById("answer").textContent="JAWABAN: "+current.jawaban;
+ document.getElementById("q").textContent=current.soal;
+ document.getElementById("sub").textContent="Soal "+(qIndex+1)+" • Tekan buzzer jika sudah siap menjawab.";
  
  timerMode = "question";
  timerLeft = seconds;
  renderTimerUI();
  
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{ currentQuestion: current.soal, currentAnswer: current.jawaban, showAnswer: false, timerLeft: timerLeft, timerMode: "question" });
+ await FB.update(FB.ref(FB.db,"quiz4/"+room),{ 
+     currentQuestion: current.soal, 
+     currentAnswer: current.jawaban, 
+     showAnswer: false, 
+     timerLeft: timerLeft, 
+     timerMode: "question" 
+ });
+ // Buka buzzer agar regu bisa berebut
  await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,excluded:{},openedAt:Date.now()});
  startTimer();
 }
@@ -456,11 +506,16 @@ function renderTimerUI(){
     const t = document.getElementById("timer");
     const lbl = document.getElementById("timerLabel");
     t.textContent = "00:" + String(Math.max(0,timerLeft)).padStart(2,"0");
-    t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0);
+    t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0 && timerMode !== "prep");
     
     if (timerMode === "answer") {
         t.classList.add("answer-mode");
         lbl.style.display = "block";
+        lbl.textContent = "WAKTU MENJAWAB!";
+    } else if (timerMode === "prep") {
+        t.classList.add("answer-mode"); // Supaya warnanya beda saat prep (kuning/orange)
+        lbl.style.display = "block";
+        lbl.textContent = "PERSIAPAN...";
     } else {
         t.classList.remove("answer-mode");
         lbl.style.display = "none";
@@ -495,6 +550,7 @@ function startAnswerTimer(){
 function pauseTimer(){clearInterval(timerId);timerId=null}
 
 function showAnswer(){
+    if(isPrepMode) return; // Cegah tombol jika masa persiapan
     if(!current)return; const a=document.getElementById("answer");a.style.display="inline-block";
     pauseTimer(); BGMPlayer.stop(); AudioSFX.click();
     FB.update(FB.ref(FB.db,"quiz4/"+room), {showAnswer: true, timerMode: "idle"});
@@ -502,15 +558,12 @@ function showAnswer(){
 }
 
 async function correct(){
+ if(isPrepMode) return;
  BGMPlayer.play();
  if(!winner)return showCustomAlert("Belum ada regu yang memenangkan buzzer.","PERINGATAN","⚠️");
- 
- // PERBAIKAN: Jika sudah dikunci benar, jangan izinkan aksi lanjutan untuk menghindari kekacauan nilai
  if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
  
  pauseTimer();
- 
- // KUNCI SOAL SETELAH DIJAWAB BENAR
  isQuestionDone = true; 
  
  const n=+winner;scores[n]=(scores[n]||0)+10;
@@ -521,14 +574,12 @@ async function correct(){
 }
 
 async function wrong(){
+ if(isPrepMode) return;
  BGMPlayer.play();
  if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️");
- 
- // PERBAIKAN: Melindungi tombol agar tidak bisa diklik jika soal sudah dikunci (dijawab benar)
  if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
  
  pauseTimer();
- 
  AudioSFX.wrong(); FX.shakeScreen(); 
  FX.showNotif('SALAH! ❌', '#F44336');
 
@@ -539,10 +590,9 @@ async function wrong(){
 }
 
 async function passQuestion(){
+ if(isPrepMode) return;
  BGMPlayer.play();
  if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️");
- 
- // PERBAIKAN: Mencegah Lempar setelah dijawab benar
  if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
  
  pauseTimer();
@@ -578,9 +628,11 @@ async function processPassOrTimeout(isTimeout){
 }
 
 async function resumeBuzzer(){
+    if(isPrepMode) return;
     if(!room||mode!=="quiz")return; await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()});
     if(timerLeft>0) startTimer();
 }
+
 async function score(n,d){if(!room)return;scores[n]=(scores[n]||0)+d;await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),scores[n])}
 
 window.openSettings=openSettings;window.closeSettings=closeSettings;window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.openDisplayPage=openDisplayPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.passQuestion=passQuestion;window.resumeBuzzer=resumeBuzzer;window.score=score;window.showCustomAlert=showCustomAlert;window.closeCustomAlert=closeCustomAlert;
