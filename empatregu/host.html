@@ -19,6 +19,9 @@ body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%;
 @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-15px) rotate(-1deg);} 75% {transform: translateX(15px) rotate(1deg);} }
 .shake { animation: shake 0.3s ease-in-out; }
 
+/* ANIMASI ZOOM IN PERSIAPAN */
+@keyframes zoomInPrep { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
 .big-notif { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(40px, 8vw, 100px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; pointer-events: none; animation: popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; text-align:center; white-space: nowrap; -webkit-text-stroke: 3px #fff; }
 @keyframes popZoom { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
 
@@ -257,7 +260,6 @@ async function startQuiz(){
  document.getElementById("join").hidden=true; await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}}); await nextQuestion();
 }
 
-// MESIN PERSIAPAN BERSKALA BESAR TANPA KOTAK TIMER
 async function nextQuestion(){
  if(isPrepMode) return showCustomAlert("Sabar Kang, sedang dalam waktu persiapan!","TUNGGU SEBENTAR","⏳");
  BGMPlayer.play();
@@ -266,10 +268,10 @@ async function nextQuestion(){
  
  qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
  isQuestionDone = false; 
- isPrepMode = true; // KUNCI KONTROL
+ isPrepMode = true; 
  
  document.getElementById("badge").textContent="PERSIAPAN";
- document.getElementById("sub").textContent=""; // Kosongkan subteks
+ document.getElementById("sub").textContent=""; 
  document.getElementById("answer").style.display="none";
  document.getElementById("answer").textContent="JAWABAN: "+current.jawaban;
  
@@ -277,7 +279,14 @@ async function nextQuestion(){
  timerLeft = 6; 
  
  let displayTxt = "SIAP !!!";
- document.getElementById("q").textContent = displayTxt;
+ const qEl = document.getElementById("q");
+ qEl.textContent = displayTxt;
+ 
+ // TRIGGER ANIMASI ZOOM PERTAMA KALI
+ qEl.style.animation = 'none';
+ qEl.offsetHeight; 
+ qEl.style.animation = 'zoomInPrep 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+ 
  renderTimerUI();
  
  await FB.update(FB.ref(FB.db,"quiz4/"+room),{ currentQuestion: displayTxt, showAnswer: false, timerLeft: timerLeft, timerMode: "prep" });
@@ -286,13 +295,16 @@ async function nextQuestion(){
  clearInterval(timerId);
  timerId = setInterval(async() => {
      timerLeft--;
-     
-     // Logika: Detik ke-6 (SIAP !!!), ke-5 s/d ke-1 (Angka besar)
      let newTxt = timerLeft > 5 ? "SIAP !!!" : (timerLeft > 0 ? timerLeft.toString() : "");
-     
      if(timerLeft > 0) {
          AudioSFX.tick(); 
-         document.getElementById("q").textContent = newTxt;
+         qEl.textContent = newTxt;
+         
+         // RE-TRIGGER ANIMASI SETIAP ANGKA BERUBAH
+         qEl.style.animation = 'none';
+         qEl.offsetHeight; 
+         qEl.style.animation = 'zoomInPrep 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+         
          renderTimerUI();
          FB.update(FB.ref(FB.db,"quiz4/"+room), { timerLeft: timerLeft, currentQuestion: newTxt });
      } else {
@@ -305,7 +317,11 @@ async function nextQuestion(){
 async function startActualQuestion() {
  isPrepMode = false; 
  document.getElementById("badge").textContent=(MANIFEST[category].materi[subject]||subject).toUpperCase();
- document.getElementById("q").textContent=current.soal;
+ 
+ const qEl = document.getElementById("q");
+ qEl.textContent=current.soal;
+ qEl.style.animation = 'none'; // Hentikan efek zoom saat soal muncul
+ 
  document.getElementById("sub").textContent="Soal "+(qIndex+1)+" • Tekan buzzer jika sudah siap menjawab.";
  
  timerMode = "question"; timerLeft = seconds; renderTimerUI();
@@ -317,7 +333,7 @@ async function startActualQuestion() {
 function renderTimerUI(){
     const t = document.getElementById("timer");
     const lbl = document.getElementById("timerLabel");
-    const qEl = document.getElementById("q"); // Ambil elemen soal
+    const qEl = document.getElementById("q"); 
     
     t.textContent = "00:" + String(Math.max(0,timerLeft)).padStart(2,"0");
     t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0 && timerMode !== "prep");
@@ -329,7 +345,6 @@ function renderTimerUI(){
         lbl.textContent = "WAKTU MENJAWAB!";
         qEl.style.fontSize = ""; qEl.style.color = "";
     } else if (timerMode === "prep") {
-        // HIDE TIMER & BUAT TEKS SOAL RAKSASA SAAT PERSIAPAN
         t.parentElement.style.display = "none";
         qEl.style.fontSize = "clamp(50px, 8vw, 100px)"; 
         qEl.style.color = "#dc2626";

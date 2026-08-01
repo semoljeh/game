@@ -15,6 +15,9 @@
   @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(80px) rotate(5deg); } }
   @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-15px) rotate(-1deg);} 75% {transform: translateX(15px) rotate(1deg);} }
 
+  /* ANIMASI ZOOM IN PERSIAPAN */
+  @keyframes zoomInPrep { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
   #setup h1 { font-size: clamp(24px, 5vw, 40px); margin-bottom: 20px; color: #38bdf8; }
   #setup input { font-size: clamp(30px, 6vw, 50px); padding: 15px; text-align: center; border-radius: 15px; border: 4px solid #38bdf8; outline: none; font-weight: 900; letter-spacing: 10px; width: 100%; max-width: 350px; user-select: auto; -webkit-user-select: auto; }
@@ -105,7 +108,7 @@
           correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); },
           wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); },
           buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); },
-          tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } // EFEK TIK TIK TIK DITAMBAHKAN
+          tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } 
       };
   })();
 
@@ -162,11 +165,21 @@
           const newQText = d.currentQuestion || "Persiapan...";
           const dq = document.getElementById("d-q");
           
-          // Bunyikan tik jika angka berganti saat persiapan
+          // DETEKSI PERUBAHAN TEKS SOAL / ANGKA COUNTDOWN
           if (dq.textContent !== newQText) {
               dq.textContent = newQText;
-              if (d.timerMode === "prep" && !isInitialLoad) {
-                  AudioSFX.tick(); 
+              
+              if (d.timerMode === "prep") {
+                  // Bunyikan tik kecuali saat load pertama
+                  if (!isInitialLoad) AudioSFX.tick(); 
+                  
+                  // TRIGGER ANIMASI ZOOM IN
+                  dq.style.animation = 'none';
+                  dq.offsetHeight; // trigger reflow
+                  dq.style.animation = 'zoomInPrep 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+              } else {
+                  // Bersihkan animasi saat masuk ke mode soal normal
+                  dq.style.animation = 'none';
               }
           }
 
@@ -190,7 +203,7 @@
           const isPrepMode = (d.timerMode === "prep");
           const isAnswerMode = (d.timerMode === "answer");
           
-          // MENYEMBUNYIKAN TIMER & MEMPERBESAR TEKS SAAT PERSIAPAN!
+          // MENGATUR UKURAN TEXT DAN MENYEMBUNYIKAN KOTAK TIMER SAAT COUNTDOWN
           if (isPrepMode) {
               dq.style.fontSize = "clamp(80px, 15vw, 250px)";
               dq.style.color = "#dc2626";
