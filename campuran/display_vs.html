@@ -242,6 +242,41 @@
       
       document.getElementById("winner-overlay").style.display = "flex";
   }
+  
+  
+  // --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
+  let wakeLock = null;
+
+  async function aktifkanWakeLock() {
+    try {
+      // Cek apakah browser mendukung fitur ini
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Fitur Wake Lock aktif di Proyektor: Layar tidak akan mati.');
+        
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock terlepas.');
+        });
+      }
+    } catch (err) {
+      console.log('Wake Lock gagal/tidak didukung:', err.message);
+    }
+  }
+
+  // Aktifkan Wake Lock saat operator mengeklik tombol "TAMPILKAN KE PROYEKTOR" atau klik di mana saja
+  document.addEventListener('click', () => {
+    if (wakeLock === null) {
+      aktifkanWakeLock();
+    }
+  }, { once: true });
+
+  // Aktifkan ulang otomatis jika layar proyektor sempat diminimalkan lalu dimaksimalkan lagi
+  document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      aktifkanWakeLock();
+    }
+  });
+  
 </script>
 </body>
 </html>

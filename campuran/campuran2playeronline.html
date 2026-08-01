@@ -1092,6 +1092,43 @@ function syncOpponent(player, data) {
     isGameOver = true; stopBotSearchTimers(); stopBotAction(); 
     if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
   }
+  
+  
+  // --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
+  let wakeLock = null;
+
+  async function aktifkanWakeLock() {
+    try {
+      // Cek apakah browser HP mendukung fitur ini
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Fitur Wake Lock aktif: Layar HP tidak akan mati.');
+        
+        // Jika sistem tiba-tiba mematikan wake lock (misal baterai low)
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock terlepas.');
+        });
+      }
+    } catch (err) {
+      console.log('Wake Lock gagal/tidak didukung:', err.message);
+    }
+  }
+
+  // Aktifkan Wake Lock saat pemain pertama kali menyentuh/klik layar
+  // (Browser mewajibkan ada interaksi jari/klik dari user sebelum layar bisa dikunci nyala)
+  document.addEventListener('click', () => {
+    if (wakeLock === null) {
+      aktifkanWakeLock();
+    }
+  }, { once: true });
+
+  // Aktifkan ulang otomatis jika pemain sempat meminimalkan browser lalu kembali lagi ke game
+  document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      aktifkanWakeLock();
+    }
+  });
+  
 </script>
 </body>
 </html>
