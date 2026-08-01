@@ -28,7 +28,6 @@
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
   #setup h1 { font-size: clamp(24px, 5vw, 40px); margin-bottom: 20px; color: #38bdf8; }
   
-  /* Tambahan izin blok teks khusus untuk form input */
   #setup input { font-size: clamp(30px, 6vw, 50px); padding: 15px; text-align: center; border-radius: 15px; border: 4px solid #38bdf8; outline: none; font-weight: 900; letter-spacing: 10px; width: 100%; max-width: 350px; user-select: auto; -webkit-user-select: auto; }
   
   #setup button { font-size: clamp(20px, 4vw, 30px); padding: 15px 40px; margin-top: 25px; background: #10b981; color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; width: 100%; max-width: 350px;}
@@ -43,11 +42,12 @@
     justify-content: center; padding: 45px 30px 30px 30px; text-align: center; 
     box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); 
     border: 6px solid #38bdf8; margin: 25px 0 10px 0; 
-    /* Hanya beri animasi pada warna border */
     transition: border-color 0.3s ease;
+    /* PERBAIKAN TV: Paksa TV menggunakan akselerasi Hardware (GPU) */
+    transform: translateZ(0);
+    will-change: border-color;
   }
   
-  /* Class untuk mengubah warna container secara mulus saat menjawab */
   .question-container.answer-mode { border-color: #f59e0b; }
   
   .timer-box { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display:flex; flex-direction:column; align-items:center; z-index: 10;}
@@ -57,21 +57,25 @@
     background: rgba(0,0,0,0.75); padding: 3px 12px; 
     border-radius: 10px; margin-bottom: 3px; 
     letter-spacing: 1px;
-    /* Posisi absolut dan opacity agar tidak menggeser timer */
     position: absolute;
     top: -22px;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
     white-space: nowrap;
+    /* PERBAIKAN TV */
+    transform: translateZ(0);
+    will-change: opacity;
   }
   
   #d-timer { 
     font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; 
     color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; 
     box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; 
-    /* Batasi animasi hanya pada warna dan skala */
     transition: background-color 0.3s ease, transform 0.3s ease; 
+    /* PERBAIKAN TV */
+    transform: translateZ(0);
+    will-change: background-color, transform;
   }
   
   #d-timer.answer-mode { background: #f59e0b; }
@@ -90,9 +94,7 @@
   .t1 { border-bottom-color: #ef4444; } .t2 { border-bottom-color: #3b82f6; }
   .t3 { border-bottom-color: #22c55e; } .t4 { border-bottom-color: #f59e0b; }
 
-  /* Efek Berkedip / Menyala saat Tes Buzzer di Lobby */
   .team.pressed { transform: scale(1.05); border-color: #facc15 !important; background: rgba(250,204,21,0.25); box-shadow: 0 0 25px #facc15; }
-
   .team.win { background: #facc15; border-color: #fff; color: #000; transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(250,204,21,0.4); animation: glow 0.5s infinite alternate;}
   .team.win .team-name { color: #000; }
   .team.win .score { color: #000; text-shadow: none; }
@@ -103,15 +105,12 @@
 </style>
 </head>
 
-<!-- DITAMBAHKAN ATRIBUT ANTI KLIK KANAN DAN COPAS -->
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
 <div id="setup">
   <h1>DISPLAY PROYEKTOR</h1>
   <input id="room" type="number" placeholder="KODE" maxlength="4">
   <button onclick="connectRoom()">TAMPILKAN</button>
-  
-  <!-- TOMBOL FULLSCREEN DITAMBAHKAN DI SINI -->
   <button onclick="document.documentElement.requestFullscreen().catch(err => console.log(err))" style="background:#3b82f6; margin-top:15px;">FULLSCREEN / LAYAR PENUH</button>
 </div>
 
@@ -178,51 +177,60 @@
           const scores = d.scores || {};
           const winner = d.buzzer?.winner ?? null;
 
+          // PERBAIKAN TV Ekstrem: Cek status dahulu, baru update (DOM Write Optimization)
           for(let i=1; i<=4; i++) { 
               const teamEl = document.getElementById("team"+i);
-              teamEl.classList.toggle("hide", i > teamCount); 
               
-              // Menambahkan efek berkedip/menyala jika tombol buzzer ditekan saat di lobby
-              teamEl.classList.toggle("pressed", mode === "lobby" && pressed[i] === true);
+              const isHide = i > teamCount;
+              if (teamEl.classList.contains("hide") !== isHide) teamEl.classList.toggle("hide", isHide);
               
-              // Sinkronisasi status pemenang saat kuis berjalan
-              teamEl.classList.toggle("win", mode === "quiz" && +winner === i);
+              const isPressed = (mode === "lobby" && pressed[i] === true);
+              if (teamEl.classList.contains("pressed") !== isPressed) teamEl.classList.toggle("pressed", isPressed);
               
-              // Sinkronisasi skor real-time
+              const isWin = (mode === "quiz" && +winner === i);
+              if (teamEl.classList.contains("win") !== isWin) teamEl.classList.toggle("win", isWin);
+              
               let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
-              document.getElementById("s"+i).textContent = currentScore;
+              let sEl = document.getElementById("s"+i);
+              if (sEl.textContent != currentScore) sEl.textContent = currentScore;
           }
           
-          document.getElementById("d-q").textContent = d.currentQuestion || "Persiapan...";
+          const newQText = d.currentQuestion || "Persiapan...";
+          const dq = document.getElementById("d-q");
+          if (dq.textContent !== newQText) dq.textContent = newQText;
+
           const ansBox = document.getElementById("d-ans");
-          
-          if(d.showAnswer === true && d.currentAnswer) {
-              ansBox.style.display = "inline-block";
-              ansBox.textContent = "JAWABAN: " + d.currentAnswer;
-          } else { ansBox.style.display = "none"; }
+          const shouldShowAns = (d.showAnswer === true && d.currentAnswer);
+          const expectedAnsDisplay = shouldShowAns ? "inline-block" : "none";
+          if (ansBox.style.display !== expectedAnsDisplay) {
+              ansBox.style.display = expectedAnsDisplay;
+              if (shouldShowAns) ansBox.textContent = "JAWABAN: " + d.currentAnswer;
+          }
           
           const timerLeft = d.timerLeft || 0;
           const t = document.getElementById("d-timer");
           const lbl = document.getElementById("d-timer-label");
           const qc = document.getElementById("q-container");
           
-          // Update teks HANYA JIKA waktunya benar-benar berubah
           const newTimeText = "00:" + String(Math.max(0, timerLeft)).padStart(2,"0");
           if (t.textContent !== newTimeText) {
               t.textContent = newTimeText;
           }
           
-          t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0);
+          const isDanger = (timerLeft <= 5 && timerLeft > 0);
+          if (t.classList.contains("danger") !== isDanger) {
+              t.classList.toggle("danger", isDanger);
+          }
           
-          // Gunakan penambahan CSS class alih-alih memaksa style inline
-          if(d.timerMode === "answer") {
-              t.classList.add("answer-mode");
-              qc.classList.add("answer-mode");
-              lbl.style.opacity = "1";
+          const isAnswerMode = (d.timerMode === "answer");
+          if(isAnswerMode) {
+              if(!t.classList.contains("answer-mode")) t.classList.add("answer-mode");
+              if(!qc.classList.contains("answer-mode")) qc.classList.add("answer-mode");
+              if(lbl.style.opacity !== "1") lbl.style.opacity = "1";
           } else {
-              t.classList.remove("answer-mode");
-              qc.classList.remove("answer-mode");
-              lbl.style.opacity = "0";
+              if(t.classList.contains("answer-mode")) t.classList.remove("answer-mode");
+              if(qc.classList.contains("answer-mode")) qc.classList.remove("answer-mode");
+              if(lbl.style.opacity !== "0") lbl.style.opacity = "0";
           }
           
           if (winner && winner !== lastWinner && mode === "quiz") {
@@ -234,11 +242,9 @@
   }
 </script>
 
-<!-- REGISTRASI SERVICE WORKER (Naik 1 folder mencari sw.js) -->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // Menggunakan ../sw.js agar mencari ke luar folder empatregu
       navigator.serviceWorker.register('../sw.js')
         .then((reg) => console.log('Service Worker Folder Dalam Terdaftar!'))
         .catch((err) => console.log('Gagal mendaftar SW dari dalam', err));
