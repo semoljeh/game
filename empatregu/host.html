@@ -157,13 +157,12 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
      </div>
      <div class="settings-body">
        <div class="setup">
-         <div class="field" style="grid-column: 1/-1;"><label>JUMLAH REGU</label><div class="counts"><button class="count" data-n="2" onclick="pickCount(2)">2</button><button class="count" data-n="3" onclick="pickCount(3)">3</button><button class="count active" data-n="4" onclick="pickCount(4)">4</button></div></div>
+         <div class="field" style="grid-column: 1/-1;"><label>JUMLAH REGU</label><div class="counts"><button type="button" class="count" data-n="2" onclick="pickCount(2)">2</button><button type="button" class="count" data-n="3" onclick="pickCount(3)">3</button><button type="button" class="count active" data-n="4" onclick="pickCount(4)">4</button></div></div>
          <div class="field"><label>KATEGORI</label><select id="category" onchange="fillSubjects()"><option value="islami">Cerdas Cermat Islami</option><option value="umum">Cerdas Cermat Umum</option></select></div>
          <div class="field"><label>MATERI</label><select id="subject"></select></div>
 		 
          <div class="field"><label>WAKTU / SOAL (Detik)</label><input type="number" id="seconds" value="30" min="5" placeholder="Contoh: 30"></div>
-<div class="field"><label>WAKTU JAWAB BUZZER (Detik)</label><input type="number" id="answerTime" value="10" min="3" placeholder="Contoh: 10"></div>
-		 
+         <div class="field"><label>WAKTU JAWAB BUZZER (Detik)</label><input type="number" id="answerTime" value="10" min="3" placeholder="Contoh: 10"></div>
 		 
          <button class="green" onclick="createRoom()">BUAT ROOM SEKARANG</button>
        </div>
@@ -185,7 +184,7 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
    <article class="team t1" id="team1"><div class="num">1</div><div class="label">REGU 1</div><div class="score" id="s1">0</div><div class="scorectl"><button onclick="score(1,10)">+10</button><button class="blue" onclick="score(1,5)">+5</button><button onclick="score(1,-10)">-10</button></div></article>
    <article class="team t2" id="team2"><div class="num">2</div><div class="label">REGU 2</div><div class="score" id="s2">0</div><div class="scorectl"><button onclick="score(2,10)">+10</button><button class="blue" onclick="score(2,5)">+5</button><button onclick="score(2,-10)">-10</button></div></article>
    <article class="team t3" id="team3"><div class="num">3</div><div class="label">REGU 3</div><div class="score" id="s3">0</div><div class="scorectl"><button onclick="score(3,10)">+10</button><button class="blue" onclick="score(3,5)">+5</button><button onclick="score(3,-10)">-10</button></div></article>
-   <article class="team t4" id="team4"><div class="num">4</div><div class="label">REGU 4</div><div class="score" id="s4">0</div><div class="scorectl"><button onclick="score(4,10)">+10</button><button class="blue" onclick="score(4,5)">+5</button><button onclick="score(4,-10)">-10</button></div></article>
+   <article class="team t4" id="team4"><div class="label">REGU 4</div><div class="score" id="s4">0</div><div class="scorectl"><button onclick="score(4,10)">+10</button><button class="blue" onclick="score(4,5)">+5</button><button onclick="score(4,-10)">-10</button></div></article>
  </section>
  
  <div class="status" id="status">Belum ada room.</div>
@@ -305,15 +304,34 @@ function openSettings(){
   if(settingsOpen)return; settingsOpen=true; document.getElementById("settingsModal").classList.add("open");
   if(!historyGuard){history.pushState({madasaSettings:true},"");historyGuard=true;}
 }
+
+// FIX: Auto-simpan pengaturan jika diubah di tengah permainan
 function closeSettings(fromPop=false){
   if(!settingsOpen)return; settingsOpen=false; document.getElementById("settingsModal").classList.remove("open");
   if(!fromPop && historyGuard){historyGuard=false;history.back();}
+  
+  seconds = +document.getElementById("seconds").value || 30;
+  answerSeconds = +document.getElementById("answerTime").value || 10;
+  if (room && window.FB) {
+     FB.update(FB.ref(FB.db,"quiz4/"+room), {seconds: seconds, answerSeconds: answerSeconds});
+  }
 }
+
 window.addEventListener("popstate",()=>{if(settingsOpen){historyGuard=false;closeSettings(true)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&settingsOpen)closeSettings()});
 
 const activeTeams=()=>Array.from({length:teamCount},(_,i)=>i+1);
-function pickCount(n){if(room)return;teamCount=n;document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n));renderTeams()}
+
+// FIX: Menghilangkan kunci (lock) saat merubah jumlah regu agar dapat diklik bebas
+function pickCount(n){
+  teamCount=n;
+  document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n));
+  renderTeams();
+  if(room && window.FB) {
+      FB.update(FB.ref(FB.db,"quiz4/"+room), {teamCount: n});
+  }
+}
+
 function renderTeams(){for(let i=1;i<=4;i++)document.getElementById("team"+i).classList.toggle("hide",i>teamCount)}
 function fillSubjects(){
  category=document.getElementById("category").value;const s=document.getElementById("subject");s.innerHTML="";
