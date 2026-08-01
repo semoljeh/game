@@ -25,6 +25,9 @@
   body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%); background-size: 80px 80px; background-position: 0 0, 40px 40px; animation: drift 20s linear infinite; pointer-events: none; z-index: -1; }
   @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(80px) rotate(5deg); } }
 
+  /* EFEK GETAR UNTUK JAWABAN SALAH */
+  @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-15px) rotate(-1deg);} 75% {transform: translateX(15px) rotate(1deg);} }
+
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
   #setup h1 { font-size: clamp(24px, 5vw, 40px); margin-bottom: 20px; color: #38bdf8; }
   
@@ -42,14 +45,12 @@
     justify-content: center; padding: 45px 30px 30px 30px; text-align: center; 
     box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); 
     border: 6px solid #38bdf8; margin: 25px 0 10px 0; 
-    /* TV FIX: Animasi instan agar tidak berat, dan lapisan 3D GPU */
     transition: border-color 0.1s ease;
     transform: translate3d(0,0,0);
   }
   
   .question-container.answer-mode { border-color: #f59e0b; }
   
-  /* TV FIX: Pastikan timer tidak bergeser dengan layer GPU 3D */
   .timer-box { position: absolute; top: -32px; left: 50%; transform: translate3d(-50%, 0, 0); display:flex; flex-direction:column; align-items:center; z-index: 10;}
   
   .timer-label { 
@@ -70,7 +71,6 @@
     font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; 
     color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; 
     box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; 
-    /* TV FIX: Animasi warna sangat cepat agar tidak delay */
     transition: background-color 0.1s ease, transform 0.1s ease; 
     transform: translate3d(0,0,0);
   }
@@ -87,7 +87,6 @@
   .team { 
     background: rgba(255,255,255,0.1); border: 4px solid rgba(255,255,255,0.2); 
     border-radius: 20px; padding: 12px; text-align: center; 
-    /* TV FIX REAL-TIME: Turunkan angka transisi jadi 0.05s agar kedipannya terasa secepat kilat */
     transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.05s ease, border-color 0.05s ease, box-shadow 0.05s ease;
     transform: translate3d(0,0,0);
   }
@@ -104,13 +103,20 @@
   .team.win .score { color: #000; text-shadow: none; }
   @keyframes glow { to { box-shadow: 0 0 30px rgba(250,204,21,0.8); } }
 
-  /* TV FIX NOTIFIKASI: Gunakan translate3d untuk render layer mandiri (mencegah TV redraw elemen timer) */
+  /* NOTIFIKASI TEKS & IKON 3D (Anti-Glitch TV) */
   .big-notif { 
     position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); 
     font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; 
     text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; 
     white-space: nowrap; -webkit-text-stroke: 3px #fff; opacity: 0;
   }
+  
+  .big-icon-feedback { 
+    position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); 
+    font-size: clamp(100px, 25vw, 300px); z-index: 10000; pointer-events: none; opacity: 0; 
+    text-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
   @keyframes popZoom { 
     0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 
     20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 
@@ -122,13 +128,15 @@
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- ELEMEN NOTIFIKASI PERMANEN: Menghentikan masalah Document Reflow/Glitch di TV -->
+<!-- ELEMEN NOTIFIKASI PERMANEN -->
 <div id="notif-overlay" class="big-notif"></div>
+<div id="icon-correct" class="big-icon-feedback">✅</div>
+<div id="icon-wrong" class="big-icon-feedback">❌</div>
 
 <div id="setup">
   <h1>DISPLAY PROYEKTOR</h1>
   <input id="room" type="number" placeholder="KODE" maxlength="4">
-  <button onclick="connectRoom()">TAMPILKAN</button>
+  <button onclick="connectRoom()">TAMPILKAN LAYAR</button>
   <button onclick="document.documentElement.requestFullscreen().catch(err => console.log(err))" style="background:#3b82f6; margin-top:15px;">FULLSCREEN / LAYAR PENUH</button>
 </div>
 
@@ -167,16 +175,68 @@
   const app = initializeApp(firebaseConfig), db = getDatabase(app);
   window.FB = { db, ref, onValue };
 </script>
+
 <script>
+  // MESIN SUARA (AudioSFX) - Disintesis langsung oleh Browser
+  const AudioSFX = (function() {
+      let ctx = null;
+      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+      function playTone(freq, type, duration, vol=0.1) {
+          if (!ctx) return;
+          let osc = ctx.createOscillator(); let gain = ctx.createGain();
+          osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(vol, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + duration);
+      }
+      return {
+          init: init,
+          correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); },
+          wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); },
+          buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); }
+      };
+  })();
+
+  // MESIN VISUAL & ANIMASI (Optimasi TV)
+  const FX = {
+    fireConfetti: () => {
+      const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
+      const frag = document.createDocumentFragment();
+      // Menggunakan 40 partikel agar aman dari lag pada Smart TV
+      for (let i = 0; i < 40; i++) {
+        let conf = document.createElement('div');
+        conf.style.position = 'fixed'; conf.style.width = '12px'; conf.style.height = '12px';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-20px';
+        conf.style.zIndex = '99999'; conf.style.willChange = 'transform';
+        frag.appendChild(conf);
+        conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: (Math.random() * 1.5 + 1.5) * 1000, easing: 'linear' }).onfinish = () => conf.remove();
+      }
+      document.body.appendChild(frag);
+    },
+    shakeScreen: () => {
+      document.body.style.animation = 'none';
+      document.body.offsetHeight; // trigger reflow
+      document.body.style.animation = 'shake 0.4s ease-in-out';
+    },
+    showIcon: (type) => {
+      const el = document.getElementById(type === 'correct' ? 'icon-correct' : 'icon-wrong');
+      el.style.animation = 'none';
+      el.offsetHeight; // trigger reflow
+      el.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+    }
+  };
+
   let room = "", roomUnsub = null, lastWinner = null;
+  let prevScores = {};
+  let isInitialLoad = true;
   
-  // TV FIX: Memanggil ulang animasi elemen permanen, BUKAN menambah div baru
   function showNotif(text, color) {
       const notif = document.getElementById('notif-overlay');
-      notif.innerHTML = text;
-      notif.style.color = color;
-      notif.style.animation = 'none'; // Reset animasi
-      notif.offsetHeight; // Paksa browser me-refresh elemen (trigger reflow)
+      notif.innerHTML = text; notif.style.color = color;
+      notif.style.animation = 'none';
+      notif.offsetHeight; 
       notif.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
   }
 
@@ -185,6 +245,9 @@
       room = document.getElementById("room").value;
       if(room.length !== 4) return alert("Masukkan 4 digit kode room dari juri.");
       
+      // Inisiasi Audio Engine saat tombol diklik (Melewati blokir Autoplay Browser)
+      AudioSFX.init();
+
       document.getElementById("setup").style.display = "none";
       document.getElementById("game-board").style.display = "flex";
       document.getElementById("d-room").textContent = room;
@@ -200,6 +263,9 @@
           const scores = d.scores || {};
           const winner = d.buzzer?.winner ?? null;
 
+          let scoreChangedCorrect = false;
+          let scoreChangedWrong = false;
+
           for(let i=1; i<=4; i++) { 
               const teamEl = document.getElementById("team"+i);
               
@@ -212,10 +278,32 @@
               const isWin = (mode === "quiz" && +winner === i);
               if (teamEl.classList.contains("win") !== isWin) teamEl.classList.toggle("win", isWin);
               
+              // LOGIKA DETEKSI JAWABAN BENAR/SALAH BERDASARKAN SKOR
               let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
+              let oldScore = prevScores[i] || 0;
+              
+              if (currentScore > oldScore) scoreChangedCorrect = true;
+              if (currentScore < oldScore) scoreChangedWrong = true;
+              
               let sEl = document.getElementById("s"+i);
               if (sEl.textContent != currentScore) sEl.textContent = currentScore;
+
+              prevScores[i] = currentScore;
           }
+          
+          // MEMAINKAN EFEK JIKA ADA PERUBAHAN SKOR (Kecuali saat baru pertama kali muat)
+          if (!isInitialLoad) {
+              if (scoreChangedCorrect) {
+                  AudioSFX.correct();
+                  FX.fireConfetti();
+                  FX.showIcon('correct');
+              } else if (scoreChangedWrong) {
+                  AudioSFX.wrong();
+                  FX.shakeScreen();
+                  FX.showIcon('wrong');
+              }
+          }
+          isInitialLoad = false;
           
           const newQText = d.currentQuestion || "Persiapan...";
           const dq = document.getElementById("d-q");
@@ -256,6 +344,7 @@
           }
           
           if (winner && winner !== lastWinner && mode === "quiz") {
+              AudioSFX.buzzerWin(); // Bunyi saat buzzer direbut
               const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"};
               showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]);
           }
