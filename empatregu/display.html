@@ -3,132 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-<!-- META TAG PWA (Naik 1 folder mencari manifest) -->
 <link rel="manifest" href="../manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <title>MADASA Quiz - Layar Proyektor</title>
 <style>
-  /* DITAMBAHKAN ANTI COPAS DI SINI */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { 
-    margin: 0; width: 100%; height: 100%; font-family: Inter, system-ui, Arial, sans-serif; 
-    background: #0f172a; color: white; overflow-x: hidden; 
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  
+  html, body { margin: 0; width: 100%; height: 100%; font-family: Inter, system-ui, Arial, sans-serif; background: #0f172a; color: white; overflow-x: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%); background-size: 80px 80px; background-position: 0 0, 40px 40px; animation: drift 20s linear infinite; pointer-events: none; z-index: -1; }
   @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(80px) rotate(5deg); } }
-
-  /* EFEK GETAR UNTUK JAWABAN SALAH */
   @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-15px) rotate(-1deg);} 75% {transform: translateX(15px) rotate(1deg);} }
 
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
   #setup h1 { font-size: clamp(24px, 5vw, 40px); margin-bottom: 20px; color: #38bdf8; }
-  
   #setup input { font-size: clamp(30px, 6vw, 50px); padding: 15px; text-align: center; border-radius: 15px; border: 4px solid #38bdf8; outline: none; font-weight: 900; letter-spacing: 10px; width: 100%; max-width: 350px; user-select: auto; -webkit-user-select: auto; }
-  
   #setup button { font-size: clamp(20px, 4vw, 30px); padding: 15px 40px; margin-top: 25px; background: #10b981; color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; width: 100%; max-width: 350px;}
   #setup button:active { transform: scale(0.95); }
 
   #game-board { display: none; flex-direction: column; min-height: 100vh; width: min(1300px, 100%); margin: 0 auto; padding: 12px 20px; justify-content: space-between; }
   .header { text-align: center; font-size: clamp(16px, 2vw, 22px); font-weight: 900; letter-spacing: 2px; color: #94a3b8; margin-bottom: 5px; }
   
-  .question-container { 
-    position: relative; background: #ffffff; color: #0f172a; flex: 1; 
-    border-radius: 25px; display: flex; flex-direction: column; align-items: center; 
-    justify-content: center; padding: 45px 30px 30px 30px; text-align: center; 
-    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); 
-    border: 6px solid #38bdf8; margin: 25px 0 10px 0; 
-    transition: border-color 0.1s ease;
-    transform: translate3d(0,0,0);
-  }
-  
+  .question-container { position: relative; background: #ffffff; color: #0f172a; flex: 1; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 45px 30px 30px 30px; text-align: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); border: 6px solid #38bdf8; margin: 25px 0 10px 0; transition: border-color 0.1s ease; transform: translate3d(0,0,0); }
   .question-container.answer-mode { border-color: #f59e0b; }
   
   .timer-box { position: absolute; top: -32px; left: 50%; transform: translate3d(-50%, 0, 0); display:flex; flex-direction:column; align-items:center; z-index: 10;}
-  
-  .timer-label { 
-    font-size: 11px; font-weight: 900; color: #fff; 
-    background: rgba(0,0,0,0.75); padding: 3px 12px; 
-    border-radius: 10px; margin-bottom: 3px; 
-    letter-spacing: 1px;
-    position: absolute;
-    top: -22px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-    white-space: nowrap;
-    transform: translate3d(0,0,0);
-  }
-  
-  #d-timer { 
-    font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; 
-    color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; 
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; 
-    transition: background-color 0.1s ease, transform 0.1s ease; 
-    transform: translate3d(0,0,0);
-  }
-  
+  .timer-label { font-size: 11px; font-weight: 900; color: #fff; background: rgba(0,0,0,0.75); padding: 3px 12px; border-radius: 10px; margin-bottom: 3px; letter-spacing: 1px; position: absolute; top: -22px; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; white-space: nowrap; transform: translate3d(0,0,0); }
+  #d-timer { font-size: clamp(32px, 4vw, 48px); font-weight: 1000; background: #dc2626; color: white; padding: 4px 35px; border-radius: 22px; border: 4px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.3); font-variant-numeric: tabular-nums; transition: background-color 0.1s ease, transform 0.1s ease; transform: translate3d(0,0,0); }
   #d-timer.answer-mode { background: #f59e0b; }
   #d-timer.danger { animation: pulse 0.5s infinite alternate; background: #991b1b !important; }
   @keyframes pulse { to { transform: scale(1.08); } }
 
-  #d-q { font-size: clamp(22px, 3vw, 42px); font-weight: 1000; line-height: 1.35; word-wrap: break-word; max-width: 100%; transform: translate3d(0,0,0); }
+  #d-q { font-size: clamp(22px, 3vw, 42px); font-weight: 1000; line-height: 1.35; word-wrap: break-word; max-width: 100%; transform: translate3d(0,0,0); transition: font-size 0.2s ease, color 0.2s ease; }
   #d-ans { display: none; margin-top: 15px; font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: #16a34a; background: #dcfce7; padding: 8px 30px; border-radius: 15px; border: 3px dashed #16a34a; }
 
   .teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%; margin-top: 10px; margin-bottom: 10px;}
-  
-  .team { 
-    background: rgba(255,255,255,0.1); border: 4px solid rgba(255,255,255,0.2); 
-    border-radius: 20px; padding: 12px; text-align: center; 
-    transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.05s ease, border-color 0.05s ease, box-shadow 0.05s ease;
-    transform: translate3d(0,0,0);
-  }
+  .team { background: rgba(255,255,255,0.1); border: 4px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 12px; text-align: center; transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.05s ease, border-color 0.05s ease, box-shadow 0.05s ease; transform: translate3d(0,0,0); }
   .team.hide { display: none; }
   .team-name { font-size: clamp(16px, 2vw, 22px); font-weight: 900; color: #cbd5e1; margin-bottom: 5px; }
   .score { font-size: clamp(40px, 5vw, 60px); font-weight: 1000; color: #fff; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
   
-  .t1 { border-bottom-color: #ef4444; } .t2 { border-bottom-color: #3b82f6; }
-  .t3 { border-bottom-color: #22c55e; } .t4 { border-bottom-color: #f59e0b; }
-
+  .t1 { border-bottom-color: #ef4444; } .t2 { border-bottom-color: #3b82f6; } .t3 { border-bottom-color: #22c55e; } .t4 { border-bottom-color: #f59e0b; }
   .team.pressed { transform: scale(1.05); border-color: #facc15 !important; background: rgba(250,204,21,0.25); box-shadow: 0 0 25px #facc15; }
   .team.win { background: #facc15; border-color: #fff; color: #000; transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(250,204,21,0.4); animation: glow 0.5s infinite alternate;}
-  .team.win .team-name { color: #000; }
-  .team.win .score { color: #000; text-shadow: none; }
+  .team.win .team-name { color: #000; } .team.win .score { color: #000; text-shadow: none; }
   @keyframes glow { to { box-shadow: 0 0 30px rgba(250,204,21,0.8); } }
 
-  /* NOTIFIKASI TEKS & IKON 3D (Anti-Glitch TV) */
-  .big-notif { 
-    position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); 
-    font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; 
-    text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; 
-    white-space: nowrap; -webkit-text-stroke: 3px #fff; opacity: 0;
-  }
-  
-  .big-icon-feedback { 
-    position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); 
-    font-size: clamp(100px, 25vw, 300px); z-index: 10000; pointer-events: none; opacity: 0; 
-    text-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-
-  @keyframes popZoom { 
-    0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 
-    20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 
-    80% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; } 
-    100% { transform: translate3d(-50%, -50%, 0) scale(1.3); opacity: 0; } 
-  }
+  .big-notif { position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); font-size: clamp(50px, 8vw, 120px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; white-space: nowrap; -webkit-text-stroke: 3px #fff; opacity: 0; }
+  .big-icon-feedback { position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); font-size: clamp(100px, 25vw, 300px); z-index: 10000; pointer-events: none; opacity: 0; text-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  @keyframes popZoom { 0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 80% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; } 100% { transform: translate3d(-50%, -50%, 0) scale(1.3); opacity: 0; } }
 </style>
 </head>
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- ELEMEN NOTIFIKASI PERMANEN -->
 <div id="notif-overlay" class="big-notif"></div>
 <div id="icon-correct" class="big-icon-feedback">✅</div>
 <div id="icon-wrong" class="big-icon-feedback">❌</div>
@@ -144,7 +72,7 @@
   <div class="header">ROOM: <span id="d-room" style="color: #38bdf8;">----</span></div>
   
   <div class="question-container" id="q-container">
-    <div class="timer-box">
+    <div class="timer-box" id="timer-box">
        <div class="timer-label" id="d-timer-label">WAKTU MENJAWAB!</div>
        <div id="d-timer">00:00</div>
     </div>
@@ -163,91 +91,45 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-  const firebaseConfig = {
-      apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
-      authDomain: "madasagame.firebaseapp.com",
-      projectId: "madasagame",
-      storageBucket: "madasagame.firebasestorage.app",
-      messagingSenderId: "394583790148",
-      appId: "1:394583790148:web:d20af0e57771a63bf5e211",
-      databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
+  const firebaseConfig = { apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798", authDomain: "madasagame.firebaseapp.com", projectId: "madasagame", storageBucket: "madasagame.firebasestorage.app", messagingSenderId: "394583790148", appId: "1:394583790148:web:d20af0e57771a63bf5e211", databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app" };
   const app = initializeApp(firebaseConfig), db = getDatabase(app);
   window.FB = { db, ref, onValue };
 </script>
 
 <script>
-  // MESIN SUARA (AudioSFX) - Disintesis langsung oleh Browser
   const AudioSFX = (function() {
-      let ctx = null;
-      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
-      function playTone(freq, type, duration, vol=0.1) {
-          if (!ctx) return;
-          let osc = ctx.createOscillator(); let gain = ctx.createGain();
-          osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          gain.gain.setValueAtTime(vol, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(); osc.stop(ctx.currentTime + duration);
-      }
+      let ctx = null; function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+      function playTone(freq, type, duration, vol=0.1) { if (!ctx) return; let osc = ctx.createOscillator(); let gain = ctx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime); gain.gain.setValueAtTime(vol, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + duration); }
       return {
           init: init,
           correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); },
           wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); },
-          buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); }
+          buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); },
+          tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } // EFEK TIK TIK TIK DITAMBAHKAN
       };
   })();
 
-  // MESIN VISUAL & ANIMASI (Optimasi TV)
   const FX = {
     fireConfetti: () => {
-      const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
-      const frag = document.createDocumentFragment();
-      // Menggunakan 40 partikel agar aman dari lag pada Smart TV
-      for (let i = 0; i < 40; i++) {
-        let conf = document.createElement('div');
-        conf.style.position = 'fixed'; conf.style.width = '12px'; conf.style.height = '12px';
-        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-20px';
-        conf.style.zIndex = '99999'; conf.style.willChange = 'transform';
-        frag.appendChild(conf);
-        conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: (Math.random() * 1.5 + 1.5) * 1000, easing: 'linear' }).onfinish = () => conf.remove();
-      }
+      const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B']; const frag = document.createDocumentFragment();
+      for (let i = 0; i < 40; i++) { let conf = document.createElement('div'); conf.style.position = 'fixed'; conf.style.width = '12px'; conf.style.height = '12px'; conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-20px'; conf.style.zIndex = '99999'; conf.style.willChange = 'transform'; frag.appendChild(conf); conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: (Math.random() * 1.5 + 1.5) * 1000, easing: 'linear' }).onfinish = () => conf.remove(); }
       document.body.appendChild(frag);
     },
-    shakeScreen: () => {
-      document.body.style.animation = 'none';
-      document.body.offsetHeight; // trigger reflow
-      document.body.style.animation = 'shake 0.4s ease-in-out';
-    },
-    showIcon: (type) => {
-      const el = document.getElementById(type === 'correct' ? 'icon-correct' : 'icon-wrong');
-      el.style.animation = 'none';
-      el.offsetHeight; // trigger reflow
-      el.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
-    }
+    shakeScreen: () => { document.body.style.animation = 'none'; document.body.offsetHeight; document.body.style.animation = 'shake 0.4s ease-in-out'; },
+    showIcon: (type) => { const el = document.getElementById(type === 'correct' ? 'icon-correct' : 'icon-wrong'); el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'; }
   };
 
   let room = "", roomUnsub = null, lastWinner = null;
-  let prevScores = {};
-  let isInitialLoad = true;
+  let prevScores = {}; let isInitialLoad = true;
   
-  function showNotif(text, color) {
-      const notif = document.getElementById('notif-overlay');
-      notif.innerHTML = text; notif.style.color = color;
-      notif.style.animation = 'none';
-      notif.offsetHeight; 
-      notif.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
-  }
+  function showNotif(text, color) { const notif = document.getElementById('notif-overlay'); notif.innerHTML = text; notif.style.color = color; notif.style.animation = 'none'; notif.offsetHeight; notif.style.animation = 'popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'; }
 
   function connectRoom() {
       if(!window.FB) return;
       room = document.getElementById("room").value;
       if(room.length !== 4) return alert("Masukkan 4 digit kode room dari juri.");
       
-      // Inisiasi Audio Engine saat tombol diklik (Melewati blokir Autoplay Browser)
       AudioSFX.init();
-
       document.getElementById("setup").style.display = "none";
       document.getElementById("game-board").style.display = "flex";
       document.getElementById("d-room").textContent = room;
@@ -255,113 +137,90 @@
       if(roomUnsub) roomUnsub();
       
       roomUnsub = FB.onValue(FB.ref(FB.db, "quiz4/" + room), snap => {
-          const d = snap.val();
-          if(!d) return;
-          const teamCount = d.teamCount || 4;
-          const mode = d.mode || "lobby";
-          const pressed = d.pressed || {};
-          const scores = d.scores || {};
-          const winner = d.buzzer?.winner ?? null;
+          const d = snap.val(); if(!d) return;
+          const teamCount = d.teamCount || 4; const mode = d.mode || "lobby"; const pressed = d.pressed || {}; const scores = d.scores || {}; const winner = d.buzzer?.winner ?? null;
 
-          let scoreChangedCorrect = false;
-          let scoreChangedWrong = false;
+          let scoreChangedCorrect = false; let scoreChangedWrong = false;
 
           for(let i=1; i<=4; i++) { 
               const teamEl = document.getElementById("team"+i);
+              const isHide = i > teamCount; if (teamEl.classList.contains("hide") !== isHide) teamEl.classList.toggle("hide", isHide);
+              const isPressed = (mode === "lobby" && pressed[i] === true); if (teamEl.classList.contains("pressed") !== isPressed) teamEl.classList.toggle("pressed", isPressed);
+              const isWin = (mode === "quiz" && +winner === i); if (teamEl.classList.contains("win") !== isWin) teamEl.classList.toggle("win", isWin);
               
-              const isHide = i > teamCount;
-              if (teamEl.classList.contains("hide") !== isHide) teamEl.classList.toggle("hide", isHide);
-              
-              const isPressed = (mode === "lobby" && pressed[i] === true);
-              if (teamEl.classList.contains("pressed") !== isPressed) teamEl.classList.toggle("pressed", isPressed);
-              
-              const isWin = (mode === "quiz" && +winner === i);
-              if (teamEl.classList.contains("win") !== isWin) teamEl.classList.toggle("win", isWin);
-              
-              // LOGIKA DETEKSI JAWABAN BENAR/SALAH BERDASARKAN SKOR
-              let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0);
-              let oldScore = prevScores[i] || 0;
-              
-              if (currentScore > oldScore) scoreChangedCorrect = true;
-              if (currentScore < oldScore) scoreChangedWrong = true;
-              
-              let sEl = document.getElementById("s"+i);
-              if (sEl.textContent != currentScore) sEl.textContent = currentScore;
-
+              let currentScore = scores[i] !== undefined ? scores[i] : (scores[String(i)] || 0); let oldScore = prevScores[i] || 0;
+              if (currentScore > oldScore) scoreChangedCorrect = true; if (currentScore < oldScore) scoreChangedWrong = true;
+              let sEl = document.getElementById("s"+i); if (sEl.textContent != currentScore) sEl.textContent = currentScore;
               prevScores[i] = currentScore;
           }
           
-          // MEMAINKAN EFEK JIKA ADA PERUBAHAN SKOR (Kecuali saat baru pertama kali muat)
           if (!isInitialLoad) {
-              if (scoreChangedCorrect) {
-                  AudioSFX.correct();
-                  FX.fireConfetti();
-                  FX.showIcon('correct');
-              } else if (scoreChangedWrong) {
-                  AudioSFX.wrong();
-                  FX.shakeScreen();
-                  FX.showIcon('wrong');
-              }
+              if (scoreChangedCorrect) { AudioSFX.correct(); FX.fireConfetti(); FX.showIcon('correct');
+              } else if (scoreChangedWrong) { AudioSFX.wrong(); FX.shakeScreen(); FX.showIcon('wrong'); }
           }
-          isInitialLoad = false;
           
           const newQText = d.currentQuestion || "Persiapan...";
           const dq = document.getElementById("d-q");
-          if (dq.textContent !== newQText) dq.textContent = newQText;
+          
+          // Bunyikan tik jika angka berganti saat persiapan
+          if (dq.textContent !== newQText) {
+              dq.textContent = newQText;
+              if (d.timerMode === "prep" && !isInitialLoad) {
+                  AudioSFX.tick(); 
+              }
+          }
 
           const ansBox = document.getElementById("d-ans");
           const shouldShowAns = (d.showAnswer === true && d.currentAnswer);
           const expectedAnsDisplay = shouldShowAns ? "inline-block" : "none";
-          if (ansBox.style.display !== expectedAnsDisplay) {
-              ansBox.style.display = expectedAnsDisplay;
-              if (shouldShowAns) ansBox.textContent = "JAWABAN: " + d.currentAnswer;
-          }
+          if (ansBox.style.display !== expectedAnsDisplay) { ansBox.style.display = expectedAnsDisplay; if (shouldShowAns) ansBox.textContent = "JAWABAN: " + d.currentAnswer; }
           
           const timerLeft = d.timerLeft || 0;
           const t = document.getElementById("d-timer");
           const lbl = document.getElementById("d-timer-label");
           const qc = document.getElementById("q-container");
+          const timerBox = document.getElementById("timer-box");
           
           const newTimeText = "00:" + String(Math.max(0, timerLeft)).padStart(2,"0");
-          if (t.textContent !== newTimeText) {
-              t.textContent = newTimeText;
-          }
+          if (t.textContent !== newTimeText) t.textContent = newTimeText;
           
-          const isDanger = (timerLeft <= 5 && timerLeft > 0);
-          if (t.classList.contains("danger") !== isDanger) {
-              t.classList.toggle("danger", isDanger);
-          }
+          const isDanger = (timerLeft <= 5 && timerLeft > 0 && d.timerMode !== "prep");
+          if (t.classList.contains("danger") !== isDanger) t.classList.toggle("danger", isDanger);
           
+          const isPrepMode = (d.timerMode === "prep");
           const isAnswerMode = (d.timerMode === "answer");
-          if(isAnswerMode) {
-              if(!t.classList.contains("answer-mode")) t.classList.add("answer-mode");
-              if(!qc.classList.contains("answer-mode")) qc.classList.add("answer-mode");
-              if(lbl.style.opacity !== "1") lbl.style.opacity = "1";
+          
+          // MENYEMBUNYIKAN TIMER & MEMPERBESAR TEKS SAAT PERSIAPAN!
+          if (isPrepMode) {
+              dq.style.fontSize = "clamp(80px, 15vw, 250px)";
+              dq.style.color = "#dc2626";
+              timerBox.style.display = "none";
           } else {
-              if(t.classList.contains("answer-mode")) t.classList.remove("answer-mode");
-              if(qc.classList.contains("answer-mode")) qc.classList.remove("answer-mode");
-              if(lbl.style.opacity !== "0") lbl.style.opacity = "0";
+              dq.style.fontSize = "";
+              dq.style.color = "";
+              timerBox.style.display = "flex";
+              
+              if(isAnswerMode) {
+                  if(!t.classList.contains("answer-mode")) t.classList.add("answer-mode");
+                  if(!qc.classList.contains("answer-mode")) qc.classList.add("answer-mode");
+                  if(lbl.style.opacity !== "1") lbl.style.opacity = "1";
+              } else {
+                  if(t.classList.contains("answer-mode")) t.classList.remove("answer-mode");
+                  if(qc.classList.contains("answer-mode")) qc.classList.remove("answer-mode");
+                  if(lbl.style.opacity !== "0") lbl.style.opacity = "0";
+              }
           }
           
           if (winner && winner !== lastWinner && mode === "quiz") {
-              AudioSFX.buzzerWin(); // Bunyi saat buzzer direbut
+              AudioSFX.buzzerWin(); 
               const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"};
               showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]);
           }
           lastWinner = winner;
+          isInitialLoad = false;
       });
   }
 </script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('../sw.js')
-        .then((reg) => console.log('Service Worker Folder Dalam Terdaftar!'))
-        .catch((err) => console.log('Gagal mendaftar SW dari dalam', err));
-    });
-  }
-</script>
-
+<script> if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('../sw.js').then((reg) => console.log('Service Worker Folder Dalam Terdaftar!')).catch((err) => console.log('Gagal mendaftar SW dari dalam', err)); }); } </script>
 </body>
 </html>

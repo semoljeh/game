@@ -5,36 +5,23 @@
 <title>MADASA Quiz - Host</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<!-- META TAG PWA (Naik 1 folder mencari manifest) -->
 <link rel="manifest" href="../manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-/* DITAMBAHKAN ANTI COPAS DI SINI */
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-html,body{
-  margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#173c29;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
+*{box-sizing:border-box;-webkit-tap-highlight-color: transparent;}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#173c29;-webkit-touch-callout: none;-webkit-user-select: none;user-select: none;}
 body{ min-height:100dvh; background: linear-gradient(135deg, #10b981 0%, #059669 100%); overflow-x: hidden; position: relative; }
 body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 10%); background-size: 60px 60px; background-position: 0 0, 30px 30px; animation: drift 15s linear infinite; pointer-events: none; z-index: -1; }
 @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(60px) rotate(5deg); } }
-
 @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-15px) rotate(-1deg);} 75% {transform: translateX(15px) rotate(1deg);} }
 .shake { animation: shake 0.3s ease-in-out; }
 
 .big-notif { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(40px, 8vw, 100px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; pointer-events: none; animation: popZoom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; text-align:center; white-space: nowrap; -webkit-text-stroke: 3px #fff; }
 @keyframes popZoom { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
 
-/* MODERN CUSTOM ALERT MODAL */
 .custom-alert-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
 .custom-alert-overlay.active { opacity: 1; pointer-events: auto; }
 .custom-alert-box { background: #fff; width: min(400px, 90%); border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #e2e8f0; transform: scale(0.8); transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -53,7 +40,6 @@ h1{font-size:clamp(18px,2.2vw,24px);margin:0;color:#176b39; text-shadow: 1px 1px
 
 .room{background:#fff;border:2px dashed #15803d;border-radius:12px;padding:10px 12px;font-weight:900; color:#15803d; display: flex; align-items: center; justify-content: center;}
 
-/* Tambahan izin blok teks khusus untuk form input & select */
 button,select,input{font:inherit}
 select,input{user-select: auto; -webkit-user-select: auto;}
 button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
@@ -67,7 +53,7 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:poin
 
 .question{position:relative;background:linear-gradient(145deg,#fff,#f5fcf7);border:4px solid #fff;border-radius:20px;min-height:clamp(120px, 20vh, 180px);padding:clamp(15px, 3vw, 22px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
 .badge{font-size:11px;letter-spacing:1px;font-weight:1000;color:#fff;background:#f59e0b;border:2px solid #fff;border-radius:999px;padding:5px 12px;margin-bottom:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);}
-#q{font-size:clamp(20px,3vw,35px);font-weight:1000;line-height:1.3;max-width:1000px;word-wrap:break-word;}
+#q{font-size:clamp(20px,3vw,35px);font-weight:1000;line-height:1.3;max-width:1000px;word-wrap:break-word; transition: font-size 0.2s;}
 #sub{margin-top:6px;color:#6c8075;font-weight:800;font-size:clamp(11px,1.5vw,15px)}
 .join{margin-top:10px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}.join[hidden]{display:none}
 .qr{width:90px;height:90px;background:#fff;border-radius:12px;padding:5px;border:3px solid #4CAF50}.qr img,.qr canvas{max-width:100%;max-height:100%}
@@ -105,19 +91,7 @@ button{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:poin
 .settings-body .field{min-width:0;}.settings-body .green{grid-column: 1 / -1; min-height:45px; margin-top:5px; font-size:16px;}
 .settings-note{text-align:center;color:#718379;font-size:11px;font-weight:800;margin-top:15px}
 
-@media(max-width: 600px) {
-  .top-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-  }
-  .top-actions > * {
-    width: 100%;
-    min-width: 0;
-  }
-}
-
+@media(max-width: 600px) { .top-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; } .top-actions > * { width: 100%; min-width: 0; } }
 button{position:relative;overflow:hidden;transition:transform .12s ease,box-shadow .12s ease,filter .12s ease,background .12s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:not(:disabled):hover{filter:brightness(1.05);box-shadow:0 5px 12px rgba(0,0,0,0.15)}
 button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96);box-shadow:inset 0 3px 6px rgba(0,0,0,0.2)!important;filter:brightness(.95)}
@@ -126,7 +100,6 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
 
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- CUSTOM ALERT MODAL CONTAINER -->
 <div class="custom-alert-overlay" id="customAlertOverlay">
   <div class="custom-alert-box">
     <div class="custom-alert-icon" id="customAlertIcon">⚠️</div>
@@ -159,10 +132,8 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
          <div class="field" style="grid-column: 1/-1;"><label>JUMLAH REGU</label><div class="counts"><button type="button" class="count" data-n="2" onclick="pickCount(2)">2</button><button type="button" class="count" data-n="3" onclick="pickCount(3)">3</button><button type="button" class="count active" data-n="4" onclick="pickCount(4)">4</button></div></div>
          <div class="field"><label>KATEGORI</label><select id="category" onchange="fillSubjects()"><option value="islami">Cerdas Cermat Islami</option><option value="umum">Cerdas Cermat Umum</option></select></div>
          <div class="field"><label>MATERI</label><select id="subject"></select></div>
-		 
          <div class="field"><label>WAKTU / SOAL (Detik)</label><input type="number" id="seconds" value="30" min="5" placeholder="Contoh: 30"></div>
          <div class="field"><label>WAKTU JAWAB BUZZER (Detik)</label><input type="number" id="answerTime" value="10" min="3" placeholder="Contoh: 10"></div>
-		 
          <button class="green" onclick="createRoom()">BUAT ROOM SEKARANG</button>
        </div>
      </div>
@@ -202,302 +173,143 @@ button:not(:disabled):active,button.fx-press{transform:translateY(2px) scale(.96
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import {getDatabase,ref,set,onValue,update,get,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-const firebaseConfig={
-    apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798",
-    authDomain: "madasagame.firebaseapp.com",
-    projectId: "madasagame",
-    storageBucket: "madasagame.firebasestorage.app",
-    messagingSenderId: "394583790148",
-    appId: "1:394583790148:web:d20af0e57771a63bf5e211",
-    databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
-const app=initializeApp(firebaseConfig), db=getDatabase(app);
-window.FB={db,ref,set,onValue,update,get,runTransaction};
-window.dispatchEvent(new Event("firebase-ready"));
+const firebaseConfig={ apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798", authDomain: "madasagame.firebaseapp.com", projectId: "madasagame", storageBucket: "madasagame.firebasestorage.app", messagingSenderId: "394583790148", appId: "1:394583790148:web:d20af0e57771a63bf5e211", databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app" };
+const app=initializeApp(firebaseConfig), db=getDatabase(app); window.FB={db,ref,set,onValue,update,get,runTransaction}; window.dispatchEvent(new Event("firebase-ready"));
 </script>
 
 <script>
-// FUNGSI CUSTOM ALERT MODAL MODERN
-function showCustomAlert(msg, title="PERHATIAN", icon="⚠️") {
-    document.getElementById("customAlertTitle").textContent = title;
-    document.getElementById("customAlertMsg").textContent = msg;
-    document.getElementById("customAlertIcon").textContent = icon;
-    document.getElementById("customAlertOverlay").classList.add("active");
-    if(window.AudioSFX) AudioSFX.click();
-}
-function closeCustomAlert() {
-    document.getElementById("customAlertOverlay").classList.remove("active");
-    if(window.AudioSFX) AudioSFX.click();
-}
+function showCustomAlert(msg, title="PERHATIAN", icon="⚠️") { document.getElementById("customAlertTitle").textContent = title; document.getElementById("customAlertMsg").textContent = msg; document.getElementById("customAlertIcon").textContent = icon; document.getElementById("customAlertOverlay").classList.add("active"); if(window.AudioSFX) AudioSFX.click(); }
+function closeCustomAlert() { document.getElementById("customAlertOverlay").classList.remove("active"); if(window.AudioSFX) AudioSFX.click(); }
 
 const AudioSFX = (function() {
-    let ctx = null;
-    function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
-    function playTone(freq, type, duration, vol=0.1) {
-        if (!ctx) return;
-        let osc = ctx.createOscillator(); let gain = ctx.createGain();
-        osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(vol, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(); osc.stop(ctx.currentTime + duration);
-    }
+    let ctx = null; function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+    function playTone(freq, type, duration, vol=0.1) { if (!ctx) return; let osc = ctx.createOscillator(); let gain = ctx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime); gain.gain.setValueAtTime(vol, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + duration); }
     return {
-        click: () => { init(); playTone(600, 'sine', 0.1, 0.05); },
-        correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); },
-        wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); },
-        buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); },
-        timeUp: () => { init(); playTone(300, 'triangle', 0.8, 0.2); },
-        // PERBAIKAN: Bunyi TIK saat persiapan 5 detik
-        tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } 
+        click: () => { init(); playTone(600, 'sine', 0.1, 0.05); }, correct: () => { init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*100)); }, wrong: () => { init(); [250, 200].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.15), i*150)); }, buzzerWin: () => { init(); [880, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.2, 0.15), i*100)); }, timeUp: () => { init(); playTone(300, 'triangle', 0.8, 0.2); }, tick: () => { init(); playTone(800, 'sine', 0.05, 0.05); } 
     };
 })();
-
 const BGMPlayer = (function() {
-    let ctx = null; let isPlaying = false; let intervalId = null; let step = 0;
-    const notes = [261.63, 0, 261.63, 0, 392.00, 0, 392.00, 0]; 
+    let ctx = null; let isPlaying = false; let intervalId = null; let step = 0; const notes = [261.63, 0, 261.63, 0, 392.00, 0, 392.00, 0]; 
     function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); }
-    function playNote(freq) {
-        if (!ctx || freq === 0) return;
-        let osc = ctx.createOscillator(); let gain = ctx.createGain();
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(0.02, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.1);
-    }
-    return {
-        play: () => { init(); if (isPlaying) return; isPlaying = true; step = 0; intervalId = setInterval(() => { playNote(notes[step]); step = (step + 1) % notes.length; }, 200); },
-        stop: () => { isPlaying = false; clearInterval(intervalId); }
-    };
+    function playNote(freq) { if (!ctx || freq === 0) return; let osc = ctx.createOscillator(); let gain = ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, ctx.currentTime); gain.gain.setValueAtTime(0.02, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.1); }
+    return { play: () => { init(); if (isPlaying) return; isPlaying = true; step = 0; intervalId = setInterval(() => { playNote(notes[step]); step = (step + 1) % notes.length; }, 200); }, stop: () => { isPlaying = false; clearInterval(intervalId); } };
 })();
-
 const FX = {
-  fireConfetti: () => {
-    const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
-    for (let i = 0; i < 100; i++) {
-      let conf = document.createElement('div');
-      conf.style.position = 'fixed'; conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 10 + 5 + 'px';
-      conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-10px';
-      conf.style.zIndex = '99999'; conf.style.transform = `rotate(${Math.random() * 360}deg)`;
-      document.body.appendChild(conf);
-      conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: (Math.random() * 2 + 2) * 1000, easing: 'linear' }).onfinish = () => conf.remove();
-    }
-  },
-  showNotif: (text, color) => {
-    let notif = document.createElement('div'); notif.className = 'big-notif'; notif.innerHTML = text; notif.style.color = color;
-    document.body.appendChild(notif); setTimeout(() => notif.remove(), 1500);
-  },
-  shakeScreen: () => { document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 300); }
+  fireConfetti: () => { const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B']; for (let i = 0; i < 100; i++) { let conf = document.createElement('div'); conf.style.position = 'fixed'; conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 10 + 5 + 'px'; conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-10px'; conf.style.zIndex = '99999'; conf.style.transform = `rotate(${Math.random() * 360}deg)`; document.body.appendChild(conf); conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: (Math.random() * 2 + 2) * 1000, easing: 'linear' }).onfinish = () => conf.remove(); } },
+  showNotif: (text, color) => { let notif = document.createElement('div'); notif.className = 'big-notif'; notif.innerHTML = text; notif.style.color = color; document.body.appendChild(notif); setTimeout(() => notif.remove(), 1500); }, shakeScreen: () => { document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 300); }
 };
-
 const MANIFEST={"islami": {"label": "Cerdas Cermat Islami", "materi": {"campuran": "Campuran Islami", "tajwid": "Tajwid", "nahwu": "Nahwu", "sharaf": "Sharaf", "kosakata-arab": "Kosakata Arab", "fikih": "Fikih", "akidah": "Akidah", "akhlak": "Akhlak", "sejarah-islam": "Sejarah Islam", "quran-hadis": "Al-Qur'an & Hadis"}}, "umum": {"label": "Cerdas Cermat Umum", "materi": {"campuran": "Campuran Umum", "matematika": "Matematika", "ipa": "IPA", "ips": "IPS", "bahasa-indonesia": "Bahasa Indonesia", "bahasa-inggris": "Bahasa Inggris", "ppkn": "PPKn", "pengetahuan-umum": "Pengetahuan Umum"}}};
+
 let room="",teamCount=4,category="islami",subject="campuran",seconds=30,mode="idle";
 let connected={},scores={1:0,2:0,3:0,4:0},winner=null,current=null,questions=[],qIndex=-1;
-
-// PERBAIKAN: Menambahkan isPrepMode untuk mengunci kontrol selama 5 detik
 let timerLeft=30, timerId=null, roomUnsub=null, lastWinner=null, settingsOpen=false, historyGuard=false, isQuestionDone=false, isPrepMode=false;
-let questionTimerLeft = 30; 
-let answerSeconds = 10;
-let timerMode = "idle";
+let questionTimerLeft = 30; let answerSeconds = 10; let timerMode = "idle";
 
 document.addEventListener("pointerdown",()=>{ AudioSFX.click(); }, {once:true});
-
-function openSettings(){
-  if(settingsOpen)return; settingsOpen=true; document.getElementById("settingsModal").classList.add("open");
-  if(!historyGuard){history.pushState({madasaSettings:true},"");historyGuard=true;}
-}
-
-function closeSettings(fromPop=false){
-  if(!settingsOpen)return; settingsOpen=false; document.getElementById("settingsModal").classList.remove("open");
-  if(!fromPop && historyGuard){historyGuard=false;history.back();}
-  
-  seconds = +document.getElementById("seconds").value || 30;
-  answerSeconds = +document.getElementById("answerTime").value || 10;
-  if (room && window.FB) {
-     FB.update(FB.ref(FB.db,"quiz4/"+room), {seconds: seconds, answerSeconds: answerSeconds});
-  }
-}
-
+function openSettings(){ if(settingsOpen)return; settingsOpen=true; document.getElementById("settingsModal").classList.add("open"); if(!historyGuard){history.pushState({madasaSettings:true},"");historyGuard=true;} }
+function closeSettings(fromPop=false){ if(!settingsOpen)return; settingsOpen=false; document.getElementById("settingsModal").classList.remove("open"); if(!fromPop && historyGuard){historyGuard=false;history.back();} seconds = +document.getElementById("seconds").value || 30; answerSeconds = +document.getElementById("answerTime").value || 10; if (room && window.FB) { FB.update(FB.ref(FB.db,"quiz4/"+room), {seconds: seconds, answerSeconds: answerSeconds}); } }
 window.addEventListener("popstate",()=>{if(settingsOpen){historyGuard=false;closeSettings(true)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&settingsOpen)closeSettings()});
 
 const activeTeams=()=>Array.from({length:teamCount},(_,i)=>i+1);
-
-function pickCount(n){
-  teamCount=n;
-  document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n));
-  renderTeams();
-  if(room && window.FB) {
-      FB.update(FB.ref(FB.db,"quiz4/"+room), {teamCount: n});
-  }
-}
-
+function pickCount(n){ teamCount=n; document.querySelectorAll(".count").forEach(b=>b.classList.toggle("active",+b.dataset.n===n)); renderTeams(); if(room && window.FB) { FB.update(FB.ref(FB.db,"quiz4/"+room), {teamCount: n}); } }
 function renderTeams(){for(let i=1;i<=4;i++)document.getElementById("team"+i).classList.toggle("hide",i>teamCount)}
-function fillSubjects(){
- category=document.getElementById("category").value;const s=document.getElementById("subject");s.innerHTML="";
- Object.entries(MANIFEST[category].materi).forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;s.appendChild(o)})
-}
+function fillSubjects(){ category=document.getElementById("category").value;const s=document.getElementById("subject");s.innerHTML=""; Object.entries(MANIFEST[category].materi).forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;s.appendChild(o)}) }
 function code(){return String(Math.floor(1000+Math.random()*9000))}
 function buzzerUrl(){const u=new URL("buzzer.html",location.href);if(room)u.searchParams.set("room",room);return u.toString()}
 function displayUrl(){const u=new URL("display.html",location.href);if(room)u.searchParams.set("room",room);return u.toString()}
-function openBuzzerPage(){ window.location.href = buzzerUrl(); }
-function openDisplayPage(){ window.location.href = displayUrl(); }
-
-function renderQR(){
- const j=document.getElementById("join");j.hidden=!room;if(!room)return;
- document.getElementById("joinCode").textContent=room;const q=document.getElementById("qr");q.innerHTML="";
- if(window.QRCode)new QRCode(q,{text:buzzerUrl(),width:90,height:90,correctLevel:QRCode.CorrectLevel.M});
-}
+function openBuzzerPage(){ window.location.href = buzzerUrl(); } function openDisplayPage(){ window.location.href = displayUrl(); }
+function renderQR(){ const j=document.getElementById("join");j.hidden=!room;if(!room)return; document.getElementById("joinCode").textContent=room;const q=document.getElementById("qr");q.innerHTML=""; if(window.QRCode)new QRCode(q,{text:buzzerUrl(),width:90,height:90,correctLevel:QRCode.CorrectLevel.M}); }
 
 async function loadQuestions(){
  category=document.getElementById("category").value;subject=document.getElementById("subject").value;
- const keys=Object.keys(MANIFEST[category].materi).filter(k=>k!=="campuran");
- const wanted=subject==="campuran"?keys:[subject];let all=[];
- for(const key of wanted){
-   const r=await fetch("soal/"+category+"/"+key+".json",{cache:"no-store"});
-   if(!r.ok)throw new Error("Gagal memuat soal "+key);
-   const a=await r.json();all.push(...a.map(x=>({...x,materi:key})));
- }
+ const keys=Object.keys(MANIFEST[category].materi).filter(k=>k!=="campuran"); const wanted=subject==="campuran"?keys:[subject];let all=[];
+ for(const key of wanted){ const r=await fetch("soal/"+category+"/"+key+".json",{cache:"no-store"}); if(!r.ok)throw new Error("Gagal memuat soal "+key); const a=await r.json();all.push(...a.map(x=>({...x,materi:key}))); }
  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
  questions=all;qIndex=-1;
 }
 
 async function createRoom(){
  if(!window.FB)return showCustomAlert("Firebase belum siap.","GAGAL","❌");
- category=document.getElementById("category").value;subject=document.getElementById("subject").value;
- seconds=+document.getElementById("seconds").value||30;
- answerSeconds=+document.getElementById("answerTime").value||10;
- 
+ category=document.getElementById("category").value;subject=document.getElementById("subject").value; seconds=+document.getElementById("seconds").value||30; answerSeconds=+document.getElementById("answerTime").value||10;
  try{await loadQuestions()}catch(e){return showCustomAlert("Bank soal gagal dimuat.\n"+e.message,"GAGAL","❌")}
- room=code();mode="lobby";connected={};scores={1:0,2:0,3:0,4:0};timerLeft=seconds; timerMode="idle"; 
- isQuestionDone=false; isPrepMode=false;
- renderTimerUI();
+ room=code();mode="lobby";connected={};scores={1:0,2:0,3:0,4:0};timerLeft=seconds; timerMode="idle"; isQuestionDone=false; isPrepMode=false; renderTimerUI();
  await FB.set(FB.ref(FB.db,"quiz4/"+room),{mode:"lobby",teamCount,category,subject,seconds,answerSeconds,connected:{},pressed:{1:false,2:false,3:false,4:false},buzzer:{open:false,winner:null,excluded:{}},scores,createdAt:Date.now()});
- closeSettings(); 
- document.getElementById("roomCode").textContent=room;document.getElementById("badge").textContent="GABUNG ROOM";
- document.getElementById("q").innerHTML='Masukkan kode <b style="color:#7c3aed">'+room+'</b> atau scan QR';
- document.getElementById("sub").textContent="Pilih nomor regu, lalu tes buzzer.";
- renderQR();listen();
+ closeSettings(); document.getElementById("roomCode").textContent=room;document.getElementById("badge").textContent="GABUNG ROOM"; document.getElementById("q").innerHTML='Masukkan kode <b style="color:#7c3aed">'+room+'</b> atau scan QR'; document.getElementById("sub").textContent="Pilih nomor regu, lalu tes buzzer."; renderQR();listen();
 }
 
 function listen(){
  if(roomUnsub)roomUnsub();
  roomUnsub=FB.onValue(FB.ref(FB.db,"quiz4/"+room),snap=>{
-   const d=snap.val()||{};mode=d.mode||"lobby";teamCount=+d.teamCount||teamCount;connected=d.connected||{};scores=d.scores||scores;winner=d.buzzer?.winner??null;renderTeams();
-   answerSeconds = d.answerSeconds || 10;
+   const d=snap.val()||{};mode=d.mode||"lobby";teamCount=+d.teamCount||teamCount;connected=d.connected||{};scores=d.scores||scores;winner=d.buzzer?.winner??null;renderTeams(); answerSeconds = d.answerSeconds || 10;
    const excluded=d.buzzer?.excluded||{},pressed=d.pressed||{};
-   
-   for(let i=1;i<=4;i++){
-     const el=document.getElementById("team"+i);document.getElementById("s"+i).textContent=scores[i]||0;
-     el.classList.toggle("connected",mode==="lobby"&&connected[i]===true);
-     el.classList.toggle("pressed",mode==="lobby"&&pressed[i]===true);
-     el.classList.toggle("win",mode==="quiz"&&+winner===i);
-     el.classList.toggle("eliminated",mode==="quiz"&&excluded[i]===true);
-   }
-   
-   if (winner && winner !== lastWinner && mode === "quiz") {
-       AudioSFX.buzzerWin(); const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"};
-       FX.showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]);
-       
-       pauseTimer();
-       questionTimerLeft = timerLeft;
-       timerLeft = answerSeconds;
-       timerMode = "answer";
-       
-       FB.update(FB.ref(FB.db,"quiz4/"+room), { timerLeft: timerLeft, timerMode: "answer" });
-       renderTimerUI();
-       startAnswerTimer();
-   }
+   for(let i=1;i<=4;i++){ const el=document.getElementById("team"+i);document.getElementById("s"+i).textContent=scores[i]||0; el.classList.toggle("connected",mode==="lobby"&&connected[i]===true); el.classList.toggle("pressed",mode==="lobby"&&pressed[i]===true); el.classList.toggle("win",mode==="quiz"&&+winner===i); el.classList.toggle("eliminated",mode==="quiz"&&excluded[i]===true); }
+   if (winner && winner !== lastWinner && mode === "quiz") { AudioSFX.buzzerWin(); const teamColors = {1:"#ef4444", 2:"#3b82f6", 3:"#22c55e", 4:"#f59e0b"}; FX.showNotif('⚡ REGU ' + winner + ' ⚡', teamColors[winner]); pauseTimer(); questionTimerLeft = timerLeft; timerLeft = answerSeconds; timerMode = "answer"; FB.update(FB.ref(FB.db,"quiz4/"+room), { timerLeft: timerLeft, timerMode: "answer" }); renderTimerUI(); startAnswerTimer(); }
    lastWinner = winner;
-
-   if(mode==="lobby"){
-     const n=activeTeams().filter(i=>connected[i]===true).length;
-     document.getElementById("status").textContent=n===teamCount?"✅ SEMUA REGU TERHUBUNG — SIAP MULAI":"📱 MENUNGGU REGU — "+n+"/"+teamCount+" TERHUBUNG";
-     document.getElementById("startBtn").disabled=n!==teamCount;document.getElementById("join").hidden=n===teamCount;
-   }else{
-     const left=activeTeams().filter(i=>excluded[i]!==true);
-     if(isPrepMode) {
-         document.getElementById("status").textContent = "⏳ WAKTU PERSIAPAN SOAL...";
-     } else {
-         document.getElementById("status").textContent=winner?"⚡ REGU "+winner+" MENJAWAB!":(d.buzzer?.open?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI");
-     }
-   }
+   if(mode==="lobby"){ const n=activeTeams().filter(i=>connected[i]===true).length; document.getElementById("status").textContent=n===teamCount?"✅ SEMUA REGU TERHUBUNG — SIAP MULAI":"📱 MENUNGGU REGU — "+n+"/"+teamCount+" TERHUBUNG"; document.getElementById("startBtn").disabled=n!==teamCount;document.getElementById("join").hidden=n===teamCount;
+   }else{ const left=activeTeams().filter(i=>excluded[i]!==true); if(isPrepMode) { document.getElementById("status").textContent = "⏳ WAKTU PERSIAPAN SOAL..."; } else { document.getElementById("status").textContent=winner?"⚡ REGU "+winner+" MENJAWAB!":(d.buzzer?.open?"🟢 BUZZER AKTIF — REGU "+left.join(", ")+" SILAKAN BEREBUT!":"🔒 BUZZER TERKUNCI"); } }
  });
 }
 
 async function startQuiz(){
  const s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/connected")),c=s.val()||{};
  if(!activeTeams().every(i=>c[i]===true))return showCustomAlert("Semua "+teamCount+" regu harus terhubung terlebih dahulu.","PERINGATAN","⚠️");
- document.getElementById("join").hidden=true;
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}});
- await nextQuestion();
+ document.getElementById("join").hidden=true; await FB.update(FB.ref(FB.db,"quiz4/"+room),{mode:"quiz","buzzer/open":false,"buzzer/winner":null,"buzzer/excluded":{}}); await nextQuestion();
 }
 
-// PERBAIKAN UTAMA: Tambah Waktu Persiapan 5 Detik Sebelum Soal Keluar
+// MESIN PERSIAPAN BERSKALA BESAR TANPA KOTAK TIMER
 async function nextQuestion(){
- if(isPrepMode) return showCustomAlert("Sabar Kang, sedang dalam waktu persiapan 5 detik!","TUNGGU SEBENTAR","⏳");
+ if(isPrepMode) return showCustomAlert("Sabar Kang, sedang dalam waktu persiapan!","TUNGGU SEBENTAR","⏳");
  BGMPlayer.play();
  if(!room||mode!=="quiz")return;
  if(!questions.length)return showCustomAlert("Bank soal kosong.","PERINGATAN","⚠️");
  
  qIndex=(qIndex+1)%questions.length;current=questions[qIndex];
  isQuestionDone = false; 
- isPrepMode = true; // KUNCI MODE PERSIAPAN
+ isPrepMode = true; // KUNCI KONTROL
  
  document.getElementById("badge").textContent="PERSIAPAN";
- document.getElementById("q").textContent="BERSIAP-SIAP! SOAL AKAN MUNCUL...";
- document.getElementById("sub").textContent="Fokus ke layar proyektor...";
+ document.getElementById("sub").textContent=""; // Kosongkan subteks
  document.getElementById("answer").style.display="none";
  document.getElementById("answer").textContent="JAWABAN: "+current.jawaban;
  
  timerMode = "prep";
- timerLeft = 5; // Waktu persiapan 5 detik
+ timerLeft = 6; 
+ 
+ let displayTxt = "SIAP !!!";
+ document.getElementById("q").textContent = displayTxt;
  renderTimerUI();
  
- // Sembunyikan soal dari proyektor (display.html akan otomatis menampilkan teks ini)
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{ 
-     currentQuestion: "BERSIAP-SIAP! SOAL KE-"+(qIndex+1)+" AKAN MUNCUL...", 
-     showAnswer: false, 
-     timerLeft: timerLeft, 
-     timerMode: "prep" 
- });
- // Pastikan buzzer terkunci saat hitung mundur persiapan
+ await FB.update(FB.ref(FB.db,"quiz4/"+room),{ currentQuestion: displayTxt, showAnswer: false, timerLeft: timerLeft, timerMode: "prep" });
  await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null,excluded:{}});
  
  clearInterval(timerId);
  timerId = setInterval(async() => {
      timerLeft--;
-     renderTimerUI();
-     if(timerLeft > 0) AudioSFX.tick(); // Bunyikan TIK saat hitung mundur
      
-     FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)});
-     if(timerLeft <= 0){
+     // Logika: Detik ke-6 (SIAP !!!), ke-5 s/d ke-1 (Angka besar)
+     let newTxt = timerLeft > 5 ? "SIAP !!!" : (timerLeft > 0 ? timerLeft.toString() : "");
+     
+     if(timerLeft > 0) {
+         AudioSFX.tick(); 
+         document.getElementById("q").textContent = newTxt;
+         renderTimerUI();
+         FB.update(FB.ref(FB.db,"quiz4/"+room), { timerLeft: timerLeft, currentQuestion: newTxt });
+     } else {
          clearInterval(timerId);
-         startActualQuestion(); // Setelah 5 detik, tampilkan soal asli
+         startActualQuestion();
      }
  }, 1000);
 }
 
-// Menampilkan soal asli setelah waktu persiapan selesai
 async function startActualQuestion() {
- isPrepMode = false; // Buka kunci persiapan
- 
+ isPrepMode = false; 
  document.getElementById("badge").textContent=(MANIFEST[category].materi[subject]||subject).toUpperCase();
  document.getElementById("q").textContent=current.soal;
  document.getElementById("sub").textContent="Soal "+(qIndex+1)+" • Tekan buzzer jika sudah siap menjawab.";
  
- timerMode = "question";
- timerLeft = seconds;
- renderTimerUI();
- 
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{ 
-     currentQuestion: current.soal, 
-     currentAnswer: current.jawaban, 
-     showAnswer: false, 
-     timerLeft: timerLeft, 
-     timerMode: "question" 
- });
- // Buka buzzer agar regu bisa berebut
+ timerMode = "question"; timerLeft = seconds; renderTimerUI();
+ await FB.update(FB.ref(FB.db,"quiz4/"+room),{ currentQuestion: current.soal, currentAnswer: current.jawaban, showAnswer: false, timerLeft: timerLeft, timerMode: "question" });
  await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,excluded:{},openedAt:Date.now()});
  startTimer();
 }
@@ -505,152 +317,44 @@ async function startActualQuestion() {
 function renderTimerUI(){
     const t = document.getElementById("timer");
     const lbl = document.getElementById("timerLabel");
+    const qEl = document.getElementById("q"); // Ambil elemen soal
+    
     t.textContent = "00:" + String(Math.max(0,timerLeft)).padStart(2,"0");
     t.classList.toggle("danger", timerLeft <= 5 && timerLeft > 0 && timerMode !== "prep");
     
     if (timerMode === "answer") {
+        t.parentElement.style.display = "flex";
         t.classList.add("answer-mode");
         lbl.style.display = "block";
         lbl.textContent = "WAKTU MENJAWAB!";
+        qEl.style.fontSize = ""; qEl.style.color = "";
     } else if (timerMode === "prep") {
-        t.classList.add("answer-mode"); // Supaya warnanya beda saat prep (kuning/orange)
-        lbl.style.display = "block";
-        lbl.textContent = "PERSIAPAN...";
+        // HIDE TIMER & BUAT TEKS SOAL RAKSASA SAAT PERSIAPAN
+        t.parentElement.style.display = "none";
+        qEl.style.fontSize = "clamp(50px, 8vw, 100px)"; 
+        qEl.style.color = "#dc2626";
     } else {
+        t.parentElement.style.display = "flex";
         t.classList.remove("answer-mode");
         lbl.style.display = "none";
+        qEl.style.fontSize = ""; qEl.style.color = "";
     }
 }
 
-function startTimer(){
- clearInterval(timerId); timerMode = "question"; renderTimerUI();
- timerId = setInterval(async() => {
-     timerLeft--; renderTimerUI();
-     FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)});
-     if(timerLeft <= 0){
-         pauseTimer(); await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null});
-         document.getElementById("status").textContent="⏰ WAKTU HABIS — LIHAT JAWABAN / SOAL BERIKUTNYA"; AudioSFX.timeUp(); 
-     }
- }, 1000);
-}
-
-function startAnswerTimer(){
- clearInterval(timerId); renderTimerUI();
- timerId = setInterval(async() => {
-     timerLeft--; renderTimerUI();
-     FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)});
-     if(timerLeft <= 0){
-         pauseTimer();
-         document.getElementById("status").textContent = "⏰ WAKTU MENJAWAB HABIS!";
-         processPassOrTimeout(true);
-     }
- }, 1000);
-}
-
+function startTimer(){ clearInterval(timerId); timerMode = "question"; renderTimerUI(); timerId = setInterval(async() => { timerLeft--; renderTimerUI(); FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)}); if(timerLeft <= 0){ pauseTimer(); await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:false,winner:null}); document.getElementById("status").textContent="⏰ WAKTU HABIS — LIHAT JAWABAN / SOAL BERIKUTNYA"; AudioSFX.timeUp(); } }, 1000); }
+function startAnswerTimer(){ clearInterval(timerId); renderTimerUI(); timerId = setInterval(async() => { timerLeft--; renderTimerUI(); FB.update(FB.ref(FB.db,"quiz4/"+room), {timerLeft: Math.max(0, timerLeft)}); if(timerLeft <= 0){ pauseTimer(); document.getElementById("status").textContent = "⏰ WAKTU MENJAWAB HABIS!"; processPassOrTimeout(true); } }, 1000); }
 function pauseTimer(){clearInterval(timerId);timerId=null}
-
-function showAnswer(){
-    if(isPrepMode) return; // Cegah tombol jika masa persiapan
-    if(!current)return; const a=document.getElementById("answer");a.style.display="inline-block";
-    pauseTimer(); BGMPlayer.stop(); AudioSFX.click();
-    FB.update(FB.ref(FB.db,"quiz4/"+room), {showAnswer: true, timerMode: "idle"});
-    timerMode = "idle"; renderTimerUI();
-}
-
-async function correct(){
- if(isPrepMode) return;
- BGMPlayer.play();
- if(!winner)return showCustomAlert("Belum ada regu yang memenangkan buzzer.","PERINGATAN","⚠️");
- if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
- 
- pauseTimer();
- isQuestionDone = true; 
- 
- const n=+winner;scores[n]=(scores[n]||0)+10;
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n],"buzzer/open":false, timerMode: "idle"});
- document.getElementById("status").textContent="✅ REGU "+n+" BENAR +10 — LANJUT SOAL";
- AudioSFX.correct(); FX.fireConfetti(); FX.showNotif('BENAR! 🎉', '#4CAF50');
- timerMode = "idle"; renderTimerUI();
-}
-
-async function wrong(){
- if(isPrepMode) return;
- BGMPlayer.play();
- if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️");
- if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
- 
- pauseTimer();
- AudioSFX.wrong(); FX.shakeScreen(); 
- FX.showNotif('SALAH! ❌', '#F44336');
-
- const n=+winner;
- scores[n]=(scores[n]||0)-10;
- 
- processPassOrTimeout(false);
-}
-
-async function passQuestion(){
- if(isPrepMode) return;
- BGMPlayer.play();
- if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️");
- if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️");
- 
- pauseTimer();
- AudioSFX.wrong(); 
- FX.showNotif('LEMPAR / WAKTU HABIS! ⏳', '#F59E0B');
-
- processPassOrTimeout(false);
-}
-
-async function processPassOrTimeout(isTimeout){
- const n=+winner;
- const s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/buzzer"));
- const b=s.val()||{};
- const excluded={...(b.excluded||{}),[n]:true};
- const remaining=activeTeams().filter(i=>excluded[i]!==true);
- 
- await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n]});
- 
- if(!remaining.length){
-     await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"), {...b, open:false, winner:null, excluded});
-     document.getElementById("status").textContent = "⛔ SEMUA REGU SUDAH MENCOBA";
-     FB.update(FB.ref(FB.db,"quiz4/"+room), { timerMode: "idle" });
-     timerMode = "idle"; renderTimerUI();
-     return;
- }
- 
- await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:true,winner:null,excluded,openedAt:Date.now()});
- 
- timerLeft = questionTimerLeft;
- timerMode = "question";
- FB.update(FB.ref(FB.db,"quiz4/"+room), { timerMode: "question" });
- if(timerLeft > 0) startTimer();
-}
-
-async function resumeBuzzer(){
-    if(isPrepMode) return;
-    if(!room||mode!=="quiz")return; await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()});
-    if(timerLeft>0) startTimer();
-}
-
+function showAnswer(){ if(isPrepMode) return; if(!current)return; const a=document.getElementById("answer");a.style.display="inline-block"; pauseTimer(); BGMPlayer.stop(); AudioSFX.click(); FB.update(FB.ref(FB.db,"quiz4/"+room), {showAnswer: true, timerMode: "idle"}); timerMode = "idle"; renderTimerUI(); }
+async function correct(){ if(isPrepMode) return; BGMPlayer.play(); if(!winner)return showCustomAlert("Belum ada regu yang memenangkan buzzer.","PERINGATAN","⚠️"); if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️"); pauseTimer(); isQuestionDone = true; const n=+winner;scores[n]=(scores[n]||0)+10; await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n],"buzzer/open":false, timerMode: "idle"}); document.getElementById("status").textContent="✅ REGU "+n+" BENAR +10 — LANJUT SOAL"; AudioSFX.correct(); FX.fireConfetti(); FX.showNotif('BENAR! 🎉', '#4CAF50'); timerMode = "idle"; renderTimerUI(); }
+async function wrong(){ if(isPrepMode) return; BGMPlayer.play(); if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️"); if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️"); pauseTimer(); AudioSFX.wrong(); FX.shakeScreen(); FX.showNotif('SALAH! ❌', '#F44336'); const n=+winner; scores[n]=(scores[n]||0)-10; processPassOrTimeout(false); }
+async function passQuestion(){ if(isPrepMode) return; BGMPlayer.play(); if(!winner) return showCustomAlert("Belum ada regu yang aktif/memegang buzzer.","PERINGATAN","⚠️"); if(isQuestionDone) return showCustomAlert("Soal ini sudah dijawab dengan BENAR! Silakan lanjut ke soal berikutnya.","PERINGATAN","⚠️"); pauseTimer(); AudioSFX.wrong(); FX.showNotif('LEMPAR / WAKTU HABIS! ⏳', '#F59E0B'); processPassOrTimeout(false); }
+async function processPassOrTimeout(isTimeout){ const n=+winner; const s=await FB.get(FB.ref(FB.db,"quiz4/"+room+"/buzzer")); const b=s.val()||{}; const excluded={...(b.excluded||{}),[n]:true}; const remaining=activeTeams().filter(i=>excluded[i]!==true); await FB.update(FB.ref(FB.db,"quiz4/"+room),{["scores/"+n]:scores[n]}); if(!remaining.length){ await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"), {...b, open:false, winner:null, excluded}); document.getElementById("status").textContent = "⛔ SEMUA REGU SUDAH MENCOBA"; FB.update(FB.ref(FB.db,"quiz4/"+room), { timerMode: "idle" }); timerMode = "idle"; renderTimerUI(); return; } await FB.set(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{...b,open:true,winner:null,excluded,openedAt:Date.now()}); timerLeft = questionTimerLeft; timerMode = "question"; FB.update(FB.ref(FB.db,"quiz4/"+room), { timerMode: "question" }); if(timerLeft > 0) startTimer(); }
+async function resumeBuzzer(){ if(isPrepMode) return; if(!room||mode!=="quiz")return; await FB.update(FB.ref(FB.db,"quiz4/"+room+"/buzzer"),{open:true,winner:null,openedAt:Date.now()}); if(timerLeft>0) startTimer(); }
 async function score(n,d){if(!room)return;scores[n]=(scores[n]||0)+d;await FB.set(FB.ref(FB.db,"quiz4/"+room+"/scores/"+n),scores[n])}
-
 window.openSettings=openSettings;window.closeSettings=closeSettings;window.pickCount=pickCount;window.fillSubjects=fillSubjects;window.createRoom=createRoom;window.openBuzzerPage=openBuzzerPage;window.openDisplayPage=openDisplayPage;window.startQuiz=startQuiz;window.nextQuestion=nextQuestion;window.showAnswer=showAnswer;window.correct=correct;window.wrong=wrong;window.passQuestion=passQuestion;window.resumeBuzzer=resumeBuzzer;window.score=score;window.showCustomAlert=showCustomAlert;window.closeCustomAlert=closeCustomAlert;
 fillSubjects();renderTeams();renderTimerUI();
 </script>
 
-<!-- REGISTRASI SERVICE WORKER (Naik 1 folder mencari sw.js) -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // Menggunakan ../sw.js agar mencari ke luar folder empatregu
-      navigator.serviceWorker.register('../sw.js')
-        .then((reg) => console.log('Service Worker Folder Dalam Terdaftar!'))
-        .catch((err) => console.log('Gagal mendaftar SW dari dalam', err));
-    });
-  }
-</script>
-
-
+<script> if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('../sw.js').then((reg) => console.log('Service Worker Folder Dalam Terdaftar!')).catch((err) => console.log('Gagal mendaftar SW dari dalam', err)); }); } </script>
 </body>
 </html>
