@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MADASA - Proyektor Duel 2 Player</title>
+<title>MADASA - Proyektor Duel 2 Player (TV Version)</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; width: 100%; height: 100%; font-family: 'Nunito', Inter, system-ui, sans-serif; background: #0f172a; color: white; overflow: hidden; -webkit-user-select: none; user-select: none; }
@@ -16,45 +16,48 @@
   @keyframes popZoom { 0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 80% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; } 100% { transform: translate3d(-50%, -50%, 0) scale(1.3); opacity: 0; } }
 
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
-  #setup h1 { font-size: clamp(30px, 6vw, 50px); margin-bottom: 20px; color: #E91E63; text-shadow: 0 4px 10px rgba(0,0,0,0.5); font-weight: 900; }
-  #setup p { font-size: clamp(18px, 3vw, 24px); color: #38bdf8; margin-bottom: 30px; font-weight: 800; }
-  #setup input { font-size: clamp(30px, 6vw, 60px); padding: 15px; text-align: center; border-radius: 20px; border: 5px solid #03A9F4; outline: none; font-weight: 900; letter-spacing: 15px; width: 100%; max-width: 400px; color: #333; }
-  #setup button { font-size: clamp(20px, 4vw, 30px); padding: 18px 40px; margin-top: 25px; background: #4CAF50; color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; width: 100%; max-width: 400px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);}
+  #setup h1 { font-size: 45px; margin-bottom: 20px; color: #E91E63; text-shadow: 0 4px 10px rgba(0,0,0,0.5); font-weight: 900; }
+  #setup p { font-size: 22px; color: #38bdf8; margin-bottom: 30px; font-weight: 800; }
+  #setup input { font-size: 45px; padding: 15px; text-align: center; border-radius: 20px; border: 5px solid #03A9F4; outline: none; font-weight: 900; letter-spacing: 15px; width: 100%; max-width: 400px; color: #333; }
+  #setup button { font-size: 26px; padding: 18px 40px; margin-top: 25px; background: #4CAF50; color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.2s; width: 100%; max-width: 400px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);}
   #setup button:active { transform: scale(0.95); }
 
-  #game-board { display: none; height: 100vh; width: 100%; position: relative; }
+  /* MENGGUNAKAN FLEXBOX AGAR STABIL DI TV */
+  #game-board { display: none; flex-direction: row; height: 100%; width: 100%; position: relative; }
   
   #center-line { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 15px; background: linear-gradient(180deg, transparent, #FFF, transparent); z-index: 10; opacity: 0.8; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
   
-  .room-badge { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); padding: 10px 25px; border-radius: 15px; font-size: 24px; font-weight: 900; color: #fff; border: 3px solid #38bdf8; z-index: 20; letter-spacing: 2px;}
+  .room-badge { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); padding: 10px 25px; border-radius: 15px; font-size: 26px; font-weight: 900; color: #fff; border: 3px solid #38bdf8; z-index: 20; letter-spacing: 2px;}
 
   #top-center-container { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; justify-content: center; background: #fff; padding: 10px 40px; border-radius: 30px; border: 6px solid #673AB7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-  #timer-display { font-size: clamp(40px, 6vw, 60px); font-weight: 1000; color: #673AB7; font-variant-numeric: tabular-nums; line-height: 1; }
+  #timer-display { font-size: 65px; font-weight: 1000; color: #673AB7; font-variant-numeric: tabular-nums; line-height: 1; }
   .waktu-kritis { color: #F44336 !important; animation: detak 0.5s infinite alternate; }
   @keyframes detak { to { transform: scale(1.15); } }
 
-  /* ZONA PEMAIN */
-  .player-zone { width: 50%; height: 100%; position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; }
-  #p1-zone { left: 0; background: linear-gradient(135deg, rgba(248,187,208,0.1) 0%, rgba(216,27,96,0.3) 100%); }
-  #p2-zone { right: 0; background: linear-gradient(135deg, rgba(179,229,252,0.1) 0%, rgba(2,136,209,0.3) 100%); }
+  /* ZONA PEMAIN FLEXBOX */
+  .player-zone { width: 50%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; }
+  #p1-zone { background: linear-gradient(135deg, rgba(248,187,208,0.1) 0%, rgba(216,27,96,0.3) 100%); }
+  #p2-zone { background: linear-gradient(135deg, rgba(179,229,252,0.1) 0%, rgba(2,136,209,0.3) 100%); }
 
-  .player-title { font-size: clamp(26px, 3.5vw, 50px); font-weight: 900; margin-bottom: 20px; padding: 10px 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-transform: uppercase; word-wrap: break-word; text-align: center; max-width: 90%; }
+  .player-title { font-size: 40px; font-weight: 900; margin-bottom: 20px; padding: 10px 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-transform: uppercase; word-wrap: break-word; text-align: center; max-width: 90%; }
   #p1-zone .player-title { background: #D81B60; color: white; border: 4px solid #F8BBD0; }
   #p2-zone .player-title { background: #0288D1; color: white; border: 4px solid #B3E5FC; }
 
   .score-box { background: rgba(0,0,0,0.5); border: 5px solid #fff; border-radius: 30px; padding: 20px 50px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .score-label { font-size: 20px; font-weight: 900; color: #aaa; letter-spacing: 2px; margin-bottom: 5px; }
-  .score-value { font-size: clamp(80px, 12vw, 150px); font-weight: 1000; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  .score-label { font-size: 22px; font-weight: 900; color: #ccc; letter-spacing: 2px; margin-bottom: 5px; }
+  
+  /* UKURAN FONT PASTI MUNCUL DI TV */
+  .score-value { font-size: 140px; font-weight: 1000; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
   
   #p1-score { color: #F48FB1; }
   #p2-score { color: #81D4FA; }
 
   /* INDIKATOR STATUS */
-  .status-box { background: rgba(255,255,255,0.9); color: #000; font-size: 24px; font-weight: 900; padding: 15px 30px; border-radius: 20px; opacity: 0.5; transition: opacity 0.3s; }
+  .status-box { background: rgba(255,255,255,0.9); color: #000; font-size: 28px; font-weight: 900; padding: 15px 30px; border-radius: 20px; opacity: 0.5; transition: opacity 0.3s; }
   .status-box.active { opacity: 1; box-shadow: 0 10px 30px rgba(255,255,255,0.5); transform: scale(1.05); }
 
   /* ANIMASI BENAR SALAH REAL-TIME */
-  .notif-jawaban { position: absolute; font-size: clamp(40px, 6vw, 80px); font-weight: 1000; text-transform: uppercase; padding: 15px 40px; border-radius: 25px; color: #fff; z-index: 100; opacity: 0; pointer-events: none; border: 6px solid #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transform: translate(-50%, -50%) scale(0.5); white-space: nowrap; }
+  .notif-jawaban { position: absolute; font-size: 60px; font-weight: 1000; text-transform: uppercase; padding: 15px 40px; border-radius: 25px; color: #fff; z-index: 100; opacity: 0; pointer-events: none; border: 6px solid #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transform: translate(-50%, -50%) scale(0.5); white-space: nowrap; }
   .notif-benar { background: #4CAF50; animation: terbangBenar 1.2s ease-out forwards; text-shadow: 0 4px 10px rgba(0,0,0,0.4); }
   .notif-salah { background: #F44336; animation: jatuhSalah 1.2s ease-out forwards; text-shadow: 0 4px 10px rgba(0,0,0,0.4); }
   @keyframes terbangBenar { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -100px) scale(1.2) rotate(-5deg); } 80% { opacity: 1; transform: translate(-50%, -150px) scale(1) rotate(5deg); } 100% { opacity: 0; transform: translate(-50%, -200px) scale(0.8); } }
@@ -63,10 +66,10 @@
   /* OVERLAY HASIL AKHIR */
   #winner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
   .winner-card { background: #fff; padding: 50px 80px; border-radius: 40px; text-align: center; animation: popZoom 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 10px solid #FFD700; z-index: 100001; }
-  .winner-card h1 { color: #E91E63; font-size: 60px; margin: 0 0 20px 0; font-weight: 1000; }
-  .winner-card h2 { color: #333; font-size: 40px; margin: 0; font-weight: 900; }
+  .winner-card h1 { color: #E91E63; font-size: 65px; margin: 0 0 20px 0; font-weight: 1000; }
+  .winner-card h2 { color: #333; font-size: 45px; margin: 0; font-weight: 900; }
   
-  .big-notif { position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); font-size: clamp(80px, 12vw, 150px); font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; white-space: nowrap; -webkit-text-stroke: 4px #fff; opacity: 0; }
+  .big-notif { position: fixed; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(0); font-size: 120px; font-weight: 1000; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; pointer-events: none; white-space: nowrap; -webkit-text-stroke: 4px #fff; opacity: 0; }
 </style>
 </head>
 
@@ -78,7 +81,7 @@
   <h1>DISPLAY DUEL 2 PLAYER</h1>
   <p>Tampilkan skor pertarungan Matematika secara Real-Time</p>
   <input id="room-input" type="number" placeholder="KODE" maxlength="4">
-  <button onclick="connectRoom()">TAMPILKAN KE PROYEKTOR</button>
+  <button onclick="connectRoom()">TAMPILKAN KE LAYAR TV</button>
   <button onclick="document.documentElement.requestFullscreen().catch(err => console.log(err))" style="background:#03A9F4; margin-top:15px;">LAYAR PENUH (FULLSCREEN)</button>
 </div>
 
@@ -120,13 +123,13 @@
     <!-- Papan Skor Akhir di Popup -->
     <div style="margin-top: 25px; background: #f8fafc; padding: 20px; border-radius: 20px; border: 4px dashed #cbd5e1; display: flex; justify-content: center; gap: 40px;">
       <div>
-        <div id="final-p1-name" style="font-size: 24px; font-weight: 900; color: #D81B60;">PLAYER 1</div>
-        <div id="final-p1-score" style="font-size: 70px; font-weight: 1000; color: #D81B60; line-height: 1;">0</div>
+        <div id="final-p1-name" style="font-size: 28px; font-weight: 900; color: #D81B60;">PLAYER 1</div>
+        <div id="final-p1-score" style="font-size: 75px; font-weight: 1000; color: #D81B60; line-height: 1;">0</div>
       </div>
-      <div style="font-size: 50px; font-weight: 900; color: #94a3b8; align-self: center;">VS</div>
+      <div style="font-size: 55px; font-weight: 900; color: #94a3b8; align-self: center;">VS</div>
       <div>
-        <div id="final-p2-name" style="font-size: 24px; font-weight: 900; color: #0288D1;">PLAYER 2</div>
-        <div id="final-p2-score" style="font-size: 70px; font-weight: 1000; color: #0288D1; line-height: 1;">0</div>
+        <div id="final-p2-name" style="font-size: 28px; font-weight: 900; color: #0288D1;">PLAYER 2</div>
+        <div id="final-p2-score" style="font-size: 75px; font-weight: 1000; color: #0288D1; line-height: 1;">0</div>
       </div>
     </div>
     
@@ -224,7 +227,9 @@
       AudioSFX.init();
 
       document.getElementById("setup").style.display = "none";
-      document.getElementById("game-board").style.display = "block";
+      
+      // PENTING: Gunakan display 'flex' agar tabel membelah dua merata di TV
+      document.getElementById("game-board").style.display = "flex";
       document.getElementById("d-room").textContent = room;
       isInitialLoad = true;
       
