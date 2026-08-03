@@ -22,13 +22,14 @@
   }
   #app-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
 
-  /* --- ZONA PERMAINAN --- */
+  /* --- ZONA PERMAINAN DENGAN ANIMASI MERIAH --- */
   #game-board { display: flex; flex-direction: row; height: 100%; width: 100%; position: relative; }
   .player-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: filter 0.3s; padding: 10px; overflow: hidden;}
   
   #p1-zone { background: linear-gradient(135deg, #F8BBD0 0%, #F06292 100%); }
   #p2-zone { background: linear-gradient(135deg, #B3E5FC 0%, #29B6F6 100%); }
 
+  /* Gelembung ceria di background */
   .player-zone::before {
     content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background-image: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 10%);
@@ -45,14 +46,17 @@
   /* --- UI COMPONENT --- */
   #top-center-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95); padding: 5px 20px; border-radius: 30px; border: 4px solid #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
   #timer-display { font-size: clamp(24px, 5vw, 34px); font-weight: 900; color: #673AB7; }
-  .waktu-kritis { color: #F44336 !important; animation: detak 0.8s infinite alternate; }
-  @keyframes detak { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+  .waktu-kritis { color: #F44336 !important; animation: detak 0.8s infinite; }
+  @keyframes detak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
   
   .question-box { font-size: clamp(30px, 6vw, 55px); font-weight: 900; margin-bottom: 25px; background: rgba(255,255,255,0.95); padding: 15px 30px; border-radius: 25px; text-align: center; width: 80%; max-width: 450px; word-wrap: break-word; z-index: 1; box-shadow: 0 8px 20px rgba(0,0,0,0.1);}
   #p1-zone .question-box { border: 5px dashed #D81B60; color: #AD1457; }
   #p2-zone .question-box { border: 5px dashed #0288D1; color: #01579B; }
   
+  /* PERBAIKAN: Lebar wadah opsi ditambah agar tidak terpotong */
   .options { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 500px; z-index: 1;}
+  
+  /* PERBAIKAN: Kotak opsi dibuat melar otomatis (width: auto) dengan batas padding */
   .btn-option { font-size: clamp(20px, 4vw, 32px); min-width: clamp(70px, 15vw, 110px); width: auto; padding: 10px 20px; height: clamp(70px, 15vw, 90px); display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 20px; background: #FFF; font-weight: 900; transition: transform 0.1s, background-color 0.2s; box-shadow: 0 6px 12px rgba(0,0,0,0.15);}
   .btn-option:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
   #p1-zone .btn-option { border: 4px solid #F48FB1; color: #D81B60; }
@@ -64,6 +68,7 @@
   /* --- MODAL LAYAR --- */
   .screen-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 50; text-align: center; padding: 15px; backdrop-filter: blur(5px); }
   .welcome-card { background: rgba(255,255,255,0.98); border: 5px solid #FFF; border-radius: 30px; padding: 25px 20px; max-width: 600px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.2); position: relative; max-height: 95vh; overflow-y: auto;}
+  
   .alert-card { width: 85% !important; max-width: 320px !important; overflow: visible !important; padding: 25px 20px 20px !important; }
 
   .welcome-card h1 { font-size: clamp(28px, 5vw, 40px); color: #E91E63; margin: 0 0 5px 0; text-shadow: 1px 1px 0 rgba(0,0,0,0.1); }
@@ -73,6 +78,7 @@
   .mode-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%;}
   .btn-mode { padding: 12px 15px; font-size: 16px; font-weight: 900; color: white; border: 3px solid #FFF; border-radius: 20px; cursor: pointer; flex: 1 1 45%; max-width: 48%; transition: transform 0.1s, filter 0.2s; box-shadow: 0 6px 12px rgba(0,0,0,0.15); text-align: center;}
   .btn-mode:active { transform: translateY(4px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  .btn-mode:hover { filter: brightness(1.1); }
   .btn-campuran { flex: 1 1 100%; max-width: 100%; background: #E91E63; font-size: 18px;}
   .btn-tambah { background: #4CAF50; }
   .btn-kurang { background: #FF9800; }
@@ -85,9 +91,23 @@
   
   .room-input { font-size: 24px; padding: 12px; text-align: center; width: 100%; border-radius: 15px; border: 3px solid #ccc; font-weight: 900; letter-spacing: 5px; outline: none; }
   .room-input:focus { border-color: #03A9F4; }
-  
-  .notif-lucu { position: absolute; top: 35%; left: 50%; transform: translateX(-50%); font-size: clamp(35px, 6vw, 50px); font-weight: 900; pointer-events: none; z-index: 9999; animation: popUpAnim 1.2s forwards; text-align: center; white-space: nowrap; }
-  @keyframes popUpAnim { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 20% { transform: translate(-50%, -20px) scale(1.2) rotate(-5deg); opacity: 1; } 40% { transform: translate(-50%, -20px) scale(1.2) rotate(5deg); opacity: 1; } 80% { transform: translate(-50%, -40px) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -60px) scale(0.8); opacity: 0; } }
+  .room-input::-webkit-outer-spin-button, .room-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .room-input[type=number] { -moz-appearance: textfield; }
+
+  /* --- ANIMASI NOTIFIKASI MERIAH & TEBAL --- */
+  .notif-lucu { 
+    position: absolute; top: 35%; left: 50%; transform: translateX(-50%); 
+    font-size: clamp(35px, 6vw, 50px); font-weight: 900; 
+    pointer-events: none; z-index: 9999; animation: popUpAnim 1.2s forwards; 
+    text-align: center; white-space: nowrap;
+  }
+  @keyframes popUpAnim { 
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 
+    20% { transform: translate(-50%, -20px) scale(1.2) rotate(-5deg); opacity: 1; } 
+    40% { transform: translate(-50%, -20px) scale(1.2) rotate(5deg); opacity: 1; } 
+    80% { transform: translate(-50%, -40px) scale(1) rotate(0deg); opacity: 1; } 
+    100% { transform: translate(-50%, -60px) scale(0.8); opacity: 0; } 
+  }
   @keyframes munculModal { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
   /* --- UI CHAT --- */
@@ -101,17 +121,27 @@
   .pesan-saya { background: #E8F5E9; border: 2px solid #4CAF50; align-self: flex-end; color: #2E7D32; border-bottom-right-radius: 3px; }
   .pesan-lawan { background: #FFF3E0; border: 2px solid #FF9800; align-self: flex-start; color: #E65100; border-bottom-left-radius: 3px; }
   
+  /* Area Input & Emotikon Chat */
   #chat-input-area { display: flex; flex-direction: column; border-top: 2px solid #ccc; background: #FFF;}
   #emoji-bar { display: flex; gap: 5px; padding: 6px 10px; background: #F3E5F5; border-bottom: 1px solid #ddd; overflow-x: auto; scrollbar-width: none;}
   #emoji-bar::-webkit-scrollbar { display: none; }
   .quick-emoji { font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 8px; transition: 0.1s; user-select: none;}
+  .quick-emoji:active { transform: scale(0.8); background: #E1BEE7; }
+  
   .input-wrapper { display: flex; padding: 8px; gap: 8px; }
   #chat-input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; font-family: 'Nunito', sans-serif; font-weight: 700; width: 100%;}
+  #chat-input:focus { border-color: #673AB7; }
   #btn-send-chat { background: #673AB7; color: white; border: none; border-radius: 10px; padding: 0 15px; font-weight: 900; cursor: pointer; font-size: 16px;}
+  #btn-send-chat:active { transform: scale(0.95); }
   
-  #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; }
-  #custom-alert-close { position: absolute; top: -10px; right: -10px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; z-index: 10; }
+  #chat-notif { position: absolute; top: -5px; right: -5px; background: #FF3D00; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: none; justify-content: center; align-items: center; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
+  #custom-alert-close { position: absolute; top: -10px; right: -10px; background: #F44336; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; border: 3px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; z-index: 10; }
+  #custom-alert-close:active { transform: scale(0.85); }
+  .goyang { animation: wiggle 0.5s infinite; }
+  @keyframes wiggle { 0% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
+
+  /* --- MEDIA QUERIES UNTUK HP / LAYAR KECIL --- */
   @media screen and (max-width: 768px) {
     #game-board { flex-direction: column; }
     #center-line { top: 50%; left: 0; transform: translateY(-50%); width: 100%; height: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.3);}
@@ -121,13 +151,30 @@
     #p2-zone { padding-top: 65px; padding-bottom: 15px;}
     .question-box { margin-bottom: 0px; padding: 10px 15px; border-width: 4px; font-size: clamp(24px, 5vw, 35px); max-height: 38%;}
     .options { gap: 8px; margin-bottom: 0;}
+    /* PERBAIKAN HP: Tombol juga memanjang dan font lebih kecil jika panjang */
     .btn-option { min-height: 45px; height: auto; padding: 10px 15px; font-size: clamp(16px, 4vw, 22px); border-width: 3px; min-width: 70px;}
     .btn-next { margin-top: 5px; padding: 8px 20px; font-size: 14px; border-width: 2px;}
     .welcome-card { padding: 20px 15px; }
     #chat-wrapper { bottom: 85px; right: 15px; }
     #chat-icon { bottom: 15px; right: 15px; }
+    .result-card h2 { font-size: 20px; margin: 5px 0; }
+    .result-card h3 { font-size: 14px; margin: 5px 0; }
+    .result-card p { font-size: 16px; margin: 5px 0; }
   }
 
+  /* --- MATCHMAKING PROFESIONAL --- */
+  #p2-status { line-height: 1.4; text-align: center; transition: background-color .25s ease, color .25s ease; }
+  #room-code-display { letter-spacing: .4px; }
+
+  /* Chat lawan otomatis */
+  .bot-typing{ display:flex!important; align-items:center; gap:7px; width:max-content; max-width:85%; opacity:.78; font-style:italic; }
+  .typing-dots{display:inline-flex;gap:3px;align-items:center}
+  .typing-dots i{ width:5px;height:5px;border-radius:50%; background:currentColor;display:block; animation:botTypingDot 1s infinite ease-in-out; }
+  .typing-dots i:nth-child(2){animation-delay:.15s}
+  .typing-dots i:nth-child(3){animation-delay:.3s}
+  @keyframes botTypingDot{ 0%,60%,100%{transform:translateY(0);opacity:.35} 30%{transform:translateY(-3px);opacity:1} }
+
+  /* Skor pertandingan antar ronde */
   .series-score-wrap{ width:min(500px,100%); margin:14px auto 18px; padding:12px 16px 10px; border-radius:18px; background:linear-gradient(180deg,#fff,#fafafa); border:2px solid #ececec; box-shadow:0 8px 20px rgba(0,0,0,.06); text-align:center; }
   .series-label{ font-size:12px;font-weight:900;letter-spacing:1.4px;color:#777;margin-bottom:6px }
   .series-scoreboard{ display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px; }
@@ -137,6 +184,13 @@
   .p1-series{color:#E91E63}.p2-series{color:#0288D1}
   .series-separator{font-size:28px;font-weight:900;color:#777}
   .series-note{font-size:10px;font-weight:800;color:#999;margin-top:5px}
+  @media(max-width:520px){
+    .series-score-wrap{margin:10px auto 14px;padding:10px}
+    .series-side{gap:7px}.series-side span{font-size:12px}.series-side strong{font-size:32px}
+    .series-scoreboard{gap:6px}.series-separator{font-size:22px}
+  }
+  .stat-score{ margin-top:8px!important; padding-top:9px!important; border-top:2px dashed #e5e5e5; font-size:1.15em; }
+  .stat-score span{font-size:1.3em}
 
 </style>
 </head>
@@ -148,11 +202,17 @@
   <div id="name-screen" class="screen-overlay" style="display: flex;">
     <div class="welcome-card" style="max-width: 450px;">
       <h1 style="font-size: 32px; margin-bottom: 10px;">👋 HALO, JUARA!</h1>
+      
+      <!-- Input Nama -->
       <div style="margin-bottom: 15px;">
         <p style="color: #E91E63; font-weight: 900; margin-bottom: 5px;">SIAPA NAMAMU?</p>
         <input type="text" id="setup-nama-player" class="room-input" placeholder="Ketik nama kamu..." maxlength="12" autocomplete="off" style="border-color: #E91E63; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">
+        <p style="font-size: 13.5px; color: #777; font-weight: 800; line-height: 1.4; margin-top: 8px;">
+          *Nama ini akan terpampang gagah sebagai identitasmu di arena pertandingan dan layar proyektor!
+        </p>
       </div>
-      <button class="btn-mode" onclick="masukLobi()" style="background: #4CAF50; width: 100%; max-width: 100%; font-size: 18px; padding: 15px; border-color: #FFF;">MASUK ARENA 🚀</button>
+      
+      <button class="btn-mode" onclick="masukLobi()" style="background: #4CAF50; width: 100%; max-width: 100%; font-size: 18px; padding: 15px; border-color: #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">MASUK ARENA 🚀</button>
     </div>
   </div>
 
@@ -170,20 +230,19 @@
       <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ccc;">
         <p style="margin-top: 0; font-weight: 800;">Bermain privat dengan teman (KODE):</p>
         <div class="mode-container" style="flex-direction: column; align-items: center; gap: 15px;">
-          <!-- TOMBOL BUAT KAMAR HOST -->
-          <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%; max-width: 100%;">+ Buat Kamar Baru (P1/HOST)</button>
-          
+          <button class="btn-mode btn-campuran" onclick="buatKamar()" style="width: 100%; max-width: 100%;">+ Buat Kamar Baru (P1)</button>
           <div style="width: 100%; display: flex; gap: 10px; align-items: stretch;">
             <input type="number" id="input-kode-kamar" class="room-input" placeholder="KODE" maxlength="4" pattern="[0-9]*" autocomplete="off" style="flex: 1; margin: 0; letter-spacing: 5px;">
-            <!-- TOMBOL GABUNG LAWAN -->
             <button class="btn-mode btn-tambah" onclick="gabungKamar()" style="flex: 1; background: #03A9F4; margin: 0; max-width: none;">Gabung (P2)</button>
           </div>
         </div>
       </div>
       
+      <!-- TOMBOL DISPLAY PROYEKTOR -->
       <div>
-        <button class="btn-mode" onclick="window.open('display_vs.html', '_blank')" style="background: #FF9800; width: 100%; max-width: 100%; font-size: 16px; padding: 15px; border-color: #FFF;">🖥️ BUKA DISPLAY PROYEKTOR</button>
+        <button class="btn-mode" onclick="window.open('display_vs.html', '_blank')" style="background: #FF9800; width: 100%; max-width: 100%; font-size: 16px; padding: 15px; border-color: #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🖥️ BUKA DISPLAY PROYEKTOR</button>
       </div>
+
     </div>
   </div>
 
@@ -193,16 +252,9 @@
       <h1>KODE KAMAR: <span id="room-code-display" style="color: #4CAF50;">---</span></h1>
       <h2 id="p2-status" style="color: #FF9800; font-size: clamp(14px, 4vw, 18px); background: #FFF3E0; padding: 10px; border-radius: 10px;">Menunggu Player 2 bergabung...</h2>
       
-      <!-- TOMBOL PANGGIL BOT JIKA BOSAN MENUNGGU -->
-      <button id="btn-panggil-bot" class="btn-mode" onclick="aktifkanLawanOtomatis()" style="background: #9C27B0; margin-top: 15px; width: 100%; display: none;">🤖 UJI COBA: PANGGIL LAWAN BOT</button>
-
-      <!-- KONTROL HOST YANG AKAN MUNCUL SAAT LAWAN MASUK -->
       <div id="host-controls" style="display: none; margin-top: 20px;">
         
-        <div style="background: #E91E63; color: white; padding: 10px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; font-size: 16px; animation: detak 1s infinite alternate;">
-          👇 HOST: SILAKAN PILIH MODE UNTUK MEMULAI KUIS 👇
-        </div>
-
+        <!-- BARU: Pilihan Level Hanya Muncul Untuk Host -->
         <div style="margin-bottom: 15px; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px;">
           <p style="color: #03A9F4; font-weight: 900; margin: 0 0 5px 0; font-size: 14px;">TINGKAT KESULITAN:</p>
           <select id="host-tingkat" class="room-input" style="border-color: #03A9F4; font-size: 16px; padding: 8px; font-weight: 800; cursor: pointer; background: #FFF;">
@@ -214,6 +266,7 @@
           </select>
         </div>
 
+        <p>Silakan Host (P1) pilih mode permainan:</p>
         <div class="mode-container">
           <button class="btn-mode btn-campuran" onclick="hostPilihMode('campuran')">🌟 CAMPURAN</button>
           <button class="btn-mode btn-tambah" onclick="hostPilihMode('penjumlahan')">➕ Tambah</button>
@@ -346,7 +399,20 @@
 
 <!-- === LOGIKA PERMAINAN === -->
 <script>
+  // --- DAFTAR NAMA LAWAN ACAK (BOT) ---
   const namaBotList = ["AROM KOBAMA", "BUDI", "SITI", "AHMAD", "RINA", "JOKO", "DEWI", "MADASA", "MAYA", "HENDRA", "NISA"];
+  
+  
+  // --- KODE BARU: SINKRONISASI WAKTU SERVER ---
+  let serverTimeOffset = 0;
+  
+
+
+  // Fungsi pengganti Date.now() agar waktunya akurat 100% antar pemain
+  function getTrueTime() {
+    return Date.now() + serverTimeOffset;
+  }
+  // --------------------------------------------
 
   const AudioSFX = (function() {
       let ctx = null;
@@ -430,7 +496,7 @@
 
   let myRole = 0; 
   let myName = ""; 
-  let tingkatKesulitan = "SD"; 
+  let tingkatKesulitan = "SD"; // Default tingkat kesulitan
   let roomId = "";
   let currentRoomRef = null;
   const totalQuestions = 50; 
@@ -441,12 +507,6 @@
   let timerInterval; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0; 
-
-  // --- SINKRONISASI WAKTU SERVER FIREBASE ---
-  let serverOffset = 0;
-  window.dbOnValue(window.dbRef(window.db, '.info/serverTimeOffset'), snap => {
-      serverOffset = snap.val() || 0;
-  });
 
   let alertCallback = null;
   let isAlertOpen = false;
@@ -465,18 +525,25 @@
   let botStreakBias = 0;
   let botLastResult = null;
 
-  // --- LOGIKA TAHAP 0 (MASUK LOBI) ---
-  function masukLobi() {
+function masukLobi() {
     let inputName = document.getElementById('setup-nama-player').value.trim().toUpperCase();
     if (inputName === "") {
         showCustomAlert("Oops!", "Nama tidak boleh kosong. Isi namamu dulu ya!", null);
         return;
     }
     myName = inputName;
+    
+    // --- KODE SINKRONISASI YANG HILANG MASUKKAN DI SINI ---
+    if (window.dbOnValue && window.dbRef && window.db) {
+      window.dbOnValue(window.dbRef(window.db, '.info/serverTimeOffset'), (snap) => {
+        serverTimeOffset = snap.val() || 0;
+      });
+    }
+    // ------------------------------------------------------
+
     document.getElementById('name-screen').style.display = 'none';
     document.getElementById('room-screen').style.display = 'flex';
   }
-
   function randomRange(min, max) { return min + Math.random() * (max - min); }
 
   function siapkanProfilBotRonde() {
@@ -512,7 +579,7 @@
     const pesan = sapaan[Math.floor(Math.random() * sapaan.length)];
     setTimeout(() => {
       if (!isBotOpponent || !currentRoomRef) return;
-      const key = Date.now(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
+     const key = getTrueTime(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
       window.dbUpdate(currentRoomRef, u);
     }, 2000 + Math.random() * 2000); 
   }
@@ -523,7 +590,7 @@
     const pesan = sapaan[Math.floor(Math.random() * sapaan.length)];
     setTimeout(() => {
       if (!isBotOpponent || !currentRoomRef) return;
-      const key = Date.now(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
+    const key = getTrueTime(); const u = {}; u["chats/" + key] = { role: 2, msg: pesan, bot: true };
       window.dbUpdate(currentRoomRef, u);
     }, 2500 + Math.random() * 2000);
   }
@@ -533,10 +600,12 @@
     document.getElementById('custom-alert-title').innerText = title; document.getElementById('custom-alert-message').innerText = message; alertCallback = callback;
     history.pushState({ popup: 'alert' }, null, ''); document.getElementById('custom-alert-overlay').style.display = 'flex';
   }
+
   function closeCustomAlert() {
     if (!isAlertOpen) return;
     if (history.state && history.state.popup === 'alert') { history.back(); } else { executeCloseAlert(); }
   }
+
   function executeCloseAlert() {
     isAlertOpen = false; document.getElementById('custom-alert-overlay').style.display = 'none';
     if (alertCallback) { let tempCb = alertCallback; alertCallback = null; tempCb(); }
@@ -550,6 +619,7 @@
     }
   });
 
+  // MENGAMBIL NAMA DARI FIREBASE DAN UPDATE KE UI
   function pantauDataKamar() {
     window.dbOnValue(currentRoomRef, (snapshot) => {
       const data = snapshot.val();
@@ -578,14 +648,10 @@
 
       if (data.restart && data.restart !== lastRestart) { lastRestart = data.restart; kembaliKeLobi(); }
 
-      // SAAT P2 MASUK, HOST (P1) AKAN DIMUNCULKAN TOMBOL MULAI
       if (myRole === 1 && data.p2_ready && document.getElementById('welcome-screen').style.display === 'flex') {
         stopBotSearchTimers(); isBotOpponent = data.botOpponent === true;
-        document.getElementById('btn-panggil-bot').style.display = 'none'; // Hilangkan tombol bot
-        
-        if (isBotOpponent) { setMatchmakingStatus(`✓ Lawan BOT berhasil dipanggil!`, true); } 
-        else { setMatchmakingStatus(`🎉 LAWAN BERHASIL BERGABUNG!`, true); }
-        
+        if (isBotOpponent) { setMatchmakingStatus(`✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true); } 
+        else { setMatchmakingStatus(`✓ Pemain ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true); }
         document.getElementById('host-controls').style.display = 'block';
       }
 
@@ -628,10 +694,8 @@ function syncOpponent(player, data) {
     loadQuestion(player);
   }
 
-  // --- PEMBUAT KAMAR OTOMATIS MENJADI HOST (P1) ---
   function buatKamar() {
-    roomId = Math.floor(1000 + Math.random() * 9000).toString(); 
-    myRole = 1; // Otomatis P1
+    roomId = Math.floor(1000 + Math.random() * 9000).toString(); myRole = 1;
     currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
     window.dbOnDisconnect(currentRoomRef).remove(); 
     window.dbSet(currentRoomRef, { 
@@ -641,16 +705,7 @@ function syncOpponent(player, data) {
         seriesScore: { p1: 0, p2: 0 } 
     }).then(() => {
       document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-      document.getElementById('room-code-display').innerText = roomId; 
-      
-      // Tampilkan tombol Panggil Bot
-      document.getElementById('btn-panggil-bot').style.display = 'block';
-      document.getElementById('host-controls').style.display = 'none';
-      
-      // Teks khusus untuk mengingatkan Host
-      document.getElementById('p2-status').innerHTML = "Bagikan kode di atas ke HP Lawan.<br><b style='color:#E91E63;'>(SEBAGAI HOST, ANDA JANGAN MASUKKAN KODE LAGI)</b>";
-      
-      document.getElementById('p2-zone').classList.add('terkunci');
+      document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-zone').classList.add('terkunci');
       document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
     });
   }
@@ -659,26 +714,23 @@ function syncOpponent(player, data) {
     const input = document.getElementById('input-kode-kamar').value.toString();
     if (input.length !== 4) { showCustomAlert("Oops!", "Masukkan 4 digit kode dengan benar!", null); return; }
     
-    roomId = input; myRole = 2; // P2
-    currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
+    roomId = input; myRole = 2; currentRoomRef = window.dbRef(window.db, 'rooms/' + roomId);
 
     window.dbGet(currentRoomRef).then((snap) => {
       if(snap.exists() && snap.val().p2_ready === false) {
         window.dbOnDisconnect(currentRoomRef).remove(); 
         window.dbUpdate(currentRoomRef, { p2_ready: true, botOpponent: false, "p2/name": myName }).then(() => {
           document.getElementById('room-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex';
-          document.getElementById('room-code-display').innerText = roomId; 
-          document.getElementById('btn-panggil-bot').style.display = 'none';
-          document.getElementById('p2-status').innerText = "Berhasil bergabung! Menunggu Host (P1) Memilih Mode Kuis...";
+          document.getElementById('room-code-display').innerText = roomId; document.getElementById('p2-status').innerText = "Berhasil! Menunggu P1 Memilih Mode...";
           document.getElementById('p1-zone').classList.add('terkunci'); document.getElementById('chat-icon').style.display = 'flex'; pantauDataKamar(); 
         });
-      } else { showCustomAlert("Gagal!", "Kamar tidak ditemukan atau sudah penuh/dimulai!", null); }
+      } else { showCustomAlert("Gagal!", "Kamar tidak ditemukan atau sudah penuh!", null); }
     });
   }
   
   function setMatchmakingStatus(html, found = false) {
     const status = document.getElementById('p2-status'); const code = document.getElementById('room-code-display');
-    code.innerText = found ? "LAWAN MASUK" : "MENCARI LAWAN"; code.style.color = found ? "#2E7D32" : "#4CAF50";
+    code.innerText = found ? "LAWAN DITEMUKAN" : "MENCARI LAWAN"; code.style.color = found ? "#2E7D32" : "#4CAF50";
     status.innerHTML = html; status.style.backgroundColor = found ? "#E8F5E9" : "#FFF3E0"; status.style.color = found ? "#1B5E20" : "#E65100";
   }
 
@@ -697,7 +749,6 @@ function syncOpponent(player, data) {
     botSearchTimer = setTimeout(() => { aktifkanLawanOtomatis(); }, BOT_WAIT_SECONDS * 1000);
   }
 
-  // FUNGSI PANGGIL BOT JIKA HOST KLIK TOMBOL SECARA MANUAL
   async function aktifkanLawanOtomatis() {
     if (myRole !== 1 || !currentRoomRef || isGameOver) return;
     try {
@@ -705,15 +756,13 @@ function syncOpponent(player, data) {
       if (data.p2_ready === true && data.botOpponent !== true) { stopBotSearchTimers(); return; }
 
       isBotOpponent = true; stopBotSearchTimers();
-      
       const antreanRef = window.dbRef(window.db, 'antrean_global');
       try { const qSnap = await window.dbGet(antreanRef); if (qSnap.exists() && String(qSnap.val()) === String(roomId)) { await window.dbRemove(antreanRef); } } catch(e) {}
 
-      const namaBotAcak = namaBotList[Math.floor(Math.random() * namaBotList.length)] + " (BOT)";
+      const namaBotAcak = namaBotList[Math.floor(Math.random() * namaBotList.length)];
       await window.dbUpdate(currentRoomRef, { p2_ready: true, botOpponent: true, "p2/name": namaBotAcak });
       
-      document.getElementById('btn-panggil-bot').style.display = 'none';
-      setMatchmakingStatus(`✓ Lawan BOT berhasil dipanggil!`, true);
+      setMatchmakingStatus(`✓ Lawan ditemukan!<br><span style="font-size:.82em;opacity:.82">Bersiap untuk bermain.</span>`, true);
       document.getElementById('host-controls').style.display = 'block';
 
       kirimSapaanAwalBot();
@@ -752,7 +801,7 @@ function syncOpponent(player, data) {
     } catch (error) { showCustomAlert("Server Error", "Gagal terhubung ke server. Silakan coba lagi.", () => location.reload()); }
   }
 
-  // --- LOGIKA GENERATE SOAL ---
+  // --- LOGIKA GENERATE SOAL BERDASARKAN KESULITAN ---
   function generateQuestions(modePilihan) {
     let master = []; 
     let operators = [];
@@ -767,21 +816,40 @@ function syncOpponent(player, data) {
     let maxA_add, maxB_add, maxA_sub, max_mul, max_div;
 
     switch(tingkatKesulitan) {
-      case 'TK': maxA_add = 10; maxB_add = 10; maxA_sub = 10; max_mul = 5; max_div = 5; break;
-      case 'SD': maxA_add = 50; maxB_add = 50; maxA_sub = 50; max_mul = 10; max_div = 10; break;
-      case 'SMP': maxA_add = 100; maxB_add = 100; maxA_sub = 100; max_mul = 20; max_div = 20; break;
-      case 'SMA': maxA_add = 500; maxB_add = 500; maxA_sub = 500; max_mul = 50; max_div = 50; break;
-      case 'UMUM': default: maxA_add = 1000; maxB_add = 1000; maxA_sub = 1000; max_mul = 100; max_div = 100; break;
+      case 'TK':
+        maxA_add = 10; maxB_add = 10; maxA_sub = 10; max_mul = 5; max_div = 5; break;
+      case 'SD':
+        maxA_add = 50; maxB_add = 50; maxA_sub = 50; max_mul = 10; max_div = 10; break;
+      case 'SMP':
+        maxA_add = 100; maxB_add = 100; maxA_sub = 100; max_mul = 20; max_div = 20; break;
+      case 'SMA':
+        maxA_add = 500; maxB_add = 500; maxA_sub = 500; max_mul = 50; max_div = 50; break;
+      case 'UMUM':
+      default:
+        maxA_add = 1000; maxB_add = 1000; maxA_sub = 1000; max_mul = 100; max_div = 100; break;
     }
     
     while(master.length < totalQuestions) {
       let op = operators[Math.floor(Math.random() * operators.length)]; 
       let a, b, ans;
       
-      if (op === '+') { a = Math.floor(Math.random() * maxA_add) + 1; b = Math.floor(Math.random() * maxB_add) + 1; ans = a + b; } 
-      else if (op === '-') { a = Math.floor(Math.random() * maxA_sub) + 2; b = Math.floor(Math.random() * (a - 1)) + 1; ans = a - b; } 
-      else if (op === 'x') { a = Math.floor(Math.random() * max_mul) + 1; b = Math.floor(Math.random() * max_mul) + 1; ans = a * b; } 
-      else if (op === '÷') { b = Math.floor(Math.random() * max_div) + 1; ans = Math.floor(Math.random() * max_div) + 1; a = b * ans; }
+      if (op === '+') { 
+        a = Math.floor(Math.random() * maxA_add) + 1; 
+        b = Math.floor(Math.random() * maxB_add) + 1; 
+        ans = a + b; 
+      } else if (op === '-') { 
+        a = Math.floor(Math.random() * maxA_sub) + 2; 
+        b = Math.floor(Math.random() * (a - 1)) + 1;
+        ans = a - b; 
+      } else if (op === 'x') { 
+        a = Math.floor(Math.random() * max_mul) + 1; 
+        b = Math.floor(Math.random() * max_mul) + 1; 
+        ans = a * b; 
+      } else if (op === '÷') { 
+        b = Math.floor(Math.random() * max_div) + 1; 
+        ans = Math.floor(Math.random() * max_div) + 1; 
+        a = b * ans; 
+      }
       
       let soalString = `${a} ${op} ${b}`;
 
@@ -790,8 +858,18 @@ function syncOpponent(player, data) {
 
         let w1, w2;
         let offsetMax = Math.max(5, Math.floor(ans * 0.2)); 
-        do { let o1 = Math.floor(Math.random() * offsetMax) + 1; w1 = (Math.random() > 0.5) ? ans + o1 : ans - o1; if (w1 <= 0) w1 = ans + o1; } while (w1 === ans);
-        do { let o2 = Math.floor(Math.random() * offsetMax) + 1; w2 = (Math.random() > 0.5) ? ans + o2 : ans - o2; if (w2 <= 0) w2 = ans + o2; } while (w2 === ans || w2 === w1);
+        
+        do { 
+          let o1 = Math.floor(Math.random() * offsetMax) + 1;
+          w1 = (Math.random() > 0.5) ? ans + o1 : ans - o1;
+          if (w1 <= 0) w1 = ans + o1;
+        } while (w1 === ans);
+
+        do { 
+          let o2 = Math.floor(Math.random() * offsetMax) + 1;
+          w2 = (Math.random() > 0.5) ? ans + o2 : ans - o2;
+          if (w2 <= 0) w2 = ans + o2;
+        } while (w2 === ans || w2 === w1);
         
         let opts = [ans, w1, w2].sort(() => Math.random() - 0.5); 
         master.push({ q: soalString, ans: ans, opts: opts });
@@ -800,12 +878,16 @@ function syncOpponent(player, data) {
     return master;
   }
 
-  function hostPilihMode(modeDipilih) {
+function hostPilihMode(modeDipilih) {
     tingkatKesulitan = document.getElementById('host-tingkat').value;
-    let finalQuestions = generateQuestions(modeDipilih); 
-    let targetWaktuSelesai = Date.now() + serverOffset + 60000; 
     
-    currentRoundId = Date.now().toString(); seriesRoundCommitted = false;
+    let finalQuestions = generateQuestions(modeDipilih); 
+    
+    // UBAH DISINI: Ganti Date.now() menjadi getTrueTime()
+    let targetWaktuSelesai = getTrueTime() + 60000; 
+    
+    currentRoundId = getTrueTime().toString(); // Ini juga diubah agar ID uniknya akurat
+    seriesRoundCommitted = false;
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questions: finalQuestions, endTime: targetWaktuSelesai, botOpponent: isBotOpponent, roundId: currentRoundId });
   }
 
@@ -867,7 +949,7 @@ function syncOpponent(player, data) {
     p2.index++;
 
     const updateData = {};
-    updateData["p2"] = { correct: p2.correct, wrong: p2.wrong, score: p2.score, index: p2.index, lastAction: { selected, isCorrect, timestamp: Date.now() } };
+    updateData["p2"] = { correct: p2.correct, wrong: p2.wrong, score: p2.score, index: p2.index, lastAction: { selected, isCorrect, timestamp: getTrueTime() } };
     window.dbUpdate(currentRoomRef, updateData);
 
     setTimeout(() => { loadQuestion(2); jadwalkanJawabanBot(); }, 450);
@@ -890,23 +972,22 @@ function syncOpponent(player, data) {
     }
     pData.index++; 
 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: Date.now() } };
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: getTrueTime() } };
     window.dbUpdate(currentRoomRef, updateData); setTimeout(() => { loadQuestion(player); }, 400);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
     let pData = player === 1 ? p1 : p2; pData.wrong++; pData.index++; 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: Date.now() } };
+    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: getTrueTime() } };
     window.dbUpdate(currentRoomRef, updateData); loadQuestion(player);
   }
 
-  function startTimer() {
+function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      let now = Date.now() + serverOffset;
-      let sisaWaktu = Math.ceil((globalEndTime - now) / 1000); 
-      
+      // UBAH DISINI: Ganti Date.now() menjadi getTrueTime()
+      let sisaWaktu = Math.ceil((globalEndTime - getTrueTime()) / 1000); 
       timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
       timerDisplay.innerText = timeLeft;
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
@@ -989,7 +1070,7 @@ function syncOpponent(player, data) {
       botChatTimer = setTimeout(async () => {
         hapusBotMengetik(); if (!isBotOpponent || myRole !== 1 || !currentRoomRef) return;
         const balasan = pilihBalasanBot(pesanUser);
-        try { const timeKey = Date.now(); const updateData = {}; updateData["chats/" + timeKey] = { role: 2, msg: balasan, bot: true }; await window.dbUpdate(currentRoomRef, updateData); } catch(e) {}
+       try { const timeKey = getTrueTime(); const updateData = {}; updateData["chats/" + timeKey] = { role: 2, msg: balasan, bot: true }; await window.dbUpdate(currentRoomRef, updateData); } catch(e) {}
       }, durasiKetik);
     }, mulaiKetik);
   }
@@ -1002,7 +1083,7 @@ function syncOpponent(player, data) {
 
   function kirimPesan() {
     const inputPesan = document.getElementById('chat-input'); const teks = inputPesan.value.trim();
-    if (teks === "") return; const timeKey = Date.now(); 
+  if (teks === "") return; const timeKey = getTrueTime();
     let updateData = {}; updateData["chats/" + timeKey] = { role: myRole, msg: teks }; window.dbUpdate(currentRoomRef, updateData);
     inputPesan.value = "";
     if (isBotOpponent && myRole === 1) jadwalkanBalasanBot(teks);
@@ -1012,7 +1093,7 @@ function syncOpponent(player, data) {
   
   function mainLagi() {
     botLastResult = null; botStreakBias = 0; seriesRoundCommitted = false; currentRoundId = null;
-    let updateData = { mode: "", questions: null, p2_ready: true, botOpponent: isBotOpponent, restart: Date.now() };
+   let updateData = { mode: "", questions: null, p2_ready: true, botOpponent: isBotOpponent, restart: getTrueTime() };
     window.dbUpdate(currentRoomRef, updateData);
   }
 
@@ -1025,14 +1106,9 @@ function syncOpponent(player, data) {
     timeLeft = 60; timerDisplay.innerText = "60"; timerDisplay.classList.remove('waktu-kritis');
     document.getElementById('p1-q').innerText = "Soal"; document.getElementById('p2-q').innerText = "Soal";
     document.getElementById('p1-options').innerHTML = ""; document.getElementById('p2-options').innerHTML = "";
-    
-    if (myRole === 1) {
-        document.getElementById('host-controls').style.display = 'block';
-        document.getElementById('p2-status').innerHTML = "✓ Lawan siap!<br><span style=\"font-size:.82em;opacity:.82\">Silakan pilih mode untuk pertandingan berikutnya.</span>";
-        document.getElementById('p2-status').style.backgroundColor = "#E8F5E9"; document.getElementById('p2-status').style.color = "#1B5E20";
-    } else {
-        document.getElementById('p2-status').innerHTML = "Menunggu Host (P1) Memilih Mode Kuis...";
-    }
+    document.getElementById('p2-status').innerHTML = "✓ Lawan siap!<br><span style=\"font-size:.82em;opacity:.82\">Silakan pilih mode untuk pertandingan berikutnya.</span>";
+    document.getElementById('p2-status').style.backgroundColor = "#E8F5E9"; document.getElementById('p2-status').style.color = "#1B5E20";
+    if (myRole === 1) document.getElementById('host-controls').style.display = 'block';
 
     if (isBotOpponent && myRole === 1) { kirimSapaanRematchBot(); }
   }
@@ -1042,27 +1118,36 @@ function syncOpponent(player, data) {
     if (currentRoomRef) { window.dbRemove(currentRoomRef); } location.reload(); 
   }
   
+  
   // --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
   let wakeLock = null;
 
   async function aktifkanWakeLock() {
     try {
+      // Cek apakah browser HP mendukung fitur ini
       if ('wakeLock' in navigator) {
         wakeLock = await navigator.wakeLock.request('screen');
         console.log('Fitur Wake Lock aktif: Layar HP tidak akan mati.');
-        wakeLock.addEventListener('release', () => { console.log('Wake Lock terlepas.'); });
+        
+        // Jika sistem tiba-tiba mematikan wake lock (misal baterai low)
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock terlepas.');
+        });
       }
     } catch (err) {
       console.log('Wake Lock gagal/tidak didukung:', err.message);
     }
   }
 
+  // Aktifkan Wake Lock saat pemain pertama kali menyentuh/klik layar
+  // (Browser mewajibkan ada interaksi jari/klik dari user sebelum layar bisa dikunci nyala)
   document.addEventListener('click', () => {
     if (wakeLock === null) {
       aktifkanWakeLock();
     }
   }, { once: true });
 
+  // Aktifkan ulang otomatis jika pemain sempat meminimalkan browser lalu kembali lagi ke game
   document.addEventListener('visibilitychange', () => {
     if (wakeLock !== null && document.visibilityState === 'visible') {
       aktifkanWakeLock();
