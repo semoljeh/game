@@ -948,8 +948,12 @@ function hostPilihMode(modeDipilih) {
     if (isCorrect) { p2.correct++; p2.score += 10; } else { p2.wrong++; p2.score -= 5; }
     p2.index++;
 
-    const updateData = {};
-    updateData["p2"] = { correct: p2.correct, wrong: p2.wrong, score: p2.score, index: p2.index, lastAction: { selected, isCorrect, timestamp: getTrueTime() } };
+const updateData = {};
+    updateData["p2/correct"] = p2.correct;
+    updateData["p2/wrong"] = p2.wrong;
+    updateData["p2/score"] = p2.score;
+    updateData["p2/index"] = p2.index;
+    updateData["p2/lastAction"] = { selected: selected, isCorrect: isCorrect, timestamp: getTrueTime() };
     window.dbUpdate(currentRoomRef, updateData);
 
     setTimeout(() => { loadQuestion(2); jadwalkanJawabanBot(); }, 450);
@@ -972,15 +976,27 @@ function hostPilihMode(modeDipilih) {
     }
     pData.index++; 
 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, score: pData.score, index: pData.index, lastAction: { selected: selected, isCorrect: isCorrect, timestamp: getTrueTime() } };
-    window.dbUpdate(currentRoomRef, updateData); setTimeout(() => { loadQuestion(player); }, 400);
+let updateData = {}; 
+    updateData["p" + myRole + "/correct"] = pData.correct;
+    updateData["p" + myRole + "/wrong"] = pData.wrong;
+    updateData["p" + myRole + "/score"] = pData.score;
+    updateData["p" + myRole + "/index"] = pData.index;
+    updateData["p" + myRole + "/lastAction"] = { selected: selected, isCorrect: isCorrect, timestamp: getTrueTime() };
+    
+    window.dbUpdate(currentRoomRef, updateData); 
+    setTimeout(() => { loadQuestion(player); }, 400);
   }
 
   function skipQuestion(player) {
     if (player !== myRole) return;
     let pData = player === 1 ? p1 : p2; pData.wrong++; pData.index++; 
-    let updateData = {}; updateData["p" + myRole] = { correct: pData.correct, wrong: pData.wrong, index: pData.index, lastAction: { selected: "SKIP", isCorrect: false, timestamp: getTrueTime() } };
-    window.dbUpdate(currentRoomRef, updateData); loadQuestion(player);
+let updateData = {}; 
+    updateData["p" + myRole + "/wrong"] = pData.wrong;
+    updateData["p" + myRole + "/index"] = pData.index;
+    updateData["p" + myRole + "/lastAction"] = { selected: "SKIP", isCorrect: false, timestamp: getTrueTime() };
+    
+    window.dbUpdate(currentRoomRef, updateData); 
+    loadQuestion(player);
   }
 
 function startTimer() {
