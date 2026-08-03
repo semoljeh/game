@@ -12,7 +12,7 @@
   body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%); background-size: 80px 80px; background-position: 0 0, 40px 40px; animation: drift 20s linear infinite; pointer-events: none; z-index: -1; }
   @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(80px) rotate(5deg); } }
 
-  /* Animasi Notif */
+  /* Animasi Popup Notif Default */
   @keyframes popZoom { 0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 0; } 20% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 1; } 80% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; } 100% { transform: translate3d(-50%, -50%, 0) scale(1.3); opacity: 0; } }
 
   #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
@@ -34,7 +34,7 @@
   @keyframes detak { to { transform: scale(1.15); } }
 
   /* ZONA PEMAIN */
-  .player-zone { width: 50%; height: 100%; position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+  .player-zone { width: 50%; height: 100%; position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; }
   #p1-zone { left: 0; background: linear-gradient(135deg, rgba(248,187,208,0.1) 0%, rgba(216,27,96,0.3) 100%); }
   #p2-zone { right: 0; background: linear-gradient(135deg, rgba(179,229,252,0.1) 0%, rgba(2,136,209,0.3) 100%); }
 
@@ -42,7 +42,7 @@
   #p1-zone .player-title { background: #D81B60; color: white; border: 4px solid #F8BBD0; }
   #p2-zone .player-title { background: #0288D1; color: white; border: 4px solid #B3E5FC; }
 
-  .score-box { background: rgba(0,0,0,0.5); border: 5px solid #fff; border-radius: 30px; padding: 20px 50px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform 0.1s; }
+  .score-box { background: rgba(0,0,0,0.5); border: 5px solid #fff; border-radius: 30px; padding: 20px 50px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .score-label { font-size: 20px; font-weight: 900; color: #aaa; letter-spacing: 2px; margin-bottom: 5px; }
   .score-value { font-size: clamp(80px, 12vw, 150px); font-weight: 1000; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
   
@@ -53,9 +53,16 @@
   .status-box { background: rgba(255,255,255,0.9); color: #000; font-size: 24px; font-weight: 900; padding: 15px 30px; border-radius: 20px; opacity: 0.5; transition: opacity 0.3s; }
   .status-box.active { opacity: 1; box-shadow: 0 10px 30px rgba(255,255,255,0.5); transform: scale(1.05); }
 
+  /* ANIMASI BENAR SALAH REAL-TIME */
+  .notif-jawaban { position: absolute; font-size: clamp(40px, 6vw, 80px); font-weight: 1000; text-transform: uppercase; padding: 15px 40px; border-radius: 25px; color: #fff; z-index: 100; opacity: 0; pointer-events: none; border: 6px solid #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transform: translate(-50%, -50%) scale(0.5); white-space: nowrap; }
+  .notif-benar { background: #4CAF50; animation: terbangBenar 1.2s ease-out forwards; text-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+  .notif-salah { background: #F44336; animation: jatuhSalah 1.2s ease-out forwards; text-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+  @keyframes terbangBenar { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -100px) scale(1.2) rotate(-5deg); } 80% { opacity: 1; transform: translate(-50%, -150px) scale(1) rotate(5deg); } 100% { opacity: 0; transform: translate(-50%, -200px) scale(0.8); } }
+  @keyframes jatuhSalah { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, 0px) scale(1.2) rotate(5deg); } 80% { opacity: 1; transform: translate(-50%, 50px) scale(1) rotate(-5deg); } 100% { opacity: 0; transform: translate(-50%, 100px) scale(0.8); } }
+
   /* OVERLAY HASIL AKHIR */
   #winner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-  .winner-card { background: #fff; padding: 50px 80px; border-radius: 40px; text-align: center; animation: popZoom 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 10px solid #FFD700; }
+  .winner-card { background: #fff; padding: 50px 80px; border-radius: 40px; text-align: center; animation: popZoom 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 10px solid #FFD700; z-index: 100001; }
   .winner-card h1 { color: #E91E63; font-size: 60px; margin: 0 0 20px 0; font-weight: 1000; }
   .winner-card h2 { color: #333; font-size: 40px; margin: 0; font-weight: 900; }
   
@@ -109,6 +116,20 @@
   <div class="winner-card">
     <h1>WAKTU HABIS!</h1>
     <h2 id="winner-text">MENUNGGU HASIL...</h2>
+    
+    <!-- Papan Skor Akhir di Popup -->
+    <div style="margin-top: 25px; background: #f8fafc; padding: 20px; border-radius: 20px; border: 4px dashed #cbd5e1; display: flex; justify-content: center; gap: 40px;">
+      <div>
+        <div id="final-p1-name" style="font-size: 24px; font-weight: 900; color: #D81B60;">PLAYER 1</div>
+        <div id="final-p1-score" style="font-size: 70px; font-weight: 1000; color: #D81B60; line-height: 1;">0</div>
+      </div>
+      <div style="font-size: 50px; font-weight: 900; color: #94a3b8; align-self: center;">VS</div>
+      <div>
+        <div id="final-p2-name" style="font-size: 24px; font-weight: 900; color: #0288D1;">PLAYER 2</div>
+        <div id="final-p2-score" style="font-size: 70px; font-weight: 1000; color: #0288D1; line-height: 1;">0</div>
+      </div>
+    </div>
+    
   </div>
 </div>
 
@@ -121,10 +142,55 @@
 </script>
 
 <script>
+  // --- SOUND EFFECTS ---
+  const AudioSFX = (function() {
+      let ctx = null; 
+      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); }
+      function playTone(freq, type, duration, vol=0.1) { 
+          if (!ctx) return; 
+          let osc = ctx.createOscillator(); let gain = ctx.createGain(); 
+          osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime); 
+          gain.gain.setValueAtTime(vol, ctx.currentTime); 
+          gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration); 
+          osc.connect(gain); gain.connect(ctx.destination); 
+          osc.start(); osc.stop(ctx.currentTime + duration); 
+      }
+      return {
+          init: init,
+          correct: () => { init(); [600, 800, 1000].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.15, 0.05), i*80)); },
+          wrong: () => { init(); [250, 200, 150].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.25, 0.05), i*100)); },
+          win: () => { init(); [440, 554, 659, 880, 1046, 1318].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.1), i*150)); }
+      };
+  })();
+
+  // --- EFEK VISUAL CONFETTI ---
+  const FX = {
+      fireConfetti: () => {
+          const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
+          for (let i = 0; i < 150; i++) {
+              let conf = document.createElement('div');
+              conf.style.position = 'fixed'; 
+              conf.style.width = Math.random() * 15 + 8 + 'px'; 
+              conf.style.height = Math.random() * 15 + 8 + 'px';
+              conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+              conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-20px';
+              conf.style.zIndex = '100000'; conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+              conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+              document.body.appendChild(conf);
+              let duration = Math.random() * 3 + 2;
+              conf.animate([
+                  { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                  { transform: `translate3d(${Math.random()*400 - 200}px, 100vh, 0) rotate(${Math.random()*1000}deg)`, opacity: 0 }
+              ], { duration: duration * 1000, easing: 'ease-in' }).onfinish = () => conf.remove();
+          }
+      }
+  };
+
   let room = "", roomUnsub = null;
   let timerInterval = null;
   let isGameOver = false;
   let prevScore1 = 0, prevScore2 = 0;
+  let isInitialLoad = true;
   
   let namaP1 = "PLAYER 1";
   let namaP2 = "PLAYER 2";
@@ -136,14 +202,31 @@
       notif.style.animation = 'popZoom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
   }
 
+  // --- FUNGSI MUNCULKAN TEKS BENAR/SALAH DI PLAYER ZONE ---
+  function tampilkanNotifJawaban(player, isCorrect) {
+      let zone = document.getElementById(player === 1 ? 'p1-zone' : 'p2-zone');
+      let el = document.createElement('div');
+      el.className = 'notif-jawaban ' + (isCorrect ? 'notif-benar' : 'notif-salah');
+      el.innerText = isCorrect ? 'BENAR! +10' : 'SALAH! -5';
+      el.style.top = '50%';
+      el.style.left = '50%';
+      zone.appendChild(el);
+      // Hapus dari memori setelah animasi selesai
+      setTimeout(() => el.remove(), 1200);
+  }
+
   function connectRoom() {
       if(!window.FB) return;
       room = document.getElementById("room-input").value;
       if(room.length !== 4) return alert("Masukkan 4 digit kode room!");
       
+      // Minta izin ke browser untuk menyalakan audio
+      AudioSFX.init();
+
       document.getElementById("setup").style.display = "none";
       document.getElementById("game-board").style.display = "block";
       document.getElementById("d-room").textContent = room;
+      isInitialLoad = true;
       
       if(roomUnsub) roomUnsub();
       
@@ -156,14 +239,12 @@
               clearInterval(timerInterval); return;
           }
 
-          if (d.endTime && Date.now() > d.endTime && document.getElementById("winner-overlay").style.display === "flex") {
-              
-          } else if (d.endTime && Date.now() < d.endTime) {
+          if (d.endTime && Date.now() < d.endTime) {
               document.getElementById("winner-overlay").style.display = "none";
               isGameOver = false;
           }
 
-          // MEMBACA NAMA RANDOM / ASLI DARI FIREBASE (BUKAN LAGI "BOT OTOMATIS")
+          // MEMBACA NAMA DARI FIREBASE
           if (d.p1 && d.p1.name) {
               namaP1 = d.p1.name;
               document.getElementById("p1-title").innerText = namaP1;
@@ -173,28 +254,54 @@
               document.getElementById("p2-title").innerText = namaP2;
           }
 
-          // UPDATE SKOR
+          // --- UPDATE SKOR P1 ---
           if (d.p1) {
               let s1 = Number(d.p1.score || 0);
               document.getElementById("p1-score").innerText = s1;
-              if (s1 > prevScore1) { document.getElementById("box-1").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-1").style.transform = "scale(1)", 200); }
+              
+              if (!isInitialLoad) {
+                  if (s1 > prevScore1) { 
+                      document.getElementById("box-1").style.transform = "scale(1.3)"; setTimeout(() => document.getElementById("box-1").style.transform = "scale(1)", 250);
+                      AudioSFX.correct(); tampilkanNotifJawaban(1, true);
+                  } else if (s1 < prevScore1) {
+                      document.getElementById("box-1").style.transform = "scale(0.8)"; setTimeout(() => document.getElementById("box-1").style.transform = "scale(1)", 250);
+                      AudioSFX.wrong(); tampilkanNotifJawaban(1, false);
+                  }
+              }
               prevScore1 = s1;
           }
 
+          // --- UPDATE SKOR P2 ---
           if (d.p2) {
               let s2 = Number(d.p2.score || 0);
               document.getElementById("p2-score").innerText = s2;
-              if (s2 > prevScore2) { document.getElementById("box-2").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-2").style.transform = "scale(1)", 200); }
+              
+              if (!isInitialLoad) {
+                  if (s2 > prevScore2) { 
+                      document.getElementById("box-2").style.transform = "scale(1.3)"; setTimeout(() => document.getElementById("box-2").style.transform = "scale(1)", 250);
+                      AudioSFX.correct(); tampilkanNotifJawaban(2, true);
+                  } else if (s2 < prevScore2) {
+                      document.getElementById("box-2").style.transform = "scale(0.8)"; setTimeout(() => document.getElementById("box-2").style.transform = "scale(1)", 250);
+                      AudioSFX.wrong(); tampilkanNotifJawaban(2, false);
+                  }
+              }
               prevScore2 = s2;
           }
 
-          // STATUS PERMAINAN
-          if (!d.endTime) {
+          // STATUS PERMAINAN & DETEKSI "MAIN LAGI"
+          if (!d.mode || d.mode === "") {
+              // Menutup overlay jika Host menekan "Main Lagi"
+              document.getElementById("winner-overlay").style.display = "none";
+              isGameOver = false;
               document.getElementById("p1-status").innerText = "BERSIAP...";
-              document.getElementById("p2-status").innerText = d.p2_ready ? "SIAP!" : "MENUNGGU PEMAIN...";
+              document.getElementById("p2-status").innerText = "BERSIAP...";
               document.getElementById("p1-status").classList.add("active");
               document.getElementById("p2-status").classList.add("active");
               document.getElementById("timer-display").innerText = "60";
+              
+              // Reset efek animasi berdenyut di papan skor jika sebelumnya menyala
+              document.getElementById("final-p1-score").style.animation = "none";
+              document.getElementById("final-p2-score").style.animation = "none";
               clearInterval(timerInterval);
           } else if (d.endTime && !isGameOver) {
               document.getElementById("p1-status").innerText = "SEDANG MENJAWAB 🔥";
@@ -218,21 +325,32 @@
                   }
               }, 100);
           }
+          
+          isInitialLoad = false;
       });
   }
 
   function tampilkanPemenang(s1, s2) {
       if (isGameOver) return;
       isGameOver = true;
+      
+      // Bunyikan lagu kemenangan dan hujani dengan confetti
+      AudioSFX.win();
+      FX.fireConfetti();
+      
       let w = document.getElementById("winner-text");
+      let f1Score = document.getElementById("final-p1-score");
+      let f2Score = document.getElementById("final-p2-score");
       
       if (s1 > s2) {
           w.innerText = `🏆 ${namaP1} MENANG! 🏆`;
           w.style.color = "#D81B60";
+          f1Score.style.animation = "detak 0.5s infinite alternate";
           showNotif(`${namaP1}\nMENANG!`, "#D81B60");
       } else if (s2 > s1) {
           w.innerText = `🏆 ${namaP2} MENANG! 🏆`;
           w.style.color = "#0288D1";
+          f2Score.style.animation = "detak 0.5s infinite alternate";
           showNotif(`${namaP2}\nMENANG!`, "#0288D1");
       } else {
           w.innerText = "🤝 SERI / DRAW! 🤝";
@@ -240,41 +358,36 @@
           showNotif("SERI!", "#FF9800");
       }
       
+      // --- UPDATE SKOR AKHIR DI POPUP ---
+      document.getElementById("final-p1-name").innerText = namaP1;
+      f1Score.innerText = s1;
+      document.getElementById("final-p2-name").innerText = namaP2;
+      f2Score.innerText = s2;
+      
       document.getElementById("winner-overlay").style.display = "flex";
   }
-  
   
   // --- FITUR WAKE LOCK (MENCEGAH LAYAR MATI) ---
   let wakeLock = null;
 
   async function aktifkanWakeLock() {
     try {
-      // Cek apakah browser mendukung fitur ini
       if ('wakeLock' in navigator) {
         wakeLock = await navigator.wakeLock.request('screen');
         console.log('Fitur Wake Lock aktif di Proyektor: Layar tidak akan mati.');
-        
-        wakeLock.addEventListener('release', () => {
-          console.log('Wake Lock terlepas.');
-        });
+        wakeLock.addEventListener('release', () => { console.log('Wake Lock terlepas.'); });
       }
     } catch (err) {
-      console.log('Wake Lock gagal/tidak didukung:', err.message);
+      console.log('Wake Lock gagal:', err.message);
     }
   }
 
-  // Aktifkan Wake Lock saat operator mengeklik tombol "TAMPILKAN KE PROYEKTOR" atau klik di mana saja
   document.addEventListener('click', () => {
-    if (wakeLock === null) {
-      aktifkanWakeLock();
-    }
+    if (wakeLock === null) aktifkanWakeLock();
   }, { once: true });
 
-  // Aktifkan ulang otomatis jika layar proyektor sempat diminimalkan lalu dimaksimalkan lagi
   document.addEventListener('visibilitychange', () => {
-    if (wakeLock !== null && document.visibilityState === 'visible') {
-      aktifkanWakeLock();
-    }
+    if (wakeLock !== null && document.visibilityState === 'visible') aktifkanWakeLock();
   });
   
 </script>
