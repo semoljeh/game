@@ -504,7 +504,7 @@
   let p1 = { name: "PLAYER 1", correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
   let p2 = { name: "PLAYER 2", correct: 0, wrong: 0, score: 0, index: 0, questions: [], lastTimestamp: 0 };
   
-  let timerInterval; let timeLeft = 60;
+ let timerRAF = null; let timeLeft = 60;
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0; 
 
@@ -641,7 +641,7 @@ function masukLobi() {
       
       if (!data) {
         if (roomId !== "" && !isGameOver) { 
-          isGameOver = true; clearInterval(timerInterval);
+          isGameOver = true; if (timerRAF) { cancelAnimationFrame(timerRAF); timerRAF = null; }
           showCustomAlert("Terputus!", "Lawan telah keluar dari kamar atau koneksi terputus.", () => { location.reload(); }); 
         } return;
       }
@@ -984,15 +984,28 @@ function hostPilihMode(modeDipilih) {
   }
 
 function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      // UBAH DISINI: Ganti Date.now() menjadi getTrueTime()
+    if (timerRAF) cancelAnimationFrame(timerRAF);
+    
+    function loopTimer() {
+      if (isGameOver) return; // Hentikan jika game sudah selesai
+      
       let sisaWaktu = Math.ceil((globalEndTime - getTrueTime()) / 1000); 
       timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
       timerDisplay.innerText = timeLeft;
+      
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
-      if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
-    }, 100);
+      else timerDisplay.classList.remove('waktu-kritis');
+
+      if (timeLeft <= 0) { 
+        timerDisplay.innerText = "0"; 
+        timerDisplay.classList.remove('waktu-kritis');
+        endGame(); 
+      } else {
+        timerRAF = requestAnimationFrame(loopTimer);
+      }
+    }
+    
+    timerRAF = requestAnimationFrame(loopTimer);
   }
 
   async function commitSeriesScoreOnce(p1Points, p2Points, p1Correct, p2Correct) {
@@ -1020,7 +1033,8 @@ function startTimer() {
   }
 
   function endGame() {
-    clearInterval(timerInterval); stopBotAction(); BGMPlayer.stop(); AudioSFX.win(); FX.fireConfetti();
+   if (timerRAF) { cancelAnimationFrame(timerRAF); timerRAF = null; }
+stopBotAction(); BGMPlayer.stop(); AudioSFX.win(); FX.fireConfetti();
 
     document.getElementById('p1-dijawab').innerText = p1.correct + p1.wrong; document.getElementById('p1-benar').innerText = p1.correct; document.getElementById('p1-salah').innerText = p1.wrong;
     const p1PoinEl = document.getElementById('p1-poin'); if (p1PoinEl) p1PoinEl.innerText = p1.score;

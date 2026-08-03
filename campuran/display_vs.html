@@ -126,7 +126,7 @@
     <h1>DISPLAY DUEL 2 PLAYER</h1>
     <p>Tampilkan skor pertarungan Matematika secara Real-Time</p>
     
-    <input id="room-input" type="number" placeholder="KODE" maxlength="4" autofocus>
+    <input id="room-input" type="number" placeholder="KODE" maxlength="4" autocomplete="off" autofocus>
     
     <button class="btn-setup btn-green" onclick="connectRoom()">TAMPILKAN KE PROYEKTOR</button>
     <button class="btn-setup btn-blue" onclick="document.documentElement.requestFullscreen().catch(err => console.log(err))">LAYAR PENUH (FULLSCREEN)</button>
@@ -203,41 +203,52 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-  const firebaseConfig = { apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798", authDomain: "madasagame.firebaseapp.com", projectId: "madasagame", storageBucket: "madasagame.firebasestorage.app", messagingSenderId: "394583790148", appID: "1:394583790148:web:d20af0e57771a63bf5e211", databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app" };
+  
+  const firebaseConfig = { 
+      apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798", 
+      authDomain: "madasagame.firebaseapp.com", 
+      projectId: "madasagame", 
+      storageBucket: "madasagame.firebasestorage.app", 
+      messagingSenderId: "394583790148", 
+      appId: "1:394583790148:web:d20af0e57771a63bf5e211", 
+      databaseURL: "https://madasagame-default-rtdb.asia-southeast1.firebasedatabase.app" 
+  };
+  
   const app = initializeApp(firebaseConfig), db = getDatabase(app);
   window.FB = { db, ref, onValue };
+  
+  window.serverTimeOffset = 0;
+  window.FB.onValue(window.FB.ref(window.FB.db, '.info/serverTimeOffset'), snap => {
+      window.serverTimeOffset = snap.val() || 0;
+  });
 </script>
 
 <script>
   let room = "", roomUnsub = null;
-  let timerInterval = null;
+  let timerRAF = null; // Diubah dari timerInterval menggunakan requestAnimationFrame
   let isGameOver = false;
+  let lastRestart = 0; 
+  
   let prevScore1 = 0, prevScore2 = 0;
   let prevCorrect1 = 0, prevCorrect2 = 0;
   let prevWrong1 = 0, prevWrong2 = 0;
   
-  let serverTimeOffset = 0;
-  
-  window.FB.onValue(window.FB.ref(window.FB.db, '.info/serverTimeOffset'), snap => {
-      serverTimeOffset = snap.val() || 0;
-  });
-
   function getTrueTime() {
-      return Date.now() + serverTimeOffset;
+      return Date.now() + (window.serverTimeOffset || 0);
+  }
+
+  function stopTimer() {
+      if (timerRAF) {
+          cancelAnimationFrame(timerRAF);
+          timerRAF = null;
+      }
   }
 
   // --- AUDIO SYSTEM (SFX & BGM) ---
   const AudioSys = (function() {
-      let ctx = null;
-      let bgmInterval = null;
-      let step = 0;
+      let ctx = null; let bgmInterval = null; let step = 0;
       const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 349.23, 440.00];
-
-      function init() {
-          if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-          if (ctx.state === 'suspended') ctx.resume();
-      }
-
+      function init() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); }
       function playTone(freq, type, duration, vol=0.08) {
           if (!ctx) return;
           try {
@@ -249,75 +260,45 @@
               osc.start(); osc.stop(ctx.currentTime + duration);
           } catch(e) {}
       }
-
       return {
-          startBGM: () => {
-              init(); if (bgmInterval) return; step = 0;
-              bgmInterval = setInterval(() => {
-                  playTone(notes[step], 'square', 0.15, 0.03);
-                  step = (step + 1) % notes.length;
-              }, 200);
-          },
+          startBGM: () => { init(); if (bgmInterval) return; step = 0; bgmInterval = setInterval(() => { playTone(notes[step], 'square', 0.15, 0.03); step = (step + 1) % notes.length; }, 200); },
           stopBGM: () => { if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; } },
           correctSFX: () => { init(); [600, 800, 1000].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.1, 0.05), i*80)); },
           wrongSFX: () => { init(); [250, 200, 150].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.2, 0.05), i*100)); },
-          winSFX: () => { 
-              init(); 
-              [440, 554, 659, 880, 1108].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.08), i*140)); 
-          }
+          winSFX: () => { init(); [440, 554, 659, 880, 1108].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.3, 0.08), i*140)); }
       };
   })();
 
-  // --- EFEK KONFETI / KEMERIAHAN ---
   function fireConfettiTV() {
       const colors = ['#E91E63', '#03A9F4', '#4CAF50', '#FF9800', '#9C27B0', '#FFEB3B'];
       for (let i = 0; i < 90; i++) {
           let conf = document.createElement('div');
-          conf.style.position = 'fixed'; 
-          conf.style.width = Math.random() * 12 + 6 + 'px'; 
-          conf.style.height = Math.random() * 12 + 6 + 'px';
+          conf.style.position = 'fixed'; conf.style.width = Math.random() * 12 + 6 + 'px'; conf.style.height = Math.random() * 12 + 6 + 'px';
           conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-          conf.style.left = Math.random() * 100 + 'vw'; 
-          conf.style.top = '-20px';
-          conf.style.zIndex = '100001'; 
-          conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+          conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '-20px';
+          conf.style.zIndex = '100001'; conf.style.transform = `rotate(${Math.random() * 360}deg)`;
           conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
           document.body.appendChild(conf);
-
           let duration = Math.random() * 2.5 + 1.5;
           conf.animate([
-              { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
-              { transform: `translate3d(${Math.random()*300 - 150}px, 105vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+              { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*300 - 150}px, 105vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
           ], { duration: duration * 1000, easing: 'linear' }).onfinish = () => conf.remove();
       }
   }
 
-  // --- DAFTAR KATA KATA LUCU & SERU ---
   const kumpulBenar = ["🔥 MANTAAP!", "🚀 OTAK TURBO!", "✨ JENIUS!", "😎 GACOR KAK!", "🎯 TEPAT BANGET!", "⚡ KILAT!", "🎉 WAH JAGO!", "🔥 GOKIL ABIS!"];
   const kumpulSalah = ["❌ NGEBLANK?", "💥 SALAH BOSS!", "😅 KELIRU TUH!", "🙃 PUSING YA?", "📉 ADUH MELESET!", "🤪 TERTIPU SOAL!", "🧊 KURANG FOKUS!"];
 
   function showTvNotif(zoneId, isCorrect) {
-      let zone = document.getElementById(zoneId);
-      let old = zone.querySelector('.notif-tv-lucu');
-      if (old) old.remove();
-
-      let list = isCorrect ? kumpulBenar : kumpulSalah;
-      let text = list[Math.floor(Math.random() * list.length)];
-
-      let div = document.createElement('div');
-      div.className = 'notif-tv-lucu';
-      div.innerText = text;
-      div.style.color = "#FFF";
-      
+      let zone = document.getElementById(zoneId); let old = zone.querySelector('.notif-tv-lucu'); if (old) old.remove();
+      let list = isCorrect ? kumpulBenar : kumpulSalah; let text = list[Math.floor(Math.random() * list.length)];
+      let div = document.createElement('div'); div.className = 'notif-tv-lucu'; div.innerText = text; div.style.color = "#FFF";
       let stroke = isCorrect ? "#2E7D32" : "#B71C1C";
-      div.style.webkitTextStroke = `3px ${stroke}`;
-      div.style.textShadow = `5px 5px 0 ${stroke}, -2px -2px 0 ${stroke}, 0px 10px 20px rgba(0,0,0,0.5)`;
-
-      zone.appendChild(div);
-      setTimeout(() => div.remove(), 1200);
+      div.style.webkitTextStroke = `3px ${stroke}`; div.style.textShadow = `5px 5px 0 ${stroke}, -2px -2px 0 ${stroke}, 0px 10px 20px rgba(0,0,0,0.5)`;
+      zone.appendChild(div); setTimeout(() => div.remove(), 1200);
   }
 
-  let latestDataCache = null; // Menyimpan data firebase terakhir
+  let latestDataCache = null; 
 
   function connectRoom() {
       if(!window.FB) return;
@@ -332,19 +313,21 @@
       
       roomUnsub = window.FB.onValue(window.FB.ref(window.FB.db, 'rooms/' + room), snap => {
           const d = snap.val();
-          latestDataCache = d; // Simpan data terbaru
+          latestDataCache = d; 
           
           if (!d) {
               document.getElementById("winner-overlay").style.display = "flex";
               AudioSys.stopBGM();
-              clearInterval(timerInterval); return;
+              stopTimer();
+              return;
           }
 
-          if (d.endTime && getTrueTime() > d.endTime && document.getElementById("winner-overlay").style.display === "flex") {
-              // biarkan kosong
-          } else if (d.endTime && getTrueTime() < d.endTime) {
-              document.getElementById("winner-overlay").style.display = "none";
-              isGameOver = false;
+          let isInLobby = !d.mode || d.mode === "";
+
+          if (d.restart && d.restart !== lastRestart) {
+              lastRestart = d.restart;
+              prevScore1 = 0; prevCorrect1 = 0; prevWrong1 = 0;
+              prevScore2 = 0; prevCorrect2 = 0; prevWrong2 = 0;
           }
 
           if (d.p1 && d.p1.name) {
@@ -363,77 +346,99 @@
               document.getElementById("series-p2").innerText = d.seriesScore.p2 || 0;
           }
 
-          // CEK PERUBAHAN SKOR & PUTAR AUDIO BENAR/SALAH
-          if (d.p1) {
-              let s1 = Number(d.p1.score || 0);
-              let c1 = Number(d.p1.correct || 0);
-              let w1 = Number(d.p1.wrong || 0);
+          let s1 = Number(d.p1?.score || 0); let c1 = Number(d.p1?.correct || 0); let w1 = Number(d.p1?.wrong || 0);
+          let s2 = Number(d.p2?.score || 0); let c2 = Number(d.p2?.correct || 0); let w2 = Number(d.p2?.wrong || 0);
 
-              if (c1 > prevCorrect1) { showTvNotif('p1-zone', true); AudioSys.correctSFX(); }
-              else if (w1 > prevWrong1) { showTvNotif('p1-zone', false); AudioSys.wrongSFX(); }
-              prevCorrect1 = c1; prevWrong1 = w1;
-
-              document.getElementById("p1-score").innerText = s1;
-              document.getElementById("p1-dijawab").innerText = c1 + w1;
-              document.getElementById("p1-benar").innerText = c1;
-              document.getElementById("p1-salah").innerText = w1;
-              document.getElementById("p1-poin").innerText = s1;
-
-              if (s1 > prevScore1) { document.getElementById("box-1").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-1").style.transform = "scale(1)", 200); }
-              prevScore1 = s1;
+          if (isInLobby) { 
+              s1 = 0; c1 = 0; w1 = 0; s2 = 0; c2 = 0; w2 = 0; 
+          } else if (d.restart) {
+              if ((d.p1?.lastAction?.timestamp || 0) < d.restart) { s1 = 0; c1 = 0; w1 = 0; }
+              if ((d.p2?.lastAction?.timestamp || 0) < d.restart) { s2 = 0; c2 = 0; w2 = 0; }
           }
 
-          if (d.p2) {
-              let s2 = Number(d.p2.score || 0);
-              let c2 = Number(d.p2.correct || 0);
-              let w2 = Number(d.p2.wrong || 0);
+          if (c1 > prevCorrect1 && !isInLobby) { showTvNotif('p1-zone', true); AudioSys.correctSFX(); }
+          else if (w1 > prevWrong1 && !isInLobby) { showTvNotif('p1-zone', false); AudioSys.wrongSFX(); }
+          prevCorrect1 = c1; prevWrong1 = w1;
 
-              if (c2 > prevCorrect2) { showTvNotif('p2-zone', true); AudioSys.correctSFX(); }
-              else if (w2 > prevWrong2) { showTvNotif('p2-zone', false); AudioSys.wrongSFX(); }
-              prevCorrect2 = c2; prevWrong2 = w2;
+          document.getElementById("p1-score").innerText = s1;
+          document.getElementById("p1-dijawab").innerText = c1 + w1;
+          document.getElementById("p1-benar").innerText = c1;
+          document.getElementById("p1-salah").innerText = w1;
+          document.getElementById("p1-poin").innerText = s1;
 
-              document.getElementById("p2-score").innerText = s2;
-              document.getElementById("p2-dijawab").innerText = c2 + w2;
-              document.getElementById("p2-benar").innerText = c2;
-              document.getElementById("p2-salah").innerText = w2;
-              document.getElementById("p2-poin").innerText = s2;
+          if (s1 > prevScore1 && !isInLobby) { document.getElementById("box-1").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-1").style.transform = "scale(1)", 200); }
+          prevScore1 = s1;
 
-              if (s2 > prevScore2) { document.getElementById("box-2").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-2").style.transform = "scale(1)", 200); }
-              prevScore2 = s2;
-          }
+          if (c2 > prevCorrect2 && !isInLobby) { showTvNotif('p2-zone', true); AudioSys.correctSFX(); }
+          else if (w2 > prevWrong2 && !isInLobby) { showTvNotif('p2-zone', false); AudioSys.wrongSFX(); }
+          prevCorrect2 = c2; prevWrong2 = w2;
 
-          if (!d.endTime) {
+          document.getElementById("p2-score").innerText = s2;
+          document.getElementById("p2-dijawab").innerText = c2 + w2;
+          document.getElementById("p2-benar").innerText = c2;
+          document.getElementById("p2-salah").innerText = w2;
+          document.getElementById("p2-poin").innerText = s2;
+
+          if (s2 > prevScore2 && !isInLobby) { document.getElementById("box-2").style.transform = "scale(1.2)"; setTimeout(() => document.getElementById("box-2").style.transform = "scale(1)", 200); }
+          prevScore2 = s2;
+
+          if (isInLobby) {
+              if (document.getElementById("winner-overlay").style.display === "flex") {
+                  document.getElementById("winner-overlay").style.display = "none";
+                  isGameOver = false;
+              }
+              
               document.getElementById("p1-status").innerText = "BERSIAP...";
               document.getElementById("p2-status").innerText = d.p2_ready ? "SIAP!" : "MENUNGGU PEMAIN...";
               document.getElementById("p1-status").classList.add("active");
               document.getElementById("p2-status").classList.add("active");
               document.getElementById("timer-display").innerText = "60";
-              AudioSys.stopBGM();
-              clearInterval(timerInterval);
-
-          } else if (d.endTime && !isGameOver) {
-              document.getElementById("p1-status").innerText = "SEDANG MENJAWAB 🔥";
-              document.getElementById("p2-status").innerText = "SEDANG MENJAWAB 🔥";
+              document.getElementById("timer-display").classList.remove('waktu-kritis');
               
-              AudioSys.startBGM(); 
-              clearInterval(timerInterval);
-
-              timerInterval = setInterval(() => {
-                  let sisa = Math.ceil((d.endTime - getTrueTime()) / 1000);
-                  let t = document.getElementById("timer-display");
-                  
-                  if (sisa <= 0) {
-                      sisa = 0;
-                      clearInterval(timerInterval);
-                      t.innerText = "0";
-                      t.classList.remove('waktu-kritis');
-                      tampilkanPemenang();
-                  } else {
-                      t.innerText = sisa;
-                      if (sisa <= 10) t.classList.add('waktu-kritis');
-                      else t.classList.remove('waktu-kritis');
+              AudioSys.stopBGM();
+              stopTimer();
+              
+          } else {
+              let isTimeUp = d.endTime && (getTrueTime() >= d.endTime);
+              
+              if (isTimeUp) {
+                  if (!isGameOver) tampilkanPemenang();
+              } else {
+                  if (document.getElementById("winner-overlay").style.display === "flex") {
+                      document.getElementById("winner-overlay").style.display = "none";
+                      isGameOver = false;
                   }
-              }, 100);
+
+                  document.getElementById("p1-status").innerText = "SEDANG MENJAWAB 🔥";
+                  document.getElementById("p2-status").innerText = "SEDANG MENJAWAB 🔥";
+                  
+                  if (!timerRAF && !isGameOver) {
+                      AudioSys.startBGM(); 
+                      
+                      // Menggunakan requestAnimationFrame untuk real-time update tanpa delay
+                      function loopTimer() {
+                          if (!latestDataCache || !latestDataCache.endTime || isGameOver) return;
+                          
+                          let sisa = Math.ceil((latestDataCache.endTime - getTrueTime()) / 1000);
+                          let t = document.getElementById("timer-display");
+                          
+                          if (sisa <= 0) {
+                              t.innerText = "0";
+                              t.classList.remove('waktu-kritis');
+                              stopTimer();
+                              tampilkanPemenang();
+                          } else {
+                              t.innerText = sisa;
+                              if (sisa <= 10) t.classList.add('waktu-kritis');
+                              else t.classList.remove('waktu-kritis');
+                              
+                              timerRAF = requestAnimationFrame(loopTimer);
+                          }
+                      }
+                      
+                      timerRAF = requestAnimationFrame(loopTimer);
+                  }
+              }
           }
       });
   }
@@ -442,25 +447,14 @@
       if (isGameOver) return;
       isGameOver = true;
 
-      // PASTIKAN DATA AKHIR DI-UPDATE SEBELUM OVERLAY MUNCUL
       if (latestDataCache) {
           if (latestDataCache.p1) {
-              let c1 = Number(latestDataCache.p1.correct || 0);
-              let w1 = Number(latestDataCache.p1.wrong || 0);
-              let s1 = Number(latestDataCache.p1.score || 0);
-              document.getElementById("p1-dijawab").innerText = c1 + w1;
-              document.getElementById("p1-benar").innerText = c1;
-              document.getElementById("p1-salah").innerText = w1;
-              document.getElementById("p1-poin").innerText = s1;
+              let c1 = Number(latestDataCache.p1.correct || 0); let w1 = Number(latestDataCache.p1.wrong || 0); let s1 = Number(latestDataCache.p1.score || 0);
+              document.getElementById("p1-dijawab").innerText = c1 + w1; document.getElementById("p1-benar").innerText = c1; document.getElementById("p1-salah").innerText = w1; document.getElementById("p1-poin").innerText = s1;
           }
           if (latestDataCache.p2) {
-              let c2 = Number(latestDataCache.p2.correct || 0);
-              let w2 = Number(latestDataCache.p2.wrong || 0);
-              let s2 = Number(latestDataCache.p2.score || 0);
-              document.getElementById("p2-dijawab").innerText = c2 + w2;
-              document.getElementById("p2-benar").innerText = c2;
-              document.getElementById("p2-salah").innerText = w2;
-              document.getElementById("p2-poin").innerText = s2;
+              let c2 = Number(latestDataCache.p2.correct || 0); let w2 = Number(latestDataCache.p2.wrong || 0); let s2 = Number(latestDataCache.p2.score || 0);
+              document.getElementById("p2-dijawab").innerText = c2 + w2; document.getElementById("p2-benar").innerText = c2; document.getElementById("p2-salah").innerText = w2; document.getElementById("p2-poin").innerText = s2;
           }
       }
 
@@ -472,11 +466,7 @@
   
   let wakeLock = null;
   async function aktifkanWakeLock() {
-    try {
-      if ('wakeLock' in navigator) {
-        wakeLock = await navigator.wakeLock.request('screen');
-      }
-    } catch (err) {}
+    try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {}
   }
   document.addEventListener('click', () => { if (wakeLock === null) aktifkanWakeLock(); }, { once: true });
 </script>
