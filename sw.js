@@ -1,5 +1,5 @@
 // UBAH VERSI KE v6 
-const CACHE_NAME = 'madasa-game-cache-v7'; 
+const CACHE_NAME = 'madasa-game-cache-v8'; 
 
 // Tambahkan nama folder "empatregu/" dan "campuran/" untuk file yang ada di dalam
 const urlsToCache = [
