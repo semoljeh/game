@@ -28,7 +28,7 @@
     text-align: center; white-space: nowrap;
   }
 
-  /* --- HALAMAN SETUP / KODE KAMAR (PERBAIKAN PRESISI) --- */
+  /* --- HALAMAN SETUP --- */
   #setup { 
     display: flex; flex-direction: column; align-items: center; justify-content: center; 
     min-height: 100vh; width: 100%; padding: 20px; text-align: center; 
@@ -317,6 +317,8 @@
       setTimeout(() => div.remove(), 1200);
   }
 
+  let latestDataCache = null; // Menyimpan data firebase terakhir
+
   function connectRoom() {
       if(!window.FB) return;
       room = document.getElementById("room-input").value;
@@ -330,6 +332,7 @@
       
       roomUnsub = window.FB.onValue(window.FB.ref(window.FB.db, 'rooms/' + room), snap => {
           const d = snap.val();
+          latestDataCache = d; // Simpan data terbaru
           
           if (!d) {
               document.getElementById("winner-overlay").style.display = "flex";
@@ -412,7 +415,7 @@
               document.getElementById("p1-status").innerText = "SEDANG MENJAWAB 🔥";
               document.getElementById("p2-status").innerText = "SEDANG MENJAWAB 🔥";
               
-              AudioSys.startBGM(); // Putar musik latar selama pertandingan
+              AudioSys.startBGM(); 
               clearInterval(timerInterval);
 
               timerInterval = setInterval(() => {
@@ -438,9 +441,32 @@
   function tampilkanPemenang() {
       if (isGameOver) return;
       isGameOver = true;
-      AudioSys.stopBGM();      // Matikan musik latar
-      AudioSys.winSFX();       // Putar musik kemenangan
-      fireConfettiTV();        // Nyalakan efek kembang api/konfeti
+
+      // PASTIKAN DATA AKHIR DI-UPDATE SEBELUM OVERLAY MUNCUL
+      if (latestDataCache) {
+          if (latestDataCache.p1) {
+              let c1 = Number(latestDataCache.p1.correct || 0);
+              let w1 = Number(latestDataCache.p1.wrong || 0);
+              let s1 = Number(latestDataCache.p1.score || 0);
+              document.getElementById("p1-dijawab").innerText = c1 + w1;
+              document.getElementById("p1-benar").innerText = c1;
+              document.getElementById("p1-salah").innerText = w1;
+              document.getElementById("p1-poin").innerText = s1;
+          }
+          if (latestDataCache.p2) {
+              let c2 = Number(latestDataCache.p2.correct || 0);
+              let w2 = Number(latestDataCache.p2.wrong || 0);
+              let s2 = Number(latestDataCache.p2.score || 0);
+              document.getElementById("p2-dijawab").innerText = c2 + w2;
+              document.getElementById("p2-benar").innerText = c2;
+              document.getElementById("p2-salah").innerText = w2;
+              document.getElementById("p2-poin").innerText = s2;
+          }
+      }
+
+      AudioSys.stopBGM();      
+      AudioSys.winSFX();       
+      fireConfettiTV();        
       document.getElementById("winner-overlay").style.display = "flex";
   }
   
