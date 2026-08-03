@@ -496,6 +496,13 @@
   const timerDisplay = document.getElementById('timer-display');
   let lastChatCount = 0; let lastRestart = 0; let globalEndTime = 0; 
 
+  // --- SINKRONISASI WAKTU SERVER FIREBASE ---
+  let serverOffset = 0;
+  window.dbOnValue(window.dbRef(window.db, '.info/serverTimeOffset'), snap => {
+      serverOffset = snap.val() || 0;
+  });
+  // ------------------------------------------
+
   let alertCallback = null;
   let isAlertOpen = false;
   let isGameOver = false;
@@ -863,7 +870,11 @@ function syncOpponent(player, data) {
   function hostPilihMode(modeDipilih) {
     tingkatKesulitan = document.getElementById('host-tingkat').value;
     
-    let finalQuestions = generateQuestions(modeDipilih); let targetWaktuSelesai = Date.now() + 60000; 
+    let finalQuestions = generateQuestions(modeDipilih); 
+    
+    // Tambahkan serverOffset agar waktu mulai serempak di semua perangkat
+    let targetWaktuSelesai = Date.now() + serverOffset + 60000; 
+    
     currentRoundId = Date.now().toString(); seriesRoundCommitted = false;
     window.dbUpdate(currentRoomRef, { mode: modeDipilih, questions: finalQuestions, endTime: targetWaktuSelesai, botOpponent: isBotOpponent, roundId: currentRoundId });
   }
@@ -963,7 +974,11 @@ function syncOpponent(player, data) {
   function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      let sisaWaktu = Math.ceil((globalEndTime - Date.now()) / 1000); timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
+      // Gunakan waktu server untuk menghitung sisa waktu
+      let now = Date.now() + serverOffset;
+      let sisaWaktu = Math.ceil((globalEndTime - now) / 1000); 
+      
+      timeLeft = sisaWaktu > 0 ? sisaWaktu : 0;
       timerDisplay.innerText = timeLeft;
       if (timeLeft <= 10) timerDisplay.classList.add('waktu-kritis');
       if (timeLeft <= 0) { timerDisplay.innerText = "0"; endGame(); }
