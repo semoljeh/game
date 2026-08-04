@@ -68,8 +68,8 @@
   .status-box.active { opacity: 1; background: rgba(255,255,255,0.95); color: #000; box-shadow: 0 10px 30px rgba(255,255,255,0.3); transform: translateY(-5px); border: none; animation: pulseStatus 2s infinite;}
   @keyframes pulseStatus { 0% { box-shadow: 0 10px 30px rgba(255,255,255,0.2); } 50% { box-shadow: 0 10px 40px rgba(255,255,255,0.5); } 100% { box-shadow: 0 10px 30px rgba(255,255,255,0.2); } }
 
-  /* --- CHAT BOX SPESIFIK TIAP PEMAIN (POSISI DI BAWAH ARENA MASING-MASING) --- */
-.chat-container {
+  /* --- CHAT BOX SPESIFIK TIAP PEMAIN --- */
+  .chat-container {
       position: absolute;
       bottom: clamp(15px, 4vh, 40px);
       width: 90%;
@@ -77,7 +77,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      z-index: 10005; /* Angka ini dinaikkan agar menembus layar popup */
+      z-index: 10005;
       pointer-events: none;
   }
   
@@ -228,7 +228,7 @@
   const app = initializeApp(firebaseConfig), db = getDatabase(app);
   window.FB = { db, ref, onValue };
   
-window.serverTimeOffset = 0;
+  window.serverTimeOffset = 0;
   window.FB.onValue(window.FB.ref(window.FB.db, '.info/serverTimeOffset'), snap => {
       window.serverTimeOffset = snap.val() || 0;
   });
@@ -388,8 +388,8 @@ window.serverTimeOffset = 0;
               document.getElementById("series-p2").innerText = d.seriesScore.p2 || 0;
           }
 
-// =================================================================
-          // MESIN PEMBACA CHAT TERINTEGRASI (AKURAT 100%)
+          // =================================================================
+          // MESIN PEMBACA CHAT TERINTEGRASI (FIX NAMA P2 PRESISI)
           // =================================================================
 
           // BACAAN 1: Jika Chat dikirim menggunakan list/array global (rooms/ROOM/chats)
@@ -397,14 +397,12 @@ window.serverTimeOffset = 0;
           arrayNodes.forEach(node => {
               if (d[node] && typeof d[node] === 'object' && !Array.isArray(d[node])) {
                   for (let key in d[node]) {
-                      // Hindari kunci yang cuma bernama p1 atau p2 (akan dihandle di BACAAN 2)
                       if (key.toLowerCase() !== 'p1' && key.toLowerCase() !== 'p2') {
                           if (!window.processedChats.has(key)) {
                               window.processedChats.add(key);
                               let c = d[node][key];
                               let teks = typeof c === 'string' ? c : (c.text || c.pesan || c.message || c.msg || "");
                               
-                              // PERBAIKAN 1: Menambahkan c.role agar proyektor mengenali ID pengirim dari game utama
                               let rawSender = typeof c === 'object' ? (c.role || c.sender || c.name || c.id || c.uid || c.player || "") : "";
                               
                               if (teks && teks !== "[object Object]") {
@@ -412,14 +410,17 @@ window.serverTimeOffset = 0;
                                   let p1N = String(d.p1?.name || "P1").trim().toLowerCase();
                                   let p2N = String(d.p2?.name || "P2").trim().toLowerCase();
                                   
-                                  let pid = "p1"; // Default Fallback (Player 1)
+                                  let pid = "p1"; // Default Fallback
                                   
-                                  // PERBAIKAN 2: Jika role == 2, pastikan chat masuk ke kotak Player 2
                                   if (sStr === "p2" || sStr === "2" || (p2N && sStr === p2N) || c.role == 2 || c.player == 2) {
                                       pid = "p2";
                                   }
                                   
-                                  let dispName = pid === "p1" ? (d.p1?.name || "P1") : (d.p2?.name || "P2");
+                                  // AMBIL NAMA ASLI SESUAI DATA PLAYER YANG TERDAFTAR DI FIREBASE
+                                  let dispName = pid === "p1" 
+                                      ? (d.p1 && d.p1.name ? d.p1.name : "PLAYER 1") 
+                                      : (d.p2 && d.p2.name ? d.p2.name : "PLAYER 2");
+
                                   tampilkanChatLive(pid, dispName, teks);
                               }
                           }
@@ -432,12 +433,10 @@ window.serverTimeOffset = 0;
           ['p1', 'p2'].forEach(p => {
               let teks = "";
               
-              // Coba cari dari dalam data player (rooms/ROOM/p1/chat)
               if (d[p] && ('chat' in d[p] || 'pesan' in d[p] || 'message' in d[p] || 'msg' in d[p])) {
                   let rawChat = d[p].chat ?? d[p].pesan ?? d[p].message ?? d[p].msg ?? "";
                   teks = typeof rawChat === 'object' ? (rawChat.text || rawChat.pesan || rawChat.message || rawChat.msg || "") : String(rawChat);
               } 
-              // Coba cari dari dalam node chat terpisah (rooms/ROOM/chat/p1)
               else {
                   arrayNodes.forEach(node => {
                       if (d[node] && d[node][p]) {
@@ -447,15 +446,18 @@ window.serverTimeOffset = 0;
                   });
               }
 
-              // Jika teks kosong, artinya chat dihapus dari HP -> reset memori agar pesan yang sama bisa dikirim ulang nanti
               if (!teks || teks.trim() === "") {
                   window.lastStringChats[p] = ""; 
               } 
-              // Jika ada teks baru yang belum ditampilkan
               else if (teks !== "[object Object]" && teks !== window.lastStringChats[p]) {
                   window.lastStringChats[p] = teks;
-                  let dispName = p === "p1" ? (d.p1?.name || "P1") : (d.p2?.name || "P2");
-                  tampilkanChatLive(p, dispName, teks); // Pasti masuk ke kotak pemain yang tepat
+                  
+                  // AMBIL NAMA ASLI SESUAI DATA PLAYER YANG TERDAFTAR DI FIREBASE
+                  let dispName = p === "p1" 
+                      ? (d.p1 && d.p1.name ? d.p1.name : "PLAYER 1") 
+                      : (d.p2 && d.p2.name ? d.p2.name : "PLAYER 2");
+
+                  tampilkanChatLive(p, dispName, teks);
               }
           });
           // =================================================================
