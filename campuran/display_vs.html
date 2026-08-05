@@ -69,27 +69,11 @@
   @keyframes pulseStatus { 0% { box-shadow: 0 10px 30px rgba(255,255,255,0.2); } 50% { box-shadow: 0 10px 40px rgba(255,255,255,0.5); } 100% { box-shadow: 0 10px 30px rgba(255,255,255,0.2); } }
 
   /* --- CHAT BOX SPESIFIK TIAP PEMAIN --- */
-  .chat-container {
-      position: absolute;
-      bottom: clamp(15px, 4vh, 40px);
-      width: 90%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      z-index: 10005;
-      pointer-events: none;
-  }
-  
+  .chat-container { position: absolute; bottom: clamp(15px, 4vh, 40px); width: 90%; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10005; pointer-events: none; }
   .chat-msg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); padding: clamp(8px, 1.5vh, 12px) clamp(15px, 3vw, 25px); border-radius: 30px; color: #fff; font-size: clamp(14px, 2.5vmin, 18px); font-weight: 800; border: 1px solid rgba(255, 255, 255, 0.2); animation: chatPopUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; box-shadow: 0 10px 25px rgba(0,0,0,0.4); max-width: 100%; word-wrap: break-word; text-align: center; }
   .chat-msg .chat-name { font-weight: 900; margin-right: 8px; text-transform: uppercase; }
-  
-  .p1-chat { border-bottom: 3px solid #ff4081; box-shadow: 0 10px 25px rgba(255,64,129,0.3); }
-  .p1-chat .chat-name { color: #ff80ab; }
-  
-  .p2-chat { border-bottom: 3px solid #00e5ff; box-shadow: 0 10px 25px rgba(0,229,255,0.3); }
-  .p2-chat .chat-name { color: #80d8ff; }
-  
+  .p1-chat { border-bottom: 3px solid #ff4081; box-shadow: 0 10px 25px rgba(255,64,129,0.3); } .p1-chat .chat-name { color: #ff80ab; }
+  .p2-chat { border-bottom: 3px solid #00e5ff; box-shadow: 0 10px 25px rgba(0,229,255,0.3); } .p2-chat .chat-name { color: #80d8ff; }
   @keyframes chatPopUp { 0% { transform: translateY(30px) scale(0.5); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
 
   /* --- KARTU HASIL AKHIR --- */
@@ -115,6 +99,21 @@
   .result-card h3 { font-size: clamp(12px, 2.5vmin, 15px); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin: 0 0 8px 0; color: #94a3b8; }
   .result-card p { font-size: clamp(13px, 2.5vmin, 16px); font-weight: 900; margin: 4px 0; }
   .stat-score { margin-top: 8px !important; padding-top: 8px !important; border-top: 1px dashed rgba(255,255,255,0.1); font-size: clamp(14px, 3vmin, 18px); }
+
+  /* --- MODAL CUSTOM UNTUK RESET & ANIMASI SPIN --- */
+  #custom-confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(5px); z-index: 10002; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+  .confirm-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.2); padding: 30px; border-radius: 25px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: popZoom 0.3s ease-out forwards; }
+  .confirm-card h2 { margin-top: 0; color: #facc15; font-size: 24px; text-shadow: 0 2px 10px rgba(250,204,21,0.2); }
+  .confirm-card p { color: #cbd5e1; font-size: 16px; margin-bottom: 25px; line-height: 1.5; font-weight: 800; }
+  .confirm-btns { display: flex; gap: 15px; justify-content: center; }
+  .btn-modal { padding: 12px 20px; border: none; border-radius: 15px; font-weight: 900; font-family: 'Nunito', sans-serif; cursor: pointer; transition: 0.2s; font-size: 15px; flex: 1; }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+  .btn-confirm { background: #F44336; color: #fff; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); }
+  .btn-modal:hover { filter: brightness(1.2); }
+  .btn-modal:active { transform: scale(0.95); }
+  
+  .spin-icon { animation: spinAnim 1s linear infinite; display: inline-block; }
+  @keyframes spinAnim { 100% { transform: rotate(360deg); } }
 
   @media screen and (max-width: 480px) {
     .player-title { margin-top: 55px; }
@@ -175,6 +174,23 @@
   </div>
 </div>
 
+<!-- TOMBOL RESET SKOR (IKON SAJA) -->
+<button id="btn-reset-series" onclick="bukaModalReset()" style="position: absolute; bottom: 20px; right: 20px; z-index: 10001; width: 55px; height: 55px; background: #F44336; color: white; border: 2px solid #FFF; border-radius: 50%; font-size: 24px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.2s, background-color 0.3s; display: none; align-items: center; justify-content: center;">
+  <span id="reset-icon">🔄</span>
+</button>
+
+<!-- MODAL KONFIRMASI RESET CUSTOM -->
+<div id="custom-confirm-overlay">
+  <div class="confirm-card">
+    <h2 id="confirm-title">Peringatan!</h2>
+    <p id="confirm-msg">Yakin ingin mereset skor pertandingan (Series Score) menjadi 0-0 untuk peserta baru?</p>
+    <div class="confirm-btns">
+      <button class="btn-modal btn-cancel" onclick="tutupModalReset()">Batal</button>
+      <button class="btn-modal btn-confirm" onclick="eksekusiResetSkor()">Ya, Reset</button>
+    </div>
+  </div>
+</div>
+
 <!-- POPUP HASIL AKHIR -->
 <div id="winner-overlay">
   <div class="winner-card">
@@ -213,7 +229,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
   
   const firebaseConfig = { 
       apiKey: "AIzaSyDWMvHuRV6e6KZJwuVJbD8BSfq8IHP7798", 
@@ -226,7 +242,7 @@
   };
   
   const app = initializeApp(firebaseConfig), db = getDatabase(app);
-  window.FB = { db, ref, onValue };
+  window.FB = { db, ref, onValue, update };
   
   window.serverTimeOffset = 0;
   window.FB.onValue(window.FB.ref(window.FB.db, '.info/serverTimeOffset'), snap => {
@@ -342,6 +358,7 @@
       document.getElementById("setup").style.display = "none";
       document.getElementById("game-board").style.display = "flex";
       document.getElementById("d-room").textContent = room;
+      document.getElementById("btn-reset-series").style.display = "flex"; // Menampilkan tombol reset ICON
       
       // RESET MEMORI CHAT SAAT BARU CONNECT
       if(!window.processedChats) window.processedChats = new Set();
@@ -577,6 +594,62 @@
       AudioSys.winSFX();       
       fireConfettiTV();        
       document.getElementById("winner-overlay").style.display = "flex";
+  }
+
+  // --- FUNGSI MODAL & EKSEKUSI RESET SKOR ---
+  function bukaModalReset() {
+      if (!room || !window.FB || !window.FB.update) {
+          document.getElementById('confirm-title').innerText = "Oops!";
+          document.getElementById('confirm-msg').innerText = "Belum terhubung ke kamar pertandingan!";
+          document.querySelector('.btn-confirm').style.display = 'none';
+          document.getElementById('custom-confirm-overlay').style.display = 'flex';
+          return;
+      }
+      
+      document.getElementById('confirm-title').innerText = "Peringatan!";
+      document.getElementById('confirm-msg').innerText = "Yakin ingin mereset skor pertandingan (Series Score) menjadi 0-0 untuk peserta baru?";
+      document.querySelector('.btn-confirm').style.display = 'block';
+      document.getElementById('custom-confirm-overlay').style.display = 'flex';
+  }
+
+  function tutupModalReset() {
+      document.getElementById('custom-confirm-overlay').style.display = 'none';
+  }
+
+  function eksekusiResetSkor() {
+      tutupModalReset(); // Tutup modal duluan
+      
+      let btn = document.getElementById('btn-reset-series');
+      let icon = document.getElementById('reset-icon');
+      
+      // Animasi Loading Putar Ikon
+      icon.classList.add('spin-icon');
+      
+      let roomRef = window.FB.ref(window.FB.db, 'rooms/' + room);
+      window.FB.update(roomRef, {
+          seriesScore: { p1: 0, p2: 0 }
+      }).then(() => {
+          // Berhasil, hentikan animasi & ubah warna jadi Hijau (Centang)
+          icon.classList.remove('spin-icon');
+          icon.innerText = "✅";
+          btn.style.background = "#4CAF50";
+          
+          // Kembalikan ke warna Merah & Ikon semula setelah 2 detik
+          setTimeout(() => {
+              icon.innerText = "🔄";
+              btn.style.background = "#F44336";
+          }, 2000);
+          
+      }).catch((error) => {
+          console.error("Gagal mereset skor:", error);
+          icon.classList.remove('spin-icon'); // Hentikan Loading
+          
+          // Tampilkan error di custom modal
+          document.getElementById('confirm-title').innerText = "Error!";
+          document.getElementById('confirm-msg').innerText = "Gagal mereset skor. Periksa koneksi internet.";
+          document.querySelector('.btn-confirm').style.display = 'none';
+          document.getElementById('custom-confirm-overlay').style.display = 'flex';
+      });
   }
   
   let wakeLock = null;
