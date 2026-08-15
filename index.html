@@ -511,11 +511,11 @@ footer{
       
       <!-- Tombol Infaq (Logo DANA) -->
       <button class="btn-dana-icon" onclick="tampilkanPopupDonasi()" style="background: #118EEA; box-shadow: 0 4px 10px rgba(17, 142, 234, 0.3); padding: 0 16px; display: inline-flex; align-items: center; gap: 6px;">
-        💖 <span style="font-family: Arial, Helvetica, sans-serif; font-weight: 900; font-style: italic; letter-spacing: 0.5px; font-size: 16px;">DANA</span>
+        💖 <span style="font-family: Arial, Helvetica, sans-serif; font-weight: 900; font-style: italic; letter-spacing: 0.5px; font-size: 16px;">Donasi</span>
       </button>
     </div>
 
-    <a href="https://www.tiktok.com/@aromkobama" target="_blank" class="dev-link" style="border-color: #4CAF50; background: #F1F8E9;">
+    <a href="https://www.tiktok.com/@putramadasa" target="_blank" class="dev-link" style="border-color: #4CAF50; background: #F1F8E9;">
       Semoga Bermanfaat ✨ <strong>Arom Kobama</strong>
     </a>
   </footer>
@@ -630,13 +630,35 @@ function tutupPopupDonasi() {
     });
   }
 
-  function hitungPengunjung() {
-    const namespace = 'madasa_portal_game'; const key = 'kunjungan';
-    fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
-      .then(response => response.json())
-      .then(data => { if(data && data.count) { document.getElementById('visit-count').innerText = data.count.toLocaleString('id-ID'); } })
-      .catch(err => { console.error('Gagal memuat data:', err); document.getElementById('visit-count').innerText = "Offline"; });
-  }
+function hitungPengunjung() {
+  const namespace = 'madasa_portal_game'; 
+  const key = 'kunjungan';
+  
+  fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
+    .then(response => response.json())
+    .then(data => {
+      // Baris ini akan memunculkan respon asli server di menu Inspect Element (F12) -> Console
+      console.log("Data pengunjung API:", data);
+      
+      // Mengantisipasi perubahan format API (bisa count, value, atau hits)
+      const jumlah = data.count || data.value || data.hits;
+      
+      if (jumlah) {
+        document.getElementById('visit-count').innerText = jumlah.toLocaleString('id-ID');
+      } else {
+        // Jika server merespons tapi datanya kosong/berbeda
+        document.getElementById('visit-count').innerText = "Gagal Baca";
+      }
+    })
+    .catch(err => {
+      // Jika request diblokir (misal oleh AdBlock) atau koneksi internet mati
+      console.error('Koneksi API gagal:', err); 
+      document.getElementById('visit-count').innerText = "Offline"; 
+    });
+}
+
+
+window.addEventListener('DOMContentLoaded', hitungPengunjung);
   window.addEventListener('DOMContentLoaded', hitungPengunjung);
 </script>
 
