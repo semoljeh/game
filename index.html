@@ -198,19 +198,9 @@
     height: 44px; box-sizing: border-box;
   }
   
-  .visitor-stats-mini .visitor-icon {
-    background: transparent; color: inherit; padding: 0; border-radius: 0;
-    font-size: 18px; letter-spacing: 0;
-  }
-
-  .visitor-stats-mini .visitor-label {
-    background: transparent; color: #0277BD; padding: 0; border-radius: 0;
-    font-size: clamp(12px, 3vmin, 14px); letter-spacing: 0;
-  }
-
-  .visitor-stats-mini #visit-count {
-    background: #0277BD; color: #FFF; padding: 2px 10px; border-radius: 12px;
-    font-size: clamp(13px, 3.2vmin, 15px); letter-spacing: .5px; min-width: 34px;
+  .visitor-stats-mini span {
+    background: #0277BD; color: #FFF; padding: 2px 10px; border-radius: 12px; 
+    font-size: clamp(13px, 3.2vmin, 15px); letter-spacing: 1px;
   }
 
   .btn-dana-icon {
@@ -240,8 +230,7 @@
     footer { padding: 8px 0; }
     .footer-action-row { margin-bottom: 8px; gap: 8px; }
     .visitor-stats-mini, .btn-dana-icon { height: 34px; padding: 0 12px; font-size: 10px; }
-    .visitor-stats-mini #visit-count { padding: 2px 6px; font-size: 11px; }
-    .visitor-stats-mini .visitor-label { font-size: 10px; }
+    .visitor-stats-mini span { padding: 2px 6px; font-size: 11px; }
   }
 </style>
 
@@ -517,9 +506,7 @@ footer{
     <div class="footer-action-row">
       <!-- Ikon Pengunjung & Angka Saja -->
       <div class="visitor-stats-mini" title="Jumlah Pengunjung">
-        <span class="visitor-icon" aria-hidden="true">👥</span>
-        <span class="visitor-label">Pengunjung</span>
-        <span id="visit-count" aria-live="polite">0</span>
+        👥 <span id="visit-count">...</span>
       </div>
       
       <!-- Tombol Infaq (Logo DANA) -->
@@ -643,40 +630,30 @@ function tutupPopupDonasi() {
     });
   }
 
+
 function hitungPengunjung() {
-  const countEl = document.getElementById('visit-count');
-  if (!countEl) return;
 
-  // Counter publik tanpa API key. Key dibuat unik khusus portal MADASA.
-  const counterKey = 'madasa_portal_game_kunjungan_2026';
-  const endpoint = `https://countapi.mileshilliard.com/api/v1/hit/${counterKey}`;
+  const key = "madasa_total_pengunjung";
+  const angkaAwal = 987;
 
-  countEl.textContent = '...';
+  let jumlah = localStorage.getItem(key);
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  if (!jumlah) {
+    jumlah = angkaAwal;
+  } else {
+    jumlah = Number(jumlah) + 1;
+  }
 
-  fetch(endpoint, { method: 'GET', cache: 'no-store', signal: controller.signal })
-    .then(response => {
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return response.json();
-    })
-    .then(data => {
-      const jumlah = Number(data.value);
-      if (!Number.isFinite(jumlah)) throw new Error('Format data counter tidak valid');
+  localStorage.setItem(key, jumlah);
 
-      countEl.textContent = jumlah.toLocaleString('id-ID');
-      countEl.title = `${jumlah.toLocaleString('id-ID')} kunjungan`;
-      console.log('Data pengunjung:', data);
-    })
-    .catch(err => {
-      console.error('Counter pengunjung gagal dimuat:', err);
-      countEl.textContent = 'Offline';
-    })
-    .finally(() => clearTimeout(timeoutId));
+  document.getElementById("visit-count").innerText =
+    Number(jumlah).toLocaleString("id-ID");
 }
 
-window.addEventListener('DOMContentLoaded', hitungPengunjung);
+window.addEventListener("DOMContentLoaded", hitungPengunjung);
+
+
+  window.addEventListener('DOMContentLoaded', hitungPengunjung);
 </script>
 
 </body>
