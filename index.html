@@ -631,29 +631,73 @@ function tutupPopupDonasi() {
   }
 
 
-function hitungPengunjung() {
 
-  const key = "madasa_total_pengunjung";
-  const angkaAwal = 987;
+</script>
 
-  let jumlah = localStorage.getItem(key);
+<script type="module">
 
-  if (!jumlah) {
-    jumlah = angkaAwal;
-  } else {
-    jumlah = Number(jumlah) + 1;
-  }
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-  localStorage.setItem(key, jumlah);
-
-  document.getElementById("visit-count").innerText =
-    Number(jumlah).toLocaleString("id-ID");
-}
-
-window.addEventListener("DOMContentLoaded", hitungPengunjung);
+import { 
+getDatabase,
+ref,
+runTransaction,
+onValue
+} 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
-  window.addEventListener('DOMContentLoaded', hitungPengunjung);
+const firebaseConfig = {
+
+apiKey: "AIzaSyDrRdPQgl_lgrKFmJkGtOdIIC3-ZKzg",
+authDomain: "madasa-game.firebaseapp.com",
+projectId: "madasa-game",
+storageBucket: "madasa-game.firebasestorage.app",
+messagingSenderId: "701116794563",
+appId: "1:701116794563:web:fc8bf7d161672df730476",
+databaseURL: "https://madasa-game-default-rtdb.asia-southeast1.firebasedatabase.app"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+
+const visitorRef = ref(db,"madasa_pengunjung");
+
+
+// tambah pengunjung
+runTransaction(visitorRef,(jumlah)=>{
+
+    if(jumlah === null){
+        return 988;
+    }
+
+    return jumlah + 1;
+
+});
+
+
+// tampilkan angka
+onValue(visitorRef,(snapshot)=>{
+
+    const jumlah = snapshot.val();
+
+    if(jumlah !== null){
+
+        document.getElementById("visit-count")
+        .innerText = jumlah.toLocaleString("id-ID");
+
+    }
+
+});
+
+</script>
+
+
 </script>
 
 </body>
