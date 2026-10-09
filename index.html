@@ -546,9 +546,12 @@ footer{
 <script>
   function putarLayar() { document.getElementById('app-container').classList.toggle('layar-diputar'); }
   
-  function tutupWelcome() {
+function tutupWelcome() {
     const overlay = document.getElementById('welcome-overlay');
     if (overlay.style.visibility === 'hidden') return;
+
+    // Tambahkan baris ini untuk menyimpan memori bahwa pengguna sudah masuk
+    sessionStorage.setItem('sudahMasuk', 'true');
 
     // Putar suara pembuka 1x saat tombol KLIK MASUK ditekan.
     // File: asset/open.mp3
@@ -566,6 +569,17 @@ footer{
       overlay.style.visibility = 'hidden';
     }, 300);
   }
+  
+  
+  // Pengecekan otomatis saat halaman pertama kali dimuat
+  window.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('welcome-overlay');
+    // Jika memori 'sudahMasuk' bernilai true, sembunyikan popup secara instan
+    if (sessionStorage.getItem('sudahMasuk') === 'true') {
+      overlay.style.display = 'none';
+      overlay.style.visibility = 'hidden';
+    }
+  });
 
 function tampilkanPopupDonasi() {
     const popup = document.getElementById('popup-donasi');
