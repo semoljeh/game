@@ -504,10 +504,7 @@ footer{
 <!-- FOOTER -->
 <footer>
     <div class="footer-action-row">
-      <!-- Ikon Pengunjung & Angka Saja -->
-      <div class="visitor-stats-mini" title="Jumlah Pengunjung">
-        👥 <span id="visit-count">...</span>
-      </div>
+     
       
       <!-- Tombol Infaq (Logo DANA) -->
       <button class="btn-dana-icon" onclick="tampilkanPopupDonasi()" style="background: #118EEA; box-shadow: 0 4px 10px rgba(17, 142, 234, 0.3); padding: 0 16px; display: inline-flex; align-items: center; gap: 6px;">
@@ -634,68 +631,7 @@ function tutupPopupDonasi() {
 
 </script>
 
-<script type="module">
 
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { 
-getDatabase,
-ref,
-runTransaction,
-onValue
-} 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyDrRdPQgl_lgrKFmJkGtOdIIC3-ZKzg",
-authDomain: "madasa-game.firebaseapp.com",
-projectId: "madasa-game",
-storageBucket: "madasa-game.firebasestorage.app",
-messagingSenderId: "701116794563",
-appId: "1:701116794563:web:fc8bf7d161672df730476",
-databaseURL: "https://madasa-game-default-rtdb.asia-southeast1.firebasedatabase.app"
-
-};
-
-
-const app = initializeApp(firebaseConfig);
-
-const db = getDatabase(app);
-
-
-const visitorRef = ref(db,"madasa_pengunjung");
-
-
-// tambah pengunjung
-runTransaction(visitorRef,(jumlah)=>{
-
-    if(jumlah === null){
-        return 988;
-    }
-
-    return jumlah + 1;
-
-});
-
-
-// tampilkan angka
-onValue(visitorRef,(snapshot)=>{
-
-    const jumlah = snapshot.val();
-
-    if(jumlah !== null){
-
-        document.getElementById("visit-count")
-        .innerText = jumlah.toLocaleString("id-ID");
-
-    }
-
-});
-
-</script>
 
 
 </script>
